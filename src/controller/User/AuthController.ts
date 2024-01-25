@@ -29,7 +29,6 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
  */
 import type { NextFunction, Request, Response } from 'express'
-import * as fs from 'fs'
 import bcrypt from 'bcryptjs'
 import ClassAuthService from '../../services/User/AuthService'
 import type { IDriverDetailInput, IUserCodeInput, IUserInput, IUserInputUpdate } from '../../types/User'
@@ -38,6 +37,7 @@ import {
   fxErrorResponse,
   fxGenerateAccessToken,
   fxTwilioSendCode,
+  moveImages
 } from '../../utils/helpers'
 import type { IUserInstance } from '../../models/User/User'
 import ClassDriverDetailService from '../../services/User/DriverDetailService'
@@ -140,10 +140,8 @@ class AuthController {
         const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         const vDetail: any = pReq.input('detail', 'json')
         if (vData?.avatar) {
-          const vNameImages: string = vData?.avatar.replace('temp', 'storage')
-          fs.writeFileSync(`uploads/${vNameImages}`, `uploads/${vData?.avatar}`)
-          fs.unlinkSync(`uploads/${vData?.avatar}`)
-          vData.avatar = vNameImages
+          const vRouteAvatarImages = moveImages(vData.avatar)
+          vData.avatar = vRouteAvatarImages
         }
         if (vDetail) {
           const driverDetail: IDriverDetailInput[] = []
@@ -158,13 +156,18 @@ class AuthController {
             for (const field of detail.fields) {
               element.fieldName = field.fieldName
               element.type = field.type
-              element.value = field.value
               element.userId = vUserId
+              if (element.type === 'images') {
+                const vRouteAvatarImages = moveImages(field.value)
+                element.value = vRouteAvatarImages
+              } else {
+                element.value = field.value
+              }
             }
             driverDetail.push(element)
           }
           console.log('driverDetail :>> ', driverDetail)
-          ClassDriverDetailService.createMany(driverDetail)
+          ClassDriverDetailService.createMany(driverDetail, vUserId)
         }
         if (!vUserDB) {
           return pRes

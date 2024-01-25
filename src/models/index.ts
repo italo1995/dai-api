@@ -42,8 +42,5 @@ Object.values(models).forEach((model: ModelStatic<any>) => {
   }
 })
 
-// (async () => {
-//   await sequelize.sync({ force: true });
-// })();
 
 export default sequelize

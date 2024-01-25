@@ -23,7 +23,7 @@
 import type { IUserInput, IUserCodeInput, IUserInputUpdate } from '../../types/User'
 import type { IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
-import { modelUser, modelUserCode } from '../../models'
+import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
 // import { Sequelize } from 'sequelize'
 
 interface IAuthService {
@@ -42,6 +42,11 @@ class AuthService implements IAuthService {
       where: {
         id: pId,
       },
+      include: {
+        model: modelDriverDetail,
+        as: 'detail',
+        required: false
+      }
     })
     return vResponse
   }

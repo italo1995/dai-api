@@ -2,6 +2,7 @@ import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 import { v4 as uuidv4 } from 'uuid'
 import type { ETypeUser } from '../../types/User'
+import type { ModelRegistry } from '..'
 
 export interface IUserAttributes {
   id: string
@@ -200,6 +201,7 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     field: 'deletedAt',
   },
 }
+
 // --> Factory....
 export function fxUserFactory(sequelize: Sequelize) {
   const vUser = <ModelStatic<IUserInstance>>sequelize.define('User', vUserModelAttributes, {
@@ -219,6 +221,14 @@ export function fxUserFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
+
+  vUser.associate = function (models: ModelRegistry) {
+    const { modelUser, modelDriverDetail  } = models
+    modelUser.hasMany(modelDriverDetail, {
+      foreignKey: 'user_id',
+      as: 'detail',
+    })
+  }
 
   vUser.prototype.toJSON = function () {
     const values = { ...this.get() }

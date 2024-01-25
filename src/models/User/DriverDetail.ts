@@ -41,7 +41,7 @@ export const vDriverDetailModelAttributes: SequelizeAttributes<IDriverDetailAttr
     field: 'value',
   },
   userId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     field: 'user_id',
   },
   createdAt: {

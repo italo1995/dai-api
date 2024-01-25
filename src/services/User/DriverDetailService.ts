@@ -26,7 +26,7 @@ interface IDriverDetailService {
   show(pId: number): Promise<IDriverDetailInstance | null>
   create(payload: IDriverDetailInput): Promise<IDriverDetailInstance>
   update(payload: IDriverDetailInput): Promise<IDriverDetailInstance | null>
-  createMany(pData: IDriverDetailInput[]): Promise<IDriverDetailInstance[]>
+  createMany(pData: IDriverDetailInput[], pUserId: string): Promise<IDriverDetailInstance[]>
 }
 
 class DriverDetailsService implements IDriverDetailService {
@@ -93,8 +93,13 @@ class DriverDetailsService implements IDriverDetailService {
     return vResponse
   }
 
-  async createMany(pData: IDriverDetailInput[]): Promise<IDriverDetailInstance[]> {
-    const vResponse: IDriverDetailInstance[] = await modelDriverDetail.bulkBuild(pData)
+  async createMany(pData: IDriverDetailInput[], pUserId: string): Promise<IDriverDetailInstance[]> {
+    modelDriverDetail.destroy({
+      where: {
+        userId: pUserId
+      }
+    })
+    const vResponse: IDriverDetailInstance[] = await modelDriverDetail.bulkCreate(pData)
     return vResponse
   }
 
