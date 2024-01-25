@@ -1,0 +1,128 @@
+/* 
+- File: AuthService.ts
+
+- Purpose: El serivicio auth se encarga de las consultas con los modelos y funcionalidades relacionadas al auth
+
+- Author: Italo Belen
+
+- Creation: 17/01/2024  
+
+==========Functions Manifest==========
+
+- AuthService Methods:
+  1 - validate: valida los campos con respecto al modelo, para estar seguro de que son los formatos permitidos y caso contrario devuelve un error de validacion
+  2 - show: trae los datos del usuario segun el id, puede usarse en el perfil o para verificar informacion del usuario
+  3 - showUserNumber: Verifica si existe un usuario con ese numero de telefono y codigo de area
+  4 - showUserCodeNumber: Sirve para verificar si el usuario ya tiene un codigo creado ese dia.
+  5 - create: crea datos del usuario
+  6 - update: actualiza datos del usuario
+  7 - createCode: Guarda los codigos generados en la base de datos
+  8 - showCode: Vrificar el codigo codigo enviado por el usuario es real y fue creado ese dia.
+  9 - login: Se usa para el login de administrador, verificando la contraseña
+*/
+import type { IUserInput, IUserCodeInput, IUserInputUpdate } from '../../types/User'
+import type { IUserInstance } from '../../models/User/User'
+import type { IUserCodeInstance } from '../../models/User/UserCode'
+import { modelUser, modelUserCode } from '../../models'
+// import { Sequelize } from 'sequelize'
+
+interface IAuthService {
+  showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
+  create(payload: IUserInput): Promise<IUserInstance>
+}
+
+class AuthService implements IAuthService {
+  async validate(data: any) {
+    const dataValidate = modelUser.build(data)
+    await dataValidate.validate()
+  }
+
+  async show(pId: string): Promise<IUserInstance | null> {
+    const vResponse: IUserInstance | null = await modelUser.findOne({
+      where: {
+        id: pId,
+      },
+    })
+    return vResponse
+  }
+
+  async showUserNumber(pPhoneNumber: string, pPhoneCode: string): Promise<IUserInstance | null> {
+    const vResponse = await modelUser.findOne({
+      where: {
+        phoneNumber: pPhoneNumber,
+        phoneCode: pPhoneCode,
+      },
+    })
+    return vResponse
+  }
+
+  async showUserCodeNumber(pPhoneNumber: string, pPhoneCode: string): Promise<string | null> {
+    const vPhoneNumber: string = `${pPhoneCode}${pPhoneNumber}`
+    const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
+      where: {
+        phoneNumber: vPhoneNumber,
+        // createdAt: {
+        //   $eq: Sequelize.fn('CURDATE'), // Filtra por la fecha actual
+        // },
+      },
+    })
+    return vResponse?.dataValues?.code || null
+  }
+
+  async create(pData: IUserInput): Promise<IUserInstance> {
+    const vResponse: IUserInstance = await modelUser.create(pData)
+    return vResponse
+  }
+
+  async update(pData: IUserInputUpdate): Promise<IUserInstance | null> {
+    if (pData?.id) {
+      const vUser: IUserInstance | null = await modelUser.findOne({
+        where: {
+          id: pData.id,
+        },
+      })
+      await vUser?.update(pData, { where: { id: pData.id } })
+      return vUser
+    }
+    return null
+  }
+
+  async createCode(pData: IUserCodeInput): Promise<IUserCodeInstance> {
+    const vResponse: IUserCodeInstance = await modelUserCode.create(pData)
+    return vResponse
+  }
+
+  async showCode(pData: IUserCodeInput): Promise<boolean> {
+    const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
+      where: {
+        code: pData.code,
+        phoneNumber: pData.phoneNumber,
+        // createdAt: {
+        //   $eq: Sequelize.fn('CURDATE'), // Filtra por la fecha actual
+        // },
+      },
+    })
+    await vResponse?.destroy()
+    if (vResponse) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  async login(pEmail: string, pPassword: string): Promise<IUserInstance | null> {
+    try {
+      const vUser = await modelUser.scope('withPassword').findOne({ where: { email: pEmail } })
+      if (!vUser || pPassword === vUser.password) {
+        return null
+      }
+      const vResponse: any = vUser.dataValues
+      delete vResponse.password
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+}
+const ClassAuthService = new AuthService()
+export default ClassAuthService

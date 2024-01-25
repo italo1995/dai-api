@@ -1,0 +1,5 @@
+node_modules
+.env
+ssl
+uploads/temp/*
+uploads/storage/*

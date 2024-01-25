@@ -1,0 +1,257 @@
+/* 
+- File: AuthController.ts
+
+- Purpose: Es el controlador de auth de usuarios, se encarga de todo lo que tiene que ver con login y registro, incluyendo la parte de mensajes y verificacion del mismo
+
+- Author: Italo Belen
+
+- Creation: 17/01/2024  
+
+==========Functions Manifest==========
+
+- Paya Methods:
+Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
+1- registerOrCreateUserForNumber: Este metodo se encarga de verificar el numero telefonico, si existe ya un usuario y si ya tiene un codigo creado para el dia de hoy.
+  - En caso de no tener un codigo creado y no estar registrado crea un nuevo codigo y lo envia usando sms. Luego crea un usuario usando solo el numero de telefono y el codigo de area.
+  - En caso de tener ser un usario ya existente y no tener un codigo, se genera un codigo y se envia.
+  - En caso de tener ser un usario ya existente y un codigo, se verifica la fecha, si es de "hoy", se envia el mismo dia se envia el mismo, en caso de no serlo se genera uno nuevo y se envia.
+  - Reponde con el usuario
+
+2 - verifiedUserCode: Recibe el codigo, el numero telefonico y el codigo de area
+  - Verifica que los datos coincidan y sean del dia de hoy
+  - Reponde con los datos del usuario y el jwt | responde con un error diciendo que el codigo es incorrecto
+
+3 - update: Cumple la funcion de recibir todos los datos que el usuario puede actualizar en la creacion del mismo y luego los envia a guardar en el servicio
+
+3 - register: Cumple la funcion registrar un usuario sin numero (se usara luego para la parte administrativa) Aun no esta testeada y falta desarrollo. Se hara en el momento de su uso
+
+3 - register: Cumple la funcion loguear un usuario sin numero (se usara luego para la parte administrativa) Aun no esta testeada y falta desarrollo. Se hara en el momento de su uso
+
+ */
+import type { NextFunction, Request, Response } from 'express'
+import * as fs from 'fs'
+import bcrypt from 'bcryptjs'
+import ClassAuthService from '../../services/User/AuthService'
+import type { IDriverDetailInput, IUserCodeInput, IUserInput, IUserInputUpdate } from '../../types/User'
+import {
+  fxSuccessResponse,
+  fxErrorResponse,
+  fxGenerateAccessToken,
+  fxTwilioSendCode,
+} from '../../utils/helpers'
+import type { IUserInstance } from '../../models/User/User'
+import ClassDriverDetailService from '../../services/User/DriverDetailService'
+
+class AuthController {
+  async registerOrCreateUserForNumber(
+    pReq: Request,
+    pRes: Response,
+    pNext: NextFunction
+  ): Promise<Response | undefined> {
+    try {
+      const vData: IUserInput = pReq.only(['phoneCode', 'phoneNumber'])
+      vData.phoneNumber = vData?.phoneNumber.toString()
+      vData.isNewUser = true
+      const vPhoneNumberExist: IUserInstance | null = await ClassAuthService.showUserNumber(
+        vData.phoneNumber,
+        vData.phoneCode
+      )
+      const vCodePhoneNumberExist: string | null = await ClassAuthService.showUserCodeNumber(
+        vData.phoneNumber,
+        vData.phoneCode
+      )
+      const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
+      let vCode: string | null
+      if (vCodePhoneNumberExist) {
+        vCode = vCodePhoneNumberExist
+      } else {
+        vCode = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null)
+      }
+      console.log('vCode :>> ', vCode)
+      if (!vCode) {
+        return pRes.status(200).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      let vUser: IUserInstance
+      if (!vPhoneNumberExist) {
+        vUser = await ClassAuthService.create(vData)
+      } else {
+        vUser = vPhoneNumberExist
+      }
+      const vCreateCode: IUserCodeInput = {
+        code: vCode,
+        userId: vUser.dataValues.id,
+        phoneNumber: `${vData.phoneCode}${vData.phoneNumber}`,
+      }
+      await ClassAuthService.createCode(vCreateCode)
+      const vResponse: any = fxSuccessResponse(200, { user: vUser }, 'Usuario registrado con exito')
+      return pRes.status(200).send(vResponse)
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async verifiedUserCode(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vCode: string = pReq.input('code')
+      const vphoneCode: string = pReq.input('phoneCode').toString()
+      const vphoneNumber: string = pReq.input('phoneNumber').toString()
+      const vPhoneNumber: string = `${vphoneCode}${vphoneNumber}`
+      const vVerifiedCode: boolean = await ClassAuthService.showCode({
+        code: vCode,
+        phoneNumber: vPhoneNumber,
+      })
+      if (vVerifiedCode) {
+        const vUser: IUserInstance | null = await ClassAuthService.showUserNumber(vphoneNumber, vphoneCode)
+        if (!vUser) {
+          return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
+        }
+        const vReponse = {
+          user: vUser.dataValues,
+          token: fxGenerateAccessToken(vUser.dataValues),
+        }
+        return pRes.status(200).send(fxSuccessResponse(200, vReponse, 'Codigo verificado'))
+      } else {
+        return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
+      }
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async update(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vUserId: string = pReq.auth.id
+      if (vUserId) {
+        const vData: IUserInputUpdate = pReq.only([
+          'avatar',
+          'name',
+          'email',
+          'vehicleType',
+          'dob',
+          'isTaxi',
+          'isVip',
+          'isAc',
+          'availabilityToTravel',
+          'typeUser',
+          'seats',
+        ])
+        vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
+        vData.id = vUserId
+        const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
+        const vDetail: any = pReq.input('detail', 'json')
+        if (vData?.avatar) {
+          const vNameImages: string = vData?.avatar.replace('temp', 'storage')
+          fs.writeFileSync(`uploads/${vNameImages}`, `uploads/${vData?.avatar}`)
+          fs.unlinkSync(`uploads/${vData?.avatar}`)
+          vData.avatar = vNameImages
+        }
+        if (vDetail) {
+          const driverDetail: IDriverDetailInput[] = []
+          for (const detail of vDetail) {
+            const element: IDriverDetailInput = {
+              sectionName: detail.sectionName,
+              fieldName: '',
+              type: '',
+              value: '',
+              userId: ''
+            }
+            for (const field of detail.fields) {
+              element.fieldName = field.fieldName
+              element.type = field.type
+              element.value = field.value
+              element.userId = vUserId
+            }
+            driverDetail.push(element)
+          }
+          console.log('driverDetail :>> ', driverDetail)
+          ClassDriverDetailService.createMany(driverDetail)
+        }
+        if (!vUserDB) {
+          return pRes
+            .status(500)
+            .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+        }
+        return pRes.status(200).send(fxSuccessResponse(200, { user: vUserDB }, 'Codigo verificado'))
+      } else {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async register(
+    pReq: Request,
+    pRes: Response,
+    pNext: NextFunction
+  ): Promise<Response | undefined> {
+    try {
+      // Recogemos los datos que nos interesan para el regositro
+      const vData: IUserInput = pReq.only([
+        'roleId',
+        'email',
+        'password',
+        'phoneCode',
+        'phoneNumber',
+        'name',
+        'avatar',
+      ])
+      //verificamos si el numero existe
+
+      vData.status = true
+      vData.isNewUser = true
+      //validamos que esten completos
+      await ClassAuthService.validate(vData)
+      //registramos el usuario usando el servicio
+      const vUser: IUserInstance = await ClassAuthService.create(vData)
+      //respondemos
+      const vToken = fxGenerateAccessToken(vUser)
+      const vUserData = {
+        token: vToken,
+        user: vUser,
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vUserData, 'Registrado'))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+
+  async login(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+    try {
+      const vData = pReq.only(['email', 'password'])
+      vData.password = bcrypt.hash(vData.password, 10)
+      const user = await ClassAuthService.login(vData.email, vData.password)
+      if (user) {
+        const vToken = fxGenerateAccessToken(user)
+        return pRes
+          .status(200)
+          .send(fxSuccessResponse(200, { token: vToken }, 'logueado con exito'))
+      }
+      return pRes.status(200).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async me(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+    try {
+      const vUserId: string = pReq.auth.id
+      const vUserDB: IUserInstance | null = await ClassAuthService.show(vUserId)
+      if (!vUserDB) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
+      }
+      const vReponse = {
+        user: vUserDB,
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vReponse))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+}
+
+export default new AuthController()
