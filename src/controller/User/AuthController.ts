@@ -135,14 +135,16 @@ class AuthController {
           'typeUser',
           'seats',
         ])
+        console.log('req.body :>> ', pReq.body)
         vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
         vData.id = vUserId
-        const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
-        const vDetail: any = pReq.input('detail', 'json')
+        const vDetail: any = pReq.input('details', 'json')
         if (vData?.avatar) {
           const vRouteAvatarImages = moveImages(vData.avatar)
           vData.avatar = vRouteAvatarImages
         }
+        console.log('vData :>> ', vData)
+        const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (vDetail) {
           const driverDetail: IDriverDetailInput[] = []
           for (const detail of vDetail) {
@@ -157,7 +159,7 @@ class AuthController {
               element.fieldName = field.fieldName
               element.type = field.type
               element.userId = vUserId
-              if (element.type === 'images') {
+              if (element.type === 'image') {
                 const vRouteAvatarImages = moveImages(field.value)
                 element.value = vRouteAvatarImages
               } else {

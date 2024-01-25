@@ -5,6 +5,7 @@ export interface ICountryAttributes {
   id: number
   name: string
   flag?: string
+  phoneCode?: string
   state: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -29,18 +30,22 @@ export const vCountryModelAttributes: SequelizeAttributes<ICountryAttributes> = 
     type: DataTypes.STRING,
     field: 'flag',
   },
+  phoneCode: {
+    type: DataTypes.STRING,
+    field: 'phone_code',
+  },
   state: {
     type: DataTypes.BOOLEAN,
     field: 'state',
   },
   createdAt: {
     type: DataTypes.DATE,
-    field: 'created_at',
+    field: 'createdAt',
     allowNull: false,
   },
   updatedAt: {
     type: DataTypes.DATE,
-    field: 'updated_at',
+    field: 'updatedAt',
     allowNull: false,
   },
 }

@@ -1,5 +1,5 @@
 /* 
-- File: AuthController.ts
+- File: CountryController.ts
 
 - Purpose: Es el controlador de auth de usuarios, se encarga de todo lo que tiene que ver con login y registro, incluyendo la parte de mensajes y verificacion del mismo
 
@@ -33,9 +33,9 @@ import ClassCountryService from '../../services/Locations/CountryService'
 import type { ICountryInput, ICountryUpdate } from '../../types/LocationType'
 import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
 import type { ICountryInstance } from '../../models/Locations/Country'
+import type { IReponseAll } from '../../types/generalType'
 
-class AuthController {
-
+class CountryController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
@@ -51,12 +51,27 @@ class AuthController {
       pNext(error)
     }
   }
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const param = pReq.query
 
+      const vResponse: IReponseAll | ICountryInstance[] = await ClassCountryService.all(param)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ICountryInput = pReq.only([
         'name',
         'flags',
+        'phoneCode',
         'state'
       ])
 
@@ -71,13 +86,13 @@ class AuthController {
       pNext(error)
     }
   }
-
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ICountryUpdate = pReq.only([
         'id',
         'name',
         'flags',
+        'phoneCode',
         'state'
       ])
       const vReponse: ICountryInstance | null = await ClassCountryService.update(vData)
@@ -93,4 +108,4 @@ class AuthController {
   }
 }
 
-export default new AuthController()
+export default new CountryController()

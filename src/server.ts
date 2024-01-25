@@ -8,7 +8,7 @@ import routes from './routes'
 import { ValidationError } from 'sequelize'
 import { modelErrorReporting, modelUser } from './models'
 import type { IUserInstance } from './models/User/User'
-
+import { startSwagger } from './swagger'
 export class Server {
   private app: Express
   private upload = multer()
@@ -18,6 +18,7 @@ export class Server {
     this.configuration()
     this.middlewares()
     this.errorReporting()
+    this.startSwagger()
   }
 
   configuration() {
@@ -135,6 +136,7 @@ export class Server {
       }
     })
     this.app.use('/api', routes)
+
   }
 
   errorReporting() {
@@ -174,6 +176,9 @@ export class Server {
         return res.status(500).send({ success: false, type: 'error', message: 'Ocurrió un error' })
       }
     })
+  }
+  private startSwagger(): void {
+    startSwagger(this.app, this.app.get('port'))
   }
   listen() {
     this.app.listen(this.app.get('port'), () => {

@@ -42,10 +42,18 @@ export const fxGenerateCode = () => {
 }
 
 export const moveImages = (pName: string): string => {
-  const vNameImages: string = pName.replace('temp', 'storage')
-  fs.writeFileSync(`uploads/${vNameImages}`, `uploads/${pName}`)
-  fs.unlinkSync(`uploads/${pName}`)
-  return vNameImages
+  if (fs.existsSync(`uploads/${pName}`)) {
+    const vNameImages: string = pName.replace('temp', 'storage')
+    fs.writeFileSync(`uploads/${vNameImages}`, `uploads/${pName}`)
+    fs.unlinkSync(`uploads/${pName}`)
+    return vNameImages
+  } else {
+    const vNameImages: string = pName.replace('temp', 'storage')
+    if (fs.existsSync(`uploads/${vNameImages}`)) {
+      return vNameImages
+    }
+    return pName
+  }
 }
 
 export const fxTwilioSendCode = async (

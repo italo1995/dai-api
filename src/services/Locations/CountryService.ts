@@ -24,6 +24,7 @@ import { Op, type FindOptions } from 'sequelize'
 import type { ICountryInput, ICountryUpdate } from '../../types/LocationType'
 import type { ICountryInstance } from '../../models/Locations/Country'
 import { modelCountry } from '../../models'
+import type { IReponseAll } from '../../types/generalType'
 
 interface ICountryService {
   validate(data: any): any
@@ -39,7 +40,7 @@ class CountryService implements ICountryService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any) {
+  public async all(pParam: any): Promise<IReponseAll | ICountryInstance[]> {
     try {
       const whereStatement: FindOptions = {}
       if (Number(pParam?.pag)) {

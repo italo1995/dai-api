@@ -1,5 +1,5 @@
 node_modules
 .env
 ssl
-uploads/temp/*
-uploads/storage/*
+# uploads/temp/*
+# uploads/storage/*

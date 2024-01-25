@@ -26,12 +26,12 @@ module.exports = {
         type: DataTypes.BOOLEAN,
         field: 'state',
       },
-      createdAt: {
+      created_at: {
         type: DataTypes.DATE,
         field: 'createdAt',
         allowNull: false,
       },
-      updatedAt: {
+      updated_at: {
         type: DataTypes.DATE,
         field: 'updatedAt',
         allowNull: false,
