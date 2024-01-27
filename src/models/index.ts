@@ -9,6 +9,7 @@ import { fxErrorReportingFactory } from './ErrorReporting'
 import { fxTypeFileUserFactory } from './User/TypeFileUser'
 import { fxCountryFactory } from './Locations/Country'
 import { fxDriverDetailFactory } from './User/DriverDetail'
+import { fxVehicleAdditionalFactory } from './Vehicle/VehicleAdditionalModels'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -24,6 +25,7 @@ export const modelErrorReporting = fxErrorReportingFactory(sequelize)
 export const modelCountry = fxCountryFactory(sequelize)
 export const modelTypeFileUser = fxTypeFileUserFactory(sequelize)
 export const modelDriverDetail = fxDriverDetailFactory(sequelize)
+export const modelVehicleAdditional = fxVehicleAdditionalFactory(sequelize)
 const models = {
   modelUser,
   modelUserCode,

@@ -27,7 +27,6 @@ interface ITypeFileUserService {
   create(payload: ITypeFileUserInput): Promise<ITypeFileUserInstance>
   update(payload: ITypeFileUserInput): Promise<ITypeFileUserInstance | null>
 }
-
 class TypeFileUserService implements ITypeFileUserService {
 
   async validate(data: any) {
