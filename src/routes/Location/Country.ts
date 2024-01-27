@@ -23,7 +23,7 @@ export default router
  *          description: the increment id of country
  *        name:
  *          type: string
- *          description: the name of the task
+ *          description: the name of the country
  *        flag:
  *          type: string
  *          description: the file name of the flag for country
