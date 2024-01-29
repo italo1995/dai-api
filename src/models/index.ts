@@ -32,7 +32,8 @@ const models = {
   modelErrorReporting,
   modelCountry,
   modelTypeFileUser,
-  modelDriverDetail
+  modelDriverDetail,
+  modelVehicleAdditional
 }
 
 export type ModelRegistry = typeof models

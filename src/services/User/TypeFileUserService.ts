@@ -57,7 +57,7 @@ class TypeFileUserService implements ITypeFileUserService {
       }
 
       if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.like]: `%${pParam.search}%` } }
+        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
       }
       const res = await modelTypeFileUser.findAll(whereStatement)
       if (Number(pParam?.pag)) {

@@ -4,7 +4,7 @@ import AppConfig from '../config/AppConfig'
 import type { IUserAttributes } from '../models/User/User'
 import * as fs from 'fs'
 
-export const fxSuccessResponse = (code: number | null, data: any, message: string | null = null) => {
+export const fxSuccessResponse = (code: number | null = null, data: any, message: string | null = null) => {
   return {
     status: true,
     code: code || 200,

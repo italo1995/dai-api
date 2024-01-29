@@ -33,7 +33,6 @@ export class Server {
       if (req.method === 'POST') {
         this.upload.any()(req, res, (err) => {
           if (err) {
-            console.log('este es el error?')
             next(err)
           }
           next()
@@ -106,7 +105,6 @@ export class Server {
       const authHeader = req.headers['authorization']
       if (authHeader) {
         const token = authHeader.split(' ')[1]
-        console.log('token :>> ', token)
         if (token) {
           jwt.verify(token, AppConfig.SECRET_KEY as Secret, async (err: any, decoded: any) => {
             if (err) {
@@ -114,7 +112,6 @@ export class Server {
               next()
             } else {
               if (decoded) {
-                console.log('decoded.id :>> ', decoded.id)
                 const vUser: IUserInstance | null = await modelUser.findOne({
                   where: {
                     id: decoded.id,
@@ -136,7 +133,6 @@ export class Server {
       }
     })
     this.app.use('/api', routes)
-
   }
 
   errorReporting() {

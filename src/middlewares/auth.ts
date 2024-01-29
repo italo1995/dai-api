@@ -3,7 +3,6 @@ import { fxErrorResponse } from '../utils/helpers'
 
 export function authMiddleware(role: string) {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log('authMiddleware :>> ', role)
     if (role === 'user') {
       next()
     } else if (req.auth && role === 'client') {

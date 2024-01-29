@@ -63,7 +63,7 @@ class CountryService implements ICountryService {
       }
 
       if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.like]: `%${pParam.search}%` } }
+        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
       }
       const res = await modelCountry.findAll(whereStatement)
       if (Number(pParam?.pag)) {
