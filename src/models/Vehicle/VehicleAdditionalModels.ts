@@ -4,7 +4,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 export interface IVehicleAdditionalAtributes {
     id: number
     name: string
-    createdAT?: Date
+    createdAt?: Date
     updatedAt?: Date
 }
 interface IVehicleAdditionalcreationAtributes extends Optional<IVehicleAdditionalAtributes, 'id'> {}
@@ -15,44 +15,44 @@ export interface IVehicleAdditionalInstance
         
 export const vVehicleadditionalModelAttributes:
 SequelizeAttributes<IVehicleAdditionalAtributes> = {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    name: {
-        type:DataTypes.String,
-        field: 'name',
-    },
-    createdAT: {
-        type: DataTypes.DATE,
-        field: 'createAt',
-        allowNull: false,
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-        field: 'updatedAt',
-        allowNull: false,
-    },
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  name: {
+    type:DataTypes.STRING,
+    field: 'name',
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    field: 'createAt',
+    allowNull: false,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    field: 'updatedAt',
+    allowNull: false,
+  },
 }
 
 export function fxVehicleAdditionalFactory(sequelize: Sequelize) {
-    const vVehicleadditional = <ModelStatic<IVehicleAdditionalInstance>>sequelize.define(
-        'VehicleAdditional',
-        vVehicleadditionalModelAttributes,
+  const vVehicleadditional = <ModelStatic<IVehicleAdditionalInstance>>sequelize.define(
+    'VehicleAdditional',
+    vVehicleadditionalModelAttributes,
     {
-        tableName: 'vehicle_additional',
-        defaultScope: {
-            order: [['createdAt', 'DESC']],
-        },
-        freezeTableName: true,
-        timestamps: true,
+      tableName: 'vehicle_additionals',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
     }
-    )
+  )
 
-    vVehicleadditional.prototype.toJSON = function () {
-        const vValues = { ...this.get() }
-        return vValues
-    }
-    return vVehicleadditional
+  vVehicleadditional.prototype.toJSON = function () {
+    const vValues = { ...this.get() }
+    return vValues
+  }
+  return vVehicleadditional
 }

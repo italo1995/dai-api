@@ -35,8 +35,8 @@ export default router
  *        flag: fileFlagVenezuela.png
  *
  *  parameters:
- *    taskId:
- *      in: path
+ *    id:
+ *      in: query
  *      name: id
  *      required: true
  *      schema:

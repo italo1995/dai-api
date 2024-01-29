@@ -3,7 +3,7 @@
 
 - Purpose: Es el controlador de auth de servicios adicionales del vehiculo, se encarga de todo lo que tiene que ver con los servicios adicionales que puede llevar un vehiculo, aire acondicionado, asientos de cuero, etc.
 
-- Author: Italo Belen
+- Author: Jairo Belen
 
 - Creation: 26/01/2024  
 
@@ -13,7 +13,7 @@
 Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 1- show: Sirve un dato especifico filtrado por el id
 
-2 - all: Sirve todos los datos guardados
+2 - all: Sirve todos los datos guardados o paginado
 
 3 - update: Cumple la funcion de recibir todos los datos que se pueden actualizarluego los envia a guardar en el servicio
 
@@ -22,10 +22,9 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
-import type { IVehicleAdditionalInput } from '../../types/VehicleAdditionalType'
-import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
+import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
-import type { IResponseAll} from '../../types/VehicleAdditionalType'
 
 class VehicleAdditionalController {
 
@@ -34,74 +33,66 @@ class VehicleAdditionalController {
       const vId: number = Number(pReq.query.id)
 
       const vResponse:IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.show(vId)
-            if (!vResponse) {
-              return pRes
-                  .status(500)
-                  .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
-            }
-            return pRes.status(200).send(fxSuccessResponse(200, { datat: vResponse }, 'Correcto'))
-        } catch (error) {
-            pNext(error)
-        }
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { datat: vResponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
     }
+  }
 
-    async all (pReq: Request, pRes: Response, pNext: NextFunction) {
-        try{
-          const vParam: any = pReq.query
-
-          const vReponse: IResponseAll | IVehicleAdditionalInstance[] = await ClassVehicleAdditionalService.all(vParam)
-            if (!vReponse) {
-              return pRes
-                .status(500)
-                .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
-            }
-            return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, "Correcto"))
-        } catch (error) {
-            pNext(error)
-        }
-    }
-
-    async create(pReq: Request, pRes: Response, pNext: NextFunction) {
-      try {
-        const vData: IVehicleAdditionalInput = pReq.only([
-            'name',
-            'description',
-            'isVisibility',
-            'required',
-        ])
-
-        const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.create(vData)
-        if (vResponse) {
-          return pRes
+  async all (pReq: Request, pRes: Response, pNext: NextFunction) {
+    try{
+      const vParam: any = pReq.query
+      const vReponse: IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[] = await ClassVehicleAdditionalService.all(vParam)
+      if (!vReponse) {
+        return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
-        }
-        return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
-        } catch (error) {
-            pNext(error)
-        }
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
     }
+  }
 
-    async update(pReq: Request, pRes: Response, pNext: NextFunction) {
-        try {
-            const vData: IVehicleAdditionalInput = pReq.only([
-          'id',
-          'name',
-          'description',
-          'isVisibility',
-          'required',
-        ])
-        const vReponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.update(vData)
-        if (!vReponse) {
-          return pRes
+  async create(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: IVehicleAdditionalInput = pReq.only([
+        'name',
+      ])
+      const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.create(vData)
+      if (!vResponse) {
+        return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
-        }
-        return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
-        } catch (error) {
-        pNext(error)
-        }
-   }
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async update(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: IVehicleAdditionalInput = pReq.only([
+        'id',
+        'name',
+      ])
+      const vReponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.update(vData)
+      if (!vReponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
 }
 
 export default new VehicleAdditionalController()

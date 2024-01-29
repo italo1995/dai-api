@@ -7,7 +7,6 @@ const router = express.Router()
 router.route('/show').get(controller.show)
 router.route('/all').get(controller.all)
 router.route('/update').post(authMiddleware('admin'), controller.update)
-router.route('/create').get(controller.create)
+router.route('/create').get(authMiddleware('admin'), controller.create)
 
 export default router
-
