@@ -3,7 +3,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 /** @type {import('sequelize-cli').Migration} */ 
 module.exports = {
   async up (queryInterface: QueryInterface) {
-    return queryInterface.createTable('driver_details', {
+    return queryInterface.createTable('vehicle_additionals', {
       id: {
         type: DataTypes.INTEGER,
         field: 'id',

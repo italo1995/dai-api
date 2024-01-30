@@ -25,7 +25,7 @@ import ClassTypeFileUserService from '../../services/User/TypeFileUserService'
 import type { ITypeFileUserInput } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
 import type { ITypeFileUserInstance } from '../../models/User/TypeFileUser'
-import type { IReponseAll } from '../../types/generalType'
+import type { IResponseAll } from '../../types/generalType'
 
 class TypeFileUserController {
 
@@ -49,7 +49,7 @@ class TypeFileUserController {
     try {
       const vParam: any = pReq.query
 
-      const vResponse: IReponseAll | ITypeFileUserInstance[] = await ClassTypeFileUserService.all(vParam)
+      const vResponse: IResponseAll | ITypeFileUserInstance[] = await ClassTypeFileUserService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)

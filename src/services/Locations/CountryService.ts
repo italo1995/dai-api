@@ -24,7 +24,7 @@ import { type FindOptions } from 'sequelize'
 import type { ICountryInput, ICountryUpdate } from '../../types/LocationType'
 import type { ICountryInstance } from '../../models/Locations/Country'
 import { modelCountry } from '../../models'
-import type { IReponseAll } from '../../types/generalType'
+import type { IResponseAll } from '../../types/generalType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 
 interface ICountryService {
@@ -41,7 +41,7 @@ class CountryService implements ICountryService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IReponseAll | ICountryInstance[]> {
+  public async all(pParam: any): Promise<IResponseAll | ICountryInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)

@@ -33,7 +33,7 @@ import ClassCountryService from '../../services/Locations/CountryService'
 import type { ICountryInput, ICountryUpdate } from '../../types/LocationType'
 import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
 import type { ICountryInstance } from '../../models/Locations/Country'
-import type { IReponseAll } from '../../types/generalType'
+import type { IResponseAll } from '../../types/generalType'
 
 class CountryController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -55,7 +55,7 @@ class CountryController {
     try {
       const param = pReq.query
 
-      const vResponse: IReponseAll | ICountryInstance[] = await ClassCountryService.all(param)
+      const vResponse: IResponseAll | ICountryInstance[] = await ClassCountryService.all(param)
       if (!vResponse) {
         return pRes
           .status(500)

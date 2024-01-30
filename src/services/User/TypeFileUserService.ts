@@ -19,7 +19,7 @@ import { Op, type FindOptions } from 'sequelize'
 import type { ITypeFileUserInstance } from '../../models/User/TypeFileUser'
 import { modelTypeFileUser } from '../../models'
 import type { ITypeFileUserInput } from '../../types/User'
-import type { IReponseAll } from '../../types/generalType'
+import type { IResponseAll } from '../../types/generalType'
 
 interface ITypeFileUserService {
   validate(data: any): any
@@ -34,7 +34,7 @@ class TypeFileUserService implements ITypeFileUserService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IReponseAll | ITypeFileUserInstance[]> {
+  public async all(pParam: any): Promise<IResponseAll | ITypeFileUserInstance[]> {
     try {
       const whereStatement: FindOptions = {}
       if (Number(pParam?.pag)) {
