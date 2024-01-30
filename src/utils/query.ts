@@ -18,9 +18,22 @@ export const fxOrderNameId = (pParam: any, whereStatement: FindOptions) => {
   return whereStatement.order
 }
 
-export const fxSearchILikeName = (pParam: any, whereStatement: FindOptions) => {
+export const fxSearchILike = (pParam: any, whereStatement: FindOptions, pName: string = 'name', modelName: string) => {
+  const vModelAttributes: any = sequelize.models[modelName].getAttributes()
+  const vAttibutesPermisse = Object.keys(vModelAttributes).filter(key => vModelAttributes[key].type.key === 'STRING')
   if (pParam?.search) {
-    whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
+    if (pParam?.typeSearch && pParam.typeSearch.includes(',')) {
+      const vTypeSearchs = pParam.typeSearch.split(',')
+      for (const typeSearch of vTypeSearchs) {
+        if (vAttibutesPermisse.includes(typeSearch.trim())) {
+          whereStatement.where = { ...whereStatement.where, [typeSearch.trim()]: { [Op.iLike]: `%${pParam.search}%` } }
+        }
+      }
+    } else {
+      if (vAttibutesPermisse.includes(pName.trim())) {
+        whereStatement.where = { ...whereStatement.where, [pName.trim()]: { [Op.iLike]: `%${pParam.search}%` } }
+      }
+    }
   }
   return whereStatement.where || {}
 }

@@ -18,7 +18,7 @@ import { type FindOptions } from 'sequelize'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
 import { modelVehicleType } from '../../models'
 import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
-import { fxOrderNameId, fxPaginate, fxSearchILikeName, fxReponseServices } from '../../utils/query'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IVehicleTypeService {
     validate (data: any): any
@@ -39,7 +39,7 @@ class VehicleTypeService implements IVehicleTypeService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILikeName(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'VehicleType')
 
       const vResponse: IVehicleTypeInstance[] = await modelVehicleType.findAll(whereStatement)
       if (Number(pParam?.pag)) {

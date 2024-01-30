@@ -20,11 +20,12 @@
   8 - showCode: Vrificar el codigo codigo enviado por el usuario es real y fue creado ese dia.
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
-import { Op, type FindOptions } from 'sequelize'
+import { type FindOptions } from 'sequelize'
 import type { ICountryInput, ICountryUpdate } from '../../types/LocationType'
 import type { ICountryInstance } from '../../models/Locations/Country'
 import { modelCountry } from '../../models'
 import type { IReponseAll } from '../../types/generalType'
+import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 
 interface ICountryService {
   validate(data: any): any
@@ -42,29 +43,10 @@ class CountryService implements ICountryService {
 
   public async all(pParam: any): Promise<IReponseAll | ICountryInstance[]> {
     try {
-      const whereStatement: FindOptions = {}
-      if (Number(pParam?.pag)) {
-        const limit = Number(pParam?.limit) || 10 // Define cuántos registros por página quieres mostrar
-        whereStatement.limit = limit
-        whereStatement.offset = (pParam.pag - 1) * limit
-      }
-      if (Number(pParam?.orden) === 2) {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['name', 'ASC']
-        ] : [
-          ['name', 'ASC']
-        ]
-      } else {
-        whereStatement.order =  whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['id', 'DESC']
-        ] : [
-          ['id', 'DESC']
-        ]
-      }
-
-      if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
-      }
+      let whereStatement: FindOptions = {}
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Country')
       const res = await modelCountry.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const limit = Number(pParam?.limit) || 10
