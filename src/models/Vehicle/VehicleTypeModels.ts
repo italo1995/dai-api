@@ -26,7 +26,7 @@ SequelizeAttributes<IVehicleTypeAtributes> = {
   },
   createdAt: {
     type: DataTypes.DATE,
-    field: 'createAt',
+    field: 'createdAt',
     allowNull: false,
   },
   updatedAt: {
@@ -43,16 +43,16 @@ export function fxVehicleTypeFactory (sequelize: Sequelize) {
     {
       tableName: 'vehicle_Types',
       defaultScope: {
-        Order: [['createdAt', 'DESC']],
+        order: [['createdAt', 'DESC']],
       },
       freezeTableName: true,
       timestamps: true,
-      }
-    )
-
-    vVehicleType.prototype.toJSON = function () {
-      const vValues = { ...this.get() }
-      return vValues
     }
-    return vVehicleType
+  )
+
+  vVehicleType.prototype.toJSON = function () {
+    const vValues = { ...this.get() }
+    return vValues
+  }
+  return vVehicleType
 }

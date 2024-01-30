@@ -40,7 +40,7 @@ class VehicleTypeController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
     } catch (error) {
-        pNext(error)
+      pNext(error)
     }
   }
 
@@ -55,22 +55,22 @@ class VehicleTypeController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, 'Correcto'))
     } catch (error) {
-        pNext(error)
+      pNext(error)
     }
   }
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IVehicleAdditionalInput = pReq.only([
-            'name',
-        ])
+        'name',
+      ])
       const vReponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.create(vData)
       if (!vReponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
-    }
-    return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Correcto'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -90,7 +90,7 @@ class VehicleTypeController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
     } catch (error) {
-        pNext(error)
+      pNext(error)
     }
   }
 }

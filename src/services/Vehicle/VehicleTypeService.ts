@@ -14,14 +14,13 @@
   3 - create: crea datos del item
   4 - update: actualiza datos del item
 */
-import { Op, type findOptions } from 'sequelize'
+import { type FindOptions } from 'sequelize'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
 import { modelVehicleType } from '../../models'
-import type { IVehicleAdditionalInput } from '../../types/VehicleTypes'
-import type { IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
+import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
+import { fxOrderNameId, fxPaginate, fxSearchILikeName, fxReponseServices } from '../../utils/query'
 
-
-  interface IVehicleTypeService {
+interface IVehicleTypeService {
     validate (data: any): any
     show(pId: number): Promise<IVehicleTypeInstance | null>
     create(payload: IVehicleAdditionalInput): Promise<IVehicleTypeInstance>
@@ -37,39 +36,14 @@ class VehicleTypeService implements IVehicleTypeService {
 
   public async all(pParam: any): Promise<IResponseAllVehicleAdditionalType | IVehicleTypeInstance[]> {
     try {
-      const whereStatement: findOptions = {}
-      if (Number(pParam?.pag)) {
-        const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
-        whereStatement.limit = limit
-        whereStatement.offset = (pParam.pag - 1) * limit
-      }
-      if (Number(pParam?.orden)  === 2) {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['name', 'ASC']
-        ] : [
-          ['name', 'ASC']
-        ]
-      } else {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['id', 'DESC']
-        ] : [
-          ['id', 'DESC']
-        ]
-      }
+      let whereStatement: FindOptions = {}
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILikeName(pParam, whereStatement)
 
-      if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
-      }
       const vResponse: IVehicleTypeInstance[] = await modelVehicleType.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vLimit = Number(pParam?.limit) || 10
-        const vCount = await modelVehicleType.count (whereStatement)
-        const vResponsePaginate: IResponseAllVehicleAdditionalType = {
-          total: vCount,
-          totalPage: Math.ceil(vCount / vLimit),
-          data: vResponse,
-          actualPage: Number(pParam.pag),
-        }
+        const vResponsePaginate: IResponseAllVehicleAdditionalType = await fxReponseServices(pParam, whereStatement, 'VehicleType', vResponse)
         return vResponsePaginate
       }
       return vResponse
