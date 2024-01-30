@@ -24,7 +24,7 @@ import type { IUserInput, IUserCodeInput, IUserInputUpdate } from '../../types/U
 import type { IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
-// import { Sequelize } from 'sequelize'
+import { Op } from 'sequelize'
 
 interface IAuthService {
   showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
@@ -61,19 +61,6 @@ class AuthService implements IAuthService {
     return vResponse
   }
 
-  async showUserCodeNumber(pPhoneNumber: string, pPhoneCode: string): Promise<string | null> {
-    const vPhoneNumber: string = `${pPhoneCode}${pPhoneNumber}`
-    const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
-      where: {
-        phoneNumber: vPhoneNumber,
-        // createdAt: {
-        //   $eq: Sequelize.fn('CURDATE'), // Filtra por la fecha actual
-        // },
-      },
-    })
-    return vResponse?.dataValues?.code || null
-  }
-
   async create(pData: IUserInput): Promise<IUserInstance> {
     const vResponse: IUserInstance = await modelUser.create(pData)
     return vResponse
@@ -97,14 +84,29 @@ class AuthService implements IAuthService {
     return vResponse
   }
 
+  async showUserCodeNumber(pPhoneNumber: string, pPhoneCode: string): Promise<string | null> {
+    const vPhoneNumber: string = `${pPhoneCode}${pPhoneNumber}`
+    const vDate = new Date()
+    const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
+      where: {
+        phoneNumber: vPhoneNumber,
+        createdAt: {
+          [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
+        },
+      },
+    })
+    return vResponse?.dataValues?.code || null
+  }
+
   async showCode(pData: IUserCodeInput): Promise<boolean> {
+    const vDate = new Date()
     const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
       where: {
         code: pData.code,
         phoneNumber: pData.phoneNumber,
-        // createdAt: {
-        //   $eq: Sequelize.fn('CURDATE'), // Filtra por la fecha actual
-        // },
+        createdAt: {
+          [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
+        },
       },
     })
     await vResponse?.destroy()

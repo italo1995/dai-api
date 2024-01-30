@@ -50,6 +50,7 @@ class AuthController {
   ): Promise<Response | undefined> {
     try {
       const vData: IUserInput = pReq.only(['phoneCode', 'phoneNumber'])
+      const vHash: string = pReq.input('hash')
       vData.phoneNumber = vData?.phoneNumber.toString()
       vData.isNewUser = true
       const vPhoneNumberExist: IUserInstance | null = await ClassAuthService.showUserNumber(
@@ -65,7 +66,7 @@ class AuthController {
       if (vCodePhoneNumberExist) {
         vCode = vCodePhoneNumberExist
       } else {
-        vCode = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null)
+        vCode = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
       }
       console.log('vCode :>> ', vCode)
       if (!vCode) {
