@@ -1,5 +1,5 @@
 /* 
-- File: VehicleTypeCOntroller.ts
+- File: VehicleTypeController.ts
 
 - Purpose: Es el controlador de auth de servicios adicionales del vehiculo, se encarga de todo lo que tiene que ver con los tipos de vehiculos que en algun momento la aplicacion podria necesitar
 

@@ -1,7 +1,7 @@
 /* 
 - File: BannerService.ts
 
-- Purpose: El serivicio Banner se encarga de las consultas con los modelos y funcionalidades relacionadas al VehicleAdditional
+- Purpose: El serivicio Banner se encarga de las oonsultas con modelos y funcionalidades al Banner
 
 - Author: Jairo Belen
 
@@ -18,9 +18,78 @@ import { type FindOptions } from 'sequelize'
 import type { IBannerInstance } from '../../models/web/BannerModel'
 import { modelBanner } from '../../models'
 import type { IWebInput, IResponseAllBanner } from '../../types/webTypes'
-import { fxOrderNameId, fxPaginate, fxSearchILikeName, fxReponseServices } from '../../utils/query'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IBannerService {
-    validate (data: any): any
-    show(pId: number): 
+  validate(data: any): any
+  show(pId: number): Promise<IBannerInstance | null>
+  create(payload: IWebInput): Promise<IBannerInstance>
+  update(payload: IWebInput): Promise<IBannerInstance | null>
 }
+
+class BannerService implements IBannerService {
+  async validate(data: any) {
+    const dataValidate = modelBanner.build(data)
+    await dataValidate.validate()
+  }
+
+  public async all(pParam: any): Promise<IResponseAllBanner | IBannerInstance[]> {
+    try {
+      let whereStatement: FindOptions = {}
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+        'banner'
+      )
+
+      const vResponse: IBannerInstance[] = await modelBanner.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllBanner = await fxReponseServices(pParam, whereStatement, 'banner', vResponse)
+        return vResponsePaginate
+      }
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async show(pId: number): Promise<IBannerInstance | null> {
+    try {
+      const vResponse: IBannerInstance | null = await modelBanner.findOne({
+        where: {
+          id: pId,
+        },
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async create(pData: IWebInput): Promise<IBannerInstance> {
+    try {
+      const vResponse: IBannerInstance = await modelBanner.create(pData)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async update(pData: IWebInput): Promise<IBannerInstance | null> {
+    try {
+      if (pData?.id) {
+        const vCountry: IBannerInstance | null = await modelBanner.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        await vCountry?.update(pData, { where: { id: pData.id } })
+        return vCountry
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
+}
+export default new BannerService()

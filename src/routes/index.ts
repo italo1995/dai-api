@@ -5,6 +5,9 @@ import FileRoute from './FileRoute'
 import server from './server'
 import VehicleAdditional from './Vehicle/VehicleAdditionalRoute'
 import VehicleType from './Vehicle/VehicleTypeRoute'
+import Banner from './web/BannerRoute'
+import Service from './web/ServiceRoute'
+import Review from './ReviewRoute'
 
 const router = express.Router()
 
@@ -14,5 +17,9 @@ router.use('/server', server)
 router.use('/country', CountryRoute)
 router.use('/VehicleAdditional', VehicleAdditional)
 router.use('/vehicleType', VehicleType)
+router.use('/Banner', Banner)
+router.use('/Service', Service)
+router.use('/Review', Review)
+
 
 export default router

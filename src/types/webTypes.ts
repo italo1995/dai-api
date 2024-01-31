@@ -1,11 +1,27 @@
 import type { IBannerInstance } from '../models/web/BannerModel'
-import type { IServiceInstances } from '../models/web/ServiceModel'
+import type { IServiceInstance } from '../models/web/ServiceModel'
 import type { IReviewInstance } from '../models/ReviewModel'
 import type { IResponseAll } from './generalType'
 
 export interface IWebInput {
-    id?: number
+    id?: string
     name: string
+    image: string
+    description: string
+    state?: boolean
+    createdAt?: Date
+    updatedAt?: Date
+    deletedAt?: Date
+}
+export interface IReviewInput {
+  id: number
+  clientId: number
+  driverId: number
+  qualification: string
+  comment: string
+  features?: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 export interface IResponseAllBanner extends IResponseAll {
   total: number
@@ -16,7 +32,7 @@ export interface IResponseAllBanner extends IResponseAll {
 export interface IResponseAllService extends IResponseAll {
   total: number
   totalPage: number
-  data: IServiceInstances[]
+  data: IServiceInstance[]
   actualPage: number
 }
 export interface IResponseAllReview extends IResponseAll {
