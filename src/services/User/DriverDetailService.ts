@@ -19,7 +19,7 @@ import { Op, type FindOptions } from 'sequelize'
 import type { IDriverDetailInstance } from '../../models/User/DriverDetail'
 import { modelDriverDetail } from '../../models'
 import type { IDriverDetailInput } from '../../types/User'
-import type { IReponseAll } from '../../types/generalType'
+import type { IResponseAll } from '../../types/generalType'
 
 interface IDriverDetailService {
   validate(data: any): any
@@ -36,7 +36,7 @@ class DriverDetailsService implements IDriverDetailService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IReponseAll | IDriverDetailInstance[]> {
+  public async all(pParam: any): Promise<IResponseAll | IDriverDetailInstance[]> {
     try {
       const whereStatement: FindOptions = {}
       if (Number(pParam?.pag)) {

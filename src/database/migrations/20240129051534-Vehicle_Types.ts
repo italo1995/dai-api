@@ -15,12 +15,12 @@ module.exports = {
       field: 'name'
     },
     createdAt: {
-      type:DataTypes.DATE,
+      type: DataTypes.DATE,
       field: 'createdAt',
       allownull: false,
     },
     updatedAt: {
-      type:DataTypes.DATE,
+      type: DataTypes.DATE,
       field: 'updatedAt',
       allowNull: false,
     }

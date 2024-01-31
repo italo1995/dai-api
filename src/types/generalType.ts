@@ -1,4 +1,4 @@
-export interface IReponseAll {
+export interface IResponseAll {
   total: number
   totalPage: number
   data: any[]
