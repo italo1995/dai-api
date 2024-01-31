@@ -11,6 +11,9 @@ import { fxCountryFactory } from './Locations/Country'
 import { fxDriverDetailFactory } from './User/DriverDetail'
 import { fxVehicleAdditionalFactory } from './Vehicle/VehicleAdditionalModels'
 import { fxVehicleTypeFactory } from './Vehicle/VehicleTypeModels'
+import { fxBannerFactory } from './web/BannerModel'
+import { fxServiceFactory } from './web/ServiceModel'
+import { fxReviewFactory } from './ReviewModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -28,6 +31,9 @@ export const modelTypeFileUser = fxTypeFileUserFactory(sequelize)
 export const modelDriverDetail = fxDriverDetailFactory(sequelize)
 export const modelVehicleAdditional = fxVehicleAdditionalFactory(sequelize)
 export const modelVehicleType = fxVehicleTypeFactory(sequelize)
+export const modelBanner = fxBannerFactory(sequelize)
+export const modelService = fxServiceFactory(sequelize)
+export const modelReview = fxReviewFactory(sequelize)
 
 const models = {
   modelUser,
@@ -37,7 +43,10 @@ const models = {
   modelTypeFileUser,
   modelDriverDetail,
   modelVehicleAdditional,
-  modelVehicleType
+  modelVehicleType,
+  modelBanner,
+  modelService,
+  modelReview
 }
 
 export type ModelRegistry = typeof models
