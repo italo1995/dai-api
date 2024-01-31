@@ -40,7 +40,7 @@ export const vServicesAttributes: SequelizeAttributes<IServiceAttributes> = {
     type: DataTypes.BOOLEAN,
     field: 'status',
     defaultValue: true,
-    alowNull: true,
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,

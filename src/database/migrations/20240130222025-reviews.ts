@@ -35,7 +35,7 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'features',
         defaultValue: false,
-        allowNUll: true,
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,

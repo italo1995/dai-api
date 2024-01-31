@@ -49,7 +49,7 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     type: DataTypes.STRING,
     field: 'features',
     defaultValue: false,
-    allowNUll: true,
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -70,7 +70,7 @@ export function fxReviewFactory(sequelize: Sequelize) {
       order: [['createdAt', 'DESC']],
     },
     freezeTableName: true,
-    timestamp: true,
+    timestamps: true,
   })
 
   vReview.prototype.toJSON = function () {

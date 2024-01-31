@@ -1,57 +1,61 @@
 import { Op, type FindOptions } from 'sequelize'
 import sequelize from '../models'
 
-export const fxOrderNameId = (pParam: any, whereStatement: FindOptions) => {
+export const fxOrderNameId = (pParam: any, pWhereStatement: FindOptions) => {
   if (Number(pParam?.orden)  === 2) {
-    whereStatement.order = whereStatement.order instanceof Array ? [
-      ...whereStatement.order, ['name', 'ASC']
+    pWhereStatement.order = pWhereStatement.order instanceof Array ? [
+      ...pWhereStatement.order, ['name', 'ASC']
     ] : [
       ['name', 'ASC']
     ]
   } else {
-    whereStatement.order = whereStatement.order instanceof Array ? [
-      ...whereStatement.order, ['id', 'DESC']
+    pWhereStatement.order = pWhereStatement.order instanceof Array ? [
+      ...pWhereStatement.order, ['id', 'DESC']
     ] : [
       ['id', 'DESC']
     ]
   }
-  return whereStatement.order
+  return pWhereStatement.order
 }
 
-export const fxSearchILike = (pParam: any, whereStatement: FindOptions, pName: string = 'name', modelName: string) => {
-  const vModelAttributes: any = sequelize.models[modelName].getAttributes()
+const fxSearchILikeQuery = (pParam: any, pWhereStatement: FindOptions, pName: string, pAttibutesPermisse: string | string[]) => {
+  const vName = pName.trim()
+  if (pAttibutesPermisse.includes(vName)) {
+    pWhereStatement.where = { ...pWhereStatement.where, [vName]: { [Op.iLike]: `%${pParam.search}%` } }
+  }
+  return pWhereStatement.where || {}
+}
+
+export const fxSearchILike = (pParam: any, pWhereStatement: FindOptions, pName: string = 'name', pModelName: string) => {
+  const vModelAttributes: any = sequelize.models[pModelName].getAttributes()
   const vAttibutesPermisse = Object.keys(vModelAttributes).filter(key => vModelAttributes[key].type.key === 'STRING')
   if (pParam?.search) {
     if (pParam?.typeSearch && pParam.typeSearch.includes(',')) {
       const vTypeSearchs = pParam.typeSearch.split(',')
       for (const typeSearch of vTypeSearchs) {
-        if (vAttibutesPermisse.includes(typeSearch.trim())) {
-          whereStatement.where = { ...whereStatement.where, [typeSearch.trim()]: { [Op.iLike]: `%${pParam.search}%` } }
-        }
+        pWhereStatement.where = fxSearchILikeQuery(pParam, pWhereStatement, typeSearch, vAttibutesPermisse)
       }
     } else {
-      if (vAttibutesPermisse.includes(pName.trim())) {
-        whereStatement.where = { ...whereStatement.where, [pName.trim()]: { [Op.iLike]: `%${pParam.search}%` } }
-      }
+      pWhereStatement.where = fxSearchILikeQuery(pParam, pWhereStatement, pName, vAttibutesPermisse)
     }
   }
-  return whereStatement.where || {}
+  return pWhereStatement.where || {}
 }
 
-export const fxPaginate = (pParam: any, whereStatement: FindOptions) => {
+export const fxPaginate = (pParam: any, pWhereStatement: FindOptions) => {
   if (Number(pParam?.pag)) {
     const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
-    whereStatement.limit = limit
-    whereStatement.offset = (pParam.pag - 1) * limit
+    pWhereStatement.limit = limit
+    pWhereStatement.offset = (pParam.pag - 1) * limit
   }
-  return whereStatement
+  return pWhereStatement
 }
 
-export const fxReponseServices = async (pParam: any, whereStatement: FindOptions, modelName: string, vResponse: any) => {
+export const fxReponseServices = async (pParam: any, pWhereStatement: FindOptions, pModelName: string, vResponse: any) => {
   const vLimit = Number(pParam?.limit) || 10
   console.log('sequelize.models :>> ', sequelize.models)
-  console.log('modelName :>> ', modelName)
-  const vCount = await sequelize.models[modelName].count(whereStatement)
+  console.log('modelName :>> ', pModelName)
+  const vCount = await sequelize.models[pModelName].count(pWhereStatement)
   const vResponsePaginate: any = {
     total: vCount,
     totalPage: Math.ceil(vCount / vLimit),
