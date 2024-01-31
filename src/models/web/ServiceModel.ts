@@ -19,58 +19,58 @@ export interface IServiceInstances
     IServiceAttributes {}
 
 export const vServicesAttributes: SequelizeAttributes<IServiceAttributes> = {
-    id: {
-        type: DataTypes.INTEGER,
-        field: 'id',
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      name: {
-        type: DataTypes.STRING,
-        field: 'name'
-      },
-      image: {
-        type: DataTypes.STRING,
-        field: 'image'
-      },
-      description: {
-        type: DataTypes.TEXT,
-        field: 'description',
-      },
-      state: {
-        type: DataTypes.BOOLEAN,
-        field: 'status',
-        defaultValue: true,
-        alowNull: true,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        field: 'createdAt',
-        allowNull: false,
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        field: 'updatedAt',
-        allowNull: false,
-      },
-      deletedAt: {
-        type: DataTypes.DATE,
-        field: 'deletedAt',
-        allowNull: false,
-      },
+  id: {
+    type: DataTypes.INTEGER,
+    field: 'id',
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    field: 'name'
+  },
+  image: {
+    type: DataTypes.STRING,
+    field: 'image'
+  },
+  description: {
+    type: DataTypes.TEXT,
+    field: 'description',
+  },
+  state: {
+    type: DataTypes.BOOLEAN,
+    field: 'status',
+    defaultValue: true,
+    allowNull: true,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    field: 'createdAt',
+    allowNull: false,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    field: 'updatedAt',
+    allowNull: false,
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    field: 'deletedAt',
+    allowNull: false,
+  },
 }
 
 export function fxServiceFactory (sequelize: Sequelize) {
   const vService = <ModelStatic<IServiceInstances>>sequelize.define('Service',
-  vServicesAttributes,
-  {
-    tableName: 'service',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-    paranoid: true,
+    vServicesAttributes,
+    {
+      tableName: 'service',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
     }
   )
 

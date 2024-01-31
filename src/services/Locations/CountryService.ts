@@ -47,20 +47,20 @@ class CountryService implements ICountryService {
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
       whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Country')
-      const res = await modelCountry.findAll(whereStatement)
+      const vRes = await modelCountry.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const limit = Number(pParam?.limit) || 10
-        const count = await modelCountry.count(whereStatement)
-        const resp = {
-          total: count,
-          totalPage: Math.ceil(count / limit),
-          data: res,
+        const vLimit = Number(pParam?.limit) || 10
+        const vCount = await modelCountry.count(whereStatement)
+        const vResp = {
+          total: vCount,
+          totalPage: Math.ceil(vCount / vLimit),
+          data: vRes,
           actualPage: Number(pParam.pag),
         }
-        return resp
+        return vResp
       }
 
-      return res
+      return vRes
     } catch (error) {
       throw error
     }
