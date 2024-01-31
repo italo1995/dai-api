@@ -28,6 +28,7 @@ export const modelTypeFileUser = fxTypeFileUserFactory(sequelize)
 export const modelDriverDetail = fxDriverDetailFactory(sequelize)
 export const modelVehicleAdditional = fxVehicleAdditionalFactory(sequelize)
 export const modelVehicleType = fxVehicleTypeFactory(sequelize)
+
 const models = {
   modelUser,
   modelUserCode,

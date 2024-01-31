@@ -58,7 +58,8 @@ export const moveImages = (pName: string): string => {
 
 export const fxTwilioSendCode = async (
   pPhoneNumber: string,
-  pCode: string | null
+  pCode: string | null,
+  pHash: string | null
 ): Promise<string> => {
   const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
   const vAuthToken = AppConfig.TWILIO_AUTH_Token
@@ -70,7 +71,7 @@ export const fxTwilioSendCode = async (
   }
   try {
     const message = await fxClient.messages.create({
-      body: `Tu código de verificación es ${vCode}`,
+      body: `${pHash ? pHash : ''} Tu código de verificación es ${vCode}`,
       from: vTwilioPhoneNumber,
       to: pPhoneNumber,
     })
