@@ -3,7 +3,7 @@ import fs from 'fs'
 import nodeHtmlToImage from 'node-html-to-image'
 
 class TransferController {
-  async show(_pReq: Request, pRes: Response, pNext: NextFunction) {
+  async market(_pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const auth = _pReq.auth
       const image: any = fs.readFileSync('uploads/resources/marcador-de-posicion.png')

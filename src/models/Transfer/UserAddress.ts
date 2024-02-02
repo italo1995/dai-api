@@ -9,13 +9,14 @@ export interface IUserAddresses {
   reference: string
   lat: number
   lon: number
+  file?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
 }
 interface IUserAddressCreationAttributes extends Optional<IUserAddresses, 'id'> {}
 
-export interface IDriverDetailInstance
+export interface IUserAddressInstance
   extends Model<IUserAddresses, IUserAddressCreationAttributes>,
     IUserAddresses {}
 
@@ -28,7 +29,7 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = 
   },
   userId: {
     type: DataTypes.INTEGER,
-    field: 'user_Id',
+    field: 'user_id',
   },
   name: {
     type: DataTypes.STRING,
@@ -38,21 +39,29 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = 
     type: DataTypes.TEXT,
     field: 'address',
     defaultValue: '',
-    allowNull: true,
+    allowNull: false,
   },
   reference: {
     type: DataTypes.TEXT,
     field: 'reference',
     defaultValue: '',
-    allowNull: true,
+    allowNull: false,
   },
   lat: {
     type: DataTypes.DOUBLE,
     field: 'lat',
+    allowNull: false
   },
   lon: {
     type: DataTypes.DOUBLE,
     field: 'lon',
+    allowNull: false
+  },
+  file: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null,
+    field: 'file'
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -67,21 +76,26 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = 
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false,
+    allowNull: true,
+    defaultValue: null
   },
 }
 
 export function fxUserAddressFactory(sequelize: Sequelize) {
-  const vUserAddress = <ModelStatic<IDriverDetailInstance>>sequelize.define(
+  const vUserAddress = <ModelStatic<IUserAddressInstance>>sequelize.define(
     'UserAddress',
     vUserAddressModelAttributes,
     {
       tableName: 'user_addresses',
       defaultScope: {
+        attributes: {
+          exclude: ['deletedAt', 'userId'],
+        },
         order: [['createdAt', 'DESC']],
       },
       freezeTableName: true,
       timestamps: true,
+      paranoid: true
     }
   )
 

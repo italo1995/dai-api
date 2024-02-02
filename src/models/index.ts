@@ -15,6 +15,7 @@ import { fxBannerFactory } from './web/BannerModel'
 import { fxServiceFactory } from './web/ServiceModel'
 import { fxReviewFactory } from './ReviewModel'
 import { fxNewFactory } from './web/NewsModel'
+import { fxUserAddressFactory } from './Transfer/UserAddress'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -36,6 +37,7 @@ export const modelBanner = fxBannerFactory(sequelize)
 export const modelService = fxServiceFactory(sequelize)
 export const modelReview = fxReviewFactory(sequelize)
 export const modelNew = fxNewFactory(sequelize)
+export const modelUserAddress = fxUserAddressFactory(sequelize)
 
 const models = {
   modelUser,
@@ -49,7 +51,8 @@ const models = {
   modelBanner,
   modelService,
   modelReview,
-  modelNew
+  modelNew,
+  modelUserAddress
 }
 
 export type ModelRegistry = typeof models

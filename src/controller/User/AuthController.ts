@@ -135,10 +135,9 @@ class AuthController {
         vData.id = vUserId
         const vDetail: any = pReq.input('details', 'json')
         if (vData?.avatar) {
-          const vRouteAvatarImages = moveImages(vData.avatar)
+          const vRouteAvatarImages = await moveImages(vData.avatar)
           vData.avatar = vRouteAvatarImages
         }
-        console.log('vData :>> ', vData)
         const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (vDetail) {
           const driverDetail: IDriverDetailInput[] = []
@@ -155,7 +154,7 @@ class AuthController {
               element.type = field.type
               element.userId = vUserId
               if (element.type === 'image') {
-                const vRouteAvatarImages = moveImages(field.value)
+                const vRouteAvatarImages = await moveImages(field.value)
                 element.value = vRouteAvatarImages
               } else {
                 element.value = field.value

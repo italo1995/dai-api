@@ -1,6 +1,6 @@
 import express from 'express'
 import AuthRoute from './User/AuthRoute'
-import CountryRoute from './Location/Country'
+import CountryRoute from './Location/CountryRoute'
 import FileRoute from './FileRoute'
 import server from './server'
 import VehicleAdditional from './Vehicle/VehicleAdditionalRoute'
@@ -10,6 +10,7 @@ import Service from './web/ServiceRoute'
 import Review from './ReviewRoute'
 import Transfer from './Transfer/TransferRoute'
 import news from './web/NewRoute'
+import UserAddress from './Transfer/UserAddressRoute'
 
 const router = express.Router()
 
@@ -22,7 +23,8 @@ router.use('/vehicleType', VehicleType)
 router.use('/Banner', Banner)
 router.use('/Service', Service)
 router.use('/Review', Review)
-router.use('/Transfer', Transfer)
+router.use('/transfer', Transfer)
 router.use('/new', news)
+router.use('/userAddress', UserAddress)
 
 export default router

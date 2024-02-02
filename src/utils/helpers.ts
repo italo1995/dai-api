@@ -1,8 +1,9 @@
 import jwt, { type Secret } from 'jsonwebtoken'
+import * as fs from 'fs'
+import imageThumbnail from 'image-thumbnail'
 import twilio from 'twilio'
 import AppConfig from '../config/AppConfig'
 import type { IUserAttributes } from '../models/User/User'
-import * as fs from 'fs'
 
 export const fxSuccessResponse = (code: number | null = null, data: any, message: string | null = null) => {
   return {
@@ -41,11 +42,16 @@ export const fxGenerateCode = () => {
   return code
 }
 
-export const moveImages = (pName: string): string => {
+export const moveImages = async (pName: string): Promise<string> => {
   if (pName && fs.existsSync(`uploads/${pName}`)) {
     const vNameImages: string = pName.replace('temp', 'storage')
-    fs.writeFileSync(`uploads/${vNameImages}`, `uploads/${pName}`)
-    fs.unlinkSync(`uploads/${pName}`)
+    fs.rename(`uploads/${pName}`, `uploads/${vNameImages}`, (err) => {
+      if (err) throw err
+    })
+    const options: any = { width: 200, responseType: 'buffer' }
+    const thumbnail = await imageThumbnail(`uploads/${vNameImages}`, options)
+    const vThumbnailNameImages: string = pName.replace('temp', 'thumb')
+    fs.writeFileSync(`uploads/${vThumbnailNameImages}`, thumbnail)
     return vNameImages
   } else {
     const vNameImages: string = pName.replace('temp', 'storage')
@@ -85,4 +91,37 @@ export const fxTwilioSendCode = async (
     console.log('error :>>', error)
   }
   return vCode.toString()
+}
+export const normalizeNameImage = (pFilename: string) => {
+  const charMap: any = {
+    'á': 'a',
+    'é': 'e',
+    'í': 'i',
+    'ó': 'o',
+    'ú': 'u',
+    'ü': 'u',
+    'ñ': 'n',
+    'ç': 'c',
+    'ß': 's',
+    'Ø': 'O',
+    'ø': 'o',
+    'Å': 'A',
+    'å': 'a',
+    'Æ': 'A',
+    'æ': 'a',
+    'Ä': 'A',
+    'ä': 'a',
+    'Ö': 'O',
+    'ö': 'o',
+    'Ü': 'U',
+    'Ã': 'A',
+    'ã': 'a',
+  }
+
+  const regex = new RegExp(Object.keys(charMap).join('|'), 'g')
+ 
+  const vFileName = pFilename.replace(regex, (match) => charMap[match] || '-')
+  return  vFileName.trim()
+    .replace(/ /g, '_')
+    .toLowerCase()
 }

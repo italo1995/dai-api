@@ -1,4 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
+import { v4 as uuidv4 } from 'uuid'
+import path from 'path'
 import { fxSuccessResponse } from '../utils/helpers'
 import * as fs from 'fs'
 
@@ -12,6 +14,7 @@ class FileController {
       pNext(error)
     }
   }
+
   async uploadFile(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const images: string[] = []
@@ -19,10 +22,9 @@ class FileController {
         const entries = Object.entries(pReq.files)
         for (const item of entries) {
           const element = item[1]
-          const vNormalizedName = element.originalname
-            .trim()
-            .replace(/ /g, '_')
-            .toLowerCase()
+          console.log('element.originalname :>> ', element)
+          const format = path.extname(element.originalname)
+          const vNormalizedName = uuidv4() + format
           const vFileName = `temp/${Date.now()}-${vNormalizedName}`
           fs.writeFileSync(`uploads/${vFileName}`, element.buffer)
           images.push(`${vFileName}`)
@@ -33,5 +35,6 @@ class FileController {
       pNext(err)
     }
   }
+
 }
 export default new FileController()
