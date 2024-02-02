@@ -61,10 +61,10 @@ export const vServicesAttributes: SequelizeAttributes<IServiceAttributes> = {
 
 export function fxServiceFactory(sequelize: Sequelize) {
   const vService = <ModelStatic<IServiceInstance>>sequelize.define(
-    'Service',
+    'services',
     vServicesAttributes,
     {
-      tableName: 'service',
+      tableName: 'services',
       defaultScope: {
         order: [['createdAt', 'DESC']],
       },
