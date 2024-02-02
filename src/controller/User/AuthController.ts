@@ -62,13 +62,7 @@ class AuthController {
         vData.phoneCode
       )
       const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
-      let vCode: string | null
-      if (vCodePhoneNumberExist) {
-        vCode = vCodePhoneNumberExist
-      } else {
-        vCode = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
-      }
-      console.log('vCode :>> ', vCode)
+      const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
       if (!vCode) {
         return pRes.status(200).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }

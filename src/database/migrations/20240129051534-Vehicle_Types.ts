@@ -28,6 +28,6 @@ module.exports = {
   },
 
   async down(queryInterface: QueryInterface) {
-    await queryInterface.dropTable('vehicle_Types')
+    await queryInterface.dropTable('vehicle_types')
   },
 }

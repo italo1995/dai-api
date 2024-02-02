@@ -42,7 +42,7 @@ export const fxGenerateCode = () => {
 }
 
 export const moveImages = (pName: string): string => {
-  if (fs.existsSync(`uploads/${pName}`)) {
+  if (pName && fs.existsSync(`uploads/${pName}`)) {
     const vNameImages: string = pName.replace('temp', 'storage')
     fs.writeFileSync(`uploads/${vNameImages}`, `uploads/${pName}`)
     fs.unlinkSync(`uploads/${pName}`)
@@ -69,9 +69,14 @@ export const fxTwilioSendCode = async (
   if (!vCode) {
     vCode = fxGenerateCode()
   }
+  console.log({
+    body: `${pHash ? pHash : ''} Tu código de verificación es: ${vCode}`,
+    from: vTwilioPhoneNumber,
+    to: pPhoneNumber,
+  })
   try {
     const message = await fxClient.messages.create({
-      body: `${pHash ? pHash : ''} Tu código de verificación es ${vCode}`,
+      body: `${pHash ? pHash : ''} Tu código de verificación es: ${vCode}`,
       from: vTwilioPhoneNumber,
       to: pPhoneNumber,
     })

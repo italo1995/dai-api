@@ -41,7 +41,7 @@ export function fxVehicleTypeFactory (sequelize: Sequelize) {
     'VehicleType',
     vVehicleTypeModelAttributes,
     {
-      tableName: 'vehicle_Types',
+      tableName: 'vehicle_types',
       defaultScope: {
         order: [['createdAt', 'DESC']],
       },

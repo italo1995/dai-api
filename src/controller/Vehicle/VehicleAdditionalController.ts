@@ -53,7 +53,7 @@ class VehicleAdditionalController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vReponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }

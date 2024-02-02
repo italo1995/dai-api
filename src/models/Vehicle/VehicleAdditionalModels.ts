@@ -26,7 +26,7 @@ SequelizeAttributes<IVehicleAdditionalAtributes> = {
   },
   createdAt: {
     type: DataTypes.DATE,
-    field: 'createAt',
+    field: 'createdAt',
     allowNull: false,
   },
   updatedAt: {

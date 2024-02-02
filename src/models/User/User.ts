@@ -74,7 +74,7 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
       if (typeof pVal === 'number') {
         pVal = pVal.toString()
       }
-      this.setDataValue('phoneNumber', pVal)
+      this.setDataValue('phoneCode', pVal)
     },
   },
   phoneNumber: {
