@@ -24,7 +24,7 @@ import type { IUserInput, IUserCodeInput, IUserInputUpdate } from '../../types/U
 import type { IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
-import { Op } from 'sequelize'
+// import { Op } from 'sequelize'
 
 interface IAuthService {
   showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
@@ -86,27 +86,27 @@ class AuthService implements IAuthService {
 
   async showUserCodeNumber(pPhoneNumber: string, pPhoneCode: string): Promise<string | null> {
     const vPhoneNumber: string = `${pPhoneCode}${pPhoneNumber}`
-    const vDate = new Date()
+    // const vDate = new Date()
     const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
       where: {
         phoneNumber: vPhoneNumber,
-        createdAt: {
-          [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
-        },
+        // createdAt: {
+        //   [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
+        // },
       },
     })
     return vResponse?.dataValues?.code || null
   }
 
   async showCode(pData: IUserCodeInput): Promise<boolean> {
-    const vDate = new Date()
+    // const vDate = new Date()
     const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
       where: {
         code: pData.code,
         phoneNumber: pData.phoneNumber,
-        createdAt: {
-          [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
-        },
+        // createdAt: {
+        //   [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
+        // },
       },
     })
     await vResponse?.destroy()

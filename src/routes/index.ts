@@ -8,6 +8,7 @@ import VehicleType from './Vehicle/VehicleTypeRoute'
 import Banner from './web/BannerRoute'
 import Service from './web/ServiceRoute'
 import Review from './ReviewRoute'
+import Transfer from './Transfer/TransferRoute'
 import news from './web/NewRoute'
 
 const router = express.Router()
@@ -21,6 +22,7 @@ router.use('/vehicleType', VehicleType)
 router.use('/Banner', Banner)
 router.use('/Service', Service)
 router.use('/Review', Review)
+router.use('/Transfer', Transfer)
 router.use('/new', news)
 
 export default router
