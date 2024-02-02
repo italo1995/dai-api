@@ -1,0 +1,186 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "News API",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/show": {
+        "get": {
+          "summary": "Get a specific news item",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The requested news item",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/News"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/all": {
+        "get": {
+          "summary": "Get all news items",
+          "parameters": [
+            {
+              "name": "pag",
+              "in": "query",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "orden",
+              "in": "query",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of all news items",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/News"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/create": {
+        "post": {
+          "summary": "Create a new news item",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The created news item",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/News"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/update": {
+        "post": {
+          "summary": "Update an existing news item",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The updated news item",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/News"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "News": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The ID of the news item"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the news item"
+            },
+            "image": {
+              "type": "string",
+              "description": "The image of the news item"
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the news item"
+            },
+            "state": {
+              "type": "boolean",
+              "description": "The state of the news item"
+            },
+            "isFeatured": {
+              "type": "boolean",
+              "description": "Whether the news item is featured or not"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The creation date and time of the news item"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The last update date and time of the news item"
+            },
+            "deletedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The deletion date and time of the news item"
+            }
+          },
+          "required": [
+            "name",
+            "image",
+            "description"
+          ]
+        }
+      }
+    }
+  }

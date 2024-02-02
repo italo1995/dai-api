@@ -36,7 +36,7 @@ class ReviewController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -45,13 +45,13 @@ class ReviewController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vReponse: IResponseAllReview | IReviewInstance[] = await ClassReviewService.all(vParam)
-      if (!vReponse) {
+      const vResponse: IResponseAllReview | IReviewInstance[] = await ClassReviewService.all(vParam)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -62,13 +62,13 @@ class ReviewController {
       const vData: IReviewInput = pReq.only([
         'name',
       ])
-      const vReponse: IReviewInstance | null = await ClassReviewService.create(vData)
-      if (!vReponse) {
+      const vResponse: IReviewInstance | null = await ClassReviewService.create(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -80,13 +80,13 @@ class ReviewController {
         'id',
         'name',
       ])
-      const vReponse: IReviewInstance | null = await ClassReviewService.update(vData)
-      if (!vReponse) {
+      const vResponse: IReviewInstance | null = await ClassReviewService.update(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
