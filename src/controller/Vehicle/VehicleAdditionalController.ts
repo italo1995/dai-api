@@ -47,13 +47,13 @@ class VehicleAdditionalController {
   async all (pReq: Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vReponse: IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[] = await ClassVehicleAdditionalService.all(vParam)
-      if (!vReponse) {
+      const vResponse: IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[] = await ClassVehicleAdditionalService.all(vParam)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vReponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -82,13 +82,13 @@ class VehicleAdditionalController {
         'id',
         'name',
       ])
-      const vReponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.update(vData)
-      if (!vReponse) {
+      const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.update(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }

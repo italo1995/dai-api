@@ -37,7 +37,7 @@ class BannerController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -46,13 +46,13 @@ class BannerController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vReponse: IResponseAllBanner | IBannerInstance[] = await ClassBannerService.all(vParam)
-      if (!vReponse) {
+      const vResponse: IResponseAllBanner | IBannerInstance[] = await ClassBannerService.all(vParam)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -63,13 +63,13 @@ class BannerController {
       const vData: IWebInput = pReq.only([
         'name',
       ])
-      const vReponse: IBannerInstance | null = await ClassBannerService.create(vData)
-      if (!vReponse) {
+      const vResponse: IBannerInstance | null = await ClassBannerService.create(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -81,13 +81,13 @@ class BannerController {
         'id',
         'name',
       ])
-      const vReponse: IBannerInstance | null = await ClassBannerService.update(vData)
-      if (!vReponse) {
+      const vResponse: IBannerInstance | null = await ClassBannerService.update(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }

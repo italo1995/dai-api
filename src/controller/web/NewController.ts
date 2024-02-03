@@ -36,7 +36,7 @@ class NewController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -45,13 +45,13 @@ class NewController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vReponse: IResponseAllNew | INewInstance[] = await ClassNewService.all(vParam)
-      if (!vReponse) {
+      const vResponse: IResponseAllNew | INewInstance[] = await ClassNewService.all(vParam)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data:vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -62,13 +62,13 @@ class NewController {
       const vData: IWebInput = pReq.only([
         'name',
       ])
-      const vReponse: INewInstance | null = await ClassNewService.create(vData)
-      if (!vReponse) {
+      const vResponse: INewInstance | null = await ClassNewService.create(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -80,13 +80,13 @@ class NewController {
         'id',
         'name',
       ])
-      const vReponse: INewInstance | null = await ClassNewService.update(vData)
-      if (!vReponse) {
+      const vResponse: INewInstance | null = await ClassNewService.update(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
