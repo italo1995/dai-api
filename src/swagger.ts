@@ -11,7 +11,7 @@ export const startSwagger = (app: Express, _port: string) => {
     }
     const options = {
       swaggerDefinition: swaggerDoc,
-      apis: ['src/routes/**/*.ts']
+      apis: ['./src/documentation/*.yaml']
     }
     const swaggerSpec = swaggerJSDoc(options)
     app.use('/doc', swaggerUI.serve, swaggerUI.setup(swaggerSpec))

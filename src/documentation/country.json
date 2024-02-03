@@ -1,0 +1,229 @@
+{
+  "components": {
+    "schemas": {
+      "Country": {
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "the increment id of country"
+        },
+        "name": {
+          "type": "string",
+          "description": "the name of the country"
+        },
+        "flag": {
+          "type": "string",
+          "description": "the file name of the flag for country"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "example": {
+        "id": 1,
+        "name": "Venezuela",
+        "flag": "fileFlagVenezuela.png"
+      }
+    }
+  }
+  },
+  "tags": [
+    {
+      "name": "Countries",
+      "description": "Country endpoint"
+    }
+  ],
+  "paths": {
+    "/api/country/show": {
+      "get": {
+        "summary": "Returns a list of Country",
+        "tags": [
+          "Countries"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Country"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the list of Country",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Country"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/country/all": {
+      "get": {
+        "summary": "Returns a list of Country",
+        "tags": [
+          "Countries"
+        ],
+        "parameters":[
+          {
+            "in": "query",
+            "name": "pag",
+            "schema": {
+              "type": "number"
+            },
+            "description": "the page number to fetch"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the keyword to filter by name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the list of Country",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Country"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/country/store": {
+      "post": {
+        "summary": "Creates a new Country",
+        "tags": [
+          "Countries"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "the name of the country"
+                  },
+                  "flags": {
+                    "type": "string",
+                    "description": "the file name of the flag for country"
+                  },
+                  "phoneCode": {
+                    "type": "string",
+                    "description": "the phone code of the country"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "the state of the country"
+                  }
+                },
+                "required": [
+                  "name",
+                  "flags",
+                  "phoneCode",
+                  "state"
+                ],
+                "example": {
+                  "name": "Venezuela",
+                  "flags": "fileFlagVenezuela.png",
+                  "phoneCode": "+58",
+                  "state": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "the country created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Country"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/country/update": {
+      "post": {
+        "summary": "Update a new Country",
+        "tags": [
+          "Countries"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number",
+                    "description": "country id to edit"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "the name of the country"
+                  },
+                  "flags": {
+                    "type": "string",
+                    "description": "the file name of the flag for country"
+                  },
+                  "phoneCode": {
+                    "type": "string",
+                    "description": "the phone code of the country"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "the state of the country"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "example": {
+                  "id": 1,
+                  "name": "Venezuela",
+                  "flags": "fileFlagVenezuela.png",
+                  "phoneCode": "+58",
+                  "state": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "the country created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Country"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
