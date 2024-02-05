@@ -100,11 +100,11 @@ class AuthController {
         if (!vUser) {
           return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
         }
-        const vReponse = {
+        const vResponse = {
           user: vUser.dataValues,
           token: fxGenerateAccessToken(vUser.dataValues),
         }
-        return pRes.status(200).send(fxSuccessResponse(200, vReponse, 'Codigo verificado'))
+        return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
       } else {
         return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
       }
@@ -243,10 +243,10 @@ class AuthController {
           .status(500)
           .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
       }
-      const vReponse = {
+      const vResponse = {
         user: vUserDB,
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vReponse))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse))
     } catch (error: any) {
       pNext(error)
     }

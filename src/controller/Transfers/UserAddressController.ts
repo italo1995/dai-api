@@ -28,13 +28,13 @@ class UserAddressController {
       const vParam: any = pReq.query
       const vUserId = pReq.auth.id
       vParam.userId = vUserId
-      const vReponse: IResponseAllUserAddress | IUserAddressInstance[] = await ClassUserAddressService.all(vParam)
-      if (!vReponse) {
+      const vResponse: IResponseAllUserAddress | IUserAddressInstance[] = await ClassUserAddressService.all(vParam)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vReponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -56,13 +56,13 @@ class UserAddressController {
         vData.file = vRouteAvatarImages
       }
       vData.userId = vUserId
-      const vReponse: IUserAddressInstance | null = await ClassUserAddressService.create(vData)
-      if (!vReponse) {
+      const vResponse: IUserAddressInstance | null = await ClassUserAddressService.create(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vReponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -85,13 +85,13 @@ class UserAddressController {
       }
       const vUserId = pReq.auth.id
       vData.userId = vUserId
-      const vReponse: IUserAddressInstance | null = await ClassUserAddressService.update(vData)
-      if (!vReponse) {
+      const vResponse: IUserAddressInstance | null = await ClassUserAddressService.update(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }))
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }))
     } catch (error) {
       pNext(error)
     }
@@ -101,8 +101,8 @@ class UserAddressController {
     try {
       const vId: number = pReq.input('id', 'number')
       const vUserId: UUID = pReq.auth.id
-      const vReponse: boolean = await ClassUserAddressService.softDeleteRecord(vId, vUserId)
-      if (!vReponse) {
+      const vResponse: boolean = await ClassUserAddressService.softDeleteRecord(vId, vUserId)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))

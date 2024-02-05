@@ -95,13 +95,13 @@ class CountryController {
         'phoneCode',
         'state'
       ])
-      const vReponse: ICountryInstance | null = await ClassCountryService.update(vData)
-      if (!vReponse) {
+      const vResponse: ICountryInstance | null = await ClassCountryService.update(vData)
+      if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vReponse }, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
