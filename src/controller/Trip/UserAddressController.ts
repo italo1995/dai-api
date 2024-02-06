@@ -2,8 +2,8 @@ import type { NextFunction, Request, Response } from 'express'
 import type { UUID } from 'crypto'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IUserAddressInput, IResponseAllUserAddress } from '../../types/TransferType'
-import ClassUserAddressService from '../../services/Transfer/UserAddressService'
-import type { IUserAddressInstance } from '../../models/Transfer/UserAddress'
+import ClassUserAddressService from '../../services/Trip/UserAddressService'
+import type { IUserAddressInstance } from '../../models/Trip/UserAddress'
 
 class UserAddressController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

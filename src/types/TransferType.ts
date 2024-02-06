@@ -1,4 +1,4 @@
-import type { IUserAddressInstance } from '../models/Transfer/UserAddress'
+import type { IUserAddressInstance } from '../models/Trip/UserAddress'
 import type { IResponseAll } from './generalType'
 
 export interface IUserAddressInput {

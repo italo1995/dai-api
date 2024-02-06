@@ -15,7 +15,12 @@ import { fxBannerFactory } from './web/BannerModel'
 import { fxServiceFactory } from './web/ServiceModel'
 import { fxReviewFactory } from './ReviewModel'
 import { fxNewFactory } from './web/NewsModel'
-import { fxUserAddressFactory } from './Transfer/UserAddress'
+import { fxUserAddressFactory } from './Trip/UserAddress'
+import { fxTripFactory } from './Trip/TripModel'
+import { fxTripPaymentFactory } from './Trip/TripPaymentModel'
+import { fxTripRouteFactory } from './Trip/TripRouteModel'
+import { fxCurrencyFactory } from './CurrencyModel'
+import { fxPaymentMethodFactory } from './PaymentMethodModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -38,7 +43,11 @@ export const modelService = fxServiceFactory(sequelize)
 export const modelReview = fxReviewFactory(sequelize)
 export const modelNew = fxNewFactory(sequelize)
 export const modelUserAddress = fxUserAddressFactory(sequelize)
-
+export const modelTrip = fxTripFactory(sequelize)
+export const modelTripPayment = fxTripPaymentFactory(sequelize)
+export const modelTripRoute = fxTripRouteFactory(sequelize)
+export const modelCurrency = fxCurrencyFactory(sequelize)
+export const modelPaymentMethod = fxPaymentMethodFactory(sequelize)
 const models = {
   modelUser,
   modelUserCode,
@@ -52,7 +61,12 @@ const models = {
   modelService,
   modelReview,
   modelNew,
-  modelUserAddress
+  modelUserAddress,
+  modelTrip,
+  modelTripPayment,
+  modelTripRoute,
+  modelCurrency,
+  modelPaymentMethod
 }
 
 export type ModelRegistry = typeof models

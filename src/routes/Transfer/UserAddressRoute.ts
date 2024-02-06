@@ -1,6 +1,6 @@
 import express from 'express'
 import { authMiddleware } from '../../middlewares/auth'
-import controller from '../../controller/Transfers/UserAddressController'
+import controller from '../../controller/Trip/UserAddressController'
 
 const router = express.Router()
 
