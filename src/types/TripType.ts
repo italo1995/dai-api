@@ -32,6 +32,7 @@ export interface ITripPaymentInput {
   isAprobed?: boolean
 }
 
+
 export interface IResponseAllTripPayment extends IResponseAll {
   total: number
   totalPage: number
@@ -40,7 +41,7 @@ export interface IResponseAllTripPayment extends IResponseAll {
 }
 
 export interface ITripRouteInput {
-  id?: string
+  id: string
   tripId: number
   isInit: boolean
   isEnd: boolean
@@ -52,6 +53,9 @@ export interface ITripRouteInput {
   lon: number
   currencyId: number
   userAddressId: number
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
 }
 
 export interface IResponseAllTripRoute extends IResponseAll {

@@ -2,7 +2,6 @@
 - File: BannerController.ts
 
 - Purpose: Es el controlador de auth de Banner se encarga del banner principal
-
 - Author: Jairo Belen
 
 - Creation: 31/01/2024  

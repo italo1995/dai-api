@@ -11,6 +11,11 @@ import Review from './ReviewRoute'
 import Transfer from './Transfer/TransferRoute'
 import news from './web/NewRoute'
 import UserAddress from './Transfer/UserAddressRoute'
+import Currency from './CurrencyRoute'
+import Trip from './trip/TripRoute'
+import PaymentMethod from './PaymentMethodRoute'
+import TripPayment from './trip/TripPaymentRoutes'
+import TripRoute from './trip/TripRoutesRoute'
 
 const router = express.Router()
 
@@ -26,5 +31,10 @@ router.use('/Review', Review)
 router.use('/transfer', Transfer)
 router.use('/new', news)
 router.use('/userAddress', UserAddress)
+router.use('./Currency', Currency)
+router.use('./Trip', Trip)
+router.use('./PaymentMethod', PaymentMethod)
+router.use('./TripPayment', TripPayment)
+router.use('./TripRoute', TripRoute)
 
 export default router
