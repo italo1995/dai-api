@@ -1,0 +1,159 @@
+components:
+ schemas:
+   Service:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of service
+       name:
+         type: string
+         description: the name of the service
+       image:
+         type: string
+         description: the name of the file of the image for the service
+       description: 
+         type: string
+         description: the description of the service
+     required:
+       - name
+       - image
+       - description
+     example:
+       id: 1
+       name: VIP
+       image: storage/fileService.png
+       description: a VIP vehicle trip 
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Service id
+tags:
+  - name: Service
+    description: Service endpoint
+paths:
+  /api/Service/show:
+    get:
+      summary: Returns a list of Service
+      tags:
+        - Service
+      parameters:
+        - $ref: '#/components/schemas/Service/parameters/id'
+      responses:
+        '200':
+          description: the list of Service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+  /api/Service/all:
+    get:
+      summary: Returns a list of Service
+      tags:
+        - Service
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of Service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+  /api/Service/store:
+    post:
+      summary: Creates a new Service
+      tags:
+        - Service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the Service
+                image:
+                  type: string
+                  description: the file name of the image for the Service
+                description:
+                  type: string
+                  description: the link of the Service
+                state:
+                  type: boolean
+                  description: the state of the Service
+              required:
+                - name
+                - image
+                - description
+                - state
+              example:
+                name: Service
+                image: store/fileService.png
+                description: a VIP vehicle trip
+                state: true
+      responses:
+        '201':
+          description: the Service created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+  /api/Service/update:
+    post:
+      summary: Update a new Service
+      tags:
+        - Service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the Service
+                image:
+                  type: string
+                  description: the file name of the image for the Service
+                description:
+                  type: string
+                  description: the description of the service
+                state:
+                  type: boolean
+                  description: the state of the country
+              required:
+                - id
+              example:
+                id: 1
+                name: Service
+                image: store/fileService.png
+                description: a VIP vehicle trip
+                state: true
+      responses:
+        '201':
+          description: the Service created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'

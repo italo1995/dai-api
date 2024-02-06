@@ -1,0 +1,125 @@
+components:
+ schemas:
+   VehicleAddittional:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of VehicleAddittional
+       name:
+         type: string
+         description: the name of the VehicleAddittional
+     required:
+       - name
+     example:
+       id: 1
+       name: A/C
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the addittional services in the vehicle
+tags:
+  - name: VehicleAddittional
+    description: VehicleAddittional endpoint
+paths:
+  /api/VehicleAddittional/show:
+    get:
+      summary: Returns a list of VehicleAddittional
+      tags:
+        - VehicleAddittional
+      parameters:
+        - $ref: '#/components/schemas/VehicleAddittional/parameters/id'
+      responses:
+        '200':
+          description: the list of additional services inth vehicle
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleAddittional'
+  /api/VehicleAddittional/all:
+    get:
+      summary: Returns a list of VehicleAddittional
+      tags:
+        - VehicleAddittional
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of additional services inth vehicle
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleAddittional'
+  /api/VehicleAddittional/store:
+    post:
+      summary: Creates a new VehicleAddittional
+      tags:
+        - VehicleAddittional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the addittional services in the vehicle
+              required:
+               -name
+              example:
+                name: A/C
+      responses:
+        '201':
+          description: the VehicleAddittional created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleAddittional'
+  /api/VehicleAddittional/update:
+    post:
+      summary: Update a new additional service in the vehicle
+      tags:
+        - VehicleAddittional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                  description: VehicleAddittional id to edit
+                name:
+                  type: string
+                  description: the name of the VehicleAddittional
+              required:
+                - id
+              example:
+                id: 1
+                name: A/C
+      responses:
+        '201':
+          description: the VehicleAddittional created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleAddittional'

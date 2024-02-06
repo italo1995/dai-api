@@ -1,0 +1,164 @@
+components:
+ schemas:
+   Banner:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of banner
+       name:
+         type: string
+         description: the name of the banner
+       image:
+         type: string
+         description: the name of the file of the image for the banner
+       link: 
+         type: string
+         description: the link of the banner
+     required:
+       - name
+       - image
+     example:
+       id: 1
+       name: Portada
+       image: storage/fileBannerPortada.png
+       link: https://Paya.com/banner1
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Banner id
+tags:
+  - name: Banner
+    description: Banner endpoint
+paths:
+  /api/banner/show:
+    get:
+      summary: Returns a list of Banner
+      tags:
+        - Banner
+      parameters:
+        - $ref: '#/components/schemas/Banner/parameters/id'
+      responses:
+        '200':
+          description: the list of Banner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Banner'
+  /api/banner/all:
+    get:
+      summary: Returns a list of banner
+      tags:
+        - Banner
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of Banner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Banner'
+  /api/Banner/store:
+    post:
+      summary: Creates a new Banner
+      tags:
+        - Banner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the Banner
+                image:
+                  type: string
+                  description: the file name of the image for the banner
+                orden:
+                  type: number
+                  description: the order of the banner
+                link:
+                  type: string
+                  description: the link of the banner
+                state:
+                  type: boolean
+                  description: the state of the Banner
+              required:
+                - name
+                - image
+                - link
+                - state
+              example:
+                name: Banner
+                image: store/fileBanner1.png
+                link: https://Paya.com/banner1
+                state: true
+      responses:
+        '201':
+          description: the Banner created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Banner'
+  /api/Banner/update:
+    post:
+      summary: Update a new Banner
+      tags:
+        - Banner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the Banner
+                image:
+                  type: string
+                  description: the file name of the image for the banner
+                orden:
+                  type: number
+                  description: the order of the banner
+                link:
+                  type: string
+                  description: the link of the banner
+                state:
+                  type: boolean
+                  description: the state of the banner
+              required:
+                - id
+              example:
+                id: 1
+                name: Banner
+                image: store/fileBanner.png
+                link: https://Paya.com/banner1
+                state: true
+      responses:
+        '201':
+          description: the banner created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Banner'

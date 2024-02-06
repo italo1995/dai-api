@@ -27,7 +27,7 @@ module.exports = {
       link: {
         type: DataTypes.STRING,
         field: 'link',
-        defaultValue: true,
+        defaultValue: null,
         allowNull: true,
       },
       state: {
