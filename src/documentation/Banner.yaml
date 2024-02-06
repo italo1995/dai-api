@@ -146,7 +146,7 @@ paths:
                   description: the link of the banner
                 state:
                   type: boolean
-                  description: the state of the country
+                  description: the state of the banner
               required:
                 - id
               example:
@@ -161,4 +161,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Country'
+                $ref: '#/components/schemas/Banner'

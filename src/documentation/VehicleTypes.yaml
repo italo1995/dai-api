@@ -35,7 +35,7 @@ paths:
         - $ref: '#/components/schemas/VehicleTypes/parameters/id'
       responses:
         '200':
-          description: the list of VehicleTypes
+          description: the list of types of vehicles
           content:
             application/json:
               schema:
@@ -60,7 +60,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of VVehicleTypes
+          description: the list of types of vehicles
           content:
             application/json:
               schema:

@@ -35,7 +35,7 @@ paths:
         - $ref: '#/components/schemas/VehicleAddittional/parameters/id'
       responses:
         '200':
-          description: the list of VehicleAddittional
+          description: the list of additional services inth vehicle
           content:
             application/json:
               schema:
@@ -60,7 +60,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of VehicleAddittional
+          description: the list of additional services inth vehicle
           content:
             application/json:
               schema:
