@@ -5,7 +5,7 @@ components:
      properties:
        id:
          type: number
-         description: the increment id of country
+         description: the auto-increment id of country
        name:
          type: string
          description: the name of the country

@@ -1,0 +1,125 @@
+components:
+ schemas:
+   VehicleTypes:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of VehicleTypes
+       name:
+         type: string
+         description: the name of the VehicleTypes
+     required:
+       - name
+     example:
+       id: 1
+       name: sedan
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the types of vehicles
+tags:
+  - name: VehicleTypes
+    description: VehicleTypes endpoint
+paths:
+  /api/VehicleTypes/show:
+    get:
+      summary: Returns a list of VehicleTypes
+      tags:
+        - VehicleTypes
+      parameters:
+        - $ref: '#/components/schemas/VehicleTypes/parameters/id'
+      responses:
+        '200':
+          description: the list of VehicleTypes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleTypes'
+  /api/VehicleTypes/all:
+    get:
+      summary: Returns a list of VehicleTypes
+      tags:
+        - VehicleTypes
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of VVehicleTypes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleTypes'
+  /api/VehicleTypes/store:
+    post:
+      summary: Creates a new VehicleTypes
+      tags:
+        - VehicleTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the types of vehicles
+              required:
+               -name
+              example:
+                name: sedan
+      responses:
+        '201':
+          description: the VehicleTypes created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleTypes'
+  /api/VehicleTypes/update:
+    post:
+      summary: Update a new type of vehicle
+      tags:
+        - VehicleTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+                  description: VehicleTypes id to edit
+                name:
+                  type: string
+                  description: the name of the VehicleTypes
+              required:
+                - id
+              example:
+                id: 1
+                name: sedan
+      responses:
+        '201':
+          description: the VehicleTypes created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleTypes'

@@ -1,0 +1,165 @@
+components:
+ schemas:
+   Review:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of new
+       clientId:
+         type: number
+         description: the  id of the client that comment
+       driverId:
+         type: number
+         description: the id of the driver that made the service
+       qualifiaction: 
+         type: number
+         description: between 1 and 5
+       comment:
+         type: string
+         description: the comment of the client
+     required:
+       - clientId
+       - driverId
+       - qualification
+       - comment
+     example:
+       id: 1
+       clientId: 111
+       driverId: 222
+       qualification: 5
+       comment: excellent service
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Review id
+tags:
+  - name: Review
+    description: Review endpoint
+paths:
+  /api/Review/show:
+    get:
+      summary: Returns a list of Reviews
+      tags:
+        - Review
+      parameters:
+        - $ref: '#/components/schemas/Review/parameters/id'
+      responses:
+        '200':
+          description: the list of the Reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reviews'
+  /api/Reviews/all:
+    get:
+      summary: Returns a list of Reviews
+      tags:
+        - Review
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of Reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+  /api/Review/store:
+    post:
+      summary: Creates a Review
+      tags:
+        - Review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  clientId:
+                    type: number
+                    description: the  id of the client that comments
+                  driverId:
+                    type: number
+                    description: the id of the driver that made the service
+                  qualifiaction: 
+                    type: number
+                    description: between 1 and 5
+                  comment:
+                    type: string
+                    description: the client's comments
+                required:
+                  - clientId
+                  - driverId
+                  - qualification
+                  - comment
+              example:
+                clientId: 111
+                driverId: 222
+                qualification: 5
+                comment: excellent service
+      responses:
+        '201':
+          description: the Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+  /api/Review/update:
+    post:
+      summary: Update a Review
+      tags:
+        - Review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clientId:
+                  type: number
+                  description: the id of the client thats comments
+                driverId:
+                  type: number
+                  description: the id of the driver that made the service
+                qualification:
+                  type: number
+                  description: between 1 and 5
+                comment:
+                  type: string
+                  description: the client's comments
+              required:
+                - id
+              example:
+                id: 1
+                clientId: 111
+                driverId: 222
+                qualification: 5
+                comment: excellent service
+      responses:
+        '201':
+          description: the Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
