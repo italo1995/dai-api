@@ -34,6 +34,12 @@ module.exports = {
         defaultValue: true,
         allowNull: true,
       },
+      countryId: {
+        type: DataTypes.INTEGER,
+        field: 'country_id',
+        defaultValue: null,
+        allowNull: true,
+      },
       createdAt: {
         type: DataTypes.DATE,
         field: 'createdAt',

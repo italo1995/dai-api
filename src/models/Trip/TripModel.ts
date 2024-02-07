@@ -59,11 +59,11 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     allowNull: true,
   },
   currencyId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'currency_id'
   },
   isPayment: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'is_payment',
     defaultValue: false,
     allowNull: true,

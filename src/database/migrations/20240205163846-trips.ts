@@ -41,11 +41,11 @@ module.exports = {
         allowNull: true,
       },
       currencyId: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'currency_id'
       },
       isPayment: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.BOOLEAN,
         field: 'is_payment',
         defaultValue: false,
         allowNull: true,

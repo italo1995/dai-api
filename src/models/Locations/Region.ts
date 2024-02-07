@@ -28,7 +28,7 @@ export const vRegionModelAttributes: SequelizeAttributes<IRegionAttributes> = {
     field: 'name',
   },
   countryId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'country_id',
   },
   flag: {

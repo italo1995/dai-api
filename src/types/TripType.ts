@@ -3,6 +3,23 @@ import type { ITripPaymentInstance } from '../models/Trip/TripPaymentModel'
 import type { ITripRouteInstance } from '../models/Trip/TripRouteModel'
 import type { IResponseAll } from './generalType'
 
+export interface IParamAllTrip {
+  userId: string
+  isClient?: boolean
+  isDriver?: boolean
+  search?: string | null
+  typeSearch?: string | null
+  pag?: number | null
+  limit?: number | null
+}
+
+export interface IParamShowTrip {
+  userId: string
+  id: number
+  isClient?: boolean
+  isDriver?: boolean
+}
+
 export interface ITripInput {
   id?: string
   typeService: string
@@ -45,13 +62,12 @@ export interface ITripRouteInput {
   tripId: number
   isInit: boolean
   isEnd: boolean
-  orden: number
+  orden?: number
   address: string
   reference: string
   referencePointImage: string
   lat: number
   lon: number
-  currencyId: number
   userAddressId: number
   createdAt?: Date
   updatedAt?: Date

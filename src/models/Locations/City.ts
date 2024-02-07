@@ -28,7 +28,7 @@ export const vCityModelAttributes: SequelizeAttributes<ICityAttributes> = {
     field: 'name',
   },
   regionId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'region_id',
   },
   flag: {

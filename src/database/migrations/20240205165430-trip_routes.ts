@@ -11,7 +11,7 @@ module.exports = {
         autoIncrement: true,
       },
       tripId: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'trip_id',
       },
       isInit: {
@@ -27,7 +27,7 @@ module.exports = {
         defaultValue: false
       },
       orden: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'orden',
         allowNull: true,
         defaultValue: null
@@ -58,12 +58,12 @@ module.exports = {
         type: DataTypes.DOUBLE,
         field: 'lon',
       },
-      currencyId: {
-        type: DataTypes.NUMBER,
-        field: 'currency_id',
-      },
+      // currencyId: {
+      //   type: DataTypes.INTEGER,
+      //   field: 'currency_id',
+      // },
       userAddressId: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'user_address_id',
         allowNull: true,
         defaultValue: null

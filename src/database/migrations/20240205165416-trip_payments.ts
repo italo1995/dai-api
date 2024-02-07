@@ -11,7 +11,7 @@ module.exports = {
         autoIncrement: true,
       },
       tripId: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'trip_id',
       },
       type: {
@@ -25,11 +25,11 @@ module.exports = {
         field: 'amount',
       },
       currencyId: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'currency_id',
       },
       paymentMethodId: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         field: 'payment_method_id',
       },
       isAprobed: {

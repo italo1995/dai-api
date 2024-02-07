@@ -25,6 +25,7 @@ interface ITripRouteService {
   validate(data: any): any
   show(pId: number): Promise<ITripRouteInstance | null>
   create(payload: ITripRouteInput): Promise<ITripRouteInstance>
+  createMany(payload: ITripRouteInput[]): Promise<ITripRouteInstance[]>
   update(payload: ITripRouteInput): Promise<ITripRouteInstance | null>
 }
 
@@ -66,6 +67,7 @@ class TripRouteService implements ITripRouteService {
       throw error
     }
   }
+
   async create(pData: ITripRouteInput): Promise<ITripRouteInstance> {
     try {
       const vResponse: ITripRouteInstance = await modelTripRoute.create(pData)
@@ -74,6 +76,16 @@ class TripRouteService implements ITripRouteService {
       throw error
     }
   }
+
+  async createMany(pData: ITripRouteInput[]): Promise<ITripRouteInstance[]> {
+    try {
+      const vResponse: ITripRouteInstance[] = await modelTripRoute.bulkCreate(pData)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
   async update(pData: ITripRouteInput): Promise<ITripRouteInstance | null> {
     try {
       if (pData?.id) {

@@ -6,13 +6,13 @@ export interface ITripRouteAttributes {
   tripId: number
   isInit: boolean
   isEnd: boolean
-  orden: number
+  orden?: number
   address: string
   reference: string
   referencePointImage: string
   lat: number
   lon: number
-  currencyId: number
+  // currencyId: number
   userAddressId: number
   createdAt?: Date
   updatedAt?: Date
@@ -32,7 +32,7 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
     autoIncrement: true,
   },
   tripId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'trip_id',
   },
   isInit: {
@@ -48,7 +48,7 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
     defaultValue: false
   },
   orden: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'orden',
     allowNull: true,
     defaultValue: null
@@ -79,12 +79,12 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
     type: DataTypes.DOUBLE,
     field: 'lon',
   },
-  currencyId: {
-    type: DataTypes.NUMBER,
-    field: 'currency_id',
-  },
+  // currencyId: {
+  //   type: DataTypes.INTEGER,
+  //   field: 'currency_id',
+  // },
   userAddressId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'user_address_id',
     allowNull: true,
     defaultValue: null

@@ -52,7 +52,7 @@ export const vPaymentMethodAttributes: SequelizeAttributes<IPaymentMethodAttribu
     defaultValue: 0
   },
   currencyId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'currency_id'
   },
   numberAccount: {

@@ -27,7 +27,7 @@ export const vTripPaymentAttributes: SequelizeAttributes<ITripPaymentAttributes>
     autoIncrement: true,
   },
   tripId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'trip_id',
   },
   type: {
@@ -41,11 +41,11 @@ export const vTripPaymentAttributes: SequelizeAttributes<ITripPaymentAttributes>
     field: 'amount',
   },
   currencyId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'currency_id',
   },
   paymentMethodsId: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     field: 'payment_method_id',
   },
   isAprobed: {

@@ -15,17 +15,17 @@
   3 - create: crea datos del item
   4 - update: actualiza datos del item
 */
-import { type FindOptions } from 'sequelize'
+import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
 import { modelTrip } from '../../models'
 import type { ITripInstance } from '../../models/Trip/TripModel'
-import type { ITripInput, IResponseAllTrip } from '../../types/TripType'
+import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 
 interface ITripService {
   validate(data: any): any
-  show(pId: number, pUserId: UUID): Promise<ITripInstance | null>
-  all(pParam: any): Promise<IResponseAllTrip | ITripInstance[]>
+  show(pParam: IParamShowTrip): Promise<ITripInstance | null>
+  all(pParam: IParamAllTrip): Promise<IResponseAllTrip | ITripInstance[]>
   create(payload: ITripInput): Promise<ITripInstance>
   update(payload: ITripInput): Promise<ITripInstance | null>
 }
@@ -37,15 +37,22 @@ class TripService implements ITripService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllTrip | ITripInstance[]> {
+  public async all(pParam: IParamAllTrip): Promise<IResponseAllTrip | ITripInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
       whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Trip')
-      whereStatement.where = {
-        ...whereStatement.where,
-        userId: pParam.userId
+      if(pParam.isClient) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          userId: pParam.userId
+        }
+      } else {
+        whereStatement.where = {
+          ...whereStatement.where,
+          driverId: pParam.userId
+        }
       }
       const vRes = await modelTrip.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -66,13 +73,20 @@ class TripService implements ITripService {
     }
   }
 
-  async show(pId: number, pUserId: UUID): Promise<ITripInstance | null> {
-    const vResponse: ITripInstance | null = await modelTrip.findOne({
-      where: {
-        id: pId,
-        userId: pUserId
-      },
-    })
+  async show(pParam: IParamShowTrip): Promise<ITripInstance | null> {
+    const whereStatement: FindOptions = {}
+    if(pParam.isClient) {
+      whereStatement.where = {
+        userId: pParam.userId,
+        id: pParam.id
+      }
+    } else {
+      whereStatement.where = {
+        driverId: pParam.userId,
+        id: pParam.id
+      }
+    }
+    const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
     return vResponse
   }
 
@@ -82,13 +96,22 @@ class TripService implements ITripService {
   }
 
   async update(pData: ITripInput): Promise<ITripInstance | null> {
-    if (pData?.id) {
-      const vItem: ITripInstance | null = await modelTrip.findOne({
-        where: {
-          id: pData.id,
-          userId: pData.userId
+    const whereStatement: FindOptions = {}
+    if (pData.userId) {
+      whereStatement.where = {
+        userId: pData.userId,
+        id: pData.id
+      }
+    } else if (pData.driverId) {
+      whereStatement.where = {
+        driverId: {
+          [Op.or]: [pData.userId, null]
         },
-      })
+        id: pData.id
+      }
+    }
+    if (pData?.id) {
+      const vItem: ITripInstance | null = await modelTrip.findOne(whereStatement)
       await vItem?.update(pData)
       return vItem
     }
