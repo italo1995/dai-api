@@ -22,7 +22,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassBannerService from '../../services/web/BannerService'
 import type { IWebInput, IResponseAllBanner } from '../../types/webTypes'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IBannerInstance } from '../../models/web/BannerModel'
 
 class BannerController {
@@ -66,6 +66,9 @@ class BannerController {
         'link',
         'state',
       ])
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
       const vResponse: IBannerInstance | null = await ClassBannerService.create(vData)
       if (!vResponse) {
         return pRes
@@ -88,6 +91,9 @@ class BannerController {
         'link',
         'state',
       ])
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
       const vResponse: IBannerInstance | null = await ClassBannerService.update(vData)
       if (!vResponse) {
         return pRes

@@ -22,7 +22,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassServiceService from '../../services/web/ServiceService'
 import type { IWebInput, IResponseAllService } from '../../types/webTypes'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IServiceInstance } from '../../models/web/ServiceModel'
 
 class ServiceController {
@@ -65,6 +65,9 @@ class ServiceController {
         'description',
         'state',
       ])
+      if (vData?.image) {
+        vData.image = await moveImages(vData.image)
+      }
       const vResponse: IServiceInstance | null = await ClassServiceService.create(vData)
       if (!vResponse) {
         return pRes
@@ -86,6 +89,9 @@ class ServiceController {
         'description',
         'state',
       ])
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
       const vResponse: IServiceInstance | null = await ClassServiceService.update(vData)
       if (!vResponse) {
         return pRes

@@ -29,6 +29,7 @@ interface ICurrencyService {
 }
 
 class CurrencyService implements ICurrencyService {
+  private modelName = 'Currency'
   async validate(data: any) {
     const dataValidate = modelCurrency.build(data)
     await dataValidate.validate()
@@ -40,12 +41,12 @@ class CurrencyService implements ICurrencyService {
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
       whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
-        'Currency'
+        this.modelName
       )
 
       const vResponse: ICurrencyInstance[] = await modelCurrency.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(pParam, whereStatement, 'Currency', vResponse)
+        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
         return vResponsePaginate
       }
       return vResponse
