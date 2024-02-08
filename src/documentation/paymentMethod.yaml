@@ -1,0 +1,159 @@
+components:
+ schemas:
+   PaymentMethod:
+     type: object
+     properties:
+       id:
+         type: string
+         description: the auto-increment id of the payment method
+       name:
+         type: string
+         description: The name of the payment method
+       fullName:
+         type: string
+         description: user's full name
+       dni:
+         type: string
+         description: the user's dni
+       tax:
+         type: number
+         description: taxes in the payment
+       currencyId:
+         type: number
+         description: the id of the currency used
+       numberAccount:
+         type: string
+         description: number account of the Bearer
+       accountType:
+         type: string
+         description: the type of the user's account 
+       email:
+         type: string
+         description: the user's email
+     required:
+       - fullName
+       - currencyId
+     example:
+       id: 3
+       name: credit card
+       fullName: Carlos Contreras
+       dni: 12345
+       currencyId: 7
+       numberAccount: 456789
+       accountType: tdc
+       email: example@example.paya
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: payment method id
+ securitySchemes:
+  BearerAuth: # puedes usar el nombre que quieras
+   type: apiKey
+   name: Authorization
+   in: header
+   x-auth-id: Bearer abcde12345
+tags:
+  - name: PaymentMethod
+    description: payment methods.
+paths:
+  /api/paymentMethod/show:
+    get:
+      security:
+      - BearerAuth: []
+      summary: Returns a element PaymentMethod
+      tags:
+        - PaymentMethod
+      parameters:
+        - $ref: '#/components/schemas/paymentMethod/parameters/id'
+      responses:
+        '200':
+          description: a paymentMethod element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/paymentMethod'
+  /api/paymentMethod/all:
+    get:
+      security:
+      - BearerAuth: []
+      summary: Returns a list of payment methods
+      tags:
+        - PaymentMethod
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of payment method
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/paymentMethod'
+  /api/paymentMwethod/store:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Creates a new payment Method
+      tags:
+        - PaymenMethod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $ref: '#/components/schemas/paymentMethod'
+              required:
+                $ref: '#/components/schemas/required'
+              example:
+                $ref: '#/components/schemas/paymentMethod/example'
+      responses:
+        '201':
+          description: the PaymentMethod created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/paymentMethod'
+  /api/paymentMethod/update:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Update a new PaymentMethod
+      tags:
+        - PaymentMethod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $ref: '#/components/schemas/paymentMethod'
+              required:
+                $ref: '#/components/schemas/required'
+              example:
+                $ref: '#/components/schemas/paymentMethod/example'
+      responses:
+        '201':
+          description: the PaymentMethod created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/paymentMethod'

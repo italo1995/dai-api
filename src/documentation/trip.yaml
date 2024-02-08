@@ -1,0 +1,192 @@
+components:
+ schemas:
+   Trip:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of Trip
+       typeService:
+         type: string
+         description: the type of trip
+       userId:
+         type: string
+         description: the id of the user
+       driverId: 
+         type: string
+         description: the Id of the driver
+       date:
+         type: date
+         description: the date of the trip
+       status:
+         type: string
+         description: the status of the trip
+       price:
+         type: number
+         description: the pprice of the trip
+       currencyId:
+         type: number
+         description: the currency of the payment
+       isPayment:
+         type: number
+         description: the amount of the payment
+     required:
+       - typeService
+       - userId
+       - isPayment
+     example:
+       id: 1
+       typeService: VIP
+       userId: 1 
+       isPayment: 4.5
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the trip id
+tags:
+  - name: trip
+    description: Trip endpoint
+paths:
+  /api/trip/show:
+    get:
+      summary: Returns a list of trip
+      tags:
+        - Trip
+      parameters:
+        - $ref: '#/components/schemas/trip/parameters/id'
+      responses:
+        '200':
+          description: the list of trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/trip'
+  /api/trip/all:
+    get:
+      summary: Returns a list of trip
+      tags:
+        - Trip
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of currency
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/trip'
+  /api/trip/store:
+    post:
+      summary: Creates a new trip
+      tags:
+        - Trip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                   type: string
+                   description: the id of the user
+                driverId: 
+                   type: string
+                   description: the Id of the driver
+                date:
+                   type: date
+                   description: the date of the trip
+                status:
+                   type: string
+                   description: the status of the trip
+                price:
+                   type: number
+                   description: the pprice of the trip
+                currencyId:
+                   type: number
+                   description: the currency of the payment
+                isPayment:
+                   type: number
+                   description: the amount of the payment
+              required:
+                - typeService
+                - userId
+                - isPayment
+              example:
+                typeService: VIP
+                userId: 1 
+                isPayment: 4.5
+      responses:
+        '201':
+          description: the trip created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trip'
+  /api/trip/update:
+    post:
+      summary: Update a new trip
+      tags:
+        - Trip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                typeService:
+                   type: string
+                   description: the type of trip
+                userId:
+                   type: string
+                   description: the id of the user
+                driverId: 
+                   type: string
+                   description: the Id of the driver
+                date:
+                   type: date
+                   description: the date of the trip
+                status:
+                   type: string
+                   description: the status of the trip
+                price:
+                   type: number
+                   description: the pprice of the trip
+                currencyId:
+                   type: number
+                   description: the currency of the payment
+                isPayment:
+                   type: number
+                   description: the amount of the payment
+              required:
+                - id
+              example:
+                id: 1
+                typeService: VIP
+                userId: 1 
+                isPayment: 4.5
+      responses:
+        '201':
+          description: the trip created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trip'
