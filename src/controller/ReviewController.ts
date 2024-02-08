@@ -91,6 +91,21 @@ class ReviewController {
       pNext(error)
     }
   }
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassReviewService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
 
 }
 

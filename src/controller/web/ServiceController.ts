@@ -61,6 +61,9 @@ class ServiceController {
     try {
       const vData: IWebInput = pReq.only([
         'name',
+        'image',
+        'description',
+        'state',
       ])
       const vResponse: IServiceInstance | null = await ClassServiceService.create(vData)
       if (!vResponse) {
@@ -79,6 +82,9 @@ class ServiceController {
       const vData: IWebInput = pReq.only([
         'id',
         'name',
+        'image',
+        'description',
+        'state',
       ])
       const vResponse: IServiceInstance | null = await ClassServiceService.update(vData)
       if (!vResponse) {
@@ -91,7 +97,20 @@ class ServiceController {
       pNext(error)
     }
   }
-
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassServiceService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
 }
 
 export default new ServiceController()
