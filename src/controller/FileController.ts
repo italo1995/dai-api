@@ -1,15 +1,15 @@
 import type { NextFunction, Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
-import { fxSuccessResponse } from '../utils/helpers'
 import * as fs from 'fs'
+import { fxSuccessResponse } from '../utils/helpers'
 
 class FileController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vFileName = pReq.params.fileName
       const vFolder = pReq.params.folder
-      pRes.download(`uploads/${vFolder}/${vFileName}`)
+      return pRes.download(`uploads/${vFolder}/${vFileName}`)
     } catch (error) {
       pNext(error)
     }
