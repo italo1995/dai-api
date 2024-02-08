@@ -1,0 +1,173 @@
+components:
+ schemas:
+   Currency:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of currency
+       name:
+         type: string
+         description: the name of the currency
+       symbol:
+         type: string
+         description: the name of the file of the symbol of the currency
+       change: 
+         type: number
+         description: the change of the currency
+       type:
+         type: boolean
+         description: the type of the currency
+       auto:
+         type: string
+         description: the auto of the currency
+     required:
+       - name
+       - symbol
+       - change
+       - type
+     example:
+       id: 1
+       name: Dollars
+       symbol: $
+       change: 1.5
+       type: true
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Currency id
+tags:
+  - name: Currency
+    description: Currency endpoint
+paths:
+  /api/currency/show:
+    get:
+      summary: Returns a list of Currency
+      tags:
+        - Currency
+      parameters:
+        - $ref: '#/components/schemas/Currency/parameters/id'
+      responses:
+        '200':
+          description: the list of Currency
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Currency'
+  /api/currency/all:
+    get:
+      summary: Returns a list of currency
+      tags:
+        - Currency
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of currency
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/currency'
+  /api/currency/store:
+    post:
+      summary: Creates a new currency
+      tags:
+        - Currency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the currency
+                symbol:
+                  type: string
+                  description: the file name of the symbol of the currency
+                change:
+                  type: number
+                  description: the change of the currency
+                type:
+                  type: boolean
+                  description: the type of the currency
+                auto:
+                  type: string
+                  description: the auto of the currency
+              required:
+                - name
+                - symbol
+                - change
+                - type
+              example:
+                name: Currency
+                symbol: $
+                change: 1.5
+                type: true
+      responses:
+        '201':
+          description: the currency created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/currency'
+  /api/currency/update:
+    post:
+      summary: Update a new currency
+      tags:
+        - Currency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the currency
+                symbol:
+                  type: string
+                  description: the file name of the symbol of the currency
+                change:
+                  type: number
+                  description: the change of the currency
+                type:
+                  type: boolean
+                  description: the type of the currency
+                auto:
+                  type: string
+                  description: the auto of the currency
+              required:
+                - id
+              example:
+                id: 1
+                name: Currency
+                symbol: $
+                change: 1.5
+                type: true
+      responses:
+        '201':
+          description: the currency created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/currency'

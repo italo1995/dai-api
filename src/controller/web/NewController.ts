@@ -24,6 +24,7 @@ import ClassNewService from '../../services/web/newService'
 import type { IWebInput, IResponseAllNew } from '../../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { INewInstance } from '../../models/web/NewsModel'
+import { modelNew } from '../../models'
 
 class NewController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -61,6 +62,10 @@ class NewController {
     try {
       const vData: IWebInput = pReq.only([
         'name',
+        'image',
+        'description',
+        'state',
+        'isFeatured',
       ])
       const vResponse: INewInstance | null = await ClassNewService.create(vData)
       if (!vResponse) {
@@ -79,6 +84,10 @@ class NewController {
       const vData: IWebInput = pReq.only([
         'id',
         'name',
+        'image',
+        'description',
+        'state',
+        'isFeatured',
       ])
       const vResponse: INewInstance | null = await ClassNewService.update(vData)
       if (!vResponse) {
@@ -89,6 +98,19 @@ class NewController {
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
+    }
+  }
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelNew.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
     }
   }
 }

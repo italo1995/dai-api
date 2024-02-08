@@ -61,6 +61,10 @@ class BannerController {
     try {
       const vData: IWebInput = pReq.only([
         'name',
+        'image',
+        'orden',
+        'link',
+        'state',
       ])
       const vResponse: IBannerInstance | null = await ClassBannerService.create(vData)
       if (!vResponse) {
@@ -79,6 +83,10 @@ class BannerController {
       const vData: IWebInput = pReq.only([
         'id',
         'name',
+        'image',
+        'orden',
+        'link',
+        'state',
       ])
       const vResponse: IBannerInstance | null = await ClassBannerService.update(vData)
       if (!vResponse) {
@@ -87,6 +95,20 @@ class BannerController {
           .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassBannerService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }

@@ -10,6 +10,7 @@ export interface IReviewAttributes {
   features?: string
   createdAt?: Date
   updatedAt?: Date
+  deletedAt?: Date
 }
 interface IReviewCreationAttributes extends Optional<IReviewAttributes, 'id'> {}
 

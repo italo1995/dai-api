@@ -1,0 +1,153 @@
+components:
+ schemas:
+   TripPayment:
+     type: object
+     properties:
+       id:
+         type: string
+         description: the auto-increment id of TripPayment
+       tripId:
+         type: number
+         description: The id of the trip
+       type:
+         type: string
+         description: the type of the trip
+       amount:
+         type: number
+         description: The amount of the trip
+       currencyId:
+         type: number
+         description: the currency of the payment
+       paymentMethodsId:
+         type: number
+         description: the id of the payment method
+       isAprobed:
+         type: boolean
+         description: the state of the payment
+     required:
+       - tripId
+       - type
+       - amount
+     example:
+       id: 3
+       tripId: 25
+       tipe: VIP
+       amount: 16
+       currencyId: 3
+       paymentMethodsId: 2
+       isAprobed: true
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the tripPayment id
+ securitySchemes:
+  BearerAuth: # puedes usar el nombre que quieras
+   type: apiKey
+   name: Authorization
+   in: header
+   x-auth-id: Bearer abcde12345
+tags:
+  - name: tripPayment
+    description: the payment of the trip
+paths:
+  /api/tripPayment/show:
+    get:
+      security:
+      - BearerAuth: []
+      summary: Returns a element TripPayment
+      tags:
+        - TripPayment
+      parameters:
+        - $ref: '#/components/schemas/tripPayment/parameters/id'
+      responses:
+        '200':
+          description: a TripPayment element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/tripPayment'
+  /api/tripPayment/all:
+    get:
+      security:
+      - BearerAuth: []
+      summary: Returns a list of tripPayment
+      tags:
+        - TripPayment
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of TripPayment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/tripPayment'
+  /api/tripPayment/store:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Creates a new PaymentMethod
+      tags:
+        - PaymentMethod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $ref: '#/components/schemas/paymentMethod'
+              required:
+                $ref: '#/components/schemas/required'
+              example:
+                $ref: '#/components/schemas/paymentMethod/example'
+      responses:
+        '201':
+          description: the Payment Method created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+  /api/paymentMethod/update:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Update a new PaymentMethod
+      tags:
+        - PaymentMethod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $ref: '#/components/schemas/paymentMethod'
+              required:
+                $ref: '#/components/schemas/required'
+              example:
+                $ref: '#/components/schemas/paymentMethod/example'
+      responses:
+        '201':
+          description: the PaymentMethod created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/paymentMethod'

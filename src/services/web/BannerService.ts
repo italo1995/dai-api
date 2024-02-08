@@ -91,5 +91,18 @@ class BannerService implements IBannerService {
       throw error
     }
   }
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelBanner.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
+    }
+  }
 }
 export default new BannerService()

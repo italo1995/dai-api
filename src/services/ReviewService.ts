@@ -98,6 +98,18 @@ class ReviewService implements IReviewService {
       throw error
     }
   }
-
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelReview.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
+    }
+  }
 }
 export default new ReviewService()
