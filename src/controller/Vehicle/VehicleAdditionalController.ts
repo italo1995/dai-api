@@ -25,6 +25,7 @@ import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditio
 import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
+import { modelVehicleAdditional } from '../../models'
 
 class VehicleAdditionalController {
 
@@ -93,6 +94,21 @@ class VehicleAdditionalController {
       pNext(error)
     }
   }
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelVehicleAdditional.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
+    }
+  }
+
+
 }
 
 export default new VehicleAdditionalController()

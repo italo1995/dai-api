@@ -47,6 +47,11 @@ module.exports = {
         field: 'updatedAt',
         allowNull: false,
       },
+      deletedAt: {
+        type: DataTypes.DATE,
+        field: 'deletedAt',
+        allowNull: false,
+      },
     })
   },
 

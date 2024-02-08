@@ -25,6 +25,7 @@ import ClassVehicleTypeService from '../../services/Vehicle/VehicleTypeService'
 import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
+import { modelVehicleType } from '../../models'
 
 class VehicleTypeController {
 
@@ -91,6 +92,19 @@ class VehicleTypeController {
       return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
+    }
+  }
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelVehicleType.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
     }
   }
 }

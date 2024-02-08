@@ -6,6 +6,7 @@ export interface IVehicleAdditionalAtributes {
     name: string
     createdAt?: Date
     updatedAt?: Date
+    deletedAt?: Date
 }
 interface IVehicleAdditionalcreationAtributes extends Optional<IVehicleAdditionalAtributes, 'id'> {}
 
