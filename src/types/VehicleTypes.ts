@@ -4,6 +4,11 @@ import type { IResponseAll } from './generalType'
 export interface IVehicleAdditionalInput {
   id?: number
   name: string
+  icon?: string
+  is_moto?: boolean
+  is_car?: boolean
+  is_client?: boolean
+  is_register?: boolean
 }
 export interface IResponseAllVehicleAdditionalType extends IResponseAll {
   total: number

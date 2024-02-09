@@ -14,6 +14,18 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'name',
       },
+      is_moto: {
+        type:DataTypes.BOOLEAN,
+        field: 'is_moto',
+        defaultValue: true,
+        allowNull: true,
+      },
+      is_car: {
+        type:DataTypes.BOOLEAN,
+        field : 'is_car',
+        defaultValue: true,
+        allowNull: true,
+      },
       createdAt: {
         type: DataTypes.DATE,
         field: 'createdAt',

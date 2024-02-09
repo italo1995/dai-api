@@ -23,7 +23,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
 import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
 import { modelVehicleAdditional } from '../../models'
 
@@ -64,7 +64,15 @@ class VehicleAdditionalController {
     try {
       const vData: IVehicleAdditionalInput = pReq.only([
         'name',
+        'icon',
+        'is_moto',
+        'is_car',
+        'is_client',
+        'is_register'
       ])
+      if (vData?.icon && vData?.icon.includes('temp')) {
+        vData.icon = await moveImages(vData.icon)
+      }
       const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.create(vData)
       if (!vResponse) {
         return pRes
@@ -82,7 +90,15 @@ class VehicleAdditionalController {
       const vData: IVehicleAdditionalInput = pReq.only([
         'id',
         'name',
+        'icon',
+        'is_moto',
+        'is_car',
+        'is_client',
+        'is_register'
       ])
+      if (vData?.icon && vData?.icon.includes('temp')) {
+        vData.icon = await moveImages(vData.icon)
+      }
       const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.update(vData)
       if (!vResponse) {
         return pRes
