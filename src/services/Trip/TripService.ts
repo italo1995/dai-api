@@ -28,6 +28,7 @@ interface ITripService {
   all(pParam: IParamAllTrip): Promise<IResponseAllTrip | ITripInstance[]>
   create(payload: ITripInput): Promise<ITripInstance>
   update(payload: ITripInput): Promise<ITripInstance | null>
+  softDeleteRecord(pId: number, pUserId: UUID): Promise<boolean>
 }
 
 class TripService implements ITripService {
