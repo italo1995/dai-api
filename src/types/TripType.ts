@@ -87,3 +87,35 @@ export interface IResponseAllTripRoute extends IResponseAll {
   data: ITripRouteInstance[]
   actualPage: number
 }
+
+export interface ITripTravelInput {
+  id: string
+  tripId: string
+  toSearch?: string
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IResponseAllTripTravel extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ITripRouteInstance[]
+  actualPage: number
+}
+
+export interface ITripDeliveryInput {
+  id: string
+  tripId: string
+  toSearch?: string
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IResponseAllTripDelivery extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ITripRouteInstance[]
+  actualPage: number
+}

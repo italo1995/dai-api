@@ -23,8 +23,9 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassVehicleTypeService from '../../services/Vehicle/VehicleTypeService'
 import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
+import { modelVehicleType } from '../../models'
 
 class VehicleTypeController {
 
@@ -63,7 +64,12 @@ class VehicleTypeController {
     try {
       const vData: IVehicleAdditionalInput = pReq.only([
         'name',
+        'is_moto',
+        'is_car'
       ])
+      if (vData?.icon && vData?.icon.includes('temp')) {
+        vData.icon = await moveImages(vData.icon)
+      }
       const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.create(vData)
       if (!vResponse) {
         return pRes
@@ -81,7 +87,12 @@ class VehicleTypeController {
       const vData: IVehicleAdditionalInput = pReq.only([
         'id',
         'name',
+        'is_moto',
+        'is_car'
       ])
+      if (vData?.icon && vData?.icon.includes('temp')) {
+        vData.icon = await moveImages(vData.icon)
+      }
       const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.update(vData)
       if (!vResponse) {
         return pRes
@@ -91,6 +102,19 @@ class VehicleTypeController {
       return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
+    }
+  }
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelVehicleType.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
     }
   }
 }

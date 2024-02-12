@@ -23,7 +23,12 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'updatedAt',
         allowNull: false,
-      }
+      },
+      deletedAt: {
+        type: DataTypes.DATE,
+        field: 'deletedAt',
+        allowNull: false,
+      },
     })
   },
 

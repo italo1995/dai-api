@@ -4,8 +4,11 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 export interface IVehicleTypeAtributes {
     id: number
     name: string
+    is_moto?: boolean
+    is_car?: boolean
     createdAt?: Date
     updatedAt?: Date
+    deletedAt?: Date
 }
 interface IVehicleTypeCreationAtributes extends Optional<IVehicleTypeAtributes, 'id'> {}
 
@@ -23,6 +26,18 @@ SequelizeAttributes<IVehicleTypeAtributes> = {
   name: {
     type:DataTypes.STRING,
     field: 'name',
+  },
+  is_moto: {
+    type:DataTypes.BOOLEAN,
+    field: 'is_moto',
+    defaultValue: true,
+    allowNull: true,
+  },
+  is_car: {
+    type:DataTypes.BOOLEAN,
+    field : 'is_car',
+    defaultValue: true,
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,

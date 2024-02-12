@@ -23,7 +23,9 @@ import type { NextFunction, Request, Response } from 'express'
 import type { UUID } from 'crypto'
 import ClassTripService from '../../services/Trip/TripService'
 import ClassTripRouteService from '../../services/Trip/TripRouteService'
-import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput } from '../../types/TripType'
+import ClassTripDeliveryService from '../../services/Trip/TripDeliveryService'
+import ClassTripTravelService from '../../services/Trip/TripTravelService'
+import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { ITripInstance } from '../../models/Trip/TripModel'
 import ClassTripPaymentService from '../../services/Trip/TripPaymentService'
@@ -200,5 +202,39 @@ class TripController {
       pNext(error)
     }
   }
+  async createTripDelivery(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: ITripDeliveryInput = pReq.only([
+        'id',
+        'tripId',
+        'toSearch'
+      ])
+      const vResponse = await ClassTripDeliveryService.create(vData)
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      console.error(error)
+      pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrió un error'))
+      pNext(error)
+    }
+  }
+  
+  async createTripTravel(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: ITripTravelInput = pReq.only([
+        'id',
+        'tripId',
+        'toSearch'
+      ])
+      const vResponse = await ClassTripTravelService.create(vData)
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      console.error(error)
+      pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrió un error'))
+      pNext(error)
+    }
+  }
+
+
+  
 }
 export default new TripController()
