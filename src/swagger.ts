@@ -1,7 +1,8 @@
+import { type Express } from 'express'
+import path from 'path'
 import * as swaggerUI from 'swagger-ui-express'
 import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerJSON from '../swagger.json'
-import { type Express } from 'express'
 
 export const startSwagger = (app: Express, _port: string) => {
   try {
@@ -9,9 +10,10 @@ export const startSwagger = (app: Express, _port: string) => {
     if(swaggerDoc) {
       console.log('leido')
     }
+    const rutaYAML = path.resolve(__dirname, './documentation/*.yaml')
     const options = {
       swaggerDefinition: swaggerDoc,
-      apis: ['./src/documentation/*.yaml']
+      apis: [rutaYAML]
     }
     const swaggerSpec = swaggerJSDoc(options)
     app.use('/doc', swaggerUI.serve, swaggerUI.setup(swaggerSpec))

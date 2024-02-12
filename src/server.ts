@@ -3,26 +3,74 @@ import cors from 'cors'
 import morgan from 'morgan'
 import express, { type Express } from 'express'
 import jwt, { type Secret } from 'jsonwebtoken'
+import { startSwagger } from './swagger'
+import { Server as webSocketServer } from 'socket.io'
+import http from 'http'
+import { SocketService } from './socket'
 import AppConfig from './config/AppConfig'
 import routes from './routes'
 import { ValidationError } from 'sequelize'
 import { modelErrorReporting, modelUser } from './models'
 import type { IUserInstance } from './models/User/User'
-import { startSwagger } from './swagger'
 export class Server {
   private app: Express
   private upload = multer()
+  private httpServer: http.Server
 
   constructor() {
     this.app = express()
     this.configuration()
     this.middlewares()
+    this.httpServer = http.createServer(this.app)
+    this.socket()
     this.errorReporting()
     this.startSwagger()
   }
 
   configuration() {
     this.app.set('port', AppConfig.PORT)
+  }
+
+  socket() {
+    const io = new webSocketServer(this.httpServer, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+      }
+    })
+    io.use(async (socket: any, next: any) => {
+      if (socket?.handshake?.headers?.authorization) {
+        const token = socket.handshake.headers.authorization.split(' ')[1]
+        socket.handshake.auth = await this.verifyTokenUser(token)
+        // console.log('socket.decode :>> ', socket.handshake.auth)
+        next()
+      }
+      next()
+    })
+    SocketService.initSocket(io)
+    this.httpServer.listen(AppConfig.SOCKET_PORT)
+  }
+
+  private async verifyTokenUser(token: any) {
+    return new Promise((resolve: any) => {
+      jwt.verify(token, AppConfig.SECRET_KEY as Secret, async (err: any, decoded: any) => {
+        if (err) {
+          resolve(false)
+        } else {
+          if (decoded) {
+            const vUser: IUserInstance | null = await modelUser.findOne({
+              where: {
+                id: decoded.id,
+              },
+            })
+            resolve({ ...decoded, ...vUser?.dataValues })
+          } else {
+            resolve(false)
+          }
+        }
+      })
+    })
+    
   }
 
   middlewares() {
@@ -101,30 +149,13 @@ export class Server {
       }
       next()
     })
-    this.app.use((req: any, _res, next) => {
+    this.app.use(async (req: any, _res, next) => {
       const authHeader = req.headers['authorization']
       if (authHeader) {
         const token = authHeader.split(' ')[1]
         if (token) {
-          jwt.verify(token, AppConfig.SECRET_KEY as Secret, async (err: any, decoded: any) => {
-            if (err) {
-              req.auth = false
-              next()
-            } else {
-              if (decoded) {
-                const vUser: IUserInstance | null = await modelUser.findOne({
-                  where: {
-                    id: decoded.id,
-                  },
-                })
-                req.auth = { ...decoded, ...vUser?.dataValues }
-                next()
-              } else {
-                req.auth = false
-                next()
-              }
-            }
-          })
+          req.auth = await this.verifyTokenUser(token)
+          next()
         } else {
           next()
         }

@@ -3,7 +3,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 
 export interface ITripAttributes {
   id: string
-  typeService: string
+  typeService: ETypeService
   userId: string
   driverId?: string
   date?: Date
@@ -14,6 +14,12 @@ export interface ITripAttributes {
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
+}
+enum ETypeService {
+  MOTO = 'moto',
+  CAR = 'car',
+  DELIVERY = 'delivery',
+  TRAVEL = 'travel',
 }
 interface ITripCreationAttributes extends Optional<ITripAttributes, 'id'> {}
 

@@ -20,9 +20,16 @@ export interface IParamShowTrip {
   isDriver?: boolean
 }
 
+enum ETypeService {
+  MOTO = 'moto',
+  CAR = 'car',
+  DELIVERY = 'delivery',
+  TRAVEL = 'travel',
+}
+
 export interface ITripInput {
   id?: string
-  typeService: string
+  typeService: ETypeService
   userId: string
   driverId?: string
   date?: Date

@@ -20,7 +20,7 @@
   8 - showCode: Vrificar el codigo codigo enviado por el usuario es real y fue creado ese dia.
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
-import type { IUserInput, IUserCodeInput, IUserInputUpdate } from '../../types/User'
+import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'
 import type { IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
@@ -29,6 +29,8 @@ import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
 interface IAuthService {
   showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
   create(payload: IUserInput): Promise<IUserInstance>
+  update(payload: IUserInputUpdate): Promise<IUserInstance | null>
+  updateSocket(payload: IUserUpdateSocket): Promise<IUserInstance | null>
 }
 
 class AuthService implements IAuthService {
@@ -67,6 +69,19 @@ class AuthService implements IAuthService {
   }
 
   async update(pData: IUserInputUpdate): Promise<IUserInstance | null> {
+    if (pData?.id) {
+      const vUser: IUserInstance | null = await modelUser.findOne({
+        where: {
+          id: pData.id,
+        },
+      })
+      await vUser?.update(pData, { where: { id: pData.id } })
+      return vUser
+    }
+    return null
+  }
+
+  async updateSocket(pData: IUserUpdateSocket): Promise<IUserInstance | null> {
     if (pData?.id) {
       const vUser: IUserInstance | null = await modelUser.findOne({
         where: {

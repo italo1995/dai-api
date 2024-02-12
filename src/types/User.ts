@@ -39,6 +39,11 @@ export interface IUserInputUpdate {
   isNewUser: boolean
 }
 
+export interface IUserUpdateSocket {
+  id: string
+  socketId: string
+}
+
 export interface IUserCodeInput {
   code: string
   userId?: string

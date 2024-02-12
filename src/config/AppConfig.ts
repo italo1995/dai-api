@@ -10,6 +10,7 @@ const AppConfig = {
   API_PREFIX: process.env.API_PREFIX,
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: process.env.PORT || 3000,
+  SOCKET_PORT: process.env.SOCKET_PORT || 3001,
   SECRET_KEY: process.env.SECRET_KEY || '',
   JWT_EXPIRES: process.env.JWT_EXPIRES || '',
   DB_USER: process.env.DB_USER || '',
