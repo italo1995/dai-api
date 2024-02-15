@@ -1,7 +1,7 @@
 /* 
-- File: TripOfertController.ts
+- File: TripOffertController.ts
 
-- Purpose: Es el controlador de auth de TripOfert se encarga de la oferta monetaria de cada viaje
+- Purpose: Es el controlador de auth de TripOffert se encarga de la oferta monetaria de cada viaje
 
 - Creation: 15/02/2024  
 
@@ -19,17 +19,17 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassTripOfertService from '../../services/Trip/TripOffertService'
-import type { ITripOfertInput, IResponseAllTripOfert } from '../../types/TripType'
+import ClassTripOffertService from '../../services/Trip/TripOffertService'
+import type { ITripOffertInput, IResponseAllTripOffert } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { ITripOfertInstance } from '../../models/Trip/TripOffertModel'
+import type { ITripOffertInstance } from '../../models/Trip/TripOffertModel'
 
-class TripOfertController {
+class TripOffertController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
 
-      const vResponse: ITripOfertInstance | null = await ClassTripOfertService.show(vId)
+      const vResponse: ITripOffertInstance | null = await ClassTripOffertService.show(vId)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -44,7 +44,7 @@ class TripOfertController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTripOfert | ITripOfertInstance[] = await ClassTripOfertService.all(vParam)
+      const vResponse: IResponseAllTripOffert | ITripOffertInstance[] = await ClassTripOffertService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -58,7 +58,7 @@ class TripOfertController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripOfertInput = pReq.only([
+      const vData: ITripOffertInput = pReq.only([
         'name',
         'tripId',
         'clientId',
@@ -66,7 +66,7 @@ class TripOfertController {
         'amount',
         'status'
       ])
-      const vResponse: ITripOfertInstance | null = await ClassTripOfertService.create(vData)
+      const vResponse: ITripOffertInstance | null = await ClassTripOffertService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -80,7 +80,7 @@ class TripOfertController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripOfertInput = pReq.only([
+      const vData: ITripOffertInput = pReq.only([
         'id',
         'name',
         'tripId',
@@ -89,7 +89,7 @@ class TripOfertController {
         'amount',
         'status'
       ])
-      const vResponse: ITripOfertInstance | null = await ClassTripOfertService.update(vData)
+      const vResponse: ITripOffertInstance | null = await ClassTripOffertService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -103,7 +103,7 @@ class TripOfertController {
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: string = pReq.input('id', 'number')
-      const vResponse: boolean = await ClassTripOfertService.softDeleteRecord(vId)
+      const vResponse: boolean = await ClassTripOffertService.softDeleteRecord(vId)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -116,4 +116,4 @@ class TripOfertController {
   }
 }
 
-export default new TripOfertController()
+export default new TripOffertController()

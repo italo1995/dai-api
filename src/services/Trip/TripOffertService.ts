@@ -1,5 +1,5 @@
 /* 
-- File: TripOfertService.ts
+- File: TripOffertService.ts
 
 - Purpose: 
 
@@ -16,31 +16,31 @@
   4 - update: actualiza datos del item
 */
 import { Op, type FindOptions } from 'sequelize'
-import { modelTripOfert } from '../../models'
-import type { ITripOfertInstance } from '../../models/Trip/TripOffertModel'
-import type { IResponseAllTripOfert, ITripOfertInput } from '../../types/TripType'
+import { modelTripOffert } from '../../models'
+import type { ITripOffertInstance } from '../../models/Trip/TripOffertModel'
+import type { IResponseAllTripOffert, ITripOffertInput } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
-interface ITripOfertService {
+interface ITripOffertService {
   validate(data: any): any
-  show(pId: number): Promise<ITripOfertInstance | null>
-  all(pParam: any): Promise<IResponseAllTripOfert | ITripOfertInstance[]>
-  create(payload: ITripOfertInput): Promise<ITripOfertInstance>
-  update(payload: ITripOfertInput): Promise<ITripOfertInstance | null>
+  show(pId: number): Promise<ITripOffertInstance | null>
+  all(pParam: any): Promise<IResponseAllTripOffert | ITripOffertInstance[]>
+  create(payload: ITripOffertInput): Promise<ITripOffertInstance>
+  update(payload: ITripOffertInput): Promise<ITripOffertInstance | null>
   softDeleteRecord(pId:string): Promise<boolean>
 
 }
 
-class TripOfertService implements ITripOfertService {
+class TripOffertService implements ITripOffertService {
 
   async validate(data: any) {
-    const dataValidate = modelTripOfert.build(data)
+    const dataValidate = modelTripOffert.build(data)
     await dataValidate.validate()
   }
 
-  async show(pId: number): Promise<ITripOfertInstance | null> {
+  async show(pId: number): Promise<ITripOffertInstance | null> {
     try {
-      const vResponse: ITripOfertInstance | null = await modelTripOfert.findOne({
+      const vResponse: ITripOffertInstance | null = await modelTripOffert.findOne({
         where: {
           id: pId,
         },
@@ -51,7 +51,7 @@ class TripOfertService implements ITripOfertService {
     }
   }
 
-  public async all(pParam: any): Promise<IResponseAllTripOfert | ITripOfertInstance[]> {
+  public async all(pParam: any): Promise<IResponseAllTripOffert | ITripOffertInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
@@ -59,15 +59,15 @@ class TripOfertService implements ITripOfertService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','tripOfert'
+        pParam?.typeSearch || 'name','TripOffert'
       )
 
-      const vResponse: ITripOfertInstance[] = await modelTripOfert.findAll(whereStatement)
+      const vResponse: ITripOffertInstance[] = await modelTripOffert.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTripOfert = await fxReponseServices(
+        const vResponsePaginate: IResponseAllTripOffert = await fxReponseServices(
           pParam,
           whereStatement,
-          'tripOfert',
+          'TripOffert',
           vResponse
         )
         return vResponsePaginate
@@ -78,12 +78,12 @@ class TripOfertService implements ITripOfertService {
     }
   }
 
-  async create(pData: ITripOfertInput): Promise<ITripOfertInstance> {
-    const vResponse: ITripOfertInstance = await modelTripOfert.create(pData)
+  async create(pData: ITripOffertInput): Promise<ITripOffertInstance> {
+    const vResponse: ITripOffertInstance = await modelTripOffert.create(pData)
     return vResponse
   }
 
-  async update(pData: ITripOfertInput): Promise<ITripOfertInstance | null> {
+  async update(pData: ITripOffertInput): Promise<ITripOffertInstance | null> {
     const whereStatement: FindOptions = {}
     if (pData.tripId) {
       whereStatement.where = {
@@ -99,7 +99,7 @@ class TripOfertService implements ITripOfertService {
       }
     }
     if (pData?.id) {
-      const vItem: ITripOfertInstance | null = await modelTripOfert.findOne(whereStatement)
+      const vItem: ITripOffertInstance | null = await modelTripOffert.findOne(whereStatement)
       await vItem?.update(pData)
       return vItem
     }
@@ -107,7 +107,7 @@ class TripOfertService implements ITripOfertService {
   }
   async softDeleteRecord(pId: string) {
     try {
-      const record = await modelTripOfert.update({ deletedAt: new Date() }, {
+      const record = await modelTripOffert.update({ deletedAt: new Date() }, {
         where: { id: pId }
       })
       if (!record) {
@@ -120,5 +120,5 @@ class TripOfertService implements ITripOfertService {
   }
 }
 
-export default new TripOfertService()
+export default new TripOffertService()
 

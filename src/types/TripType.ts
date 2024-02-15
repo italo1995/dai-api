@@ -1,7 +1,7 @@
 import type { EStatusTrip, ITripInstance } from '../models/Trip/TripModel'
 import type { ITripPaymentInstance } from '../models/Trip/TripPaymentModel'
 import type { ITripRouteInstance } from '../models/Trip/TripRouteModel'
-import type { ITripOfertInstance } from '../models/Trip/TripOffertModel'
+import type { ITripOffertInstance } from '../models/Trip/TripOffertModel'
 import type { IResponseAll } from './generalType'
 
 export interface IParamAllTrip {
@@ -132,7 +132,7 @@ export interface IResponseAllTripDelivery extends IResponseAll {
   actualPage: number
 }
 
-export interface ITripOfertInput {
+export interface ITripOffertInput {
   id: string
   tripId: string
   clientId: string
@@ -144,9 +144,9 @@ export interface ITripOfertInput {
   deletedAt?: Date
 }
 
-export interface IResponseAllTripOfert extends IResponseAll {
+export interface IResponseAllTripOffert extends IResponseAll {
   total: number
   totalPage: number
-  data: ITripRouteInstance[]
+  data: ITripOffertInstance[]
   actualPage: number
 }

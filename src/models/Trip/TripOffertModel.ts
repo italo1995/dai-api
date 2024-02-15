@@ -1,7 +1,7 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
-export interface ITripOfertAttributes {
+export interface ITripOffertAttributes {
   id: string
   tripId: string
   clientId: string
@@ -12,13 +12,13 @@ export interface ITripOfertAttributes {
   updatedAt?: Date
   deletedAt?: Date
 }
-interface ITripOfertCreationAttributes extends Optional<ITripOfertAttributes, 'id'> {}
+interface ITripOffertCreationAttributes extends Optional<ITripOffertAttributes, 'id'> {}
 
-export interface ITripOfertInstance
-  extends Model<ITripOfertAttributes, ITripOfertCreationAttributes>,
-    ITripOfertAttributes {}
+export interface ITripOffertInstance
+  extends Model<ITripOffertAttributes, ITripOffertCreationAttributes>,
+    ITripOffertAttributes {}
 
-export const vTripOfertAttributes: SequelizeAttributes<ITripOfertAttributes> = {
+export const vTripOffertAttributes: SequelizeAttributes<ITripOffertAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     field: 'id',
@@ -65,12 +65,12 @@ export const vTripOfertAttributes: SequelizeAttributes<ITripOfertAttributes> = {
   },
 }
 
-export function fxTripOfertFactory(sequelize: Sequelize) {
-  const vTripOfert = <ModelStatic<ITripOfertInstance>>sequelize.define(
-    'Trip_oferts',
-    vTripOfertAttributes,
+export function fxTripOffertFactory(sequelize: Sequelize) {
+  const vTripOffert = <ModelStatic<ITripOffertInstance>>sequelize.define(
+    'Trip_offerts',
+    vTripOffertAttributes,
     {
-      tableName: 'trip_oferts',
+      tableName: 'trip_offerts',
       defaultScope: {
         order: [['createdAt', 'DESC']],
       },
@@ -80,9 +80,9 @@ export function fxTripOfertFactory(sequelize: Sequelize) {
     }
   )
 
-  vTripOfert.prototype.toJSON = function () {
+  vTripOffert.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues
   }
-  return vTripOfert
+  return vTripOffert
 }
