@@ -17,7 +17,7 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import { modelTripOfert } from '../../models'
-import type { ITripOfertInstance } from '../../models/Trip/TripOfertModel'
+import type { ITripOfertInstance } from '../../models/Trip/TripOffertModel'
 import type { IResponseAllTripOfert, ITripOfertInput } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 

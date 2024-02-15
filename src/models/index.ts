@@ -23,7 +23,7 @@ import { fxCurrencyFactory } from './CurrencyModel'
 import { fxPaymentMethodFactory } from './PaymentMethodModel'
 import { fxTripTravelFactory } from './Trip/TripTravelModel'
 import { fxTripDeliveryFactory } from './Trip/TripDeliveryModel'
-import { fxTripOfertFactory } from './Trip/TripOfertModel'
+import { fxTripOfertFactory } from './Trip/TripOffertModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 

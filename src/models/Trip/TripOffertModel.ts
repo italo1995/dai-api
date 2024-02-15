@@ -61,7 +61,7 @@ export const vTripOfertAttributes: SequelizeAttributes<ITripOfertAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     defaultValue: null,
-    allowNull: false
+    allowNull: true
   },
 }
 

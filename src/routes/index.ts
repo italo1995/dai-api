@@ -16,7 +16,7 @@ import Trip from './trip/TripRoute'
 import PaymentMethod from './PaymentMethodRoute'
 import TripPayment from './trip/TripPaymentRoutes'
 import TripRoute from './trip/TripRoutesRoute'
-import TripOfert from './trip/TripOfertRoute'
+import TripOfert from './trip/TripOffertRoute'
 
 const router = express.Router()
 

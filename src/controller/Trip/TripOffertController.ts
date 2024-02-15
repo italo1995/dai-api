@@ -19,10 +19,10 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassTripOfertService from '../../services/Trip/TripOfertService'
+import ClassTripOfertService from '../../services/Trip/TripOffertService'
 import type { ITripOfertInput, IResponseAllTripOfert } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { ITripOfertInstance } from '../../models/Trip/TripOfertModel'
+import type { ITripOfertInstance } from '../../models/Trip/TripOffertModel'
 
 class TripOfertController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
