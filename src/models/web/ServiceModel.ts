@@ -54,7 +54,7 @@ export const vServicesAttributes: SequelizeAttributes<IServiceAttributes> = {
   },
   deletedAt: {
     type: DataTypes.DATE,
-        field: 'deletedAt',
+    field: 'deletedAt',
     allowNull: true,
     defaultValue: null
   },

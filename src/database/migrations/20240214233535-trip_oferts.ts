@@ -45,10 +45,12 @@ module.exports = {
       deletedAt: {
         type: DataTypes.DATE,
         field: 'deletedAt',
+        defaultValue: null,
+        allowNull: true,
       },
     })
   },
   async down (queryInterface: QueryInterface) {
-    await queryInterface.dropTable('trip_travels')
+    await queryInterface.dropTable('trip_oferts')
   },
 }

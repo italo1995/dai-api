@@ -18,13 +18,17 @@
 import { Op, type FindOptions } from 'sequelize'
 import { modelTripOfert } from '../../models'
 import type { ITripOfertInstance } from '../../models/Trip/TripOfertModel'
-import type { ITripOfertInput } from '../../types/TripType'
+import type { IResponseAllTripOfert, ITripOfertInput } from '../../types/TripType'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface ITripOfertService {
   validate(data: any): any
+  show(pId: number): Promise<ITripOfertInstance | null>
+  all(pParam: any): Promise<IResponseAllTripOfert | ITripOfertInstance[]>
   create(payload: ITripOfertInput): Promise<ITripOfertInstance>
   update(payload: ITripOfertInput): Promise<ITripOfertInstance | null>
-  destroy(id: string): Promise<number>
+  softDeleteRecord(pId:string): Promise<boolean>
+
 }
 
 class TripOfertService implements ITripOfertService {
@@ -33,6 +37,47 @@ class TripOfertService implements ITripOfertService {
     const dataValidate = modelTripOfert.build(data)
     await dataValidate.validate()
   }
+
+  async show(pId: number): Promise<ITripOfertInstance | null> {
+    try {
+      const vResponse: ITripOfertInstance | null = await modelTripOfert.findOne({
+        where: {
+          id: pId,
+        },
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  public async all(pParam: any): Promise<IResponseAllTripOfert | ITripOfertInstance[]> {
+    try {
+      let whereStatement: FindOptions = {}
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name','tripOfert'
+      )
+
+      const vResponse: ITripOfertInstance[] = await modelTripOfert.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllTripOfert = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'tripOfert',
+          vResponse
+        )
+        return vResponsePaginate
+      }
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
   async create(pData: ITripOfertInput): Promise<ITripOfertInstance> {
     const vResponse: ITripOfertInstance = await modelTripOfert.create(pData)
     return vResponse
@@ -60,18 +105,20 @@ class TripOfertService implements ITripOfertService {
     }
     return null
   }
-  async destroy(id: string): Promise<number> {
+  async softDeleteRecord(pId: string) {
     try {
-      const result: number = await modelTripOfert.destroy({
-        where: { id: id }
+      const record = await modelTripOfert.update({ deletedAt: new Date() }, {
+        where: { id: pId }
       })
-      return result
+      if (!record) {
+        return false
+      }
+      return true
     } catch (error) {
-      console.error(error)
       throw error
     }
   }
-  
 }
+
 export default new TripOfertService()
 
