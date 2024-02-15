@@ -1,6 +1,7 @@
 import type { EStatusTrip, ITripInstance } from '../models/Trip/TripModel'
 import type { ITripPaymentInstance } from '../models/Trip/TripPaymentModel'
 import type { ITripRouteInstance } from '../models/Trip/TripRouteModel'
+import type { ITripOfertInstance } from '../models/Trip/TripOfertModel'
 import type { IResponseAll } from './generalType'
 
 export interface IParamAllTrip {
@@ -125,6 +126,25 @@ export interface ITripDeliveryInput {
 }
 
 export interface IResponseAllTripDelivery extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ITripRouteInstance[]
+  actualPage: number
+}
+
+export interface ITripOfertInput {
+  id: string
+  tripId: string
+  clientId: string
+  driverId: string
+  amount: string
+  status?: string
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IResponseAllTripOfert extends IResponseAll {
   total: number
   totalPage: number
   data: ITripRouteInstance[]
