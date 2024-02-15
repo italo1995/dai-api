@@ -4,6 +4,8 @@ import morgan from 'morgan'
 import express, { type Express } from 'express'
 import jwt, { type Secret } from 'jsonwebtoken'
 import { startSwagger } from './swagger'
+import { I18n } from 'i18n'
+import path from 'path'
 // import { Server as webSocketServer } from 'socket.io'
 import type http from 'http'
 import { SocketService } from './ws'
@@ -169,18 +171,28 @@ export class Server {
   }
 
   errorReporting() {
+    const vI18n = new I18n({
+      locales: ['en', 'es'],
+      directory: path.join(__dirname, 'locales'),
+      defaultLocale: 'es',
+    })
     this.app.use(async (err: any, req: any, res: any, _next: any) => {
       if (err.issues) {
         const errorMessage = err.issues.map((issue: any) => ({
           message: `${issue.path.join('.')} is ${issue.message}`,
         }))
-        console.log('errorMessage :>> ', errorMessage)
         return res.status(400).json({ error: errorMessage[0] })
       }
       if (err instanceof ValidationError) {
         const errors: string[] = []
         for (const itemError of err.errors) {
-          errors.push(itemError.message)
+          console.log('itemError :>> ', itemError)
+          if (itemError?.path && itemError?.validatorKey) {
+            const vErrorTranslate = `${vI18n.__(itemError.path)} ${vI18n.__(itemError.validatorKey)}`
+            errors.push(vErrorTranslate)
+          } else {
+            errors.push(itemError.message)
+          }
         }
         return res.status(400).json({ success: false, type: 'validation', message: errors })
       } else {
