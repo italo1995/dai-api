@@ -19,7 +19,7 @@
 import { type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
 import { modelUserAddress } from '../../models'
-import type { IUserAddressInstance } from '../../models/Trip/UserAddress'
+import type { IUserAddressInstance } from '../../models/Trip/UserAddressModel'
 import type { IUserAddressInput, IResponseAllUserAddress } from '../../types/TransferType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 
@@ -34,6 +34,7 @@ interface ICountryService {
 class UserAddressService implements ICountryService {
 
   async validate(data: any) {
+    console.log('validate')
     const dataValidate = modelUserAddress.build(data)
     await dataValidate.validate()
   }

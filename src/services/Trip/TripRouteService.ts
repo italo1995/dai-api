@@ -55,7 +55,7 @@ class TripRouteService implements ITripRouteService {
     }
   }
 
-  public async recient(pParam: any): Promise<IResponseAllTripRoute | ITripRouteInstance[]> {
+  public async recent(pParam: any): Promise<IResponseAllTripRoute | ITripRouteInstance[]> {
     try {
       const whereStatement: FindOptions = {}
       const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
@@ -67,9 +67,14 @@ class TripRouteService implements ITripRouteService {
         {
           model: modelTrip,
           as: 'trip',
-          required: false,
+          required: true,
+          attributes: ['id', 'userId'],
+          where: {
+            userId: pParam.userId
+          }
         }
       ]
+
       const vResponse: ITripRouteInstance[] = await modelTripRoute.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(pParam, whereStatement, 'TripRoute', vResponse)

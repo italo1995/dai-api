@@ -42,11 +42,12 @@ class TripRouteController {
     }
   }
 
-  async recient(pReq: Request, pRes: Response, pNext: NextFunction) {
+  async recent(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vId: number = Number(pReq.query.id)
-
-      const vResponse: ITripRouteInstance | null = await ClassTripRouteService.show(vId)
+      const vParam: any = pReq.query
+      const vUserId = pReq.auth.id
+      vParam.userId = vUserId
+      const vResponse: ITripRouteInstance[] | IResponseAllTripRoute = await ClassTripRouteService.recent(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
