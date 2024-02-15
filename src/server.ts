@@ -4,24 +4,26 @@ import morgan from 'morgan'
 import express, { type Express } from 'express'
 import jwt, { type Secret } from 'jsonwebtoken'
 import { startSwagger } from './swagger'
-import { Server as webSocketServer } from 'socket.io'
-import http from 'http'
-import { SocketService } from './socket'
+// import { Server as webSocketServer } from 'socket.io'
+import type http from 'http'
+import { SocketService } from './ws'
 import AppConfig from './config/AppConfig'
 import routes from './routes'
 import { ValidationError } from 'sequelize'
 import { modelErrorReporting, modelUser } from './models'
 import type { IUserInstance } from './models/User/User'
+
 export class Server {
   private app: Express
   private upload = multer()
   private httpServer: http.Server
+  // static io: any
 
   constructor() {
     this.app = express()
     this.configuration()
     this.middlewares()
-    this.httpServer = http.createServer(this.app)
+    this.httpServer = this.app.listen(AppConfig.SOCKET_PORT)
     this.socket()
     this.errorReporting()
     this.startSwagger()
@@ -32,23 +34,24 @@ export class Server {
   }
 
   socket() {
-    const io = new webSocketServer(this.httpServer, {
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-      }
-    })
-    io.use(async (socket: any, next: any) => {
-      if (socket?.handshake?.headers?.authorization) {
-        const token = socket.handshake.headers.authorization.split(' ')[1]
-        socket.handshake.auth = await this.verifyTokenUser(token)
-        // console.log('socket.decode :>> ', socket.handshake.auth)
-        next()
-      }
-      next()
-    })
-    SocketService.initSocket(io)
-    this.httpServer.listen(AppConfig.SOCKET_PORT)
+    SocketService.initSocket(this.httpServer)
+  //   const io = new webSocketServer(this.httpServer, {
+  //     cors: {
+  //       origin: '*',
+  //       methods: ['GET', 'POST']
+  //     }
+  //   })
+  //   io.use(async (socket: any, next: any) => {
+  //     if (socket?.handshake?.headers?.authorization) {
+  //       const token = socket.handshake.headers.authorization.split(' ')[1]
+  //       socket.handshake.auth = await this.verifyTokenUser(token)
+  //       next()
+  //     }
+  //     next()
+  //   })
+  //   // SocketService.initSocket(io)
+  //   // this.app.io = io
+  //   // this.httpServer.listen(AppConfig.SOCKET_PORT)
   }
 
   private async verifyTokenUser(token: any) {
@@ -70,7 +73,6 @@ export class Server {
         }
       })
     })
-    
   }
 
   middlewares() {
@@ -173,7 +175,7 @@ export class Server {
           message: `${issue.path.join('.')} is ${issue.message}`,
         }))
         console.log('errorMessage :>> ', errorMessage)
-        //   return res.status(400).json({ error: errorMessage[0] })
+        return res.status(400).json({ error: errorMessage[0] })
       }
       if (err instanceof ValidationError) {
         const errors: string[] = []
@@ -211,13 +213,5 @@ export class Server {
     this.app.listen(this.app.get('port'), () => {
       console.log(`corriendo en ${this.app.get('port')}`)
     })
-    // const options = {
-    //   key: fs.readFileSync('./src/ssl/ca.key'),
-    //   cert: fs.readFileSync('./src/ssl/ca.csr'),
-    // }
-    
-    // https.createServer(options, this.app).listen(AppConfig.PORT, function() {
-    //   console.log('Express server listening on AppConfig.PORT ' + AppConfig.PORT)
-    // })
   }
 }

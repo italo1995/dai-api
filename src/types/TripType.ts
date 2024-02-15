@@ -1,4 +1,4 @@
-import type { ITripInstance } from '../models/Trip/TripModel'
+import type { EStatusTrip, ITripInstance } from '../models/Trip/TripModel'
 import type { ITripPaymentInstance } from '../models/Trip/TripPaymentModel'
 import type { ITripRouteInstance } from '../models/Trip/TripRouteModel'
 import type { IResponseAll } from './generalType'
@@ -11,11 +11,18 @@ export interface IParamAllTrip {
   typeSearch?: string | null
   pag?: number | null
   limit?: number | null
+  recient?: boolean | null
 }
 
 export interface IParamShowTrip {
   userId: string
   id: number
+  isClient?: boolean
+  isDriver?: boolean
+}
+
+export interface IParamShowActiveTrip {
+  userId: string
   isClient?: boolean
   isDriver?: boolean
 }
@@ -32,8 +39,8 @@ export interface ITripInput {
   typeService: ETypeService
   userId: string
   driverId?: string
-  date?: Date
-  status?: string
+  date?: string
+  status?: EStatusTrip
   price?: number
   currencyId?: number
   isPayment: number
@@ -92,6 +99,10 @@ export interface ITripTravelInput {
   id: string
   tripId: string
   toSearch?: string
+  dateToInitTravel?: string
+  howMuchPeopleToTravel?: number
+  packageToCarry?: string
+  approxWeightOfPackage?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date

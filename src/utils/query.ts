@@ -2,7 +2,7 @@ import { Op, type FindOptions } from 'sequelize'
 import sequelize from '../models'
 
 export const fxOrderNameId = (pParam: any, pWhereStatement: FindOptions) => {
-  if (Number(pParam?.orden)  === 2) {
+  if (Number(pParam?.orden) === 2) {
     pWhereStatement.order = pWhereStatement.order instanceof Array ? [
       ...pWhereStatement.order, ['name', 'ASC']
     ] : [

@@ -1,13 +1,14 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface ITripAttributes {
   id: string
   typeService: ETypeService
   userId: string
   driverId?: string
-  date?: Date
-  status?: string
+  date?: string
+  status?: EStatusTrip
   price?: number
   currencyId?: number
   isPayment: number
@@ -20,6 +21,12 @@ enum ETypeService {
   CAR = 'car',
   DELIVERY = 'delivery',
   TRAVEL = 'travel',
+}
+export enum EStatusTrip {
+  PENDIENTE = 'buscando driver',
+  ACEPTADO = 'traslado en proceso',
+  FINALIZADO = 'traslado exitoso',
+  CANCELADO = 'cancelado'
 }
 interface ITripCreationAttributes extends Optional<ITripAttributes, 'id'> {}
 
@@ -47,7 +54,7 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     field: 'driver_id',
   },
   date: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
     field: 'date',
     allowNull: true,
     defaultValue: null
@@ -87,7 +94,8 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false,
+    allowNull: true,
+    defaultValue: null
   },
 }
 
@@ -101,6 +109,30 @@ export function fxTripFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
+
+  vTrip.associate = function (models: ModelRegistry) {
+    const { modelTrip, modelTripRoute  } = models
+    modelTrip.hasMany(modelTripRoute, {
+      foreignKey: 'trip_id',
+      as: 'initRoute',
+    })
+  }
+
+  vTrip.associate = function (models: ModelRegistry) {
+    const { modelTrip, modelTripRoute  } = models
+    modelTrip.hasMany(modelTripRoute, {
+      foreignKey: 'trip_id',
+      as: 'endRoute',
+    })
+  }
+
+  vTrip.associate = function (models: ModelRegistry) {
+    const { modelTrip, modelTripPayment  } = models
+    modelTrip.hasMany(modelTripPayment, {
+      foreignKey: 'trip_id',
+      as: 'PaymentMethod',
+    })
+  }
 
   vTrip.prototype.toJSON = function () {
     const vValues = { ...this.get() }

@@ -17,7 +17,7 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import { modelTripTravel as modelTripDelivery } from '../../models'
-import type { ITripDeliveryInstance } from '../../models/trip/TripDeliveryModel'
+import type { ITripDeliveryInstance } from '../../models/Trip/TripDeliveryModel'
 import type { ITripDeliveryInput } from '../../types/TripType'
 
 interface ITripDeliveryService {

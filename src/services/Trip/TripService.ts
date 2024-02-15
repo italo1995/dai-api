@@ -17,9 +17,9 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import { modelTrip } from '../../models'
-import type { ITripInstance } from '../../models/Trip/TripModel'
-import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip } from '../../types/TripType'
+import { modelTrip, modelTripPayment, modelTripRoute } from '../../models'
+import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
+import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 
 interface ITripService {
@@ -67,7 +67,6 @@ class TripService implements ITripService {
         }
         return vResp
       }
-
       return vRes
     } catch (error) {
       throw error
@@ -85,6 +84,46 @@ class TripService implements ITripService {
       whereStatement.where = {
         driverId: pParam.userId,
         id: pParam.id
+      }
+    }
+    whereStatement.include = [
+      {
+        model: modelTripRoute,
+        as: 'initRoute',
+        required: false,
+        where: {
+          isInit: true
+        }
+      },
+      {
+        model: modelTripRoute,
+        as: 'endRoute',
+        required: false,
+        where: {
+          isEnd: true
+        }
+      },
+      {
+        model: modelTripPayment,
+        as: 'PaymentMethod',
+        required: false,
+      }
+    ]
+    const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
+    return vResponse
+  }
+
+  async showActive(pParam: IParamShowActiveTrip): Promise<ITripInstance | null> {
+    const whereStatement: FindOptions = {}
+    if(pParam.isClient) {
+      whereStatement.where = {
+        userId: pParam.userId,
+        status: EStatusTrip.PENDIENTE
+      }
+    } else {
+      whereStatement.where = {
+        driverId: pParam.userId,
+        status: EStatusTrip.ACEPTADO
       }
     }
     const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)

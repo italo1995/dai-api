@@ -25,12 +25,13 @@ import ClassTripService from '../../services/Trip/TripService'
 import ClassTripRouteService from '../../services/Trip/TripRouteService'
 import ClassTripDeliveryService from '../../services/Trip/TripDeliveryService'
 import ClassTripTravelService from '../../services/Trip/TripTravelService'
-import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput } from '../../types/TripType'
+import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput, IParamShowActiveTrip } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
-import type { ITripInstance } from '../../models/Trip/TripModel'
+import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
 import ClassTripPaymentService from '../../services/Trip/TripPaymentService'
-
+import { SocketService } from '../../ws'
 class TripController {
+
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: IParamShowTrip = {
@@ -63,6 +64,32 @@ class TripController {
     }
   }
 
+  async showActive(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: IParamShowActiveTrip = {
+        userId: pReq.auth.id,
+        isClient: pReq.input('isClient', 'json'),
+        isDriver: pReq.input('isDriver', 'json'),
+      }
+      if (vParam.isClient === undefined && vParam.isDriver === undefined) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))
+      }
+      const vResponse: ITripInstance | null = await ClassTripService.showActive(
+        vParam,
+      )
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: IParamAllTrip = {
@@ -73,6 +100,7 @@ class TripController {
         typeSearch: pReq.query?.typeSearch?.toString() || null,
         pag: Number(pReq.query?.pag) || null,
         limit: Number(pReq.query?.limit) || null,
+        recient: pReq.input('recient', 'json')
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes
@@ -102,13 +130,16 @@ class TripController {
         'price',
         'currencyId'
       ])
+      vData.status = EStatusTrip.PENDIENTE
       const vFee = pReq.input('fee', 'json')
       vData.price = vData?.price || vFee?.price
       vData.currencyId = vData?.currencyId || vFee?.currencyId
       vData.userId = vUserId
       const vInitRoute = pReq.input('initRoute', 'json')
       const vEndRoute = pReq.input('endRoute', 'json')
-      const vTripPayment = pReq.input('PaymentMethod ', 'json')
+      const vTripPayment = pReq.input('PaymentMethod', 'json')
+      const vTripDelivery: ITripDeliveryInput = pReq.input('delivery', 'json')
+      const vTripTravel: ITripTravelInput = pReq.input('travel', 'json')
       if (vInitRoute === undefined || vEndRoute === undefined) {
         return pRes
           .status(500)
@@ -123,6 +154,14 @@ class TripController {
       if (vTripPayment) {
         vTripPayment.tripId = vResponse.dataValues.id
         await ClassTripPaymentService.create(vTripPayment)
+      }
+      if (vTripDelivery) {
+        vTripDelivery.tripId = vResponse.dataValues.id
+        await ClassTripDeliveryService.create(vTripDelivery)
+      }
+      if (vTripTravel) {
+        vTripTravel.tripId = vResponse.dataValues.id
+        await ClassTripTravelService.create(vTripTravel)
       }
       if (vInitRoute && vEndRoute) {
         const vCreateRoutes: ITripRouteInput[] = []
@@ -141,6 +180,7 @@ class TripController {
         vCreateRoutes.push(vCreateEndRoute)
         await ClassTripRouteService.createMany(vCreateRoutes)
       }
+      SocketService.io.emit('hola', vResponse)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
@@ -161,24 +201,32 @@ class TripController {
       ])
       const vIsClient = pReq.input('isClient')
       const vIsDriver = pReq.input('isDriver')
-      if (vIsClient === undefined && vIsDriver === undefined) {
+      if (vIsDriver === undefined) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))
+          .send(fxErrorResponse(500, null, 'Se requiere isClient o vIsDriver'))
       }
-      if (vIsClient) {
+      if (vIsClient || vIsClient === undefined) {
         vData.userId = vUserId
-      }else if (vIsDriver) {
+      } else if (vIsDriver) {
         vData.driverId = vUserId
       }
       const vResponse: ITripInstance | null = await ClassTripService.update(vData)
       const vInitRoute: ITripRouteInput = pReq.input('initRoute', 'json')
       const vEndRoute: ITripRouteInput = pReq.input('endRoute', 'json')
+      const vTripDelivery: ITripDeliveryInput = pReq.input('delivery', 'json')
+      const vTripTravel: ITripTravelInput = pReq.input('travel', 'json')
       if (vInitRoute && vEndRoute) {
         const vCreateRoutes: ITripRouteInput[] = []
         vCreateRoutes.push(vInitRoute)
         vCreateRoutes.push(vEndRoute)
         await ClassTripRouteService.createMany(vCreateRoutes)
+      }
+      if (vTripDelivery) {
+        await ClassTripDeliveryService.update(vTripDelivery)
+      }
+      if (vTripTravel) {
+        await ClassTripTravelService.update(vTripTravel)
       }
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
@@ -202,39 +250,5 @@ class TripController {
       pNext(error)
     }
   }
-  async createTripDelivery(pReq: Request, pRes: Response, pNext: NextFunction) {
-    try {
-      const vData: ITripDeliveryInput = pReq.only([
-        'id',
-        'tripId',
-        'toSearch'
-      ])
-      const vResponse = await ClassTripDeliveryService.create(vData)
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
-    } catch (error) {
-      console.error(error)
-      pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrió un error'))
-      pNext(error)
-    }
-  }
-  
-  async createTripTravel(pReq: Request, pRes: Response, pNext: NextFunction) {
-    try {
-      const vData: ITripTravelInput = pReq.only([
-        'id',
-        'tripId',
-        'toSearch'
-      ])
-      const vResponse = await ClassTripTravelService.create(vData)
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
-    } catch (error) {
-      console.error(error)
-      pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrió un error'))
-      pNext(error)
-    }
-  }
-
-
-  
 }
 export default new TripController()

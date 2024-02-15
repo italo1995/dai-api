@@ -23,7 +23,7 @@ module.exports = {
         field: 'driver_id',
       },
       date: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
         field: 'date',
         allowNull: true,
         defaultValue: null
@@ -62,8 +62,9 @@ module.exports = {
       },
       deletedAt: {
         type: DataTypes.DATE,
-        field: 'deletedAt',
-        allowNull: false,
+            field: 'deletedAt',
+    allowNull: true,
+    defaultValue: null
       },
     })
   },
