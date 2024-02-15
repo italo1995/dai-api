@@ -11,22 +11,22 @@ module.exports = {
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_moto', {
         type: DataTypes.BOOLEAN,
-        allowNull:true,
+        allowNull: true,
         defaultValue: false
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_car', {
         type: DataTypes.BOOLEAN,
-        allowNull:true,
+        allowNull: true,
         defaultValue: false
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_client', {
         type: DataTypes.BOOLEAN,
-        allowNull:true,
+        allowNull: true,
         defaultValue: false
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_register', {
         type: DataTypes.BOOLEAN,
-        allowNull:true,
+        allowNull: true,
         defaultValue: false
       }),
     ])

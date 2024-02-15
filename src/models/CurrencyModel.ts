@@ -62,7 +62,8 @@ export const vCurrencyAttributes: SequelizeAttributes<ICurrencyAttributes> = {
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false,
+    allowNull: true,
+    defaultValue: null
   },
 }
 

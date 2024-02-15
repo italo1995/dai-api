@@ -42,6 +42,22 @@ class TripRouteController {
     }
   }
 
+  async recient(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = Number(pReq.query.id)
+
+      const vResponse: ITripRouteInstance | null = await ClassTripRouteService.show(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query

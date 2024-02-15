@@ -67,7 +67,8 @@ export const vTripPaymentAttributes: SequelizeAttributes<ITripPaymentAttributes>
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false,
+    allowNull: true,
+    defaultValue: null
   },
 }
 

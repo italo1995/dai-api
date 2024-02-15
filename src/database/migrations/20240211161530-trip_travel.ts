@@ -11,12 +11,36 @@ module.exports = {
         autoIncrement: true,
       },
       tripId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         field: 'trip_id',
       },
       toSearch: {
         type: DataTypes.STRING,
         field: 'to_search',
+        defaultValue: null,
+        allowNull: true,
+      },
+      dateToInitTravel: {
+        type: DataTypes.STRING,
+        field: 'date_to_init_travel',
+        defaultValue: null,
+        allowNull: true,
+      },
+      howMuchPeopleToTravel: {
+        type: DataTypes.INTEGER,
+        field: 'how_much_people_to_travel',
+        defaultValue: null,
+        allowNull: true,
+      },
+      packageToCarry: {
+        type: DataTypes.STRING,
+        field: 'package_to_carry',
+        defaultValue: null,
+        allowNull: true,
+      },
+      approxWeightOfPackage: {
+        type: DataTypes.INTEGER,
+        field: 'approx_weight_of_package',
         defaultValue: null,
         allowNull: true,
       },

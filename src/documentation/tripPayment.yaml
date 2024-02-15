@@ -51,7 +51,7 @@ components:
    in: header
    x-auth-id: Bearer abcde12345
 tags:
-  - name: tripPayment
+  - name: TripPayment
     description: the payment of the trip
 paths:
   /api/tripPayment/show:

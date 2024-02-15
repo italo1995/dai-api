@@ -5,8 +5,9 @@ import controller from '../../controller/Trip/TripRoutesController'
 const router = express.Router()
 
 router.route('/show').get(controller.show)
+router.route('/recient').get(controller.recient)
 router.route('/all').get(controller.all)
 router.route('/update').post(authMiddleware('client'), controller.update)
-router.route('/create').get(authMiddleware('client'), controller.create)
+router.route('/store').post(authMiddleware('client'), controller.create)
 
 export default router

@@ -60,6 +60,18 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
       if (pParam?.search) {
         whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
       }
+      if (pParam?.isMoto) {
+        whereStatement.where = { ...whereStatement.where, isMoto: true }
+      }
+      if (pParam?.isCar) {
+        whereStatement.where = { ...whereStatement.where, isCar: true }
+      }
+      if (pParam?.isClient) {
+        whereStatement.where = { ...whereStatement.where, isClient: true }
+      }
+      if (pParam?.isRegister) {
+        whereStatement.where = { ...whereStatement.where, isRegister: true }
+      }
       const vResponse: IVehicleAdditionalInstance[] = await modelVehicleAdditional.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10

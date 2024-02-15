@@ -16,7 +16,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import { modelTripRoute } from '../../models'
+import { modelTrip, modelTripRoute } from '../../models'
 import type { ITripRouteInstance } from '../../models/Trip/TripRouteModel'
 import type { ITripRouteInput, IResponseAllTripRoute } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -44,6 +44,32 @@ class TripRouteService implements ITripRouteService {
         'TripRoute'
       )
 
+      const vResponse: ITripRouteInstance[] = await modelTripRoute.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(pParam, whereStatement, 'TripRoute', vResponse)
+        return vResponsePaginate
+      }
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  public async recient(pParam: any): Promise<IResponseAllTripRoute | ITripRouteInstance[]> {
+    try {
+      const whereStatement: FindOptions = {}
+      const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
+      whereStatement.limit = limit
+      whereStatement.order = [
+        ['createdAt', 'DESC']
+      ]
+      whereStatement.include = [
+        {
+          model: modelTrip,
+          as: 'trip',
+          required: false,
+        }
+      ]
       const vResponse: ITripRouteInstance[] = await modelTripRoute.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(pParam, whereStatement, 'TripRoute', vResponse)

@@ -48,12 +48,20 @@ components:
        schema:
         type: string
         description: the trip id
+ securitySchemes:
+  BearerAuth: # puedes usar el nombre que quieras
+    type: apiKey
+    name: Authorization
+    in: header
+    x-auth-id: Bearer abcde12345
 tags:
   - name: Trip
     description: Trip endpoint
 paths:
   /api/trip/show:
     get:
+      security:
+      - BearerAuth: []
       summary: Returns a list of trip
       tags:
         - Trip
@@ -70,6 +78,8 @@ paths:
                   $ref: '#/components/schemas/Trip'
   /api/trip/all:
     get:
+      security:
+      - BearerAuth: []
       summary: Returns a list of trip
       tags:
         - Trip
@@ -95,6 +105,8 @@ paths:
                   $ref: '#/components/schemas/Trip'
   /api/trip/store:
     post:
+      security:
+      - BearerAuth: []
       summary: Creates a new trip
       tags:
         - Trip
@@ -130,12 +142,14 @@ paths:
                 - typeService
                 - isPayment
               example:
-                typeService: MOTO | CAR | DELIVERY | TRAVEL
+                typeService: 'MOTO'
                 date: date
                 price: 10
                 fee: { currencyId: 1, price: 10 }
-                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.1111', lon: '71.1111', userAddressId: 1 | null }
-                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.1111', lon: '71.1111', userAddressId: 1 | null }
+                delivery: { toSearch: 'una caja' }
+                travel: { dateToInitTravel: '12/02/204', howMuchPeopleToTravel: 7, packageToCarry: 'una caja', approxWeightOfPackage: 100 }
+                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.1111', lon: '71.1111', userAddressId: null }
+                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.1111', lon: '71.1111', userAddressId: null }
                 PaymentMethod: { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodsId: 1 }
       responses:
         '201':
@@ -146,6 +160,8 @@ paths:
                 $ref: '#/components/schemas/Trip'
   /api/trip/update:
     post:
+      security:
+      - BearerAuth: []
       summary: Update a new trip
       tags:
         - Trip
@@ -184,12 +200,14 @@ paths:
                 - id
               example:
                 id: 1
-                typeService: MOTO | CAR | DELIVERY | TRAVEL
+                typeService: 'MOTO'
                 date: date
                 price: 10
                 fee: { currencyId: 1, price: 10 }
-                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.1111', lon: '71.1111', userAddressId: 1 | null }
-                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.1111', lon: '71.1111', userAddressId: 1 | null }
+                delivery: { toSearch: 'una caja' }
+                travel: { dateToInitTravel: '12/02/204', howMuchPeopleToTravel: 7, packageToCarry: 'una caja', approxWeightOfPackage: 100 }
+                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.1111', lon: '71.1111', userAddressId: null }
+                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.1111', lon: '71.1111', userAddressId: null }
                 PaymentMethod: { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodsId: 1 }
       responses:
         '201':

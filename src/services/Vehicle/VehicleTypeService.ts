@@ -40,7 +40,12 @@ class VehicleTypeService implements IVehicleTypeService {
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
       whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'VehicleType')
-
+      if (pParam?.isMoto) {
+        whereStatement.where = { ...whereStatement.where, isMoto: true }
+      }
+      if (pParam?.isCar) {
+        whereStatement.where = { ...whereStatement.where, isCar: true }
+      }
       const vResponse: IVehicleTypeInstance[] = await modelVehicleType.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllVehicleAdditionalType = await fxReponseServices(pParam, whereStatement, 'VehicleType', vResponse)

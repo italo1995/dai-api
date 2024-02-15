@@ -92,36 +92,3 @@ export const fxTwilioSendCode = async (
   }
   return vCode.toString()
 }
-export const normalizeNameImage = (pFilename: string) => {
-  const charMap: any = {
-    'á': 'a',
-    'é': 'e',
-    'í': 'i',
-    'ó': 'o',
-    'ú': 'u',
-    'ü': 'u',
-    'ñ': 'n',
-    'ç': 'c',
-    'ß': 's',
-    'Ø': 'O',
-    'ø': 'o',
-    'Å': 'A',
-    'å': 'a',
-    'Æ': 'A',
-    'æ': 'a',
-    'Ä': 'A',
-    'ä': 'a',
-    'Ö': 'O',
-    'ö': 'o',
-    'Ü': 'U',
-    'Ã': 'A',
-    'ã': 'a',
-  }
-
-  const regex = new RegExp(Object.keys(charMap).join('|'), 'g')
- 
-  const vFileName = pFilename.replace(regex, (match) => charMap[match] || '-')
-  return  vFileName.trim()
-    .replace(/ /g, '_')
-    .toLowerCase()
-}

@@ -5,6 +5,10 @@ export interface ITripTravelAttributes {
   id: string
   tripId: string
   toSearch?: string
+  dateToInitTravel?: string
+  howMuchPeopleToTravel?: number
+  packageToCarry?: string
+  approxWeightOfPackage?: number
   createdAt?: Date
   updatedAt?: Date
 }
@@ -22,12 +26,36 @@ export const vTripTravelAttributes: SequelizeAttributes<ITripTravelAttributes> =
     autoIncrement: true,
   },
   tripId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     field: 'trip_id',
   },
   toSearch: {
     type: DataTypes.STRING,
     field: 'to_search',
+    defaultValue: null,
+    allowNull: true,
+  },
+  dateToInitTravel: {
+    type: DataTypes.STRING,
+    field: 'date_to_init_travel',
+    defaultValue: null,
+    allowNull: true,
+  },
+  howMuchPeopleToTravel: {
+    type: DataTypes.INTEGER,
+    field: 'how_much_people_to_travel',
+    defaultValue: null,
+    allowNull: true,
+  },
+  packageToCarry: {
+    type: DataTypes.STRING,
+    field: 'package_to_carry',
+    defaultValue: null,
+    allowNull: true,
+  },
+  approxWeightOfPackage: {
+    type: DataTypes.INTEGER,
+    field: 'approx_weight_of_package',
     defaultValue: null,
     allowNull: true,
   },
@@ -45,7 +73,7 @@ export const vTripTravelAttributes: SequelizeAttributes<ITripTravelAttributes> =
 
 export function fxTripTravelFactory(sequelize: Sequelize) {
   const vTripTravel = <ModelStatic<ITripTravelInstance>>sequelize.define('Trip_travel', vTripTravelAttributes, {
-    tableName: 'trip_travel',
+    tableName: 'trip_travels',
     defaultScope: {
       order: [['createdAt', 'DESC']],
     },

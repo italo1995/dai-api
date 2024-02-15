@@ -9,6 +9,21 @@ components:
        name:
          type: string
          description: the name of the VehicleAddittional
+       icon:
+         type: string
+         description: name icon
+       isMoto:
+         type: boolean
+         description: refers to when it is a motorcycle accessory
+       isCar:
+         type: boolean
+         description: refers to when it is a car add-on
+       isClient:
+         type: boolean
+         description: refers to an additional item that the customer sees when requesting a trip
+       isRegister:
+         type: boolean
+         description: refers to an additional item that the driver sees when registering
      required:
        - name
      example:
@@ -82,10 +97,30 @@ paths:
                 name:
                   type: string
                   description: the name of the addittional services in the vehicle
+                icon:
+                  type: string
+                  description: name icon
+                isMoto:
+                  type: boolean
+                  description: refers to when it is a motorcycle accessory
+                isCar:
+                  type: boolean
+                  description: refers to when it is a car add-on
+                isClient:
+                  type: boolean
+                  description: refers to an additional item that the customer sees when requesting a trip
+                isRegister:
+                  type: boolean
+                  description: refers to an additional item that the driver sees when registering
               required:
                -name
               example:
                 name: A/C
+                icon: 'temp/icono.png'
+                isMoto: true
+                isCar: false
+                isClient: true
+                isRegister: false
       responses:
         '201':
           description: the VehicleAddittional created
@@ -105,17 +140,35 @@ paths:
             schema:
               type: object
               properties:
-                id:
-                  type: number
-                  description: VehicleAddittional id to edit
                 name:
                   type: string
-                  description: the name of the VehicleAddittional
+                  description: the name of the addittional services in the vehicle
+                icon:
+                  type: string
+                  description: name icon
+                isMoto:
+                  type: boolean
+                  description: refers to when it is a motorcycle accessory
+                isCar:
+                  type: boolean
+                  description: refers to when it is a car add-on
+                isClient:
+                  type: boolean
+                  description: refers to an additional item that the customer sees when requesting a trip
+                isRegister:
+                  type: boolean
+                  description: refers to an additional item that the driver sees when registering
               required:
-                - id
+               -id
+               -name
               example:
-                id: 1
+                id: number
                 name: A/C
+                icon: 'storage/icono.png'
+                isMoto: true
+                isCar: false
+                isClient: true
+                isRegister: false
       responses:
         '201':
           description: the VehicleAddittional created

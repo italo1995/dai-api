@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface ITripRouteAttributes {
   id: string
@@ -102,13 +103,14 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false,
+    allowNull: true,
+    defaultValue: null
   },
 }
 
 export function fxTripRouteFactory(sequelize: Sequelize) {
   const vTripRoute = <ModelStatic<ITripRouteInstance>>sequelize.define('TripRoute', vTripRouteAttributes, {
-    tableName: 'trip_route',
+    tableName: 'trip_routes',
     defaultScope: {
       order: [['createdAt', 'DESC']],
     },
@@ -116,6 +118,15 @@ export function fxTripRouteFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
+
+  vTripRoute.associate = function (models: ModelRegistry) {
+    const { modelTripRoute, modelTrip  } = models
+    modelTripRoute.belongsTo(modelTrip, {
+      foreignKey: 'tripId',
+      targetKey: 'id',
+      as: 'trip',
+    })
+  }
 
   vTripRoute.prototype.toJSON = function () {
     const vValues = { ...this.get() }

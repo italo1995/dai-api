@@ -65,10 +65,10 @@ class VehicleAdditionalController {
       const vData: IVehicleAdditionalInput = pReq.only([
         'name',
         'icon',
-        'is_moto',
-        'is_car',
-        'is_client',
-        'is_register'
+        'isMoto',
+        'isCar',
+        'isClient',
+        'isRegister'
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
@@ -91,10 +91,10 @@ class VehicleAdditionalController {
         'id',
         'name',
         'icon',
-        'is_moto',
-        'is_car',
-        'is_client',
-        'is_register'
+        'isMoto',
+        'isCar',
+        'isClient',
+        'isRegister'
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)

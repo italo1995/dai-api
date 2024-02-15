@@ -5,10 +5,10 @@ export interface IVehicleAdditionalAtributes {
     id: number
     name: string
     icon?: string
-    is_moto?: boolean
-    is_car?: boolean
-    is_client?: boolean
-    is_register?: boolean
+    isMoto?: boolean
+    isCar?: boolean
+    isClient?: boolean
+    isRegister?: boolean
     createdAt?: Date
     updatedAt?: Date
     deletedAt?: Date
@@ -32,27 +32,27 @@ SequelizeAttributes<IVehicleAdditionalAtributes> = {
   },
   icon: {
     type:DataTypes.STRING,
-    field: 'image'
+    field: 'icon'
   },
-  is_moto: {
+  isMoto: {
     type:DataTypes.BOOLEAN,
     field: 'is_moto',
     defaultValue: true,
     allowNull: true,
   },
-  is_car: {
+  isCar: {
     type:DataTypes.BOOLEAN,
     field: 'is_car',
     defaultValue: true,
     allowNull: true,
   },
-  is_client: {
+  isClient: {
     type:DataTypes.BOOLEAN,
     field: 'is_client',
     defaultValue: true,
     allowNull: true,
   },
-  is_register: {
+  isRegister: {
     type:DataTypes.BOOLEAN,
     field: 'is_register',
     defaultValue: true,
