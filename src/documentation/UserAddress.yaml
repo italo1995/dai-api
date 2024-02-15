@@ -54,7 +54,7 @@ tags:
   - name: UserAddress
     description: User saved locations.
 paths:
-  /api/UserAddress/show:
+  /api/userAddress/show:
     get:
       security:
       - BearerAuth: []
@@ -72,7 +72,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserAddress'
-  /api/UserAddress/all:
+  /api/userAddress/all:
     get:
       security:
       - BearerAuth: []
@@ -99,7 +99,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserAddress'
-  /api/UserAddress/store:
+  /api/userAddress/store:
     post:
       security:
       - BearerAuth: []
@@ -125,7 +125,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserAddress'
-  /api/UserAddress/update:
+  /api/userAddress/update:
     post:
       security:
       - BearerAuth: []
@@ -151,3 +151,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserAddress'
+  /api/userAddress/destroy:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Returns a element UserAddress
+      tags:
+        - UserAddress
+      parameters:
+        - $ref: '#/components/schemas/UserAddress/parameters/id'
+      responses:
+        '200':
+          description: a UserAddress element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserAddress'

@@ -75,7 +75,7 @@ tags:
   - name: TripRoutes
     description: trip Routes
 paths:
-  /api/tripRoutes/show:
+  /api/tripRoute/show:
     get:
       security:
       - BearerAuth: []
@@ -120,7 +120,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/tripRoutes'
-  /api/paymentMwethod/store:
+  /api/tripRoute/store:
     post:
       security:
       - BearerAuth: []
@@ -146,7 +146,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/tripRoute'
-  /api/ptripRoute/update:
+  /api/tripRoute/update:
     post:
       security:
       - BearerAuth: []

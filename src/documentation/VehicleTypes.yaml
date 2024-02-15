@@ -9,6 +9,15 @@ components:
        name:
          type: string
          description: the name of the VehicleTypes
+       icon:
+        type: string
+        description: name icon
+       isMoto:
+        type: boolean
+        description: refers to when it is a motorcycle accessory
+       isCar:
+        type: boolean
+        description: refers to when it is a car add-on
      required:
        - name
      example:
@@ -82,10 +91,22 @@ paths:
                 name:
                   type: string
                   description: the types of vehicles
+                icon:
+                  type: string
+                  description: name icon
+                isMoto:
+                  type: boolean
+                  description: refers to when it is a motorcycle accessory
+                isCar:
+                  type: boolean
+                  description: refers to when it is a car add-on
               required:
                -name
               example:
                 name: sedan
+                icon: 'storage/icono.png'
+                isMoto: true
+                isCar: false
       responses:
         '201':
           description: the VehicleTypes created
@@ -111,11 +132,24 @@ paths:
                 name:
                   type: string
                   description: the name of the VehicleTypes
+                icon:
+                  type: string
+                  description: name icon
+                isMoto:
+                  type: boolean
+                  description: refers to when it is a motorcycle accessory
+                isCar:
+                  type: boolean
+                  description: refers to when it is a car add-on
               required:
                 - id
+                - name
               example:
                 id: 1
                 name: sedan
+                icon: 'storage/icono.png'
+                isMoto: true
+                isCar: false
       responses:
         '201':
           description: the VehicleTypes created
