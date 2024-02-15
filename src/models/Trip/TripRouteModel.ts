@@ -120,10 +120,10 @@ export function fxTripRouteFactory(sequelize: Sequelize) {
   })
 
   vTripRoute.associate = function (models: ModelRegistry) {
-    const { modelTripRoute, modelTrip  } = models
+    const { modelTripRoute, modelTrip } = models
     modelTripRoute.belongsTo(modelTrip, {
-      foreignKey: 'tripId',
-      targetKey: 'id',
+      foreignKey: 'trip_id',
+      // targetKey: 'id',
       as: 'trip',
     })
   }

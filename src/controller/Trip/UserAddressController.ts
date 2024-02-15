@@ -3,7 +3,7 @@ import type { UUID } from 'crypto'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IUserAddressInput, IResponseAllUserAddress } from '../../types/TransferType'
 import ClassUserAddressService from '../../services/Trip/UserAddressService'
-import type { IUserAddressInstance } from '../../models/Trip/UserAddress'
+import type { IUserAddressInstance } from '../../models/Trip/UserAddressModel'
 
 class UserAddressController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -55,6 +55,7 @@ class UserAddressController {
         const vRouteAvatarImages = await moveImages(vData.file)
         vData.file = vRouteAvatarImages
       }
+      await ClassUserAddressService.validate(vData)
       vData.userId = vUserId
       const vResponse: IUserAddressInstance | null = await ClassUserAddressService.create(vData)
       if (!vResponse) {
