@@ -93,7 +93,7 @@ export const vPaymentMethodAttributes: SequelizeAttributes<IPaymentMethodAttribu
 
 export function fxPaymentMethodFactory(sequelize: Sequelize) {
   const vPaymentMethod = <ModelStatic<IPaymentMethodInstance>>sequelize.define('PaymentMethod', vPaymentMethodAttributes, {
-    tableName: 'payment_method',
+    tableName: 'payment_methods',
     defaultScope: {
       order: [['createdAt', 'DESC']],
     },

@@ -69,7 +69,7 @@ export const vCurrencyAttributes: SequelizeAttributes<ICurrencyAttributes> = {
 
 export function fxCurrencyFactory(sequelize: Sequelize) {
   const vCurrency = <ModelStatic<ICurrencyInstance>>sequelize.define('Currency', vCurrencyAttributes, {
-    tableName: 'currency',
+    tableName: 'currencies',
     defaultScope: {
       order: [['createdAt', 'DESC']],
     },

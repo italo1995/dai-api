@@ -17,14 +17,16 @@
 import { type FindOptions } from 'sequelize'
 import type { IServiceInstance } from '../../models/web/ServiceModel'
 import { modelService } from '../../models'
-import type { IWebInput, IResponseAllService } from '../../types/webTypes'
+import type { INewInput, IResponseAllService } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IServiceService {
   validate(data: any): any
   show(pId: number): Promise<IServiceInstance | null>
-  create(payload: IWebInput): Promise<IServiceInstance>
-  update(payload: IWebInput): Promise<IServiceInstance | null>
+  all(pParam: any): Promise<IResponseAllService | IServiceInstance[]>
+  create(payload: INewInput): Promise<IServiceInstance>
+  update(payload: INewInput): Promise<IServiceInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class ServiceService implements IServiceService {
@@ -41,7 +43,7 @@ class ServiceService implements IServiceService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','service'
+        pParam?.typeSearch || 'name','Service'
       )
 
       const vResponse: IServiceInstance[] = await modelService.findAll(whereStatement)
@@ -73,7 +75,7 @@ class ServiceService implements IServiceService {
     }
   }
 
-  async create(pData: IWebInput): Promise<IServiceInstance> {
+  async create(pData: INewInput): Promise<IServiceInstance> {
     try {
       const vResponse: IServiceInstance = await modelService.create(pData)
       return vResponse
@@ -82,7 +84,7 @@ class ServiceService implements IServiceService {
     }
   }
 
-  async update(pData: IWebInput): Promise<IServiceInstance | null> {
+  async update(pData: INewInput): Promise<IServiceInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: IServiceInstance | null = await modelService.findOne({

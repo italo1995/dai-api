@@ -2,5 +2,8 @@
 	"is_null": "es requerida",
 	"reference": "La referencia",
 	"lat": "La ubicacion",
-	"lon": "La ubicacion"
+	"lon": "La ubicacion",
+	"createdAt": "createdAt",
+	"updatedAt": "updatedAt",
+	"name": "name"
 }

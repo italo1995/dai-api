@@ -17,14 +17,16 @@
 import { type FindOptions } from 'sequelize'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
 import { modelVehicleType } from '../../models'
-import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
+import type { IVehicleTypeInput, IResponseAllVehicleTypeType } from '../../types/VehicleTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IVehicleTypeService {
     validate (data: any): any
     show(pId: number): Promise<IVehicleTypeInstance | null>
-    create(payload: IVehicleAdditionalInput): Promise<IVehicleTypeInstance>
-    update(payload: IVehicleAdditionalInput): Promise<IVehicleTypeInstance | null>
+    all(pParam: any): Promise<IResponseAllVehicleTypeType | IVehicleTypeInstance[]>
+    create(payload: IVehicleTypeInput): Promise<IVehicleTypeInstance>
+    update(payload: IVehicleTypeInput): Promise<IVehicleTypeInstance | null>
+    softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class VehicleTypeService implements IVehicleTypeService {
@@ -34,7 +36,7 @@ class VehicleTypeService implements IVehicleTypeService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllVehicleAdditionalType | IVehicleTypeInstance[]> {
+  public async all(pParam: any): Promise<IResponseAllVehicleTypeType | IVehicleTypeInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
@@ -48,7 +50,7 @@ class VehicleTypeService implements IVehicleTypeService {
       }
       const vResponse: IVehicleTypeInstance[] = await modelVehicleType.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllVehicleAdditionalType = await fxReponseServices(pParam, whereStatement, 'VehicleType', vResponse)
+        const vResponsePaginate: IResponseAllVehicleTypeType = await fxReponseServices(pParam, whereStatement, 'VehicleType', vResponse)
         return vResponsePaginate
       }
       return vResponse
@@ -70,7 +72,7 @@ class VehicleTypeService implements IVehicleTypeService {
     }
   }
 
-  async create(pData: IVehicleAdditionalInput): Promise<IVehicleTypeInstance> {
+  async create(pData: IVehicleTypeInput): Promise<IVehicleTypeInstance> {
     try {
       const vResponse: IVehicleTypeInstance = await modelVehicleType.create(pData)
       return vResponse
@@ -79,7 +81,7 @@ class VehicleTypeService implements IVehicleTypeService {
     }
   }
 
-  async update(pData: IVehicleAdditionalInput): Promise<IVehicleTypeInstance | null> {
+  async update(pData: IVehicleTypeInput): Promise<IVehicleTypeInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: IVehicleTypeInstance | null = await modelVehicleType.findOne({
@@ -95,10 +97,10 @@ class VehicleTypeService implements IVehicleTypeService {
       throw error
     }
   }
-  async softDeleteRecord(pId: number) {
+  async softDeleteRecord(vId: number) {
     try {
       const record = await modelVehicleType.update({ deletedAt: new Date() }, {
-        where: { id: pId }
+        where: { id: vId }
       })
       if (!record) {
         return false

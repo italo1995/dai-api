@@ -43,16 +43,14 @@ class PaymentMethodController {
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vUserId = pReq.auth.id
-      vParam.userId = vUserId
       const vResponse: IResponseAllTrip | IPaymentMethodInstance[] = await ClassPaymentMethodService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -60,11 +58,10 @@ class PaymentMethodController {
     }
   }
 
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vId = pReq.auth.id
       const vData: ITripInput = pReq.only([
-        'id',
         'name',
         'fullName',
         'dni',
@@ -74,7 +71,7 @@ class PaymentMethodController {
         'accountType',
         'email'
       ])
-      vData.id = vId
+      
       const vResponse: IPaymentMethodInstance | null = await ClassPaymentMethodService.create(vData)
       if (!vResponse) {
         return pRes
@@ -100,15 +97,13 @@ class PaymentMethodController {
         'accountType',
         'email'
       ])
-      const vUserId = pReq.auth.id
-      vData.id = vUserId
       const vResponse: IPaymentMethodInstance | null = await ClassPaymentMethodService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }

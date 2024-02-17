@@ -17,14 +17,16 @@
 import { type FindOptions } from 'sequelize'
 import type { IBannerInstance } from '../../models/web/BannerModel'
 import { modelBanner } from '../../models'
-import type { IWebInput, IResponseAllBanner } from '../../types/webTypes'
+import type { IBannerInput, IResponseAllBanner } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IBannerService {
   validate(data: any): any
   show(pId: number): Promise<IBannerInstance | null>
-  create(payload: IWebInput): Promise<IBannerInstance>
-  update(payload: IWebInput): Promise<IBannerInstance | null>
+  all(pParam: any): Promise<IResponseAllBanner | IBannerInstance[]>
+  create(payload: IBannerInput): Promise<IBannerInstance>
+  update(payload: IBannerInput): Promise<IBannerInstance | null>
+  softDeleteRecord(pId: number):Promise<boolean>
 }
 
 class BannerService implements IBannerService {
@@ -39,12 +41,12 @@ class BannerService implements IBannerService {
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
       whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
-        'banner'
+        'Banner'
       )
 
       const vResponse: IBannerInstance[] = await modelBanner.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllBanner = await fxReponseServices(pParam, whereStatement, 'banner', vResponse)
+        const vResponsePaginate: IResponseAllBanner = await fxReponseServices(pParam, whereStatement, 'banners', vResponse)
         return vResponsePaginate
       }
       return vResponse
@@ -66,7 +68,7 @@ class BannerService implements IBannerService {
     }
   }
 
-  async create(pData: IWebInput): Promise<IBannerInstance> {
+  async create(pData: IBannerInput): Promise<IBannerInstance> {
     try {
       const vResponse: IBannerInstance = await modelBanner.create(pData)
       return vResponse
@@ -75,7 +77,7 @@ class BannerService implements IBannerService {
     }
   }
 
-  async update(pData: IWebInput): Promise<IBannerInstance | null> {
+  async update(pData: IBannerInput): Promise<IBannerInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: IBannerInstance | null = await modelBanner.findOne({

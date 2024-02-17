@@ -44,16 +44,14 @@ class TripPaymentController {
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vUserId = pReq.auth.id
-      vParam.userId = vUserId
-      const vResponse: IResponseAllTripPayment | ITripPaymentInstance[] = await ClassTripPaymentService.all(vParam)
+      const vResponse: IResponseAllTripPayment | ITripPaymentInput[] = await ClassTripPaymentService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -63,9 +61,7 @@ class TripPaymentController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vId = pReq.auth.id
       const vData: ITripPaymentInput = pReq.only([
-        'id',
         'tripId',
         'type',
         'amount',
@@ -73,7 +69,6 @@ class TripPaymentController {
         'paymenMethodsId',
         'isAprobed'
       ])
-      vData.id = vId
       const vResponse: ITripPaymentInstance | null = await ClassTripPaymentService.create(vData)
       if (!vResponse) {
         return pRes
@@ -97,20 +92,17 @@ class TripPaymentController {
         'paymenMethodsId',
         'isAprobed'
       ])
-      const vUserId = pReq.auth.id
-      vData.id = vUserId
       const vResponse: ITripPaymentInstance | null = await ClassTripPaymentService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
   }
-
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = pReq.input('id', 'number')

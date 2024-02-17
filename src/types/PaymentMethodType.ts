@@ -22,3 +22,4 @@ export interface IResponseAllTrip extends IResponseAll {
   data: IPaymentMethodInstance[]
   actualPage: number
 }
+

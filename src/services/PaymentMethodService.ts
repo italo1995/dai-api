@@ -20,7 +20,7 @@ import type { UUID } from 'crypto'
 import { modelPaymentMethod, modelTripPayment } from '../models'
 import type { IPaymentMethodInstance } from '../models/PaymentMethodModel'
 import type { ITripInput, IResponseAllTrip } from '../types/PaymentMethodType'
-import { fxOrderNameId, fxPaginate, fxSearchILike } from '../utils/query'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../utils/query'
 
 interface IPaymentMethodService {
     validate(data: any): any
@@ -28,6 +28,7 @@ interface IPaymentMethodService {
     all(pParam: any): Promise<IResponseAllTrip | IPaymentMethodInstance[]>
     create(payload: ITripInput): Promise<IPaymentMethodInstance>
     update(payload: ITripInput): Promise<IPaymentMethodInstance | null>
+    softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class PaymentMethodService implements IPaymentMethodService {
@@ -36,29 +37,21 @@ class PaymentMethodService implements IPaymentMethodService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllTrip| IPaymentMethodInstance[]> {
+  public async all(pParam: any): Promise<IResponseAllTrip | IPaymentMethodInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'PaymentMethod')
-      whereStatement.where = {
-        ...whereStatement.where,
-        userId: pParam.userId
-      }
-      const vRes = await modelPaymentMethod.findAll(whereStatement)
+      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+        'PaymentMethod'
+      )
+
+      const vResponse: IPaymentMethodInstance[] = await modelPaymentMethod.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vLimit = Number(pParam?.limit) || 10
-        const vCount = await modelPaymentMethod.count(whereStatement)
-        const vResp = {
-          total: vCount,
-          totalPage: Math.ceil(vCount / vLimit),
-          data: vRes,
-          actualPage: Number(pParam.pag),
-        }
-        return vResp
+        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(pParam, whereStatement, 'PaymentMethod', vResponse)
+        return vResponsePaginate
       }
-      return vRes
+      return vResponse
     } catch (error) {
       throw error
     }
@@ -73,21 +66,29 @@ class PaymentMethodService implements IPaymentMethodService {
   }
 
   async create(pData: ITripInput): Promise<IPaymentMethodInstance> {
-    const vResponse: IPaymentMethodInstance = await modelPaymentMethod.create(pData)
-    return vResponse
+    try {
+      const vResponse: IPaymentMethodInstance = await modelPaymentMethod.create(pData)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
   }
 
   async update(pData: ITripInput): Promise<IPaymentMethodInstance | null> {
-    if (pData?.id) {
-      const vItem: IPaymentMethodInstance | null = await modelPaymentMethod.findOne({
-        where: {
-          id: pData.id,
-        },
-      })
-      await vItem?.update(pData)
-      return vItem
+    try {
+      if (pData?.id) {
+        const vCountry: IPaymentMethodInstance | null = await modelPaymentMethod.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        await vCountry?.update(pData, { where: { id: pData.id } })
+        return vCountry
+      }
+      return null
+    } catch (error) {
+      throw error
     }
-    return null
   }
   async softDeleteRecord(pId: number) {
     try {

@@ -21,7 +21,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassServiceService from '../../services/web/ServiceService'
-import type { IWebInput, IResponseAllService } from '../../types/webTypes'
+import type { INewInput, IResponseAllService } from '../../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IServiceInstance } from '../../models/web/ServiceModel'
 
@@ -59,7 +59,7 @@ class ServiceController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IWebInput = pReq.only([
+      const vData: INewInput = pReq.only([
         'name',
         'image',
         'description',
@@ -82,7 +82,7 @@ class ServiceController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IWebInput = pReq.only([
+      const vData: INewInput = pReq.only([
         'id',
         'name',
         'image',

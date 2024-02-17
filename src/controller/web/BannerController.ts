@@ -21,7 +21,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassBannerService from '../../services/web/BannerService'
-import type { IWebInput, IResponseAllBanner } from '../../types/webTypes'
+import type { IBannerInput, IResponseAllBanner } from '../../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IBannerInstance } from '../../models/web/BannerModel'
 
@@ -59,7 +59,8 @@ class BannerController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IWebInput = pReq.only([
+      const vData: IBannerInput = pReq.only([
+        'name',
         'name',
         'image',
         'orden',
@@ -83,7 +84,7 @@ class BannerController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IWebInput = pReq.only([
+      const vData: IBannerInput = pReq.only([
         'id',
         'name',
         'image',

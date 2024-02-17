@@ -62,7 +62,7 @@ export const vServicesAttributes: SequelizeAttributes<IServiceAttributes> = {
 
 export function fxServiceFactory(sequelize: Sequelize) {
   const vService = <ModelStatic<IServiceInstance>>sequelize.define(
-    'services',
+    'Service',
     vServicesAttributes,
     {
       tableName: 'services',

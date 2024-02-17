@@ -81,6 +81,7 @@ export function fxVehicleAdditionalFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
+      paranoid: true
     }
   )
 
