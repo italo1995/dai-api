@@ -111,29 +111,25 @@ export function fxTripFactory(sequelize: Sequelize) {
   })
 
   vTrip.associate = function (models: ModelRegistry) {
-    const { modelTrip, modelTripRoute  } = models
-    modelTrip.hasMany(modelTripRoute, {
-      foreignKey: 'trip_id',
-      as: 'initRoute',
-    })
-  }
-
-  vTrip.associate = function (models: ModelRegistry) {
-    const { modelTrip, modelTripRoute  } = models
-    modelTrip.hasMany(modelTripRoute, {
-      foreignKey: 'trip_id',
-      as: 'endRoute',
-    })
-  }
-
-  vTrip.associate = function (models: ModelRegistry) {
-    const { modelTrip, modelTripPayment  } = models
+    const { modelTrip, modelTripPayment, modelTripRoute  } = models
     modelTrip.hasMany(modelTripPayment, {
       foreignKey: 'trip_id',
       as: 'PaymentMethod',
     })
+    modelTrip.hasOne(modelTripRoute, {
+      foreignKey: 'trip_id',
+      as: 'initRoute',
+    })
+    modelTrip.hasOne(modelTripRoute, {
+      foreignKey: 'trip_id',
+      as: 'endRoute',
+    })
+    // modelTripRoute.belongsTo(modelTrip, {
+    //   foreignKey: 'trip_id',
+    //   // targetKey: 'id',
+    //   as: 'trip',
+    // })
   }
-
   vTrip.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

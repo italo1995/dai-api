@@ -67,7 +67,7 @@ export const vTripOffertAttributes: SequelizeAttributes<ITripOffertAttributes> =
 
 export function fxTripOffertFactory(sequelize: Sequelize) {
   const vTripOffert = <ModelStatic<ITripOffertInstance>>sequelize.define(
-    'Trip_offerts',
+    'TripOffert',
     vTripOffertAttributes,
     {
       tableName: 'trip_offerts',

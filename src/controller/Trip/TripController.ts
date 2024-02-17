@@ -25,6 +25,7 @@ import ClassTripService from '../../services/Trip/TripService'
 import ClassTripRouteService from '../../services/Trip/TripRouteService'
 import ClassTripDeliveryService from '../../services/Trip/TripDeliveryService'
 import ClassTripTravelService from '../../services/Trip/TripTravelService'
+import ClassUserService from '../../services/User/UserService'
 import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput, IParamShowActiveTrip } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
@@ -145,29 +146,29 @@ class TripController {
           .status(500)
           .send(fxErrorResponse(500, null, 'Se requieren las rutas'))
       }
-      const vResponse: ITripInstance | null = await ClassTripService.create(vData)
-      if (!vResponse) {
+      const vTripReponse: ITripInstance | null = await ClassTripService.create(vData)
+      if (!vTripReponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       if (vTripPayment) {
-        vTripPayment.tripId = vResponse.dataValues.id
+        vTripPayment.tripId = vTripReponse.dataValues.id
         await ClassTripPaymentService.create(vTripPayment)
       }
       if (vTripDelivery) {
-        vTripDelivery.tripId = vResponse.dataValues.id
+        vTripDelivery.tripId = vTripReponse.dataValues.id
         await ClassTripDeliveryService.create(vTripDelivery)
       }
       if (vTripTravel) {
-        vTripTravel.tripId = vResponse.dataValues.id
+        vTripTravel.tripId = vTripReponse.dataValues.id
         await ClassTripTravelService.create(vTripTravel)
       }
       if (vInitRoute && vEndRoute) {
         const vCreateRoutes: ITripRouteInput[] = []
         const vCreateInitRoute: ITripRouteInput = {
           ...vInitRoute,
-          tripId: vResponse.dataValues.id
+          tripId: vTripReponse.dataValues.id
         }
         if (vCreateInitRoute?.referencePointImage) {
           vCreateInitRoute.referencePointImage = await moveImages(vCreateInitRoute.referencePointImage)
@@ -175,12 +176,32 @@ class TripController {
         vCreateRoutes.push(vCreateInitRoute)
         const vCreateEndRoute: ITripRouteInput = {
           ...vEndRoute,
-          tripId: vResponse.dataValues.id
+          tripId: vTripReponse.dataValues.id
         }
         vCreateRoutes.push(vCreateEndRoute)
         await ClassTripRouteService.createMany(vCreateRoutes)
       }
-      SocketService.io.emit('hola', vResponse)
+      const vParamNearbyDrivers = {
+        lat: vInitRoute.lat,
+        lon: vInitRoute.lon,
+        distance: 10
+      }
+      const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
+      const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
+      const tokenPushs: any[]  = vNearbyDrivers.map((vUser) => vUser.tokenPush)
+      console.log('tokenPushs :>> ', tokenPushs)
+      const vParamTripShow = {
+        id: Number(vTripReponse.id),
+        userId: vTripReponse.userId,
+        isClient: true
+      }
+      const vTripOne: ITripInstance | null = await ClassTripService.show(vParamTripShow)
+
+      SocketService.io.to(socketIds).emit('newTrip', vTripOne)
+      const vResponse = {
+        trip: vTripReponse,
+        nearbyDrivers: vNearbyDrivers
+      }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)

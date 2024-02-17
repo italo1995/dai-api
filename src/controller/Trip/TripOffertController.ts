@@ -23,7 +23,8 @@ import ClassTripOffertService from '../../services/Trip/TripOffertService'
 import type { ITripOffertInput, IResponseAllTripOffert } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { ITripOffertInstance } from '../../models/Trip/TripOffertModel'
-
+import { SocketService } from '../../ws'
+import ClassUserService from '../../services/User/UserService'
 class TripOffertController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
@@ -41,7 +42,7 @@ class TripOffertController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
       const vResponse: IResponseAllTripOffert | ITripOffertInstance[] = await ClassTripOffertService.all(vParam)
@@ -58,6 +59,7 @@ class TripOffertController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
+      const userId = pReq.auth.id
       const vData: ITripOffertInput = pReq.only([
         'name',
         'tripId',
@@ -66,14 +68,28 @@ class TripOffertController {
         'amount',
         'status'
       ])
+      vData.driverId = userId
       const vResponse: ITripOffertInstance | null = await ClassTripOffertService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
+      const vDriverParam = {
+        id: userId,
+        isDriver: true
+      }
+      const vDriverSocketId = await ClassUserService.show(vDriverParam)
+      const vClientParam = {
+        isClient: true,
+        tripId: vData.tripId
+      }
+      const vClientSocketId = await ClassUserService.show(vClientParam)
+      if (vClientSocketId?.dataValues?.socketId && vDriverSocketId) {
+        SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffert', vDriverSocketId)
+      }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
-    } catch (error) {
+    } catch (error) { 
       pNext(error)
     }
   }

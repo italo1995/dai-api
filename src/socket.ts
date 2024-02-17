@@ -27,8 +27,6 @@ export class SocketService {
         }
         ClassAuthService.updateSocket(user)
       }
-      console.log('socket.id :>> ', socket.id)
-      console.log('socket.user :>> ', auth)
       io.emit('connection', {
         socketId
       })

@@ -45,10 +45,8 @@ export class SocketService {
       // Actualizamos el socket del usuario en la base de datos
       ClassAuthService.updateSocket(user)
     }
-    console.log('socket.id :>> ', socket.id)
-    console.log('socket.user :>> ', auth)
     // Emitimos el evento de conexión con el socketId
-    this.io.emit('connection', {
+    socket.emit('connection', {
       socketId
     })
     // Aquí puedes definir tus propios eventos, según lo que quieras hacer con tu socket

@@ -32,15 +32,15 @@ interface ITripOffertService {
 }
 
 class TripOffertService implements ITripOffertService {
-
+  private model = modelTripOffert
   async validate(data: any) {
-    const dataValidate = modelTripOffert.build(data)
+    const dataValidate = this.model.build(data)
     await dataValidate.validate()
   }
 
   async show(pId: number): Promise<ITripOffertInstance | null> {
     try {
-      const vResponse: ITripOffertInstance | null = await modelTripOffert.findOne({
+      const vResponse: ITripOffertInstance | null = await this.model.findOne({
         where: {
           id: pId,
         },
@@ -59,10 +59,11 @@ class TripOffertService implements ITripOffertService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','TripOffert'
+        pParam?.typeSearch || 'name',
+        this.model.name
       )
 
-      const vResponse: ITripOffertInstance[] = await modelTripOffert.findAll(whereStatement)
+      const vResponse: ITripOffertInstance[] = await this.model.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllTripOffert = await fxReponseServices(
           pParam,
@@ -79,7 +80,7 @@ class TripOffertService implements ITripOffertService {
   }
 
   async create(pData: ITripOffertInput): Promise<ITripOffertInstance> {
-    const vResponse: ITripOffertInstance = await modelTripOffert.create(pData)
+    const vResponse: ITripOffertInstance = await this.model.create(pData)
     return vResponse
   }
 
@@ -99,7 +100,7 @@ class TripOffertService implements ITripOffertService {
       }
     }
     if (pData?.id) {
-      const vItem: ITripOffertInstance | null = await modelTripOffert.findOne(whereStatement)
+      const vItem: ITripOffertInstance | null = await this.model.findOne(whereStatement)
       await vItem?.update(pData)
       return vItem
     }
@@ -107,7 +108,7 @@ class TripOffertService implements ITripOffertService {
   }
   async softDeleteRecord(pId: string) {
     try {
-      const record = await modelTripOffert.update({ deletedAt: new Date() }, {
+      const record = await this.model.update({ deletedAt: new Date() }, {
         where: { id: pId }
       })
       if (!record) {

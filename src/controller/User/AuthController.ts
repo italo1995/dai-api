@@ -41,6 +41,7 @@ import {
 } from '../../utils/helpers'
 import type { IUserInstance } from '../../models/User/User'
 import ClassDriverDetailService from '../../services/User/DriverDetailService'
+import ClassUserService from '../../services/User/UserService'
 
 class AuthController {
   async registerOrCreateUserForNumber(
@@ -238,6 +239,24 @@ class AuthController {
     try {
       const vUserId: string = pReq.auth.id
       const vUserDB: IUserInstance | null = await ClassAuthService.show(vUserId)
+      if (!vUserDB) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
+      }
+      const vResponse = {
+        user: vUserDB,
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+
+  async NearbyDrivers(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+    try {
+      const vParam = pReq.only(['lat', 'lon', 'distance'])
+      const vUserDB: IUserInstance[] | [] = await ClassUserService.NearbyDrivers(vParam)
       if (!vUserDB) {
         return pRes
           .status(500)

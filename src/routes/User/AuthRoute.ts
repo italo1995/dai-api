@@ -5,6 +5,8 @@ const router = express.Router()
 
 router.route('/phone').post(controller.registerOrCreateUserForNumber)
 
+router.route('/NearbyDrivers').post(controller.NearbyDrivers)
+
 router.route('/update').post(authMiddleware('client'), controller.update)
 
 router.route('/me').get(authMiddleware('client'), controller.me)

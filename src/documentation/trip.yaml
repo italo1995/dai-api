@@ -148,8 +148,8 @@ paths:
                 fee: { currencyId: 1, price: 10 }
                 delivery: { toSearch: 'una caja' }
                 travel: { dateToInitTravel: '12/02/204', howMuchPeopleToTravel: 7, packageToCarry: 'una caja', approxWeightOfPackage: 100 }
-                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.1111', lon: '71.1111', userAddressId: null }
-                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.1111', lon: '71.1111', userAddressId: null }
+                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.5923456', lon: '-72.4729856', userAddressId: null }
+                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.5923456', lon: '-72.4729856', userAddressId: null }
                 PaymentMethod: { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodsId: 1 }
       responses:
         '201':
@@ -206,8 +206,8 @@ paths:
                 fee: { currencyId: 1, price: 10 }
                 delivery: { toSearch: 'una caja' }
                 travel: { dateToInitTravel: '12/02/204', howMuchPeopleToTravel: 7, packageToCarry: 'una caja', approxWeightOfPackage: 100 }
-                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.1111', lon: '71.1111', userAddressId: null }
-                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.1111', lon: '71.1111', userAddressId: null }
+                initRoute: { isInit: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png', lat: '7.5923456', lon: '-72.4729856', userAddressId: null }
+                endRoute: { isEnd: true, address: 'san cristobal, tachira', reference: 'por la plaza', referencePointImage: 'temp/imagen.png | null', lat: '7.5923456', lon: '-72.4729856', userAddressId: null }
                 PaymentMethod: { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodsId: 1 }
       responses:
         '201':

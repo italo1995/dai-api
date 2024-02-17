@@ -28,6 +28,8 @@ export interface IUserAttributes {
   rolId?: number
   socketId?: string
   tokenExpire?: Date
+  lat?: number
+  lon?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -186,6 +188,18 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     allowNull: true,
     defaultValue: null,
   },
+  lat: {
+    type: DataTypes.DOUBLE,
+    field: 'lat',
+    allowNull: true,
+    defaultValue: null
+  },
+  lon: {
+    type: DataTypes.DOUBLE,
+    field: 'lon',
+    allowNull: true,
+    defaultValue: null
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -223,10 +237,14 @@ export function fxUserFactory(sequelize: Sequelize) {
   })
 
   vUser.associate = function (models: ModelRegistry) {
-    const { modelUser, modelDriverDetail  } = models
+    const { modelUser, modelDriverDetail, modelTrip  } = models
     modelUser.hasMany(modelDriverDetail, {
       foreignKey: 'user_id',
       as: 'detail',
+    })
+    modelUser.hasMany(modelTrip, {
+      foreignKey: 'user_id',
+      as: 'trip',
     })
   }
 

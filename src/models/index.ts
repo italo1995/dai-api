@@ -85,6 +85,8 @@ export type ModelRegistryKeys = keyof typeof models
 Object.values(models).forEach((model: ModelStatic<any>) => {
   if (isAssociatable<ModelRegistry>(model)) {
     model.associate(models)
+    console.log('model :>> ', model)
+    console.log('model.associations :>> ', model.associations)
   }
 })
 
