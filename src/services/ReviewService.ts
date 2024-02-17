@@ -23,8 +23,10 @@ import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../
 interface IReviewService {
   validate(data: any): any
   show(pId: number): Promise<IReviewInstance | null>
+  all(pParam: any): Promise<IResponseAllReview | IReviewInstance[]>
   create(payload: IReviewInput): Promise<IReviewInstance>
   update(payload: IReviewInput): Promise<IReviewInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class ReviewService implements IReviewService {
@@ -41,7 +43,7 @@ class ReviewService implements IReviewService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','review'
+        pParam?.typeSearch || 'name','Review'
       )
 
       const vResponse: IReviewInstance[] =await modelReview.findAll(whereStatement)
@@ -49,7 +51,7 @@ class ReviewService implements IReviewService {
         const vResponsePaginate: IResponseAllReview = await fxReponseServices(
           pParam,
           whereStatement,
-          'review',
+          'Review',
           vResponse
         )
         return vResponsePaginate

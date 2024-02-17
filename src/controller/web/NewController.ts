@@ -21,7 +21,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassNewService from '../../services/web/newService'
-import type { IWebInput, IResponseAllNew } from '../../types/webTypes'
+import type { INewInput, IResponseAllNew } from '../../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { INewInstance } from '../../models/web/NewsModel'
 import { modelNew } from '../../models'
@@ -60,7 +60,7 @@ class NewController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IWebInput = pReq.only([
+      const vData: INewInput = pReq.only([
         'name',
         'image',
         'description',
@@ -84,7 +84,7 @@ class NewController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IWebInput = pReq.only([
+      const vData: INewInput = pReq.only([
         'id',
         'name',
         'image',
@@ -119,6 +119,22 @@ class NewController {
       throw error
     }
   }
+
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassNewService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
 }
 
 export default new NewController()

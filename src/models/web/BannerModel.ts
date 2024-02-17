@@ -48,7 +48,7 @@ export const vBannerAttributes: SequelizeAttributes<IBannerAttributes> = {
   state: {
     type: DataTypes.BOOLEAN,
     field: 'status',
-    defaultValue: null,
+    defaultValue: true,
     allowNull: true,
   },
   createdAt: {
@@ -63,7 +63,7 @@ export const vBannerAttributes: SequelizeAttributes<IBannerAttributes> = {
   },
   deletedAt: {
     type: DataTypes.DATE,
-        field: 'deletedAt',
+    field: 'deletedAt',
     allowNull: true,
     defaultValue: null
   },
@@ -71,7 +71,7 @@ export const vBannerAttributes: SequelizeAttributes<IBannerAttributes> = {
 
 export function fxBannerFactory(sequelize: Sequelize) {
   const vBanner = <ModelStatic<IBannerInstance>>sequelize.define('Banner', vBannerAttributes, {
-    tableName: 'banner',
+    tableName: 'banners',
     defaultScope: {
       order: [['createdAt', 'DESC']],
     },

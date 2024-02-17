@@ -60,7 +60,11 @@ class ReviewController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IReviewInput = pReq.only([
-        'name',
+        'clientId',
+        'driverId',
+        'qualification',
+        'comment',
+        'features,'
       ])
       const vResponse: IReviewInstance | null = await ClassReviewService.create(vData)
       if (!vResponse) {
@@ -78,7 +82,11 @@ class ReviewController {
     try {
       const vData: IReviewInput = pReq.only([
         'id',
-        'name',
+        'clientId',
+        'driverId',
+        'qualification',
+        'comment',
+        'features,'
       ])
       const vResponse: IReviewInstance | null = await ClassReviewService.update(vData)
       if (!vResponse) {

@@ -1,4 +1,5 @@
 import type { IVehicleAdditionalInstance } from '../models/Vehicle/VehicleAdditionalModels'
+import type { IVehicleTypeInstance } from '../models/Vehicle/VehicleTypeModels'
 import type { IResponseAll } from './generalType'
 
 export interface IVehicleAdditionalInput {
@@ -14,5 +15,21 @@ export interface IResponseAllVehicleAdditionalType extends IResponseAll {
   total: number
   totalPage: number
   data: IVehicleAdditionalInstance[]
+  actualPage: number
+}
+
+export interface IVehicleTypeInput {
+  id?: number
+  name: string
+  icon?: string
+  isMoto?: boolean
+  isCar?: boolean 
+  
+}
+
+export interface IResponseAllVehicleTypeType extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IVehicleTypeInstance[]
   actualPage: number
 }

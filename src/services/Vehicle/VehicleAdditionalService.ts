@@ -24,8 +24,10 @@ import type { IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes
 interface IVehicleAdditionalService {
     validate (data: any): any
     show(pId: number): Promise<IVehicleAdditionalInstance | null>
+    all(pParam: any): Promise<IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[]>
     create(payload: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance>
     update(payload: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance | null>
+    softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class VehicleAdditionalService implements IVehicleAdditionalService {

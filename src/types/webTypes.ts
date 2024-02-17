@@ -4,16 +4,28 @@ import type { IReviewInstance } from '../models/ReviewModel'
 import type { INewInstance } from '../models/web/NewsModel'
 import type { IResponseAll } from './generalType'
 
-export interface IWebInput {
-    id?: string
-    name: string
-    image: string
-    description: string
-    isFeatured?: boolean
-    state?: boolean
-    createdAt?: Date
-    updatedAt?: Date
-    deletedAt?: Date
+export interface INewInput {
+  id: string
+  name: string
+  image: string
+  description: string
+  state?: boolean
+  isFeatured?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IBannerInput {
+  id: string
+  name: string
+  image: string
+  orden?: number
+  link?: string
+  state?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
 }
 
 export interface IReviewInput {

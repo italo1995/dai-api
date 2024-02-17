@@ -25,7 +25,6 @@ import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditio
 import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
-import { modelVehicleAdditional } from '../../models'
 
 class VehicleAdditionalController {
 
@@ -110,17 +109,18 @@ class VehicleAdditionalController {
       pNext(error)
     }
   }
-  async softDeleteRecord(pId: number) {
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const record = await modelVehicleAdditional.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
-      if (!record) {
-        return false
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassVehicleAdditionalService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
-      return true
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
-      throw error
+      pNext(error)
     }
   }
 

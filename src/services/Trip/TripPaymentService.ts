@@ -20,7 +20,7 @@ import type { UUID } from 'crypto'
 import { modelTripPayment } from '../../models'
 import type { ITripPaymentInstance } from '../../models/Trip/TripPaymentModel'
 import type { ITripPaymentInput, IResponseAllTripPayment } from '../../types/TripType'
-import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface ITripPaymentService {
   validate(data: any): any
@@ -28,6 +28,7 @@ interface ITripPaymentService {
   all(pParam: any): Promise<IResponseAllTripPayment | ITripPaymentInstance[]>
   create(payload: ITripPaymentInput): Promise<ITripPaymentInstance>
   update(payload: ITripPaymentInput): Promise<ITripPaymentInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class TripPaymentService implements ITripPaymentService {
@@ -42,25 +43,16 @@ class TripPaymentService implements ITripPaymentService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Trip')
-      whereStatement.where = {
-        ...whereStatement.where,
-        userId: pParam.userId
-      }
-      const vRes = await modelTripPayment.findAll(whereStatement)
-      if (Number(pParam?.pag)) {
-        const vLimit = Number(pParam?.limit) || 10
-        const vCount = await modelTripPayment.count(whereStatement)
-        const vResp = {
-          total: vCount,
-          totalPage: Math.ceil(vCount / vLimit),
-          data: vRes,
-          actualPage: Number(pParam.pag),
-        }
-        return vResp
-      }
+      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+        'TripPayment'
+      )
 
-      return vRes
+      const vResponse: ITripPaymentInstance[] = await modelTripPayment.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllTripPayment = await fxReponseServices(pParam, whereStatement, 'TripPayment', vResponse)
+        return vResponsePaginate
+      }
+      return vResponse
     } catch (error) {
       throw error
     }

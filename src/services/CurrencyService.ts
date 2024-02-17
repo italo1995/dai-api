@@ -23,9 +23,11 @@ import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../
 
 interface ICurrencyService {
   validate(data: any): any
+  all(pParam: any): Promise<IResponseAllTrip | ICurrencyInstance[]>
   show(pId: number): Promise<ICurrencyInstance | null>
   create(payload: ITripInput): Promise<ICurrencyInstance>
   update(payload: ITripInput): Promise<ICurrencyInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class CurrencyService implements ICurrencyService {

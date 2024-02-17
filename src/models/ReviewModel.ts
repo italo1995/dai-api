@@ -62,16 +62,23 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     field: 'updatedAt',
     allowNull: false,
   },
+  deletedAt: {
+    type: DataTypes.DATE,
+    field: 'deletedAt',
+    allowNull: true,
+    defaultValue: null
+  }
 }
 
 export function fxReviewFactory(sequelize: Sequelize) {
   const vReview = <ModelStatic<IReviewInstance>>sequelize.define('Review', vReviewAttributes, {
-    tableName: 'review',
+    tableName: 'reviews',
     defaultScope: {
       order: [['createdAt', 'DESC']],
     },
     freezeTableName: true,
     timestamps: true,
+    paranoid: true
   })
 
   vReview.prototype.toJSON = function () {

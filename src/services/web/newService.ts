@@ -17,14 +17,17 @@
 import { type FindOptions } from 'sequelize'
 import type { INewInstance } from '../../models/web/NewsModel'
 import { modelNew } from '../../models'
-import type { IWebInput, IResponseAllNew } from '../../types/webTypes'
+import type { INewInput, IResponseAllNew } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface INewService{
     validate(data: any): any
     show(pId: number): Promise<INewInstance | null>
-    create(payload: IWebInput): Promise<INewInstance>
-    update(payload: IWebInput): Promise<INewInstance | null>
+    all(pParam: any): Promise<IResponseAllNew | INewInstance[]>
+    create(payload: INewInput): Promise<INewInstance>
+    update(payload: INewInput): Promise<INewInstance | null>
+    softDeleteRecord(pId: number): Promise <boolean>
+
 }
 
 class NewService implements INewService {
@@ -73,7 +76,7 @@ class NewService implements INewService {
     }
   }
 
-  async create(pData: IWebInput): Promise<INewInstance> {
+  async create(pData: INewInput): Promise<INewInstance> {
     try {
       const vResponse: INewInstance = await modelNew.create(pData)
       return vResponse
@@ -82,7 +85,7 @@ class NewService implements INewService {
     }
   }
 
-  async update(pData: IWebInput): Promise<INewInstance | null> {
+  async update(pData: INewInput): Promise<INewInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: INewInstance | null = await modelNew.findOne({
@@ -94,6 +97,20 @@ class NewService implements INewService {
         return vCountry
       }
       return null
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelNew.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
     } catch (error) {
       throw error
     }

@@ -22,10 +22,9 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassVehicleTypeService from '../../services/Vehicle/VehicleTypeService'
-import type { IVehicleAdditionalInput, IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
-import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
+import type { IVehicleTypeInput, IResponseAllVehicleTypeType } from '../../types/VehicleTypes'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
-import { modelVehicleType } from '../../models'
 
 class VehicleTypeController {
 
@@ -48,7 +47,7 @@ class VehicleTypeController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vResponse: IResponseAllVehicleAdditionalType | IVehicleTypeInstance[] = await ClassVehicleTypeService.all(vParam)
+      const vResponse: IResponseAllVehicleTypeType | IVehicleTypeInstance[] = await ClassVehicleTypeService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -62,14 +61,11 @@ class VehicleTypeController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IVehicleAdditionalInput = pReq.only([
+      const vData: IVehicleTypeInput = pReq.only([
         'name',
-        'is_moto',
-        'is_car'
+        'isMoto',
+        'isCar'
       ])
-      if (vData?.icon && vData?.icon.includes('temp')) {
-        vData.icon = await moveImages(vData.icon)
-      }
       const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.create(vData)
       if (!vResponse) {
         return pRes
@@ -84,15 +80,12 @@ class VehicleTypeController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IVehicleAdditionalInput = pReq.only([
+      const vData: IVehicleTypeInput = pReq.only([
         'id',
         'name',
-        'is_moto',
-        'is_car'
+        'isMoto',
+        'isCar'
       ])
-      if (vData?.icon && vData?.icon.includes('temp')) {
-        vData.icon = await moveImages(vData.icon)
-      }
       const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.update(vData)
       if (!vResponse) {
         return pRes
@@ -104,17 +97,18 @@ class VehicleTypeController {
       pNext(error)
     }
   }
-  async softDeleteRecord(pId: number) {
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const record = await modelVehicleType.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
-      if (!record) {
-        return false
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassVehicleTypeService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
-      return true
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
-      throw error
+      pNext(error)
     }
   }
 }
