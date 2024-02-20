@@ -1,7 +1,7 @@
 /* 
 - File: ReviewService.ts
 
-- Purpose: El serivicio Review se encarga de las oonsultas con modelos y funcionalidades al Review
+- Purpose: El serivicio Review se encarga de las consultas con modelos y funcionalidades al Review
 
 - Author: Jairo Belen
 
@@ -77,8 +77,8 @@ class ReviewService implements IReviewService {
 
   async create(pData: IReviewInput): Promise<IReviewInstance> {
     try {
-      const vResponse: IReviewInstance = await modelReview.create(pData)
-      return vResponse
+      const vReview: IReviewInstance = await modelReview.create(pData)
+      return vReview
     } catch (error) {
       throw error
     }

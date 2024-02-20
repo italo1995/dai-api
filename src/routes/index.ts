@@ -17,6 +17,7 @@ import PaymentMethod from './PaymentMethodRoute'
 import TripPayment from './trip/TripPaymentRoutes'
 import TripRoute from './trip/TripRoutesRoute'
 import TripOffert from './trip/TripOffertRoute'
+import UserRating from './User/userRatingRoute'
 
 const router = express.Router()
 
@@ -38,5 +39,6 @@ router.use('/paymentMethod', PaymentMethod)
 router.use('/tripPayment', TripPayment)
 router.use('/tripRoute', TripRoute)
 router.use('/TripOffert', TripOffert)
+router.use('/UserRating', UserRating)
 
 export default router

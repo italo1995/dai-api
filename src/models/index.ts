@@ -24,6 +24,7 @@ import { fxPaymentMethodFactory } from './PaymentMethodModel'
 import { fxTripTravelFactory } from './Trip/TripTravelModel'
 import { fxTripDeliveryFactory } from './Trip/TripDeliveryModel'
 import { fxTripOffertFactory } from './Trip/TripOffertModel'
+import { fxUserRatingFactory } from './User/UserRatingModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -54,6 +55,7 @@ export const modelPaymentMethod = fxPaymentMethodFactory(sequelize)
 export const modelTripTravel = fxTripTravelFactory(sequelize)
 export const modelTripDelivery = fxTripDeliveryFactory(sequelize)
 export const modelTripOffert = fxTripOffertFactory(sequelize)
+export const modelUserRating = fxUserRatingFactory(sequelize)
 
 const models = {
   modelUser,
@@ -76,7 +78,8 @@ const models = {
   modelPaymentMethod,
   modelTripTravel,
   modelTripDelivery,
-  modelTripOffert
+  modelTripOffert,
+  modelUserRating
 }
 
 export type ModelRegistry = typeof models

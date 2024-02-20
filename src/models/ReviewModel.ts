@@ -1,11 +1,12 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../types/SequelizeTypes'
 
+
 export interface IReviewAttributes {
   id: number
-  clientId: number
-  driverId: number
-  qualification: string
+  clientId?: number
+  driverId?: number
+  qualification: number
   comment: string
   features?: string
   createdAt?: Date
@@ -28,10 +29,14 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
   clientId: {
     type: DataTypes.INTEGER,
     field: 'client_Id',
+    allowNull: true,
+    defaultValue: null
   },
   driverId: {
     type: DataTypes.INTEGER,
     field: 'driver_Id',
+    allowNull: true,
+    defaultValue: null
   },
   qualification: {
     type: DataTypes.INTEGER,

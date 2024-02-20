@@ -13,10 +13,14 @@ module.exports = {
       clientId: {
         type: DataTypes.INTEGER,
         field: 'client_Id',
+        allowNull: true,
+        defaultValue: null
       },
       driverId: {
         type: DataTypes.INTEGER,
         field: 'driver_Id',
+        allowNull: true,
+        defaultValue: null
       },
       qualification: {
         type: DataTypes.INTEGER,

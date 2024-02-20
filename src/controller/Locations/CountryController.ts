@@ -91,7 +91,7 @@ class CountryController {
       const vData: ICountryUpdate = pReq.only([
         'id',
         'name',
-        'flags',
+        'flag',
         'phoneCode',
         'state'
       ])

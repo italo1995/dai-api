@@ -30,9 +30,9 @@ export interface IBannerInput {
 
 export interface IReviewInput {
   id: number
-  clientId: number
-  driverId: number
-  qualification: string
+  clientId?: number
+  driverId?: number
+  qualification: number
   comment: string
   features?: string
   createdAt?: Date
