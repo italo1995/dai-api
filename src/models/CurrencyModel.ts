@@ -8,6 +8,7 @@ export interface ICurrencyAttributes {
   change: number
   type: boolean
   auto?: string
+  icon?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -47,6 +48,12 @@ export const vCurrencyAttributes: SequelizeAttributes<ICurrencyAttributes> = {
     type: DataTypes.STRING,
     field: 'auto',
     defaultValue: true,
+    allowNull: true,
+  },
+  icon: {
+    type: DataTypes.STRING,
+    field: 'icon',
+    defaultValue: null,
     allowNull: true,
   },
   createdAt: {

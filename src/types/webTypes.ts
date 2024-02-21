@@ -34,6 +34,7 @@ export interface IReviewInput {
   driverId?: number
   qualification: number
   comment: string
+  icon?: string
   features?: string
   createdAt?: Date
   updatedAt?: Date

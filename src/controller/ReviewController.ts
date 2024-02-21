@@ -65,7 +65,8 @@ class ReviewController {
         'driverId',
         'qualification',
         'comment',
-        'features'
+        'features',
+        'tripId'
       ])
 
       let type, userId
@@ -108,7 +109,8 @@ class ReviewController {
         'driverId',
         'qualification',
         'comment',
-        'features'
+        'features',
+        'tripId'
       ])
       const vResponse: IReviewInstance | null = await ClassReviewService.update(vData)
       if (!vResponse) {

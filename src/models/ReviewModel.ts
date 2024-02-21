@@ -9,6 +9,7 @@ export interface IReviewAttributes {
   qualification: number
   comment: string
   features?: string
+  tripId?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -55,6 +56,12 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     type: DataTypes.STRING,
     field: 'features',
     defaultValue: false,
+    allowNull: true,
+  },
+  tripId: {
+    type: DataTypes.STRING,
+    field: 'trip_id',
+    defaultValue: null,
     allowNull: true,
   },
   createdAt: {
