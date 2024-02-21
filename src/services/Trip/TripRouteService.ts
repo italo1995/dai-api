@@ -99,6 +99,20 @@ class TripRouteService implements ITripRouteService {
     }
   }
 
+  async showByTripId(pParam: any): Promise<ITripRouteInstance | null> {
+    try {
+      const vResponse: ITripRouteInstance | null = await modelTripRoute.findOne({
+        where: {
+          tripId: pParam.tripId,
+          isInit: true
+        },
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
   async create(pData: ITripRouteInput): Promise<ITripRouteInstance> {
     try {
       const vResponse: ITripRouteInstance = await modelTripRoute.create(pData)

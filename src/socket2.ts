@@ -16,10 +16,7 @@ interface ClientToServerEvents {
 
 export class SocketService {
   public static initSocket(io: any): void {
-    console.log('initSocket', io)
     io.on('connection', (socket: Socket<ServerToClientEvents, ClientToServerEvents, DefaultEventsMap>) => {
-      console.log('socket :>> ', socket)
-      console.log(`Cliente conectado: ${socket.id}`)
       socket.on('disconnect', () => {
         console.log(`Cliente desconectado: ${socket.id}`)
       })

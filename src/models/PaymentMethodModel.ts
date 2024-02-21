@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../types/SequelizeTypes'
+import type { ModelRegistry } from '.'
 
 export interface IPaymentMethodAttributes {
   id: string
@@ -101,7 +102,14 @@ export function fxPaymentMethodFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
-
+  vPaymentMethod.associate = function (models: ModelRegistry) {
+    const { modelCurrency, modelTripPayment } = models
+    modelTripPayment.belongsTo(modelCurrency, {
+      targetKey: 'id',
+      foreignKey: 'currencyId',
+      as: 'currencyPayment',
+    })
+  }
   vPaymentMethod.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

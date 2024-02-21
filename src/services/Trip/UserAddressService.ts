@@ -34,7 +34,6 @@ interface ICountryService {
 class UserAddressService implements ICountryService {
 
   async validate(data: any) {
-    console.log('validate')
     const dataValidate = modelUserAddress.build(data)
     await dataValidate.validate()
   }

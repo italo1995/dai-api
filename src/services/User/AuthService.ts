@@ -24,6 +24,7 @@ import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } 
 import type { IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
+import { Op } from 'sequelize'
 // import { Op } from 'sequelize'
 
 interface IAuthService {
@@ -59,6 +60,16 @@ class AuthService implements IAuthService {
         phoneNumber: pPhoneNumber,
         phoneCode: pPhoneCode,
       },
+    })
+    return vResponse
+  }
+
+  async deleteUserNumber(pPhoneNumber: string): Promise<number | null> {
+    const vResponse = await modelUserCode.destroy({
+      where: {
+        phoneNumber: pPhoneNumber,
+      },
+      logging: true
     })
     return vResponse
   }
@@ -101,29 +112,30 @@ class AuthService implements IAuthService {
 
   async showUserCodeNumber(pPhoneNumber: string, pPhoneCode: string): Promise<string | null> {
     const vPhoneNumber: string = `${pPhoneCode}${pPhoneNumber}`
-    // const vDate = new Date()
+    const vDate = new Date()
     const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
       where: {
         phoneNumber: vPhoneNumber,
-        // createdAt: {
-        //   [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
-        // },
+        createdAt: {
+          [Op.gte]: vDate.toISOString().split('T')[0]
+        },
       },
     })
     return vResponse?.dataValues?.code || null
   }
 
   async showCode(pData: IUserCodeInput): Promise<boolean> {
-    // const vDate = new Date()
+    const vDate = new Date()
     const vResponse: IUserCodeInstance | null = await modelUserCode.findOne({
       where: {
         code: pData.code,
         phoneNumber: pData.phoneNumber,
-        // createdAt: {
-        //   [Op.gte]: `${vDate.getFullYear()}-${vDate.getMonth() + 1}-${vDate.getDate()}`
-        // },
+        createdAt: {
+          [Op.gte]: vDate.toISOString().split('T')[0]
+        }
       },
     })
+
     await vResponse?.destroy()
     if (vResponse) {
       return true

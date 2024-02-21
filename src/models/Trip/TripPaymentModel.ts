@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface ITripPaymentAttributes {
   id: string
@@ -7,7 +8,7 @@ export interface ITripPaymentAttributes {
   type: string
   amount: number
   currencyId?: number
-  paymentMethodsId?: number
+  paymentMethodId?: number
   isAprobed?: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -44,7 +45,7 @@ export const vTripPaymentAttributes: SequelizeAttributes<ITripPaymentAttributes>
     type: DataTypes.INTEGER,
     field: 'currency_id',
   },
-  paymentMethodsId: {
+  paymentMethodId: {
     type: DataTypes.INTEGER,
     field: 'payment_method_id',
   },
@@ -82,7 +83,19 @@ export function fxTripPaymentFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
-
+  vTripPayment.associate = function (models: ModelRegistry) {
+    const { modelCurrency, modelTripPayment, modelPaymentMethod } = models
+    modelTripPayment.belongsTo(modelPaymentMethod, {
+      foreignKey: 'payment_method_id',
+      targetKey: 'id',
+      as: 'paymentMethod',
+    })
+    modelTripPayment.belongsTo(modelCurrency, {
+      foreignKey: 'currency_id',
+      targetKey: 'id',
+      as: 'currency',
+    })
+  }
   vTripPayment.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

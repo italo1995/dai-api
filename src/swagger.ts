@@ -7,9 +7,6 @@ import swaggerJSON from '../swagger.json'
 export const startSwagger = (app: Express, _port: string) => {
   try {
     const swaggerDoc = swaggerJSON
-    if(swaggerDoc) {
-      console.log('leido')
-    }
     const rutaYAML = path.resolve(__dirname, './documentation/*.yaml')
     const options = {
       swaggerDefinition: swaggerDoc,

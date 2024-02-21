@@ -11,10 +11,10 @@ class UserService implements IUserService {
     const dataValidate = modelUser.build(data)
     await dataValidate.validate()
   }
+
   public async NearbyDrivers(pParam: any): Promise<IUserInstance[] | []> {
     try {
-      const query = `SELECT * FROM (SELECT id, lat, lon, socket_id, (6371 * acos(cos(radians(${pParam.lat})) * cos(radians(lat)) * cos(radians(lon) - radians(${pParam.lon})) + sin(radians(${pParam.lat})) * sin(radians(lat)))) as distance FROM users) as temp WHERE NOT distance IS NULL AND distance > 0 AND distance < ${pParam.distance}`
-      console.log('query :>> ', query)
+      const query = `SELECT * FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users) as temp WHERE NOT distance IS NULL AND distance > 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2'`
       const vResponse = await sequelize.query(query, {
         mapToModel: true,
         model: modelUser,

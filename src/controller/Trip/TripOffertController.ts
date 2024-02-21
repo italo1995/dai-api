@@ -25,6 +25,8 @@ import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { ITripOffertInstance } from '../../models/Trip/TripOffertModel'
 import { SocketService } from '../../ws'
 import ClassUserService from '../../services/User/UserService'
+import NotificationService from '../fcmPushController'
+
 class TripOffertController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
@@ -87,6 +89,17 @@ class TripOffertController {
       const vClientSocketId = await ClassUserService.show(vClientParam)
       if (vClientSocketId?.dataValues?.socketId && vDriverSocketId) {
         SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffert', vDriverSocketId)
+      }
+      if (vClientSocketId?.dataValues?.tokenPush && vDriverSocketId) {
+        const tokenPush = vClientSocketId?.dataValues?.tokenPush
+        const ClassSendNotification = new NotificationService()
+        const notificationData = {
+          title: 'Nuevo viaje',
+          body: 'Un nuevo viaje cerca de ti',
+          data: JSON.stringify(vDriverSocketId)
+        }
+        console.log('tokenPushs :>> ', tokenPush)
+        await ClassSendNotification.sendNotification([tokenPush], notificationData)
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) { 

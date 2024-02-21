@@ -186,7 +186,6 @@ export class Server {
       if (err instanceof ValidationError) {
         const errors: string[] = []
         for (const itemError of err.errors) {
-          console.log('itemError :>> ', itemError)
           if (itemError?.path && itemError?.validatorKey) {
             const vErrorTranslate = `${vI18n.__(itemError.path)} ${vI18n.__(itemError.validatorKey)}`
             errors.push(vErrorTranslate)
@@ -196,7 +195,6 @@ export class Server {
         }
         return res.status(400).json({ success: false, type: 'validation', message: errors })
       } else {
-        console.log('err :>> ', err)
         const newErrorReporting = {
           type: 'middelware',
           data: JSON.stringify({

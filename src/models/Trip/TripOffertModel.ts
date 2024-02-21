@@ -3,7 +3,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 
 export interface ITripOffertAttributes {
   id: string
-  tripId: string
+  tripId: number
   clientId: string
   driverId: string
   amount: string
@@ -26,7 +26,7 @@ export const vTripOffertAttributes: SequelizeAttributes<ITripOffertAttributes> =
     autoIncrement: true,
   },
   tripId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     field: 'trip_id',
   },
   clientId: {

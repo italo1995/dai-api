@@ -69,6 +69,7 @@ class AuthController {
       }
       let vUser: IUserInstance
       if (!vPhoneNumberExist) {
+        vData.balance = 0
         vUser = await ClassAuthService.create(vData)
       } else {
         vUser = vPhoneNumberExist
@@ -91,9 +92,10 @@ class AuthController {
       const vCode: string = pReq.input('code')
       const vphoneCode: string = pReq.input('phoneCode').toString()
       const vphoneNumber: string = pReq.input('phoneNumber').toString()
+      const socketId: string | null = pReq.input('socketId') ? pReq.input('socketId').toString() : null
       const vPhoneNumber: string = `${vphoneCode}${vphoneNumber}`
       const vVerifiedCode: boolean = await ClassAuthService.showCode({
-        code: vCode,
+        code: vCode.trim(),
         phoneNumber: vPhoneNumber,
       })
       if (vVerifiedCode) {
@@ -101,10 +103,17 @@ class AuthController {
         if (!vUser) {
           return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
         }
+        if (socketId) {
+          await ClassAuthService.updateSocket({
+            id: vUser.id,
+            socketId: socketId
+          })
+        }
         const vResponse = {
           user: vUser.dataValues,
           token: fxGenerateAccessToken(vUser.dataValues),
         }
+        await ClassAuthService.deleteUserNumber(vPhoneNumber)
         return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
       } else {
         return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
@@ -130,8 +139,8 @@ class AuthController {
           'availabilityToTravel',
           'typeUser',
           'seats',
+          'tokenPush'
         ])
-        console.log('req.body :>> ', pReq.body)
         vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
         vData.id = vUserId
         const vDetail: any = pReq.input('details', 'json')
@@ -163,7 +172,6 @@ class AuthController {
             }
             driverDetail.push(element)
           }
-          console.log('driverDetail :>> ', driverDetail)
           ClassDriverDetailService.createMany(driverDetail, vUserId)
         }
         if (!vUserDB) {

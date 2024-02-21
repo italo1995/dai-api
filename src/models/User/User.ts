@@ -15,6 +15,7 @@ export interface IUserAttributes {
   vehicleType?: number
   dob?: Date
   status?: boolean
+  statusDriver?: EStatusDriver
   isTaxi?: boolean
   isVip?: boolean
   isAc?: boolean
@@ -26,17 +27,22 @@ export interface IUserAttributes {
   token?: string
   tokenPush?: string
   rolId?: number
-  socketId?: string
+  socketId?: string | null
   tokenExpire?: Date
-  lat?: number
-  lon?: number
+  lat?: number | null
+  lon?: number | null
+  balance?: number | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
 }
-
+export enum EStatusDriver {
+  INACTIVE = 0,
+  ACTIVE = 1,
+  BUSSY = 2
+}
 interface IUserCreationAttributes
-  extends Optional<IUserAttributes, 'id' | 'email' | 'password' | 'status'> {}
+  extends Optional<IUserAttributes, 'id' | 'email' | 'password' | 'status' | 'lat' | 'lon' | 'socketId' | 'balance'> {}
 
 export interface IUserInstance
   extends Model<IUserAttributes, IUserCreationAttributes>,
@@ -85,7 +91,6 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     unique: true,
     allowNull: true,
     set(pVal) {
-      console.log('pVal :>> ', typeof pVal, pVal)
       if (typeof pVal === 'number') {
         pVal = pVal.toString()
       }
@@ -146,6 +151,12 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     defaultValue: true,
     allowNull: true,
   },
+  statusDriver: {
+    type: DataTypes.NUMBER,
+    field: 'status_driver',
+    allowNull: true,
+    defaultValue: 1,
+  },
   verifiedDriver: {
     type: DataTypes.BOOLEAN,
     field: 'verified_driver',
@@ -199,6 +210,12 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     field: 'lon',
     allowNull: true,
     defaultValue: null
+  },
+  balance: {
+    type: DataTypes.FLOAT,
+    field: 'balance',
+    allowNull: true,
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,

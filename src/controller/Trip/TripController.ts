@@ -30,6 +30,7 @@ import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITrip
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
 import ClassTripPaymentService from '../../services/Trip/TripPaymentService'
+import NotificationService from '../fcmPushController'
 import { SocketService } from '../../ws'
 class TripController {
 
@@ -82,10 +83,10 @@ class TripController {
       )
       if (!vResponse) {
         return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+          .status(200)
+          .send(fxSuccessResponse(200, vResponse, 'Correcto', false))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -99,8 +100,8 @@ class TripController {
         isDriver: pReq.input('isDriver', 'json'),
         search: pReq.query?.search?.toString() || null,
         typeSearch: pReq.query?.typeSearch?.toString() || null,
-        pag: Number(pReq.query?.pag) || null,
-        limit: Number(pReq.query?.limit) || null,
+        pag: pReq.query?.pag ? Number(pReq.query?.pag) : null,
+        limit: pReq.query?.limit ? Number(pReq.query?.limit) : null,
         recient: pReq.input('recient', 'json')
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
@@ -129,7 +130,8 @@ class TripController {
         'date',
         'status',
         'price',
-        'currencyId'
+        'currencyId',
+        'instructionsToDriver'
       ])
       vData.status = EStatusTrip.PENDIENTE
       const vFee = pReq.input('fee', 'json')
@@ -138,7 +140,8 @@ class TripController {
       vData.userId = vUserId
       const vInitRoute = pReq.input('initRoute', 'json')
       const vEndRoute = pReq.input('endRoute', 'json')
-      const vTripPayment = pReq.input('PaymentMethod', 'json')
+      const vTripPayment = pReq.input('paymentMethod', 'json')
+      const vtripSpecialRequest = pReq.input('tripSpecialRequest', 'json')
       const vTripDelivery: ITripDeliveryInput = pReq.input('delivery', 'json')
       const vTripTravel: ITripTravelInput = pReq.input('travel', 'json')
       if (vInitRoute === undefined || vEndRoute === undefined) {
@@ -159,6 +162,11 @@ class TripController {
       if (vTripDelivery) {
         vTripDelivery.tripId = vTripReponse.dataValues.id
         await ClassTripDeliveryService.create(vTripDelivery)
+      }
+      if (vtripSpecialRequest) {
+        vtripSpecialRequest.map((sp: any) => sp.trip_id = vTripReponse.dataValues.id)
+        console.log('vtripSpecialRequest :>> ', vtripSpecialRequest)
+        await ClassTripService.createSpecialRequest(vtripSpecialRequest)
       }
       if (vTripTravel) {
         vTripTravel.tripId = vTripReponse.dataValues.id
@@ -184,19 +192,31 @@ class TripController {
       const vParamNearbyDrivers = {
         lat: vInitRoute.lat,
         lon: vInitRoute.lon,
-        distance: 10
+        distance: 50
       }
       const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
+      console.log('vNearbyDrivers :>> ', JSON.stringify(vNearbyDrivers))
       const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
-      const tokenPushs: any[]  = vNearbyDrivers.map((vUser) => vUser.tokenPush)
-      console.log('tokenPushs :>> ', tokenPushs)
+
+      const tokenPushs: any[]  = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
       const vParamTripShow = {
         id: Number(vTripReponse.id),
         userId: vTripReponse.userId,
         isClient: true
       }
       const vTripOne: ITripInstance | null = await ClassTripService.show(vParamTripShow)
-
+      if (vTripOne) {
+        const ClassSendNotification = new NotificationService()
+        const notificationData = {
+          title: 'Nuevo viaje',
+          body: 'Un nuevo viaje cerca de ti',
+          data: JSON.stringify(vTripOne)
+        }
+        console.log('tokenPushs :>> ', tokenPushs)
+        if (tokenPushs.length) {
+          await ClassSendNotification.sendNotification(tokenPushs, notificationData)
+        }
+      }
       SocketService.io.to(socketIds).emit('newTrip', vTripOne)
       const vResponse = {
         trip: vTripReponse,
@@ -204,6 +224,7 @@ class TripController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -219,10 +240,11 @@ class TripController {
         'status',
         'price',
         'currencyId',
+        'instructionsToDriver'
       ])
       const vIsClient = pReq.input('isClient')
       const vIsDriver = pReq.input('isDriver')
-      if (vIsDriver === undefined) {
+      if (vIsDriver === undefined && vIsClient === undefined) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, null, 'Se requiere isClient o vIsDriver'))
@@ -248,6 +270,24 @@ class TripController {
       }
       if (vTripTravel) {
         await ClassTripTravelService.update(vTripTravel)
+      }
+      console.log('vData :>> ', vData)
+      if (vData.status === EStatusTrip.CANCELADO) {
+        const initRoute = await ClassTripRouteService.showByTripId({
+          tripId: vData.id
+        })
+        const vParamNearbyDrivers = {
+          lat: initRoute?.dataValues.lat,
+          lon: initRoute?.dataValues.lon,
+          distance: 100
+        }
+        if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
+          const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
+          const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
+          if (socketIds.length) {
+            SocketService.io.to(socketIds).emit('cancelTrip', vResponse)
+          }
+        }
       }
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))

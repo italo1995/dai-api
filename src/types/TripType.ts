@@ -5,9 +5,10 @@ import type { ITripOffertInstance } from '../models/Trip/TripOffertModel'
 import type { IResponseAll } from './generalType'
 
 export interface IParamAllTrip {
-  userId: string
+  userId?: string
   isClient?: boolean
   isDriver?: boolean
+  TripPending?: boolean
   search?: string | null
   typeSearch?: string | null
   pag?: number | null
@@ -45,6 +46,7 @@ export interface ITripInput {
   price?: number
   currencyId?: number
   isPayment: number
+  instructionsToDriver?: string
 }
 
 export interface IResponseAllTrip extends IResponseAll {
@@ -60,7 +62,7 @@ export interface ITripPaymentInput {
   type: string
   amount: number
   currencyId?: number
-  paymentMethodsId?: number
+  paymentMethodId?: number
   isAprobed?: boolean
 }
 
@@ -134,7 +136,7 @@ export interface IResponseAllTripDelivery extends IResponseAll {
 
 export interface ITripOffertInput {
   id: string
-  tripId: string
+  tripId: number
   clientId: string
   driverId: string
   amount: string

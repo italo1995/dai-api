@@ -12,6 +12,7 @@ export interface ITripAttributes {
   price?: number
   currencyId?: number
   isPayment: number
+  instructionsToDriver?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -81,6 +82,12 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     defaultValue: false,
     allowNull: true,
   },
+  instructionsToDriver: {
+    type: DataTypes.STRING,
+    field: 'instructions_to_driver',
+    defaultValue: false,
+    allowNull: true,
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -111,10 +118,16 @@ export function fxTripFactory(sequelize: Sequelize) {
   })
 
   vTrip.associate = function (models: ModelRegistry) {
-    const { modelTrip, modelTripPayment, modelTripRoute  } = models
-    modelTrip.hasMany(modelTripPayment, {
+    const { modelTrip, modelTripPayment, modelTripRoute, modelUser, modelTripDelivery } = models
+    modelTrip.hasOne(modelTripDelivery, {
       foreignKey: 'trip_id',
-      as: 'PaymentMethod',
+      sourceKey: 'id',
+      as: 'delivery',
+    })
+    modelTrip.hasOne(modelTripPayment, {
+      foreignKey: 'trip_id',
+      sourceKey: 'id',
+      as: 'tripPayment',
     })
     modelTrip.hasOne(modelTripRoute, {
       foreignKey: 'trip_id',
@@ -124,11 +137,11 @@ export function fxTripFactory(sequelize: Sequelize) {
       foreignKey: 'trip_id',
       as: 'endRoute',
     })
-    // modelTripRoute.belongsTo(modelTrip, {
-    //   foreignKey: 'trip_id',
-    //   // targetKey: 'id',
-    //   as: 'trip',
-    // })
+    modelTrip.hasOne(modelUser, {
+      foreignKey: 'id',
+      sourceKey: 'user_id',
+      as: 'user',
+    })
   }
   vTrip.prototype.toJSON = function () {
     const vValues = { ...this.get() }

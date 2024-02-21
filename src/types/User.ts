@@ -1,3 +1,5 @@
+import type { EStatusDriver } from '../models/User/User'
+
 export interface IUserInput {
   name: string
   avatar?: string
@@ -13,11 +15,13 @@ export interface IUserInput {
   availabilityToTravel?: boolean
   rolId: number
   status?: boolean
+  statusDriver?: EStatusDriver
   verifiedDriver: boolean
   typeUser: ETypeUser
   isNewUser: boolean
   token?: string
   socketId?: string
+  balance?: number
 }
 
 export interface IUserInputUpdate {
@@ -41,7 +45,9 @@ export interface IUserInputUpdate {
 
 export interface IUserUpdateSocket {
   id: string
-  socketId: string
+  lat?: number
+  lon?: number
+  socketId?: string | null
 }
 
 export interface IUserCodeInput {

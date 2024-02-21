@@ -22,7 +22,6 @@ class FileController {
         const entries = Object.entries(pReq.files)
         for (const item of entries) {
           const element = item[1]
-          console.log('element.originalname :>> ', element)
           const format = path.extname(element.originalname)
           const vNormalizedName = uuidv4() + format
           const vFileName = `temp/${Date.now()}-${vNormalizedName}`

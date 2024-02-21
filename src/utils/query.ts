@@ -53,8 +53,6 @@ export const fxPaginate = (pParam: any, pWhereStatement: FindOptions) => {
 
 export const fxReponseServices = async (pParam: any, pWhereStatement: FindOptions, pModelName: string, vResponse: any) => {
   const vLimit = Number(pParam?.limit) || 10
-  console.log('sequelize.models :>> ', sequelize.models)
-  console.log('modelName :>> ', pModelName)
   const vCount = await sequelize.models[pModelName].count(pWhereStatement)
   const vResponsePaginate: any = {
     total: vCount,

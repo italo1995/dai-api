@@ -18,7 +18,7 @@ components:
        currencyId:
          type: number
          description: the currency of the payment
-       paymentMethodsId:
+       paymentMethodId:
          type: number
          description: the id of the payment method
        isAprobed:
@@ -34,7 +34,7 @@ components:
        tipe: VIP
        amount: 16
        currencyId: 3
-       paymentMethodsId: 2
+       paymentMethodId: 2
        isAprobed: true
      parameters:
       id:

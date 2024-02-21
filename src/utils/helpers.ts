@@ -5,9 +5,9 @@ import twilio from 'twilio'
 import AppConfig from '../config/AppConfig'
 import type { IUserAttributes } from '../models/User/User'
 
-export const fxSuccessResponse = (code: number | null = null, data: any, message: string | null = null) => {
+export const fxSuccessResponse = (code: number | null = null, data: any, message: string | null = null, status: boolean | null = true) => {
   return {
-    status: true,
+    status: status,
     code: code || 200,
     data: data,
     message: message,
@@ -43,6 +43,9 @@ export const fxGenerateCode = () => {
 }
 
 export const moveImages = async (pName: string): Promise<string> => {
+  if (pName.includes('storage')) {
+    return pName
+  }
   if (pName && fs.existsSync(`uploads/${pName}`)) {
     const vNameImages: string = pName.replace('temp', 'storage')
     fs.rename(`uploads/${pName}`, `uploads/${vNameImages}`, (err) => {
@@ -75,20 +78,14 @@ export const fxTwilioSendCode = async (
   if (!vCode) {
     vCode = fxGenerateCode()
   }
-  console.log({
-    body: `${pHash ? pHash : ''} Tu código de verificación es: ${vCode}`,
-    from: vTwilioPhoneNumber,
-    to: pPhoneNumber,
-  })
   try {
-    const message = await fxClient.messages.create({
+    await fxClient.messages.create({
       body: `${pHash ? pHash : ''} Tu código de verificación es: ${vCode}`,
       from: vTwilioPhoneNumber,
       to: pPhoneNumber,
     })
-    console.log('message :>>', message.sid)
   } catch (error) {
-    console.log('error :>>', error)
+    throw error
   }
   return vCode.toString()
 }

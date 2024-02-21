@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../types/SequelizeTypes'
+import type { ModelRegistry } from '.'
 
 export interface ICurrencyAttributes {
   id: string
@@ -77,7 +78,14 @@ export function fxCurrencyFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
-
+  vCurrency.associate = function (models: ModelRegistry) {
+    const { modelCurrency, modelTripPayment } = models
+    modelCurrency.hasOne(modelTripPayment, {
+      sourceKey: 'id',
+      foreignKey: 'currency_id',
+      as: 'tripPayment',
+    })
+  }
   vCurrency.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

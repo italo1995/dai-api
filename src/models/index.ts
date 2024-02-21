@@ -24,6 +24,8 @@ import { fxPaymentMethodFactory } from './PaymentMethodModel'
 import { fxTripTravelFactory } from './Trip/TripTravelModel'
 import { fxTripDeliveryFactory } from './Trip/TripDeliveryModel'
 import { fxTripOffertFactory } from './Trip/TripOffertModel'
+import { fxTripSpecialRequestFactory } from './Trip/TripSpecialRequestModel'
+import { fxRangePriceFactory } from './Locations/RangePriceModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -54,6 +56,8 @@ export const modelPaymentMethod = fxPaymentMethodFactory(sequelize)
 export const modelTripTravel = fxTripTravelFactory(sequelize)
 export const modelTripDelivery = fxTripDeliveryFactory(sequelize)
 export const modelTripOffert = fxTripOffertFactory(sequelize)
+export const modelTripSpecialRequest = fxTripSpecialRequestFactory(sequelize)
+export const modelRangePrice = fxRangePriceFactory(sequelize)
 
 const models = {
   modelUser,
@@ -76,7 +80,9 @@ const models = {
   modelPaymentMethod,
   modelTripTravel,
   modelTripDelivery,
-  modelTripOffert
+  modelTripOffert,
+  modelTripSpecialRequest,
+  modelRangePrice
 }
 
 export type ModelRegistry = typeof models
@@ -85,8 +91,6 @@ export type ModelRegistryKeys = keyof typeof models
 Object.values(models).forEach((model: ModelStatic<any>) => {
   if (isAssociatable<ModelRegistry>(model)) {
     model.associate(models)
-    console.log('model :>> ', model)
-    console.log('model.associations :>> ', model.associations)
   }
 })
 
