@@ -1,13 +1,15 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../types/SequelizeTypes'
 
+
 export interface IReviewAttributes {
   id: number
-  clientId: number
-  driverId: number
-  qualification: string
+  clientId?: string
+  driverId?: string
+  qualification: number
   comment: string
-  features?: string
+  features?: boolean
+  tripId?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -26,15 +28,19 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     autoIncrement: true,
   },
   clientId: {
-    type: DataTypes.INTEGER,
-    field: 'client_Id',
+    type: DataTypes.UUID,
+    field: 'client_id',
+    allowNull: true,
+    defaultValue: null
   },
   driverId: {
-    type: DataTypes.INTEGER,
-    field: 'driver_Id',
+    type: DataTypes.UUID,
+    field: 'driver_id',
+    allowNull: true,
+    defaultValue: null
   },
   qualification: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     field: 'qualification',
     validate: {
       isInt: true,
@@ -47,9 +53,15 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     field: 'coment',
   },
   features: {
-    type: DataTypes.STRING,
+    type: DataTypes.BOOLEAN,
     field: 'features',
     defaultValue: false,
+    allowNull: true,
+  },
+  tripId: {
+    type: DataTypes.STRING,
+    field: 'trip_id',
+    defaultValue: null,
     allowNull: true,
   },
   createdAt: {

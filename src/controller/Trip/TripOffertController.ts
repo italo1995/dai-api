@@ -92,14 +92,14 @@ class TripOffertController {
       }
       if (vClientSocketId?.dataValues?.tokenPush && vDriverSocketId) {
         const tokenPush = vClientSocketId?.dataValues?.tokenPush
-        const ClassSendNotification = new NotificationService()
+        // const ClassSendNotification = new NotificationService()
         const notificationData = {
           title: 'Nuevo viaje',
           body: 'Un nuevo viaje cerca de ti',
           data: JSON.stringify(vDriverSocketId)
         }
         console.log('tokenPushs :>> ', tokenPush)
-        await ClassSendNotification.sendNotification([tokenPush], notificationData)
+        await NotificationService.sendNotification([tokenPush], notificationData)
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) { 

@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface ITripSpecialRequestAttributes {
   id: string
@@ -62,7 +63,14 @@ export function fxTripSpecialRequestFactory(sequelize: Sequelize) {
       paranoid: true
     }
   )
-
+  vDataBase.associate = function (models: ModelRegistry) {
+    const { modelTripSpecialRequest, modelVehicleAdditional } = models
+    modelTripSpecialRequest.belongsTo(modelVehicleAdditional, {
+      foreignKey: 'vehicle_additional_id',
+      targetKey: 'id',
+      as: 'vehicleAdditional',
+    })
+  }
   vDataBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

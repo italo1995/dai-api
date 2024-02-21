@@ -82,13 +82,13 @@ class CountryService implements ICountryService {
 
   async update(pData: ICountryUpdate): Promise<ICountryInstance | null> {
     if (pData?.id) {
-      const vCountry: ICountryInstance | null = await modelCountry.findOne({
+      const vReponse: ICountryInstance | null = await modelCountry.findOne({
         where: {
           id: pData.id,
         },
       })
-      await vCountry?.update(pData, { where: { id: pData.id } })
-      return vCountry
+      await vReponse?.update(pData, { where: { id: pData.id } })
+      return vReponse
     }
     return null
   }

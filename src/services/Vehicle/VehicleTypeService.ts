@@ -84,13 +84,13 @@ class VehicleTypeService implements IVehicleTypeService {
   async update(pData: IVehicleTypeInput): Promise<IVehicleTypeInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: IVehicleTypeInstance | null = await modelVehicleType.findOne({
+        const vReponse: IVehicleTypeInstance | null = await modelVehicleType.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, {where: { id: pData.id } })
-        return vCountry
+        await vReponse?.update(pData, {where: { id: pData.id } })
+        return vReponse
       }
       return null
     } catch (error) {

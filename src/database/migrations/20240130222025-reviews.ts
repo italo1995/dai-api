@@ -12,14 +12,18 @@ module.exports = {
       },
       clientId: {
         type: DataTypes.INTEGER,
-        field: 'client_Id',
+        field: 'client_id',
+        allowNull: true,
+        defaultValue: null
       },
       driverId: {
         type: DataTypes.INTEGER,
-        field: 'driver_Id',
+        field: 'driver_id',
+        allowNull: true,
+        defaultValue: null
       },
       qualification: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         field: 'qualification',
         validate: {
           isInt: true,
@@ -32,7 +36,7 @@ module.exports = {
         field: 'coment',
       },
       features: {
-        type: DataTypes.STRING,
+        type: DataTypes.BOOLEAN,
         field: 'features',
         defaultValue: false,
         allowNull: true,

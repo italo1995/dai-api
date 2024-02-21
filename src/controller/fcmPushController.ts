@@ -47,4 +47,4 @@ class NotificationService {
   }
 }
 
-export default NotificationService
+export default new NotificationService()

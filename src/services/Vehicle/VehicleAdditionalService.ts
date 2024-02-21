@@ -117,13 +117,13 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
   async update(pData: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: IVehicleAdditionalInstance | null = await modelVehicleAdditional.findOne({
+        const vReponse: IVehicleAdditionalInstance | null = await modelVehicleAdditional.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, {where: { id: pData. id } })
-        return vCountry
+        await vReponse?.update(pData, {where: { id: pData. id } })
+        return vReponse
       }
       return null
     } catch (error) {

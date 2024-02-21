@@ -80,13 +80,13 @@ class BannerService implements IBannerService {
   async update(pData: IBannerInput): Promise<IBannerInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: IBannerInstance | null = await modelBanner.findOne({
+        const vReponse: IBannerInstance | null = await modelBanner.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, { where: { id: pData.id } })
-        return vCountry
+        await vReponse?.update(pData, { where: { id: pData.id } })
+        return vReponse
       }
       return null
     } catch (error) {

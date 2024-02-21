@@ -3,7 +3,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 import type { ModelRegistry } from '..'
 
 export interface ITripAttributes {
-  id: string
+  id: number
   typeService: ETypeService
   userId: string
   driverId?: string
@@ -118,7 +118,7 @@ export function fxTripFactory(sequelize: Sequelize) {
   })
 
   vTrip.associate = function (models: ModelRegistry) {
-    const { modelTrip, modelTripPayment, modelTripRoute, modelUser, modelTripDelivery } = models
+    const { modelTrip, modelTripPayment, modelTripRoute, modelUser, modelTripDelivery, modelTripSpecialRequest } = models
     modelTrip.hasOne(modelTripDelivery, {
       foreignKey: 'trip_id',
       sourceKey: 'id',
@@ -141,6 +141,10 @@ export function fxTripFactory(sequelize: Sequelize) {
       foreignKey: 'id',
       sourceKey: 'user_id',
       as: 'user',
+    })
+    modelTrip.hasMany(modelTripSpecialRequest, {
+      foreignKey: 'trip_id',
+      as: 'tripSpecialRequest',
     })
   }
   vTrip.prototype.toJSON = function () {

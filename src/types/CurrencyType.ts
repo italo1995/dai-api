@@ -8,6 +8,7 @@ export interface ITripInput {
   change: number
   type: boolean
   auto?: string
+  tripId: number
 }
 
 export interface IResponseAllTrip extends IResponseAll {

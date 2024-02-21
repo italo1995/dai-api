@@ -37,7 +37,7 @@ enum ETypeService {
 }
 
 export interface ITripInput {
-  id?: string
+  id?: number
   typeService: ETypeService
   userId: string
   driverId?: string
@@ -100,7 +100,7 @@ export interface IResponseAllTripRoute extends IResponseAll {
 
 export interface ITripTravelInput {
   id: string
-  tripId: string
+  tripId: number
   toSearch?: string
   dateToInitTravel?: string
   howMuchPeopleToTravel?: number
@@ -120,7 +120,7 @@ export interface IResponseAllTripTravel extends IResponseAll {
 
 export interface ITripDeliveryInput {
   id: string
-  tripId: string
+  tripId: number
   toSearch?: string
   createdAt?: Date
   updatedAt?: Date

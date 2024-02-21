@@ -17,7 +17,7 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelUser } from '../../models'
+import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelUser, modelVehicleAdditional } from '../../models'
 import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
 import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
@@ -146,6 +146,18 @@ class TripService implements ITripService {
             model: modelUser,
             as: 'user',
             required: false,
+          },
+          {
+            model: modelTripSpecialRequest,
+            as: 'tripSpecialRequest',
+            required: false,
+            include: [
+              {
+                model: modelVehicleAdditional,
+                as: 'vehicleAdditional',
+                required: true,
+              }
+            ]
           }
         ],
       })
@@ -218,6 +230,18 @@ class TripService implements ITripService {
           model: modelUser,
           as: 'user',
           required: false,
+        },
+        {
+          model: modelTripSpecialRequest,
+          as: 'tripSpecialRequest',
+          required: false,
+          include: [
+            {
+              model: modelVehicleAdditional,
+              as: 'vehicleAdditional',
+              required: true,
+            }
+          ]
         }
       ]
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
@@ -265,6 +289,18 @@ class TripService implements ITripService {
           model: modelTripPayment,
           as: 'tripPayment',
           required: false,
+        },
+        {
+          model: modelTripSpecialRequest,
+          as: 'tripSpecialRequest',
+          required: false,
+          include: [
+            {
+              model: modelVehicleAdditional,
+              as: 'vehicleAdditional',
+              required: true,
+            }
+          ]
         }
       ]
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)

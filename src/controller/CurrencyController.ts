@@ -63,7 +63,8 @@ class CurrencyController {
         'symbol',
         'change',
         'type',
-        'auto'
+        'auto',
+        'icon'
       ])
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.create(vData)
       if (!vResponse) {
@@ -85,7 +86,8 @@ class CurrencyController {
         'symbol',
         'change',
         'type',
-        'auto'
+        'auto',
+        'icon'
 
       ])
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.update(vData)

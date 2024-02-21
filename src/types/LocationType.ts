@@ -8,6 +8,7 @@ export interface ICountryUpdate {
   id: number
   name: string
   flag?: string
+  phoneCode?: string
   state?: boolean
 }
 

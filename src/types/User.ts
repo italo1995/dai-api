@@ -1,5 +1,5 @@
 import type { EStatusDriver } from '../models/User/User'
-
+import type { IUserRatingInstance } from '../models/User/UserRatingModel'
 export interface IUserInput {
   name: string
   avatar?: string
@@ -76,4 +76,23 @@ export interface IDriverDetailInput {
   type: string
   value: string
   userId: string
+}
+
+export interface IUserRatingInput {
+  id?: number
+  userId: string
+  type: string
+  ratings: number
+  averageRating: number
+  quantity: number
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IResponseAllUserRating {
+  total: number
+  totalPage: number
+  data: IUserRatingInstance[]
+  actualPage: number
 }

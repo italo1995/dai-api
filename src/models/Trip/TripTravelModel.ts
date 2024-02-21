@@ -3,7 +3,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 
 export interface ITripTravelAttributes {
   id: string
-  tripId: string
+  tripId: number
   toSearch?: string
   dateToInitTravel?: string
   howMuchPeopleToTravel?: number

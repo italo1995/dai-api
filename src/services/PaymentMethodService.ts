@@ -77,13 +77,13 @@ class PaymentMethodService implements IPaymentMethodService {
   async update(pData: ITripInput): Promise<IPaymentMethodInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: IPaymentMethodInstance | null = await modelPaymentMethod.findOne({
+        const vReponse: IPaymentMethodInstance | null = await modelPaymentMethod.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, { where: { id: pData.id } })
-        return vCountry
+        await vReponse?.update(pData, { where: { id: pData.id } })
+        return vReponse
       }
       return null
     } catch (error) {

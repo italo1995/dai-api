@@ -134,13 +134,13 @@ class TripRouteService implements ITripRouteService {
   async update(pData: ITripRouteInput): Promise<ITripRouteInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: ITripRouteInstance | null = await modelTripRoute.findOne({
+        const vReponse: ITripRouteInstance | null = await modelTripRoute.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, { where: { id: pData.id } })
-        return vCountry
+        await vReponse?.update(pData, { where: { id: pData.id } })
+        return vReponse
       }
       return null
     } catch (error) {

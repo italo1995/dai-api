@@ -93,13 +93,13 @@ class TypeFileUserService implements ITypeFileUserService {
 
   async update(pData: ITypeFileUserInput): Promise<ITypeFileUserInstance | null> {
     if (pData?.id) {
-      const vCountry: ITypeFileUserInstance | null = await modelTypeFileUser.findOne({
+      const vReponse: ITypeFileUserInstance | null = await modelTypeFileUser.findOne({
         where: {
           id: pData.id,
         },
       })
-      await vCountry?.update(pData, { where: { id: pData.id } })
-      return vCountry
+      await vReponse?.update(pData, { where: { id: pData.id } })
+      return vReponse
     }
     return null
   }

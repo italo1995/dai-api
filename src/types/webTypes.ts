@@ -30,11 +30,13 @@ export interface IBannerInput {
 
 export interface IReviewInput {
   id: number
-  clientId: number
-  driverId: number
-  qualification: string
+  clientId?: string
+  driverId?: string
+  qualification: number
   comment: string
-  features?: string
+  icon?: string
+  features?: boolean
+  tripId?: number
   createdAt?: Date
   updatedAt?: Date
 }

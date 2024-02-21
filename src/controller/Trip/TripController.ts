@@ -160,11 +160,11 @@ class TripController {
         await ClassTripPaymentService.create(vTripPayment)
       }
       if (vTripDelivery) {
-        vTripDelivery.tripId = vTripReponse.dataValues.id
+        vTripDelivery.tripId = Number(vTripReponse.dataValues.id)
         await ClassTripDeliveryService.create(vTripDelivery)
       }
       if (vtripSpecialRequest) {
-        vtripSpecialRequest.map((sp: any) => sp.trip_id = vTripReponse.dataValues.id)
+        vtripSpecialRequest.map((sp: any) => sp.tripId = vTripReponse.dataValues.id)
         console.log('vtripSpecialRequest :>> ', vtripSpecialRequest)
         await ClassTripService.createSpecialRequest(vtripSpecialRequest)
       }
@@ -182,8 +182,10 @@ class TripController {
           vCreateInitRoute.referencePointImage = await moveImages(vCreateInitRoute.referencePointImage)
         }
         vCreateRoutes.push(vCreateInitRoute)
+        delete vEndRoute.isInit
         const vCreateEndRoute: ITripRouteInput = {
           ...vEndRoute,
+          isInit: false,
           tripId: vTripReponse.dataValues.id
         }
         vCreateRoutes.push(vCreateEndRoute)
@@ -206,7 +208,7 @@ class TripController {
       }
       const vTripOne: ITripInstance | null = await ClassTripService.show(vParamTripShow)
       if (vTripOne) {
-        const ClassSendNotification = new NotificationService()
+        // const ClassSendNotification = new NotificationService()
         const notificationData = {
           title: 'Nuevo viaje',
           body: 'Un nuevo viaje cerca de ti',
@@ -214,7 +216,8 @@ class TripController {
         }
         console.log('tokenPushs :>> ', tokenPushs)
         if (tokenPushs.length) {
-          await ClassSendNotification.sendNotification(tokenPushs, notificationData)
+          console.log(tokenPushs, notificationData)
+          await NotificationService.sendNotification(tokenPushs, notificationData)
         }
       }
       SocketService.io.to(socketIds).emit('newTrip', vTripOne)

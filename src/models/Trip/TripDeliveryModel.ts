@@ -3,7 +3,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 
 export interface ITripDeliveryAttributes {
   id: string
-  tripId: string
+  tripId: number
   toSearch?: string
   createdAt?: Date
   updatedAt?: Date
@@ -22,7 +22,7 @@ export const vTripDeliveryAttributes: SequelizeAttributes<ITripDeliveryAttribute
     autoIncrement: true,
   },
   tripId: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     field: 'trip_id',
   },
   toSearch: {

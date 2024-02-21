@@ -48,9 +48,7 @@ export const moveImages = async (pName: string): Promise<string> => {
   }
   if (pName && fs.existsSync(`uploads/${pName}`)) {
     const vNameImages: string = pName.replace('temp', 'storage')
-    fs.rename(`uploads/${pName}`, `uploads/${vNameImages}`, (err) => {
-      if (err) throw err
-    })
+    fs.renameSync(`uploads/${pName}`, `uploads/${vNameImages}`,)
     const options: any = { width: 200, responseType: 'buffer' }
     const thumbnail = await imageThumbnail(`uploads/${vNameImages}`, options)
     const vThumbnailNameImages: string = pName.replace('temp', 'thumb')

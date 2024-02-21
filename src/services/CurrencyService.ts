@@ -82,13 +82,13 @@ class CurrencyService implements ICurrencyService {
   async update(pData: ITripInput): Promise<ICurrencyInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: ICurrencyInstance | null = await modelCurrency.findOne({
+        const vReponse: ICurrencyInstance | null = await modelCurrency.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, { where: { id: pData.id } })
-        return vCountry
+        await vReponse?.update(pData, { where: { id: pData.id } })
+        return vReponse
       }
       return null
     } catch (error) {

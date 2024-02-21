@@ -105,13 +105,13 @@ class DriverDetailsService implements IDriverDetailService {
 
   async update(pData: IDriverDetailInput): Promise<IDriverDetailInstance | null> {
     if (pData?.id) {
-      const vCountry: IDriverDetailInstance | null = await modelDriverDetail.findOne({
+      const vReponse: IDriverDetailInstance | null = await modelDriverDetail.findOne({
         where: {
           id: pData.id,
         },
       })
-      await vCountry?.update(pData, { where: { id: pData.id } })
-      return vCountry
+      await vReponse?.update(pData, { where: { id: pData.id } })
+      return vReponse
     }
     return null
   }
