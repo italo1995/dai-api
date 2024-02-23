@@ -6,9 +6,10 @@ import AppConfig from './config/AppConfig'
 import { modelUser } from './models'
 import type { EStatusDriver, IUserInstance } from './models/User/User'
 import ClassTripService from './services/Trip/TripService'
-import type { ITripInstance } from './models/Trip/TripModel'
-import type { IResponseAllTrip } from './types/TripType'
-
+import { EStatusTrip, type ITripInstance } from './models/Trip/TripModel'
+import type { IResponseAllTrip, ITripOffertUpdate, ITripUpdate } from './types/TripType'
+import ClassTripOffertService from './services/Trip/TripOffertService'
+import { ETripOffertStatus } from './models/Trip/TripOffertModel'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 export class SocketService {
   // Declaramos una propiedad estática io que contendrá el objeto io que crearemos
@@ -99,18 +100,51 @@ export class SocketService {
         lon: coords?.lng || null,
         socketId: socketId
       }
-      if (vUser?.id) {
-        await ClassAuthService.updateSocket(vUser)
-      }
-      if (coords?.isDriver) {
-        const vParamTripShow = {
-          lat: coords?.lat || null,
-          lon: coords?.lng || null,
-          distance: 100
+      if (vUser?.lat && vUser.lon) {
+        if (vUser?.id) {
+          await ClassAuthService.updateSocket(vUser)
         }
-        const vTripOne: IResponseAllTrip | ITripInstance[] = await ClassTripService.NearbyTrips(vParamTripShow)
-        socket.emit('newTrips', vTripOne)
+        if (coords?.isDriver) {
+          const vParamTripShow = {
+            lat: coords?.lat || null,
+            lon: coords?.lng || null,
+            distance: 100
+          }
+          const vTripOne: IResponseAllTrip | ITripInstance[] = await ClassTripService.NearbyTrips(vParamTripShow)
+          socket.emit('newTrips', vTripOne)
+        }
       }
+    })
+    socket.on('acceptTripOffer', async (data: any) => {
+      const vTripOfferId = data.id
+      const vTripOffer = await ClassTripOffertService.showDriver(vTripOfferId)
+      if (!vTripOffer?.dataValues.driverId) {
+        return
+      }
+      const vTripId = Number(vTripOffer.dataValues.tripId)
+      const vTrip = await ClassTripService.showId({
+        id: vTripId
+      })
+      if (vTrip?.dataValues.status === EStatusTrip.ACEPTADO) {
+        socket.emit('acceptTripOffer', {data: 'esta aceptando dos veces .-.'})
+        return
+      }
+      const vUpdateTrip: ITripUpdate = {
+        id: vTripId,
+        status: EStatusTrip.ACEPTADO,
+        driverId: vTripOffer?.dataValues.driverId,
+        userId: vTripOffer?.dataValues.clientId
+      }
+      const vUpdateTripOffert: ITripOffertUpdate = {
+        id: vTripOffer.dataValues.id,
+        driverId: vTripOffer?.dataValues.driverId,
+        status: ETripOffertStatus.ACEPTADA
+      }
+      await ClassTripOffertService.update(vUpdateTripOffert)
+      const vTripUpdate = await ClassTripService.update(vUpdateTrip)
+      const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
+      console.log('vDriverSocketId :>> ', vDriverSocketId)
+      socket.to(vDriverSocketId?.driver?.socketId).emit('acceptTripOffer', vTripUpdate)
     })
     // Aquí puedes definir tus propios eventos, según lo que quieras hacer con tu socket
     // Por ejemplo:

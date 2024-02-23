@@ -16,9 +16,9 @@
   4 - update: actualiza datos del item
 */
 import { Op, type FindOptions } from 'sequelize'
-import { modelTripOffert } from '../../models'
-import type { ITripOffertInstance } from '../../models/Trip/TripOffertModel'
-import type { IResponseAllTripOffert, ITripOffertInput } from '../../types/TripType'
+import { modelCurrency, modelTripOffert, modelUser } from '../../models'
+import { ETripOffertStatus, type ITripOffertInstance } from '../../models/Trip/TripOffertModel'
+import type { IResponseAllTripOffert, ITripOffertInput, ITripOffertUpdate } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface ITripOffertService {
@@ -26,7 +26,7 @@ interface ITripOffertService {
   show(pId: number): Promise<ITripOffertInstance | null>
   all(pParam: any): Promise<IResponseAllTripOffert | ITripOffertInstance[]>
   create(payload: ITripOffertInput): Promise<ITripOffertInstance>
-  update(payload: ITripOffertInput): Promise<ITripOffertInstance | null>
+  update(payload: ITripOffertUpdate): Promise<ITripOffertInstance | null>
   softDeleteRecord(pId:string): Promise<boolean>
 
 }
@@ -41,9 +41,69 @@ class TripOffertService implements ITripOffertService {
   async show(pId: number): Promise<ITripOffertInstance | null> {
     try {
       const vResponse: ITripOffertInstance | null = await this.model.findOne({
+        attributes: ['id', 'tripId', 'currencyId', 'amount', 'createdAt'],
         where: {
           id: pId,
         },
+        include: [
+          {
+            model: modelCurrency,
+            required: false,
+            as: 'currency',
+            attributes: ['id', 'name', 'symbol']
+          },
+        ]
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async showDriver(pId: number): Promise<ITripOffertInstance | null> {
+    try {
+      const vResponse: ITripOffertInstance | null = await this.model.findOne({
+        attributes: ['id', 'tripId', 'driverId', 'clientId', 'currencyId', 'amount', 'createdAt'],
+        where: {
+          id: pId,
+        },
+        include: [
+          {
+            model: modelUser,
+            required: true,
+            as: 'driver',
+            attributes: ['id', 'socketId', 'tokenPush']
+          }
+        ]
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async showAcept(pId: number): Promise<ITripOffertInstance | null> {
+    try {
+      const vResponse: ITripOffertInstance | null = await this.model.findOne({
+        attributes: ['id', 'tripId', 'driverId', 'clientId', 'currencyId', 'amount', 'createdAt', 'distance', 'duration', 'durationInMs'],
+        where: {
+          tripId: pId,
+          status: ETripOffertStatus.ACEPTADA
+        },
+        include: [
+          {
+            model: modelUser,
+            required: true,
+            as: 'driver',
+            attributes: ['id', 'socketId', 'tokenPush']
+          },
+          {
+            model: modelCurrency,
+            required: false,
+            as: 'currency',
+            attributes: ['id', 'name', 'symbol']
+          },
+        ]
       })
       return vResponse
     } catch (error) {
@@ -80,31 +140,40 @@ class TripOffertService implements ITripOffertService {
   }
 
   async create(pData: ITripOffertInput): Promise<ITripOffertInstance> {
-    const vResponse: ITripOffertInstance = await this.model.create(pData)
-    return vResponse
+    try {
+      const vResponse: ITripOffertInstance = await this.model.create(pData)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+
   }
 
-  async update(pData: ITripOffertInput): Promise<ITripOffertInstance | null> {
-    const whereStatement: FindOptions = {}
-    if (pData.tripId) {
-      whereStatement.where = {
-        tripId: pData.id,
-        id: pData.id
+  async update(pData: ITripOffertUpdate): Promise<ITripOffertInstance | null> {
+    try {
+      const whereStatement: FindOptions = {}
+      if (pData.tripId) {
+        whereStatement.where = {
+          tripId: pData.id,
+          // id: pData.id
+        }
+      } else if (pData.id) {
+        whereStatement.where = {
+          driverId: {
+            [Op.or]: [pData.driverId, null]
+          },
+          id: pData.id
+        }
       }
-    } else if (pData.id) {
-      whereStatement.where = {
-        driverId: {
-          [Op.or]: [pData.id, null]
-        },
-        id: pData.id
+      if (pData?.id) {
+        const vItem: ITripOffertInstance | null = await this.model.findOne(whereStatement)
+        await vItem?.update(pData)
+        return vItem
       }
+      return null
+    } catch (error) {
+      throw error
     }
-    if (pData?.id) {
-      const vItem: ITripOffertInstance | null = await this.model.findOne(whereStatement)
-      await vItem?.update(pData)
-      return vItem
-    }
-    return null
   }
   async softDeleteRecord(pId: string) {
     try {

@@ -1,6 +1,6 @@
 import { type FindOptions } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
-import sequelize, { modelDriverDetail, modelTrip, modelUser } from '../../models'
+import sequelize, { modelDriverDetail, modelUser } from '../../models'
 
 interface IUserService {
   NearbyDrivers(phoneNumber: string, phoneCode: string): Promise<IUserInstance[] | []>
@@ -27,33 +27,28 @@ class UserService implements IUserService {
   }
   
   async show(pParam: any): Promise<IUserInstance | null> {
-    const whereStatement: FindOptions = {}
-    if (pParam?.isDriver) {
+    try {
+      console.log('pParam :>> ', pParam)
+      const whereStatement: FindOptions = {}
       whereStatement.where = {
         id: pParam.id
       }
-      whereStatement.include = [
-        {
-          model: modelDriverDetail,
-          as: 'detail',
-          required: true
-        }
-      ]
-    } else {
-      whereStatement.include = [
-        {
-          model: modelTrip,
-          as: 'trip',
-          required: true,
-          where: {
-            id: pParam.tripId
+      if (pParam?.isDriver) {
+        whereStatement.include = [
+          {
+            model: modelDriverDetail,
+            as: 'detail',
+            required: true
           }
-        }
-      ]
+        ]
+      }
+
+      whereStatement.attributes = ['id', 'name', 'socketId', 'tokenPush', 'avatar', 'phoneCode', 'phoneNumber', 'availabilityToTravel', 'createdAt']
+      const vResponse: IUserInstance | null = await modelUser.findOne(whereStatement)
+      return vResponse
+    } catch (error) {
+      throw error
     }
-    whereStatement.attributes = ['name', 'socketId', 'avatar', 'createdAt']
-    const vResponse: IUserInstance | null = await modelUser.findOne(whereStatement)
-    return vResponse
   }
 }
 const ClassUserService = new UserService()

@@ -1,7 +1,7 @@
 import type { EStatusTrip, ITripInstance } from '../models/Trip/TripModel'
 import type { ITripPaymentInstance } from '../models/Trip/TripPaymentModel'
 import type { ITripRouteInstance } from '../models/Trip/TripRouteModel'
-import type { ITripOffertInstance } from '../models/Trip/TripOffertModel'
+import type { ETripOffertStatus, ITripOffertInstance } from '../models/Trip/TripOffertModel'
 import type { IResponseAll } from './generalType'
 
 export interface IParamAllTrip {
@@ -17,14 +17,16 @@ export interface IParamAllTrip {
 }
 
 export interface IParamShowTrip {
-  userId: string
+  userId?: string
   id: number
   isClient?: boolean
   isDriver?: boolean
 }
 
 export interface IParamShowActiveTrip {
-  userId: string
+  userId?: string
+  driverId?: string
+  id?: number
   isClient?: boolean
   isDriver?: boolean
 }
@@ -46,6 +48,19 @@ export interface ITripInput {
   price?: number
   currencyId?: number
   isPayment: number
+  instructionsToDriver?: string
+}
+
+export interface ITripUpdate {
+  id: number
+  typeService?: ETypeService
+  userId?: string
+  driverId?: string
+  date?: string
+  status?: EStatusTrip
+  price?: number
+  currencyId?: number
+  isPayment?: number
   instructionsToDriver?: string
 }
 
@@ -135,15 +150,26 @@ export interface IResponseAllTripDelivery extends IResponseAll {
 }
 
 export interface ITripOffertInput {
-  id: string
+  id?: string
   tripId: number
   clientId: string
   driverId: string
   amount: string
-  status?: string
+  status?: ETripOffertStatus
+  currencyId?: number
+  duration?: string
+  durationInMs?: number
+  distance?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
+}
+
+export interface ITripOffertUpdate {
+  id?: string
+  driverId?: string
+  tripId?: number
+  status?: ETripOffertStatus
 }
 
 export interface IResponseAllTripOffert extends IResponseAll {

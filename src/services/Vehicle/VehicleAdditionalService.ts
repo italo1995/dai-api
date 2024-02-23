@@ -92,6 +92,34 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
     }
   }
 
+  public async allFilterIdArray(pParam: any): Promise<IVehicleAdditionalInstance[]> {
+    try {
+      const JSONParam = JSON.parse(JSON.stringify(pParam))
+      if (!JSONParam || JSONParam?.length === 0) {
+        return []
+      }
+      const vAdditionalsValue = JSONParam.detail.filter((d: any) => d.fieldName === 'additionals')
+      if (vAdditionalsValue) {
+        let stringIds = vAdditionalsValue[0].value
+        stringIds = stringIds.replaceAll('{', '')
+        stringIds = stringIds.replaceAll('}', '')
+        const ids = stringIds.split(',')
+        if (ids.length === 0) {
+          return []
+        }
+        const vResponse: IVehicleAdditionalInstance[] = await modelVehicleAdditional.findAll({
+          where: {
+            id: ids
+          }
+        })
+        return vResponse
+      }
+      return []
+    } catch (error) {
+      throw error
+    }
+  }
+
   async show(pId: number): Promise<IVehicleAdditionalInstance | null> {
     try {
       const vResponse: IVehicleAdditionalInstance | null = await modelVehicleAdditional.findOne({

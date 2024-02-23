@@ -81,6 +81,7 @@ export class Server {
     this.app.use(morgan('dev'))
     this.app.use(cors())
     this.app.use(express.json())
+    this.app.disable('etag')
     this.app.use((req: any, res: any, next: any) => {
       if (req.method === 'POST') {
         this.upload.any()(req, res, (err) => {
@@ -178,12 +179,13 @@ export class Server {
     })
     this.app.use(async (err: any, req: any, res: any, _next: any) => {
       if (err.issues) {
+        console.log('issues')
         const errorMessage = err.issues.map((issue: any) => ({
           message: `${issue.path.join('.')} is ${issue.message}`,
         }))
         return res.status(400).json({ error: errorMessage[0] })
-      }
-      if (err instanceof ValidationError) {
+      } else if (err instanceof ValidationError) {
+        console.log('validation')
         const errors: string[] = []
         for (const itemError of err.errors) {
           if (itemError?.path && itemError?.validatorKey) {
@@ -195,6 +197,7 @@ export class Server {
         }
         return res.status(400).json({ success: false, type: 'validation', message: errors })
       } else {
+        console.log('else')
         const newErrorReporting = {
           type: 'middelware',
           data: JSON.stringify({

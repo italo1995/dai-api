@@ -142,6 +142,11 @@ export function fxTripFactory(sequelize: Sequelize) {
       sourceKey: 'user_id',
       as: 'user',
     })
+    modelTrip.hasOne(modelUser, {
+      foreignKey: 'id',
+      sourceKey: 'driverId',
+      as: 'driver',
+    })
     modelTrip.hasMany(modelTripSpecialRequest, {
       foreignKey: 'trip_id',
       as: 'tripSpecialRequest',

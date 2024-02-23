@@ -30,11 +30,11 @@ class NotificationService {
           notification: {
             title: data.title,
             body: data.body,
-            // data: {
-            //   data: data.data,
-            //   click_action: 'FCM_PLUGIN_ACTIVITY'
-            // },
-          }
+          },
+          data: {
+            data: data?.data || '',
+            click_action: 'FCM_PLUGIN_ACTIVITY'
+          },
         }
         console.log('notification :>> ', notification)
         const response = await this.messaging.send(notification)

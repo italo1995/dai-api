@@ -19,7 +19,7 @@ import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
 import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelUser, modelVehicleAdditional } from '../../models'
 import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
-import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip } from '../../types/TripType'
+import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip, ITripUpdate } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 import type { ITripSpecialRequestAttributes, ITripSpecialRequestInstance } from '../../models/Trip/TripSpecialRequestModel'
 
@@ -30,7 +30,7 @@ interface ITripService {
   NearbyTrips(pParam: any): Promise<ITripInstance[]>
   create(payload: ITripInput): Promise<ITripInstance>
   createSpecialRequest(pData: ITripSpecialRequestAttributes[]): Promise<ITripSpecialRequestInstance[]>
-  update(payload: ITripInput): Promise<ITripInstance | null>
+  update(payload: ITripUpdate): Promise<ITripInstance | null>
   softDeleteRecord(pId: number, pUserId: UUID): Promise<boolean>
 }
 
@@ -87,9 +87,10 @@ class TripService implements ITripService {
       FROM (
         SELECT lat, lon, trip_id, is_init, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance
         FROM trip_routes
-        WHERE is_init = true
+        INNER JOIN trips on trip_id = trips.id
+        WHERE is_init = true AND trips.status = '${EStatusTrip.PENDIENTE}'
       ) as temp
-      WHERE NOT distance IS NULL AND distance > 0 AND distance < ${Number(pParam.distance)}
+      WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)}
       GROUP BY trip_id
       ORDER BY trip_id;`
       const vTripRoute: any[] = await sequelize.query(query, {
@@ -189,6 +190,11 @@ class TripService implements ITripService {
       }
       whereStatement.include = [
         {
+          model: modelTripDelivery,
+          as: 'delivery',
+          required: false,
+        },
+        {
           model: modelTripRoute,
           as: 'initRoute',
           required: false,
@@ -252,15 +258,39 @@ class TripService implements ITripService {
     }
   }
 
+  async showId(pParam: IParamShowTrip): Promise<ITripInstance | null> {
+    try {
+      const whereStatement: FindOptions = {}
+      whereStatement.where = {
+        id: pParam.id
+      }
+      const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
+      return vResponse
+    } catch (error) {
+      console.log('error :>> ', error)
+      throw error
+    }
+  }
+
   async showActive(pParam: IParamShowActiveTrip): Promise<ITripInstance | null> {
     try {
       const whereStatement: FindOptions = {}
-      if(pParam.isClient) {
+      if (pParam.isClient) {
         whereStatement.where = {
           userId: pParam.userId,
           status:{
             [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.PENDIENTE]
           }
+        }
+      } else if (pParam?.id && pParam.driverId) {
+        whereStatement.where = {
+          id: pParam.id,
+          driverId: pParam?.driverId,
+        }
+      }else if (pParam?.id) {
+        whereStatement.where = {
+          id: pParam.id,
+          userId: pParam?.userId,
         }
       } else {
         whereStatement.where = {
@@ -269,6 +299,11 @@ class TripService implements ITripService {
         }
       }
       whereStatement.include = [
+        {
+          model: modelTripDelivery,
+          as: 'delivery',
+          required: false,
+        },
         {
           model: modelTripRoute,
           as: 'initRoute',
@@ -289,6 +324,14 @@ class TripService implements ITripService {
           model: modelTripPayment,
           as: 'tripPayment',
           required: false,
+          include: [
+            {
+              model: modelCurrency,
+              required: false,
+              as: 'currency',
+              attributes: ['id', 'name', 'symbol', 'icon']
+            },
+          ]
         },
         {
           model: modelTripSpecialRequest,
@@ -298,7 +341,7 @@ class TripService implements ITripService {
             {
               model: modelVehicleAdditional,
               as: 'vehicleAdditional',
-              required: true,
+              required: false,
             }
           ]
         }
@@ -330,7 +373,7 @@ class TripService implements ITripService {
 
   }
 
-  async update(pData: ITripInput): Promise<ITripInstance | null> {
+  async update(pData: ITripUpdate): Promise<ITripInstance | null> {
     try {
       const whereStatement: FindOptions = {}
       if (pData.userId) {
@@ -366,6 +409,19 @@ class TripService implements ITripService {
         return false
       }
       return true
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async countTrip(pId: string): Promise<number> {
+    try {
+      const count = await modelTrip.count({
+        where: {
+          driverId: pId
+        }
+      })
+      return count
     } catch (error) {
       throw error
     }

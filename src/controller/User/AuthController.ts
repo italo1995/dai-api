@@ -126,6 +126,7 @@ class AuthController {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserId: string = pReq.auth.id
+      console.log('vUserId :>> ', vUserId)
       if (vUserId) {
         const vData: IUserInputUpdate = pReq.only([
           'avatar',
@@ -143,6 +144,7 @@ class AuthController {
         ])
         vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
         vData.id = vUserId
+        console.log('vData :>> ', vData)
         const vDetail: any = pReq.input('details', 'json')
         if (vData?.avatar) {
           const vRouteAvatarImages = await moveImages(vData.avatar)
@@ -152,26 +154,24 @@ class AuthController {
         if (vDetail) {
           const driverDetail: IDriverDetailInput[] = []
           for (const detail of vDetail) {
-            const element: IDriverDetailInput = {
-              sectionName: detail.sectionName,
-              fieldName: '',
-              type: '',
-              value: '',
-              userId: ''
-            }
             for (const field of detail.fields) {
-              element.fieldName = field.fieldName
-              element.type = field.type
-              element.userId = vUserId
+              const element: IDriverDetailInput = {
+                sectionName: detail.sectionName,
+                fieldName: field.fieldName,
+                type: field.type,
+                userId: vUserId,
+                value: ''
+              }
               if (element.type === 'image') {
                 const vRouteAvatarImages = await moveImages(field.value)
                 element.value = vRouteAvatarImages
               } else {
                 element.value = field.value
               }
+              driverDetail.push(element)
             }
-            driverDetail.push(element)
           }
+          console.log('driverDetail :>> ', driverDetail)
           ClassDriverDetailService.createMany(driverDetail, vUserId)
         }
         if (!vUserDB) {
@@ -181,11 +181,13 @@ class AuthController {
         }
         return pRes.status(200).send(fxSuccessResponse(200, { user: vUserDB }, 'Codigo verificado'))
       } else {
+        console.log('estoy pasando por aca')
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
     } catch (error) {
+      console.log('estoy en error en next')
       pNext(error)
     }
   }
@@ -257,6 +259,7 @@ class AuthController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse))
     } catch (error: any) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }

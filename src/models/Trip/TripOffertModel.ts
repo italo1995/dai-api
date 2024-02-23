@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface ITripOffertAttributes {
   id: string
@@ -7,10 +8,19 @@ export interface ITripOffertAttributes {
   clientId: string
   driverId: string
   amount: string
-  status?: string
+  currencyId?: number
+  duration?: string
+  durationInMs?: number
+  distance?: string
+  status?: ETripOffertStatus
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
+}
+export enum ETripOffertStatus {
+  ESPERA = '1',
+  ACEPTADA = '2',
+  CANCELADA = '3'
 }
 interface ITripOffertCreationAttributes extends Optional<ITripOffertAttributes, 'id'> {}
 
@@ -47,6 +57,28 @@ export const vTripOffertAttributes: SequelizeAttributes<ITripOffertAttributes> =
     defaultValue: null,
     allowNull: true,
   },
+  currencyId: {
+    type: DataTypes.INTEGER,
+    field: 'currency_id',
+  },
+  duration: {
+    type: DataTypes.STRING,
+    field: 'duration',
+    allowNull: true,
+    defaultValue: null
+  },
+  durationInMs: {
+    type: DataTypes.NUMBER,
+    field: 'duration_in_ms',
+    allowNull: true,
+    defaultValue: null
+  },
+  distance: {
+    type: DataTypes.STRING,
+    field: 'distance',
+    allowNull: true,
+    defaultValue: null
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -79,7 +111,19 @@ export function fxTripOffertFactory(sequelize: Sequelize) {
       paranoid: true
     }
   )
-
+  vTripOffert.associate = function (models: ModelRegistry) {
+    const { modelCurrency, modelTripOffert, modelUser } = models
+    modelTripOffert.belongsTo(modelCurrency, {
+      foreignKey: 'currency_id',
+      targetKey: 'id',
+      as: 'currency',
+    })
+    modelTripOffert.belongsTo(modelUser, {
+      foreignKey: 'driver_id',
+      targetKey: 'id',
+      as: 'driver',
+    })
+  }
   vTripOffert.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

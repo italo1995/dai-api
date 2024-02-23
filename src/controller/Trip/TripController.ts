@@ -26,12 +26,15 @@ import ClassTripRouteService from '../../services/Trip/TripRouteService'
 import ClassTripDeliveryService from '../../services/Trip/TripDeliveryService'
 import ClassTripTravelService from '../../services/Trip/TripTravelService'
 import ClassUserService from '../../services/User/UserService'
-import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput, IParamShowActiveTrip } from '../../types/TripType'
+import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput, IParamShowActiveTrip, ITripUpdate } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
 import ClassTripPaymentService from '../../services/Trip/TripPaymentService'
 import NotificationService from '../fcmPushController'
 import { SocketService } from '../../ws'
+import TripOffertService from '../../services/Trip/TripOffertService'
+import VehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
+import { ETypeUser } from '../../types/User'
 class TripController {
 
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -66,12 +69,65 @@ class TripController {
     }
   }
 
+  async showTripActive(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: IParamShowActiveTrip = {
+        userId: pReq.auth.id,
+        id: pReq.input('id', 'number'),
+      }
+      if (pReq.auth.typeUser === ETypeUser.driver) {
+        delete vParam.userId
+        vParam.driverId = pReq.auth.id
+        vParam.isClient = false
+      }
+      const vResponse: ITripInstance | null = await ClassTripService.showActive(
+        vParam,
+      )
+      if (!vResponse) {
+        return pRes
+          .status(200)
+          .send(fxSuccessResponse(200, vResponse, 'Correcto', false))
+      }
+      if (vResponse.dataValues.status === EStatusTrip.ACEPTADO) {
+        const vTripOffer = await TripOffertService.showAcept(vResponse?.dataValues.id)
+        const vDriverParam = {
+          id: vTripOffer?.dataValues.driverId,
+          isDriver: true,
+        }
+        const vDriverSocketId = await ClassUserService.show(vDriverParam)
+        const vClient = await ClassUserService.show({ id: vTripOffer?.dataValues.clientId, isDriver: false })
+        const vVehicleAdditionalService = await VehicleAdditionalService.allFilterIdArray(vDriverSocketId)
+        const vDataNewTripOffert = {
+          offer: vTripOffer,
+          driver: vDriverSocketId,
+          countTrips: vTripOffer?.dataValues.driverId ? await ClassTripService.countTrip(vTripOffer.dataValues.driverId) : 0,
+          duration: vTripOffer?.dataValues.duration,
+          distance: vTripOffer?.dataValues.distance,
+          vehicleAdditionalService: vVehicleAdditionalService,
+          client: vClient
+        }
+        const vReponseJSON = JSON.parse(JSON.stringify(vResponse))
+        vReponseJSON.dataDriver = vDataNewTripOffert
+        return pRes.status(200).send(fxSuccessResponse(200, vReponseJSON, 'Correcto'))
+      } else {
+        return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      }
+    } catch (error) {
+      console.log('error :>> ', error)
+      pNext(error)
+    }
+  }
+
   async showActive(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: IParamShowActiveTrip = {
         userId: pReq.auth.id,
         isClient: pReq.input('isClient', 'json'),
         isDriver: pReq.input('isDriver', 'json'),
+      }
+      if (pReq.auth.typeUser === ETypeUser.driver) {
+        vParam.isClient = false
+        vParam.isDriver = true
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes
@@ -86,8 +142,30 @@ class TripController {
           .status(200)
           .send(fxSuccessResponse(200, vResponse, 'Correcto', false))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      if (vResponse.dataValues.status === EStatusTrip.ACEPTADO) {
+        const vTripOffer = await TripOffertService.showAcept(vResponse?.dataValues.id)
+        const vDriverParam = {
+          id: vTripOffer?.dataValues.driverId,
+          isDriver: true,
+        }
+        const vDriverSocketId = await ClassUserService.show(vDriverParam)
+        const vVehicleAdditionalService = await VehicleAdditionalService.allFilterIdArray(vDriverSocketId)
+        const vDataNewTripOffert = {
+          offer: vTripOffer,
+          driver: vDriverSocketId,
+          countTrips: vTripOffer?.dataValues.driverId ? await ClassTripService.countTrip(vTripOffer.dataValues.driverId) : 0,
+          duration: vTripOffer?.dataValues.duration,
+          distance: vTripOffer?.dataValues.distance,
+          vehicleAdditionalService: vVehicleAdditionalService
+        }
+        const vReponseJSON = JSON.parse(JSON.stringify(vResponse))
+        vReponseJSON.dataDriver = vDataNewTripOffert
+        return pRes.status(200).send(fxSuccessResponse(200, vReponseJSON, 'Correcto'))
+      } else {
+        return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      }
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -143,6 +221,7 @@ class TripController {
       const vTripPayment = pReq.input('paymentMethod', 'json')
       const vtripSpecialRequest = pReq.input('tripSpecialRequest', 'json')
       const vTripDelivery: ITripDeliveryInput = pReq.input('delivery', 'json')
+      console.log('vTripDelivery :>> ', vTripDelivery)
       const vTripTravel: ITripTravelInput = pReq.input('travel', 'json')
       if (vInitRoute === undefined || vEndRoute === undefined) {
         return pRes
@@ -161,11 +240,11 @@ class TripController {
       }
       if (vTripDelivery) {
         vTripDelivery.tripId = Number(vTripReponse.dataValues.id)
+        console.log('vTripDelivery :>> ', vTripDelivery)
         await ClassTripDeliveryService.create(vTripDelivery)
       }
       if (vtripSpecialRequest) {
         vtripSpecialRequest.map((sp: any) => sp.tripId = vTripReponse.dataValues.id)
-        console.log('vtripSpecialRequest :>> ', vtripSpecialRequest)
         await ClassTripService.createSpecialRequest(vtripSpecialRequest)
       }
       if (vTripTravel) {
@@ -197,7 +276,6 @@ class TripController {
         distance: 50
       }
       const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
-      console.log('vNearbyDrivers :>> ', JSON.stringify(vNearbyDrivers))
       const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
 
       const tokenPushs: any[]  = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
@@ -214,7 +292,6 @@ class TripController {
           body: 'Un nuevo viaje cerca de ti',
           data: JSON.stringify(vTripOne)
         }
-        console.log('tokenPushs :>> ', tokenPushs)
         if (tokenPushs.length) {
           console.log(tokenPushs, notificationData)
           await NotificationService.sendNotification(tokenPushs, notificationData)
@@ -235,7 +312,7 @@ class TripController {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserId = pReq.auth.id
-      const vData: ITripInput = pReq.only([
+      const vData: ITripUpdate = pReq.only([
         'id',
         'userId',
         'driverId',

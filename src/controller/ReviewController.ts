@@ -82,7 +82,6 @@ class ReviewController {
         userId: vUserAuth.id,
         isDriver: vUserAuth?.typeUser === ETypeUser.driver ? true : false
       }
-      console.log('vParamTrip :>> ', vParamTrip)
       const trip = await ClassTripService.show(vParamTrip)
       if (!trip?.dataValues.id) {
         // TODO://

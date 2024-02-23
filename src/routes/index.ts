@@ -38,7 +38,7 @@ router.use('/trip', Trip)
 router.use('/paymentMethod', PaymentMethod)
 router.use('/tripPayment', TripPayment)
 router.use('/tripRoute', TripRoute)
-router.use('/TripOffert', TripOffert)
+router.use('/TripOffer', TripOffert)
 router.use('/UserRating', UserRating)
 
 export default router

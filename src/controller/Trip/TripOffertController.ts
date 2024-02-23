@@ -20,12 +20,16 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassTripOffertService from '../../services/Trip/TripOffertService'
-import type { ITripOffertInput, IResponseAllTripOffert } from '../../types/TripType'
+import type { ITripOffertInput, IResponseAllTripOffert, IParamShowTrip } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { ITripOffertInstance } from '../../models/Trip/TripOffertModel'
+import { ETripOffertStatus, type ITripOffertInstance } from '../../models/Trip/TripOffertModel'
 import { SocketService } from '../../ws'
 import ClassUserService from '../../services/User/UserService'
 import NotificationService from '../fcmPushController'
+import ClassTripService from '../../services/Trip/TripService'
+import { ETypeUser } from '../../types/User'
+import type { ITripInstance } from '../../models/Trip/TripModel'
+import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
 
 class TripOffertController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -61,44 +65,79 @@ class TripOffertController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const userId = pReq.auth.id
+      const vUserAuth = pReq.auth
       const vData: ITripOffertInput = pReq.only([
-        'name',
         'tripId',
         'clientId',
+        'currencyId',
         'driverId',
         'amount',
+        'duration',
+        'durationInMs',
+        'distance',
         'status'
       ])
-      vData.driverId = userId
+      vData.driverId = vUserAuth.id
+      const vParamTrip: IParamShowTrip = {
+        id: vData.tripId,
+        isClient: vUserAuth?.typeUser === ETypeUser.passenger ? true : false,
+        userId: vUserAuth.id,
+        isDriver: vUserAuth?.typeUser === ETypeUser.driver ? true : false
+      }
+      const trip: ITripInstance | null = await ClassTripService.showId(vParamTrip)
+      if (!trip) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Trip no encontrado'))
+      }
+      vData.clientId = trip.dataValues?.userId
+      vData.status = ETripOffertStatus.ESPERA
       const vResponse: ITripOffertInstance | null = await ClassTripOffertService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'No se pudo crear la oferta'))
       }
       const vDriverParam = {
-        id: userId,
-        isDriver: true
+        id: vData.driverId,
+        isDriver: true,
       }
       const vDriverSocketId = await ClassUserService.show(vDriverParam)
+      const vTripOffer: ITripOffertInstance | null = await ClassTripOffertService.show(Number(vResponse?.dataValues.id))
+      const vVehicleAdditionalService = await ClassVehicleAdditionalService.allFilterIdArray(vDriverSocketId)
+      const vDataNewTripOffert = {
+        offer: vTripOffer,
+        driver: vDriverSocketId,
+        countTrips: await ClassTripService.countTrip(vData.driverId),
+        duration: vData.duration,
+        distance: vData.distance,
+        vehicleAdditionalService: vVehicleAdditionalService
+      }
       const vClientParam = {
         isClient: true,
-        tripId: vData.tripId
+        id: vData.clientId
       }
       const vClientSocketId = await ClassUserService.show(vClientParam)
       if (vClientSocketId?.dataValues?.socketId && vDriverSocketId) {
-        SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffert', vDriverSocketId)
+        SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffer', vDataNewTripOffert)
       }
-      if (vClientSocketId?.dataValues?.tokenPush && vDriverSocketId) {
+      if (vClientSocketId?.dataValues?.tokenPush && vDataNewTripOffert) {
         const tokenPush = vClientSocketId?.dataValues?.tokenPush
-        // const ClassSendNotification = new NotificationService()
+        const VnotificationDataDriver = {
+          offer: vResponse,
+          driver: {
+            name: vDriverSocketId?.dataValues.name,
+            icon: vDriverSocketId?.dataValues.avatar
+          },
+          countTrips: await ClassTripService.countTrip(vData.driverId),
+          duration: vData.duration,
+          distance: vData.distance,
+        }
         const notificationData = {
           title: 'Nuevo viaje',
           body: 'Un nuevo viaje cerca de ti',
-          data: JSON.stringify(vDriverSocketId)
+          data: JSON.stringify(VnotificationDataDriver)
         }
-        console.log('tokenPushs :>> ', tokenPush)
         await NotificationService.sendNotification([tokenPush], notificationData)
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
@@ -111,7 +150,6 @@ class TripOffertController {
     try {
       const vData: ITripOffertInput = pReq.only([
         'id',
-        'name',
         'tripId',
         'clientId',
         'driverId',

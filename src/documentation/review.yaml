@@ -19,14 +19,13 @@ components:
          type: string
          description: the comment of the client
      required:
-       - clientId
-       - driverId
+       - tripId
        - qualification
        - comment
      example:
        id: 1
-       clientId: 111
-       driverId: 222
+       clientId: asdsa-dasdasd-asdsad
+       driverId: asdsa-dasdasd-asdsad
        qualification: 5
        comment: excellent service
      parameters:
@@ -113,8 +112,7 @@ paths:
                   - qualification
                   - comment
               example:
-                clientId: 111
-                driverId: 222
+                tripId: 111
                 qualification: 5
                 comment: excellent service
       responses:
