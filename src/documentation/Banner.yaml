@@ -37,14 +37,14 @@ tags:
 paths:
   /api/banner/show:
     get:
-      summary: Returns a list of Banner
+      summary: Returns a banner element
       tags:
         - Banner
       parameters:
         - $ref: '#/components/schemas/Banner/parameters/id'
       responses:
         '200':
-          description: the list of Banner
+          description: the banner element
           content:
             application/json:
               schema:
@@ -53,7 +53,7 @@ paths:
                   $ref: '#/components/schemas/Banner'
   /api/banner/all:
     get:
-      summary: Returns a list of banner
+      summary: Returns a list of banners
       tags:
         - Banner
       parameters:
@@ -76,7 +76,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Banner'
-  /api/Banner/store:
+  /api/banner/store:
     post:
       summary: Creates a new Banner
       tags:
@@ -120,9 +120,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Banner'
-  /api/Banner/update:
+  /api/banner/update:
     post:
-      summary: Update a new Banner
+      summary: Updates a Banner
       tags:
         - Banner
       requestBody:
@@ -157,7 +157,7 @@ paths:
                 state: true
       responses:
         '201':
-          description: the banner created
+          description: the banner updated
           content:
             application/json:
               schema:

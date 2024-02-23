@@ -35,23 +35,23 @@ tags:
   - name: VehicleTypes
     description: VehicleTypes endpoint
 paths:
-  /api/VehicleTypes/show:
+  /api/vehicleTypes/show:
     get:
-      summary: Returns a list of VehicleTypes
+      summary: Returns a VehicleType element
       tags:
         - VehicleTypes
       parameters:
         - $ref: '#/components/schemas/VehicleTypes/parameters/id'
       responses:
         '200':
-          description: the list of types of vehicles
+          description: the vehicleType element
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/VehicleTypes'
-  /api/VehicleTypes/all:
+  /api/vehicleTypes/all:
     get:
       summary: Returns a list of VehicleTypes
       tags:
@@ -69,16 +69,16 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of types of vehicles
+          description: the list of vehicleTypes
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/VehicleTypes'
-  /api/VehicleTypes/store:
+  /api/vehicleTypes/store:
     post:
-      summary: Creates a new VehicleTypes
+      summary: Creates a new VehicleType
       tags:
         - VehicleTypes
       requestBody:
@@ -114,9 +114,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleTypes'
-  /api/VehicleTypes/update:
+  /api/vehicleTypes/update:
     post:
-      summary: Update a new type of vehicle
+      summary: Updates a VehicleType
       tags:
         - VehicleTypes
       requestBody:
@@ -152,7 +152,7 @@ paths:
                 isCar: false
       responses:
         '201':
-          description: the VehicleTypes created
+          description: the VehicleTypes updated
           content:
             application/json:
               schema:

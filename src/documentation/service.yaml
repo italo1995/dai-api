@@ -36,25 +36,25 @@ tags:
   - name: Service
     description: Service endpoint
 paths:
-  /api/Service/show:
+  /api/service/show:
     get:
-      summary: Returns a list of Service
+      summary: Returns a Service element
       tags:
         - Service
       parameters:
         - $ref: '#/components/schemas/Service/parameters/id'
       responses:
         '200':
-          description: the list of Service
+          description: the service element
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Service'
-  /api/Service/all:
+  /api/service/all:
     get:
-      summary: Returns a list of Service
+      summary: Returns a list of Services
       tags:
         - Service
       parameters:
@@ -70,14 +70,14 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of Service
+          description: the list of Services
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Service'
-  /api/Service/store:
+  /api/service/store:
     post:
       summary: Creates a new Service
       tags:
@@ -118,9 +118,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Service'
-  /api/Service/update:
+  /api/service/update:
     post:
-      summary: Update a new Service
+      summary: Updates a Service
       tags:
         - Service
       requestBody:
@@ -152,7 +152,7 @@ paths:
                 state: true
       responses:
         '201':
-          description: the Service created
+          description: the Service updated
           content:
             application/json:
               schema:

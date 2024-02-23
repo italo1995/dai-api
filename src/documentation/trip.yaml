@@ -62,14 +62,14 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a list of trip
+      summary: Returns a trip element
       tags:
         - Trip
       parameters:
         - $ref: '#/components/schemas/Trip/parameters/id'
       responses:
         '200':
-          description: the list of trips
+          description: the trip element
           content:
             application/json:
               schema:
@@ -80,7 +80,7 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a list of trip
+      summary: Returns a list of trips 
       tags:
         - Trip
       parameters:
@@ -96,7 +96,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of currency
+          description: the list of trips
           content:
             application/json:
               schema:
@@ -162,7 +162,7 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Update a new trip
+      summary: Updates a trip
       tags:
         - Trip
       requestBody:
@@ -211,7 +211,7 @@ paths:
                 paymentMethod: { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodId: 1 }
       responses:
         '201':
-          description: the trip created
+          description: the trip updated
           content:
             application/json:
               schema:

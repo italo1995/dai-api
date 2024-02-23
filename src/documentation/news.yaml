@@ -38,23 +38,23 @@ tags:
 paths:
   /api/new/show:
     get:
-      summary: Returns a list of New
+      summary: Returns a New element
       tags:
         - New
       parameters:
         - $ref: '#/components/schemas/New/parameters/id'
       responses:
         '200':
-          description: the list of the News
+          description: the New element
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/New'
-  /api/New/all:
+  /api/new/all:
     get:
-      summary: Returns a list of New
+      summary: Returns a list of News
       tags:
         - New
       parameters:
@@ -70,16 +70,16 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of New
+          description: the list of News
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/New'
-  /api/New/store:
+  /api/new/store:
     post:
-      summary: Creates a new New
+      summary: Creates a New
       tags:
         - New
       requestBody:
@@ -121,9 +121,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/New'
-  /api/New/update:
+  /api/new/update:
     post:
-      summary: Update a new
+      summary: Updates a new
       tags:
         - New
       requestBody:
@@ -155,7 +155,7 @@ paths:
                 state: true
       responses:
         '201':
-          description: the new created
+          description: the new updated
           content:
             application/json:
               schema:

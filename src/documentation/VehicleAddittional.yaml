@@ -41,23 +41,23 @@ tags:
   - name: VehicleAddittional
     description: VehicleAddittional endpoint
 paths:
-  /api/VehicleAddittional/show:
+  /api/vehicleAddittional/show:
     get:
-      summary: Returns a list of VehicleAddittional
+      summary: Returns a VehicleAddittional element
       tags:
         - VehicleAddittional
       parameters:
         - $ref: '#/components/schemas/VehicleAddittional/parameters/id'
       responses:
         '200':
-          description: the list of additional services inth vehicle
+          description: the VehicleAddittional element
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/VehicleAddittional'
-  /api/VehicleAddittional/all:
+  /api/vehicleAddittional/all:
     get:
       summary: Returns a list of VehicleAddittional
       tags:
@@ -75,14 +75,14 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of additional services inth vehicle
+          description: the list of additional services in the vehicle
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/VehicleAddittional'
-  /api/VehicleAddittional/store:
+  /api/vehicleAddittional/store:
     post:
       summary: Creates a new VehicleAddittional
       tags:
@@ -128,9 +128,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleAddittional'
-  /api/VehicleAddittional/update:
+  /api/vehicleAddittional/update:
     post:
-      summary: Update a new additional service in the vehicle
+      summary: Updates a VehicleAddittional
       tags:
         - VehicleAddittional
       requestBody:
@@ -171,7 +171,7 @@ paths:
                 isRegister: false
       responses:
         '201':
-          description: the VehicleAddittional created
+          description: the VehicleAddittional updated
           content:
             application/json:
               schema:

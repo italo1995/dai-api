@@ -1,0 +1,153 @@
+components:
+ schemas:
+   CompanyParameter:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of CompanyParameter
+       name:
+         type: string
+         description: the name of the CompanyParameter
+       value:
+         type: number
+         description: the number of the CompanyParameter
+       type: 
+         type: enum
+         description: the type of the CompanyParameter
+     required:
+       - name
+       - value
+       - type
+     example:
+       id: 1
+       name: phone number
+       value: 0276-2221111
+       type: phone number
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the CompanyParameter id
+tags:
+  - name: CompanyParameter
+    description: CompanyParameter endpoint
+paths:
+  /api/companyParameter/show:
+    get:
+      summary: Returns a CompanyParameter element
+      tags:
+        - CompanyParameter
+      parameters:
+        - $ref: '#/components/schemas/CompanyParameter/parameters/id'
+      responses:
+        '200':
+          description: the CompanyParameter element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompanyParameter'
+  /api/companyParameter/all:
+    get:
+      summary: Returns a list of CompanyParameters
+      tags:
+        - CompanyParameter
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of CompanyParameters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompanyParameter'
+  /api/companyParameter/store:
+    post:
+      summary: Creates a new CompanyParameter
+      tags:
+        - CompanyParameter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the CompanyParameter
+                value:
+                  type: number
+                  description: the number of the CompanyParameter
+                type: 
+                  type: enum
+                  description: the type of the CompanyParameter
+              required:
+               - name
+               - value
+               - type
+              example:
+                id: 1
+                name: phone number
+                value: 0276-2221111
+                type: phone number
+      responses:
+        '201':
+          description: the CompanyParameter created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyParameter'
+  /api/companyParameter/update:
+    post:
+      summary: Updates an CompanyParameter element
+      tags:
+        - CompanyParameter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the CompanyParameter
+                value:
+                  type: number
+                  description: the number of the CompanyParameter
+                type: 
+                  type: enum
+                  description: the type of the CompanyParameter
+              required:
+               - name
+               - value
+               - type
+              example:
+                id: 1
+                name: phone number
+                value: 0276-2221111
+                type: phone number
+      responses:
+        '201':
+          description: the CompanyParameter updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyParameter'

@@ -32,7 +32,7 @@ tags:
 paths:
   /api/country/show:
     get:
-      summary: Returns a list of Country
+      summary: Returns a country solicited by ID
       tags:
         - Countries
       parameters:
@@ -48,7 +48,7 @@ paths:
                   $ref: '#/components/schemas/Country'
   /api/country/all:
     get:
-      summary: Returns a list of Country
+      summary: Returns a list of Countries
       tags:
         - Countries
       parameters:
@@ -64,7 +64,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of Country
+          description: the list of ountries
           content:
             application/json:
               schema:
@@ -114,7 +114,7 @@ paths:
                 $ref: '#/components/schemas/Country'
   /api/country/update:
     post:
-      summary: Update a new Country
+      summary: Updates a Country
       tags:
         - Countries
       requestBody:
@@ -149,7 +149,7 @@ paths:
                 state: true
       responses:
         '201':
-          description: the country created
+          description: the country updated
           content:
             application/json:
               schema:

@@ -40,23 +40,23 @@ tags:
   - name: Review
     description: Review endpoint
 paths:
-  /api/Review/show:
+  /api/review/show:
     get:
-      summary: Returns a list of Reviews
+      summary: Returns a Review element
       tags:
         - Review
       parameters:
         - $ref: '#/components/schemas/Review/parameters/id'
       responses:
         '200':
-          description: the list of the Reviews
+          description: the review element
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Reviews'
-  /api/Reviews/all:
+  /api/reviews/all:
     get:
       summary: Returns a list of Reviews
       tags:
@@ -81,7 +81,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
-  /api/Review/store:
+  /api/review/store:
     post:
       summary: Creates a Review
       tags:
@@ -122,9 +122,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
-  /api/Review/update:
+  /api/review/update:
     post:
-      summary: Update a Review
+      summary: Updates a Review
       tags:
         - Review
       requestBody:
@@ -156,7 +156,7 @@ paths:
                 comment: excellent service
       responses:
         '201':
-          description: the Review created
+          description: the Review updated
           content:
             application/json:
               schema:

@@ -79,11 +79,11 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a element TripRoute
+      summary: Returns a TripRoute element
       tags:
         - TripRoutes
       parameters:
-        - $ref: '#/components/schemas/tripRoutes/parameters/id'
+        - $ref: '#/components/schemas/tripRoute/parameters/id'
       responses:
         '200':
           description: a TripRoute element
@@ -92,12 +92,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/tripRoutes'
+                  $ref: '#/components/schemas/tripRoute'
   /api/tripRoute/recent:
     get:
       security:
       - BearerAuth: []
-      summary: Returns recent trip elements
+      summary: Returns recent tripRoute elements
       tags:
         - TripRoutes
       parameters:
@@ -115,7 +115,7 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a list of trip routes
+      summary: Returns a list of tripRoutes
       tags:
         - TripRoutes
       parameters:
@@ -131,7 +131,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of payment method
+          description: the list of tripRoutes
           content:
             application/json:
               schema:
@@ -142,7 +142,7 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Creates a new trip route
+      summary: Creates a new tripRoute
       tags:
         - TripRoutes
       requestBody:
@@ -168,7 +168,7 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Update a new TripRoute
+      summary: Updates a TripRoute
       tags:
         - TripRoutes
       requestBody:
@@ -185,7 +185,7 @@ paths:
                 $ref: '#/components/schemas/tripRoute/example'
       responses:
         '201':
-          description: the TripRoute created
+          description: the TripRoute updated
           content:
             application/json:
               schema:
