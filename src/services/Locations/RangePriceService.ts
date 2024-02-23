@@ -14,8 +14,10 @@ import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 interface IRangePriceService {
   validate(data: any): any
   show(pId: number): Promise<IRangePriceInstance | null>
+  showPrice(pId:number): Promise<IRangePriceInstance | null>
   create(payload: IRangePriceAttributes): Promise<IRangePriceInstance>
   update(payload: IRangePriceAttributes): Promise<IRangePriceInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class RangePriceService implements IRangePriceService {
@@ -84,6 +86,20 @@ class RangePriceService implements IRangePriceService {
       return vRangePrice
     }
     return null
+  }
+
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelRangePrice.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
+    }
   }
 }
 export default new RangePriceService()
