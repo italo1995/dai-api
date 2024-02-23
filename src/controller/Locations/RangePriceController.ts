@@ -39,13 +39,19 @@ class RangePriceController {
   
   async showPrice(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const pId: number = Number(pReq.query.id)
-
-      const vResponse: IRangePriceInstance | null = await ClassRangePriceService.showPrice(pId)
+      const { cityId, regionId, countryId } = pReq.query
+  
+      if (typeof cityId !== 'string' || typeof regionId !== 'string' || typeof countryId !== 'string') {
+        return pRes
+          .status(400)
+          .send(fxErrorResponse(400, { user: null, token: null }, 'La ciudad, la región y el país deben ser cadenas de texto.'))
+      }
+  
+      const vResponse: IRangePriceInstance | null = await ClassRangePriceService.showPrice(cityId, regionId, countryId)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'No se encontró un rango de precios para la ubicación proporcionada.'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {

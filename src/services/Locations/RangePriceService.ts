@@ -14,7 +14,7 @@ import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 interface IRangePriceService {
   validate(data: any): any
   show(pId: number): Promise<IRangePriceInstance | null>
-  showPrice(pId:number): Promise<IRangePriceInstance | null>
+  showPrice(city: string, region: string, country: string): Promise<IRangePriceInstance | null>
   create(payload: IRangePriceAttributes): Promise<IRangePriceInstance>
   update(payload: IRangePriceAttributes): Promise<IRangePriceInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
@@ -61,15 +61,40 @@ class RangePriceService implements IRangePriceService {
     return vResponse
   }
 
-  async showPrice(pId: number): Promise<IRangePriceInstance | null> {
-    const vResponse: IRangePriceInstance | null = await modelRangePrice.findOne({
+  async showPrice(city: string, region: string, country: string): Promise<IRangePriceInstance | null> {
+    let vResponse: IRangePriceInstance | null = await modelRangePrice.findOne({
       where: {
-        id: pId,
+        cityId: city,
       },
+      order: [
+        ['createdAt', 'ASC']
+      ]
     })
+  
+    if (!vResponse) {
+      vResponse = await modelRangePrice.findOne({
+        where: {
+          regionId: region,
+        },
+        order: [
+          ['createdAt', 'ASC']
+        ]
+      })
+    }
+  
+    if (!vResponse) {
+      vResponse = await modelRangePrice.findOne({
+        where: {
+          countryId: country,
+        },
+        order: [
+          ['createdAt', 'ASC']
+        ]
+      })
+    }
+  
     return vResponse
   }
-
   async create(pData: IRangePriceAttributes): Promise<IRangePriceInstance> {
     const vResponse: IRangePriceInstance = await modelRangePrice.create(pData)
     return vResponse
