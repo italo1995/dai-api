@@ -5,10 +5,13 @@ export interface ICompanyParameterAttributes {
   id: number
   name: string
   value: number
-  type?: string
+  type?: ETypeCompanyParameter
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
+}
+export enum ETypeCompanyParameter {
+  phone = 0,
 }
 interface ICompanyParameterCreationAttributes extends Optional<ICompanyParameterAttributes, 'id'> {}
 
@@ -32,10 +35,10 @@ export const vRangePriceModelAttributes: SequelizeAttributes<ICompanyParameterAt
     field: 'value',
   },
   type: {
-    type: DataTypes.ENUM,
+    type: DataTypes.NUMBER,
     field: 'type',
     allowNull: true,
-    defaultValue: null
+    defaultValue: 0
   },
   createdAt: {
     type: DataTypes.DATE,

@@ -19,7 +19,7 @@ import TripRoute from './trip/TripRoutesRoute'
 import TripOffert from './trip/TripOffertRoute'
 import UserRating from './User/userRatingRoute'
 import RangePrice from './Location/RangePriceRoute'
-import CompanyParameter from './web/CompanyParameterRouter'
+import CompanyParameter from './web/CompanyParameterRoute'
 
 const router = express.Router()
 

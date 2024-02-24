@@ -19,7 +19,7 @@ module.exports = {
         field: 'value',
       },
       type: {
-        type: DataTypes.ENUM('phone', 'others'),
+        type: DataTypes.INTEGER,
         field: 'type',
         allowNull: true,
         defaultValue: null
