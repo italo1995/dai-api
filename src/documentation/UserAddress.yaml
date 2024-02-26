@@ -58,14 +58,14 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a element UserAddress
+      summary: Returns an UserAddress element
       tags:
         - UserAddress
       parameters:
         - $ref: '#/components/schemas/UserAddress/parameters/id'
       responses:
         '200':
-          description: a UserAddress element
+          description: an UserAddress element
           content:
             application/json:
               schema:
@@ -129,7 +129,7 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Update a new UserAddress
+      summary: Updates a UserAddress
       tags:
         - UserAddress
       requestBody:
@@ -146,7 +146,7 @@ paths:
                 $ref: '#/components/schemas/UserAddress/example'
       responses:
         '201':
-          description: the UserAddress created
+          description: the UserAddress updated
           content:
             application/json:
               schema:
@@ -155,14 +155,14 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Returns a element UserAddress
+      summary: deletes an UserAddress element
       tags:
         - UserAddress
       parameters:
         - $ref: '#/components/schemas/UserAddress/parameters/id'
       responses:
         '200':
-          description: a UserAddress element
+          description: an UserAddress element deleted
           content:
             application/json:
               schema:

@@ -46,14 +46,14 @@ tags:
 paths:
   /api/currency/show:
     get:
-      summary: Returns a list of Currency
+      summary: Returns a currency element
       tags:
         - Currency
       parameters:
         - $ref: '#/components/schemas/Currency/parameters/id'
       responses:
         '200':
-          description: the list of Currency
+          description: the Currency element
           content:
             application/json:
               schema:
@@ -62,7 +62,7 @@ paths:
                   $ref: '#/components/schemas/Currency'
   /api/currency/all:
     get:
-      summary: Returns a list of currency
+      summary: Returns a list of currencies
       tags:
         - Currency
       parameters:
@@ -78,7 +78,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of currency
+          description: the list of currencies
           content:
             application/json:
               schema:
@@ -131,7 +131,7 @@ paths:
                 $ref: '#/components/schemas/currency'
   /api/currency/update:
     post:
-      summary: Update a new currency
+      summary: Updates a currency
       tags:
         - Currency
       requestBody:
@@ -166,7 +166,7 @@ paths:
                 type: true
       responses:
         '201':
-          description: the currency created
+          description: the currency updated
           content:
             application/json:
               schema:

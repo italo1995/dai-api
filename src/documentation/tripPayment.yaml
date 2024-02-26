@@ -58,7 +58,7 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a element TripPayment
+      summary: Returns a TripPayment element
       tags:
         - TripPayment
       parameters:
@@ -76,7 +76,7 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a list of tripPayment
+      summary: Returns a list of tripPayments
       tags:
         - TripPayment
       parameters:
@@ -92,7 +92,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of TripPayment
+          description: the list of TripPayments
           content:
             application/json:
               schema:
@@ -103,9 +103,9 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Creates a new PaymentMethod
+      summary: Creates a new TripPayment
       tags:
-        - PaymentMethod
+        - TripPayment
       requestBody:
         required: true
         content:
@@ -113,25 +113,25 @@ paths:
             schema:
               type: object
               properties:
-                $ref: '#/components/schemas/paymentMethod'
+                $ref: '#/components/schemas/tripPayment'
               required:
                 $ref: '#/components/schemas/required'
               example:
-                $ref: '#/components/schemas/paymentMethod/example'
+                $ref: '#/components/schemas/TripPayment/example'
       responses:
         '201':
-          description: the Payment Method created
+          description: the TripPayment created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaymentMethod'
-  /api/paymentMethod/update:
+                $ref: '#/components/schemas/tripPayment'
+  /api/tripPayment/update:
     post:
       security:
       - BearerAuth: []
-      summary: Update a new PaymentMethod
+      summary: Updates a TripPayment
       tags:
-        - PaymentMethod
+        - TripPayment
       requestBody:
         required: true
         content:
@@ -139,15 +139,15 @@ paths:
             schema:
               type: object
               properties:
-                $ref: '#/components/schemas/paymentMethod'
+                $ref: '#/components/schemas/tripPayment'
               required:
                 $ref: '#/components/schemas/required'
               example:
-                $ref: '#/components/schemas/paymentMethod/example'
+                $ref: '#/components/schemas/tripPayment/example'
       responses:
         '201':
-          description: the PaymentMethod created
+          description: the TripPayment updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/paymentMethod'
+                $ref: '#/components/schemas/tripPayment'

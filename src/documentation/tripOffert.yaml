@@ -5,7 +5,7 @@ components:
      properties:
        id:
          type: number
-         description: the auto-increment id of banner
+         description: the auto-increment id of TripOffert
        typeService:
          type: sring
          description: the type of the service
@@ -62,14 +62,14 @@ tags:
 paths:
   /api/tripOffert/show:
     get:
-      summary: Returns a tripOffert selected
+      summary: Returns a tripOffert element
       tags:
         - TripOffert
       parameters:
         - $ref: '#/components/schemas/tripOffert/parameters/id'
       responses:
         '200':
-          description: the  TripOffert selected
+          description: the  TripOffert element
           content:
             application/json:
               schema:
@@ -78,7 +78,7 @@ paths:
                   $ref: '#/components/schemas/tripOffert'
   /api/tripOffert/all:
     get:
-      summary: Returns a list of tripOffert
+      summary: Returns a list of tripOfferts
       tags:
         - TripOffert
       parameters:
@@ -94,7 +94,7 @@ paths:
           description: the keyword to filter by name
       responses:
         '200':
-          description: the list of tripOffert
+          description: the list of tripOfferts
           content:
             application/json:
               schema:
@@ -115,7 +115,7 @@ paths:
               properties:
                 id:
                  type: number
-                 description: the auto-increment id of banner
+                 description: the auto-increment id of tripOffert
                 typeService:
                  type: sring
                  description: the type of the service
@@ -160,14 +160,14 @@ paths:
                instructionToDriver: cerca de la plaza
       responses:
         '201':
-          description: the Banner created
+          description: the TripOffert created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/tripOffert'
   /api/tripOffert/update:
     post:
-      summary: Update a tripOffert
+      summary: Updates a tripOffert
       tags:
         - TripOffert
       requestBody:
@@ -224,7 +224,7 @@ paths:
                instructionToDriver: cerca de la plaza
       responses:
         '201':
-          description: the tripOffert updates
+          description: the tripOffert updated
           content:
             application/json:
               schema:

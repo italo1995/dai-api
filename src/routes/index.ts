@@ -18,6 +18,8 @@ import TripPayment from './trip/TripPaymentRoutes'
 import TripRoute from './trip/TripRoutesRoute'
 import TripOffert from './trip/TripOffertRoute'
 import UserRating from './User/userRatingRoute'
+import RangePrice from './Location/RangePriceRoute'
+import CompanyParameter from './web/CompanyParameterRoute'
 
 const router = express.Router()
 
@@ -40,5 +42,7 @@ router.use('/tripPayment', TripPayment)
 router.use('/tripRoute', TripRoute)
 router.use('/TripOffer', TripOffert)
 router.use('/UserRating', UserRating)
+router.use('/rangePrice', RangePrice)
+router.use('/companyParameter', CompanyParameter)
 
 export default router

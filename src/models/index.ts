@@ -27,6 +27,8 @@ import { fxTripOffertFactory } from './Trip/TripOffertModel'
 import { fxTripSpecialRequestFactory } from './Trip/TripSpecialRequestModel'
 import { fxRangePriceFactory } from './Locations/RangePriceModel'
 import { fxUserRatingFactory } from './User/UserRatingModel'
+import { fxCompanyParameterFactory } from './web/CompanyParameterModel'
+
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -60,6 +62,7 @@ export const modelTripOffert = fxTripOffertFactory(sequelize)
 export const modelTripSpecialRequest = fxTripSpecialRequestFactory(sequelize)
 export const modelRangePrice = fxRangePriceFactory(sequelize)
 export const modelUserRating = fxUserRatingFactory(sequelize)
+export const modelCompanyParameter = fxCompanyParameterFactory(sequelize)
 
 const models = {
   modelUser,
@@ -85,7 +88,8 @@ const models = {
   modelTripOffert,
   modelTripSpecialRequest,
   modelRangePrice,
-  modelUserRating
+  modelUserRating,
+  modelCompanyParameter
 }
 
 export type ModelRegistry = typeof models

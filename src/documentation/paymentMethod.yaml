@@ -64,7 +64,7 @@ paths:
     get:
       security:
       - BearerAuth: []
-      summary: Returns a element PaymentMethod
+      summary: Returns a PaymentMethod element
       tags:
         - PaymentMethod
       parameters:
@@ -135,7 +135,7 @@ paths:
     post:
       security:
       - BearerAuth: []
-      summary: Update a new PaymentMethod
+      summary: Updates a PaymentMethod
       tags:
         - PaymentMethod
       requestBody:
@@ -152,7 +152,7 @@ paths:
                 $ref: '#/components/schemas/paymentMethod/example'
       responses:
         '201':
-          description: the PaymentMethod created
+          description: the PaymentMethod updated
           content:
             application/json:
               schema:
