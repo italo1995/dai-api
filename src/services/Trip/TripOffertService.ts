@@ -16,7 +16,7 @@
   4 - update: actualiza datos del item
 */
 import { Op, type FindOptions } from 'sequelize'
-import { modelCurrency, modelTripOffert, modelUser } from '../../models'
+import sequelize, { modelCurrency, modelTripOffert, modelUser } from '../../models'
 import { ETripOffertStatus, type ITripOffertInstance } from '../../models/Trip/TripOffertModel'
 import type { IResponseAllTripOffert, ITripOffertInput, ITripOffertUpdate } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -184,6 +184,25 @@ class TripOffertService implements ITripOffertService {
         return false
       }
       return true
+    } catch (error) {
+      throw error
+    }
+  }
+  async getTimeRemaining(id: number) {
+    try {
+      const offer = await this.model.findByPk(id)
+      if (!offer) {
+        return null
+      }
+      const vCreatedAt: string = offer?.dataValues?.createdAt?.toString() || ''
+      const vCreatedAtParse = new Date(vCreatedAt)
+      const duration = Number(offer.dataValues.durationInMs)
+      const vNow: any = await sequelize.query('SELECT NOW()')
+      const vNowTimeString: string = vNow[0][0].now.toString() || new Date().toISOString()
+      const currentDate = new Date(vNowTimeString)
+      const diff = currentDate.getTime() - vCreatedAtParse.getTime()
+      const remaining = duration - diff
+      return remaining
     } catch (error) {
       throw error
     }

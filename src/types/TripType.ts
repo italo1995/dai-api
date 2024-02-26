@@ -21,6 +21,7 @@ export interface IParamShowTrip {
   id: number
   isClient?: boolean
   isDriver?: boolean
+  needClient?: boolean
 }
 
 export interface IParamShowActiveTrip {

@@ -97,6 +97,8 @@ class TripController {
         const vDriverSocketId = await ClassUserService.show(vDriverParam)
         const vClient = await ClassUserService.show({ id: vTripOffer?.dataValues.clientId, isDriver: false })
         const vVehicleAdditionalService = await VehicleAdditionalService.allFilterIdArray(vDriverSocketId)
+        const tripOffertId = Number(vTripOffer?.dataValues.id)
+        const getTimeRemaining = await TripOffertService.getTimeRemaining(tripOffertId)
         const vDataNewTripOffert = {
           offer: vTripOffer,
           driver: vDriverSocketId,
@@ -104,7 +106,8 @@ class TripController {
           duration: vTripOffer?.dataValues.duration,
           distance: vTripOffer?.dataValues.distance,
           vehicleAdditionalService: vVehicleAdditionalService,
-          client: vClient
+          client: vClient,
+          getTimeRemaining,
         }
         const vReponseJSON = JSON.parse(JSON.stringify(vResponse))
         vReponseJSON.dataDriver = vDataNewTripOffert
@@ -162,7 +165,19 @@ class TripController {
         vReponseJSON.dataDriver = vDataNewTripOffert
         return pRes.status(200).send(fxSuccessResponse(200, vReponseJSON, 'Correcto'))
       } else {
-        return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+        const vInitRoute = await ClassTripRouteService.showByTripId({
+          tripId: vResponse?.dataValues.id
+        })
+        const vParamNearbyDrivers = {
+          lat: vInitRoute?.dataValues.lat,
+          lon: vInitRoute?.dataValues.lon,
+          distance: 50
+        }
+        const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
+        const vResponseTripActive = JSON.parse(JSON.stringify(vResponse))
+        vResponseTripActive.nearbyDrivers = vNearbyDrivers
+
+        return pRes.status(200).send(fxSuccessResponse(200, vResponseTripActive, 'Correcto'))
       }
     } catch (error) {
       console.log('error :>> ', error)
@@ -322,6 +337,7 @@ class TripController {
         'currencyId',
         'instructionsToDriver'
       ])
+      console.log('vData :>> ', vData)
       const vIsClient = pReq.input('isClient')
       const vIsDriver = pReq.input('isDriver')
       if (vIsDriver === undefined && vIsClient === undefined) {
@@ -351,7 +367,6 @@ class TripController {
       if (vTripTravel) {
         await ClassTripTravelService.update(vTripTravel)
       }
-      console.log('vData :>> ', vData)
       if (vData.status === EStatusTrip.CANCELADO) {
         const initRoute = await ClassTripRouteService.showByTripId({
           tripId: vData.id

@@ -264,6 +264,16 @@ class TripService implements ITripService {
       whereStatement.where = {
         id: pParam.id
       }
+      if (pParam?.needClient) {
+        whereStatement.include = [
+          {
+            model: modelUser,
+            as: 'user',
+            required: false,
+            attributes: ['id', 'name', 'socketId', 'tokenPush']
+          }
+        ]
+      }
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
       return vResponse
     } catch (error) {

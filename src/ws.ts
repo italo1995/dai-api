@@ -7,7 +7,7 @@ import { modelUser } from './models'
 import type { EStatusDriver, IUserInstance } from './models/User/User'
 import ClassTripService from './services/Trip/TripService'
 import { EStatusTrip, type ITripInstance } from './models/Trip/TripModel'
-import type { IResponseAllTrip, ITripOffertUpdate, ITripUpdate } from './types/TripType'
+import type { IParamShowTrip, IResponseAllTrip, ITripOffertUpdate, ITripUpdate } from './types/TripType'
 import ClassTripOffertService from './services/Trip/TripOffertService'
 import { ETripOffertStatus } from './models/Trip/TripOffertModel'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
@@ -85,7 +85,7 @@ export class SocketService {
     })
     socket.on('changeState', async (pStateDriver: EStatusDriver) => {
       const vUser = {
-        id: auth?.id || user.id,
+        id: auth?.id || user?.id,
         statusDriver: pStateDriver,
         socketId: socketId
       }
@@ -100,7 +100,19 @@ export class SocketService {
         lon: coords?.lng || null,
         socketId: socketId
       }
-      if (vUser?.lat && vUser.lon) {
+      if (coords?.tripId) {
+        const vParamShowTrip: IParamShowTrip = {
+          id: coords.tripId,
+          needClient: true
+        }
+        const trip = await ClassTripService.showId(vParamShowTrip)
+        const clientSocketId = JSON.parse(JSON.stringify(trip))?.user.socketId
+        socket.to(clientSocketId).emit('driverPosition', {
+          tripId: coords.tripId,
+          lat: coords?.lat,
+          lon: coords?.lng,
+        })
+      } else if (vUser?.lat && vUser.lon) {
         if (vUser?.id) {
           await ClassAuthService.updateSocket(vUser)
         }
