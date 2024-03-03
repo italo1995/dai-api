@@ -84,7 +84,6 @@ class ReviewController {
       }
       const trip = await ClassTripService.show(vParamTrip)
       if (!trip?.dataValues.id) {
-        // TODO://
         return pRes
           .status(400)
           .send(fxErrorResponse(400, { user: null, token: null }, 'Trip no existe'))
@@ -105,7 +104,6 @@ class ReviewController {
           .status(400)
           .send(fxErrorResponse(400, { user: null, token: null }, 'Review must have either clientId or driverId'))
       }
-
       const vResponse: IReviewInstance | null = await ClassReviewService.create(vData)
       if (!vResponse) {
         return pRes

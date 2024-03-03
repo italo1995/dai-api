@@ -15,7 +15,7 @@ module.exports = {
         field: 'name'
       },
       value: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         field: 'value',
       },
       type: {

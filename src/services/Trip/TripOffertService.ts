@@ -201,7 +201,7 @@ class TripOffertService implements ITripOffertService {
       const vNowTimeString: string = vNow[0][0].now.toString() || new Date().toISOString()
       const currentDate = new Date(vNowTimeString)
       const diff = currentDate.getTime() - vCreatedAtParse.getTime()
-      const remaining = duration - diff
+      const remaining = duration - (diff / 1000)
       return remaining
     } catch (error) {
       throw error

@@ -41,12 +41,12 @@ export const vCityModelAttributes: SequelizeAttributes<ICityAttributes> = {
   },
   createdAt: {
     type: DataTypes.DATE,
-    field: 'created_at',
+    field: 'createdAt',
     allowNull: false,
   },
   updatedAt: {
     type: DataTypes.DATE,
-    field: 'updated_at',
+    field: 'updatedAt',
     allowNull: false,
   },
 }

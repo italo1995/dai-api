@@ -1,0 +1,145 @@
+components:
+ schemas:
+   CancellationOption:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of cancellationOption
+       name:
+         type: string
+         description: the name of the cancellationOption
+       type:
+         type: boolean
+         description: the type of the cancellationOption
+     required:
+       - name
+       - type
+     example:
+       id: 1
+       name: Ya no lo necesito
+       type: 1
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the cancellationOption id
+ securitySchemes:
+   BearerAuth: # puedes usar el nombre que quieras
+    type: apiKey
+    name: Authorization
+    in: header
+    x-auth-id: Bearer abcde12345
+tags:
+  - name: CancellationOption
+    description: CancellationOption endpoint
+paths:
+  /api/cancellationOption/show:
+    get:
+      summary: Returns a cancellationOption element
+      tags:
+        - CancellationOption
+      parameters:
+        - $ref: '#/components/schemas/CancellationOption/parameters/id'
+      responses:
+        '200':
+          description: the cancellationOption element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CancellationOption'
+  /api/cancellationOption/all:
+    get:
+      summary: Returns a list of cancellationOption
+      tags:
+        - Currency
+      parameters:
+        - in: query
+          name: name to search
+          pag: number
+      responses:
+        '200':
+          description: the list of cancellationOption
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CancellationOption'
+  /api/cancellationOption/store:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Creates a new cancellationOption
+      tags:
+        - CancellationOption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the cancellationOption
+                type:
+                  type: number
+                  description: the type of the cancellationOption
+                isClient:
+                  type: boolean
+                  description: the type of the cancellationOption
+                isDriver:
+                  type: boolean
+                  description: the type of the cancellationOption
+              required:
+                - name
+                - type
+              example:
+                name: Ya no lo necesito
+                isClient: true
+                isDriver: false
+                type: 1
+      responses:
+        '201':
+          description: the cancellationOption created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationOption'
+  /api/cancellationOption/update:
+    post:
+      summary: Updates a CancellationOption
+      tags:
+        - CancellationOption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the CancellationOption
+                type:
+                  type: boolean
+                  description: the type of the CancellationOption
+              required:
+                - id
+              example:
+                id: 1
+                name: Ya no lo necesito
+                type: 1
+      responses:
+        '201':
+          description: the CancellationOption updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationOption'

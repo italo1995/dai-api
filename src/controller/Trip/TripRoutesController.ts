@@ -24,6 +24,7 @@ import ClassTripRouteService from '../../services/Trip/TripRouteService'
 import type { ITripRouteInput, IResponseAllTripRoute } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { ITripRouteInstance } from '../../models/Trip/TripRouteModel'
+import TripService from '../../services/Trip/TripService'
 
 class TripRouteController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -50,10 +51,31 @@ class TripRouteController {
       const vResponse: ITripRouteInstance[] | IResponseAllTripRoute = await ClassTripRouteService.recent(vParam)
       if (!vResponse) {
         return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .status(404)
+          .send(fxErrorResponse(404, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async delete(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: any = pReq.input('id')
+      const vUserId = pReq.auth.id
+      const vTripRoute = await ClassTripRouteService.show(vId)
+      const vTripId = vTripRoute?.dataValues.tripId
+      if (vTripId) {
+        await TripService.hidden({
+          id: vTripId,
+          userId: vUserId
+        })
+        return pRes.status(200).send(fxSuccessResponse(200, true, 'Borrado con exito'))
+      }
+      return pRes
+        .status(404)
+        .send(fxErrorResponse(404, null, 'Ocurrio un error'))
     } catch (error) {
       pNext(error)
     }
@@ -65,8 +87,8 @@ class TripRouteController {
       const vResponse: IResponseAllTripRoute | ITripRouteInstance[] = await ClassTripRouteService.all(vParam)
       if (!vResponse) {
         return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .status(404)
+          .send(fxErrorResponse(404, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {

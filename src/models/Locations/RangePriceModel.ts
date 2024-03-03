@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface IRangePriceAttributes {
   id: number
@@ -11,6 +12,7 @@ export interface IRangePriceAttributes {
   baseKilometer?: number
   basePrice?: number
   extraPrice?: number
+  distanceToSearch?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -47,32 +49,38 @@ export const vRangePriceModelAttributes: SequelizeAttributes<IRangePriceAttribut
     allowNull: true,
   },
   isMoto: {
-    type:DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN,
     field: 'is_moto',
     defaultValue: false,
     allowNull: true,
   },
   isCar: {
-    type:DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN,
     field: 'is_car',
     defaultValue: false,
     allowNull: true,
   },
   baseKilometer: {
-    type:DataTypes.DOUBLE,
+    type: DataTypes.DOUBLE,
     field: 'base_kilometer',
     defaultValue: true,
     allowNull: true,
   },
   basePrice: {
-    type:DataTypes.DOUBLE,
+    type: DataTypes.DOUBLE,
     field: 'base_price',
     defaultValue: true,
     allowNull: true,
   },
   extraPrice: {
-    type:DataTypes.DOUBLE,
+    type: DataTypes.DOUBLE,
     field: 'extra_price',
+    defaultValue: true,
+    allowNull: true,
+  },
+  distanceToSearch: {
+    type: DataTypes.INTEGER,
+    field: 'distance_to_search',
     defaultValue: true,
     allowNull: true,
   },
@@ -108,6 +116,24 @@ export function fxRangePriceFactory(sequelize: Sequelize) {
       paranoid: true
     }
   )
+  vDateBase.associate = function (models: ModelRegistry) {
+    const { modelRangePrice, modelCity, modelRegion, modelCountry  } = models
+    modelRangePrice.hasOne(modelCity, {
+      sourceKey: 'cityId',
+      foreignKey: 'id',
+      as: 'city',
+    })
+    modelRangePrice.hasOne(modelRegion, {
+      sourceKey: 'regionId',
+      foreignKey: 'id',
+      as: 'region',
+    })
+    modelRangePrice.hasOne(modelCountry, {
+      sourceKey: 'countryId',
+      foreignKey: 'id',
+      as: 'country',
+    })
+  }
 
   vDateBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }

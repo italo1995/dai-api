@@ -16,7 +16,7 @@
   4 - update: actualiza datos del item
 */
 import { Op, type FindOptions } from 'sequelize'
-import { modelTripTravel as modelTripDelivery } from '../../models'
+import { modelTripDelivery } from '../../models'
 import type { ITripDeliveryInstance } from '../../models/Trip/TripDeliveryModel'
 import type { ITripDeliveryInput } from '../../types/TripType'
 

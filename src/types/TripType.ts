@@ -3,6 +3,8 @@ import type { ITripPaymentInstance } from '../models/Trip/TripPaymentModel'
 import type { ITripRouteInstance } from '../models/Trip/TripRouteModel'
 import type { ETripOffertStatus, ITripOffertInstance } from '../models/Trip/TripOffertModel'
 import type { IResponseAll } from './generalType'
+import type { ICancellationOptionInstance } from '../models/Trip/CancellationOptionModel'
+import type { ITripCancellationOptionInstance } from '../models/Trip/TripCancellationOptionModel'
 
 export interface IParamAllTrip {
   userId?: string
@@ -50,6 +52,9 @@ export interface ITripInput {
   currencyId?: number
   isPayment: number
   instructionsToDriver?: string
+  cityId?: number | null
+  regionId?: number | null
+  countryId?: number | null
 }
 
 export interface ITripUpdate {
@@ -177,5 +182,37 @@ export interface IResponseAllTripOffert extends IResponseAll {
   total: number
   totalPage: number
   data: ITripOffertInstance[]
+  actualPage: number
+}
+export interface ICancellationOptionInput {
+  id: number
+  name: number
+  type?: number
+  isClient: false
+  isDriver: false
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface IResponseAllCancellationOption extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ICancellationOptionInstance[]
+  actualPage: number
+}
+export interface ITripCancellationOptionInput {
+  id: number
+  tripId: number
+  cancellationOptionId?: number
+  comment?: string
+  userId: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface IResponseAllTripCancellationOption extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ITripCancellationOptionInstance[]
   actualPage: number
 }

@@ -31,17 +31,20 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import ClassAuthService from '../../services/User/AuthService'
-import type { IDriverDetailInput, IUserCodeInput, IUserInput, IUserInputUpdate } from '../../types/User'
+import { type IDriverDetailInput, type IUserCodeInput, type IUserInput, type IUserInputUpdate } from '../../types/User'
 import {
   fxSuccessResponse,
   fxErrorResponse,
   fxGenerateAccessToken,
   fxTwilioSendCode,
-  moveImages
+  moveImages,
+  fxSendMessage
 } from '../../utils/helpers'
 import type { IUserInstance } from '../../models/User/User'
 import ClassDriverDetailService from '../../services/User/DriverDetailService'
 import ClassUserService from '../../services/User/UserService'
+import NotificationService from '../fcmPushController'
+import TripService from '../../services/Trip/TripService'
 
 class AuthController {
   async registerOrCreateUserForNumber(
@@ -64,9 +67,17 @@ class AuthController {
       )
       const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
       const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
-      if (!vCode) {
-        return pRes.status(200).send(fxErrorResponse(500, null, 'Ocurrio un error'))
-      }
+      // let vCode: string | null 
+      // try {
+      //   vCode  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
+      //   if (!vCode) {
+      //     console.log('vCode :>> ', vCode)
+      //     return pRes.status(200).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      //   }
+      // } catch (error) {
+      //   return pRes.status(200).send(fxErrorResponse(500, error, 'Ocurrio un error'))
+      // }
+      console.log('vCode :>> ', vCode)
       let vUser: IUserInstance
       if (!vPhoneNumberExist) {
         vData.balance = 0
@@ -104,6 +115,7 @@ class AuthController {
           return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
         }
         if (socketId) {
+          console.log('verifiedUserCode :>> ')
           await ClassAuthService.updateSocket({
             id: vUser.id,
             socketId: socketId
@@ -126,7 +138,6 @@ class AuthController {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserId: string = pReq.auth.id
-      console.log('vUserId :>> ', vUserId)
       if (vUserId) {
         const vData: IUserInputUpdate = pReq.only([
           'avatar',
@@ -144,7 +155,6 @@ class AuthController {
         ])
         vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
         vData.id = vUserId
-        console.log('vData :>> ', vData)
         const vDetail: any = pReq.input('details', 'json')
         if (vData?.avatar) {
           const vRouteAvatarImages = await moveImages(vData.avatar)
@@ -171,20 +181,23 @@ class AuthController {
               driverDetail.push(element)
             }
           }
-          console.log('driverDetail :>> ', driverDetail)
           ClassDriverDetailService.createMany(driverDetail, vUserId)
         }
         if (!vUserDB) {
           return pRes
             .status(500)
-            .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+            .send(fxErrorResponse(500, null, 'Ocurrio un error'))
         }
-        return pRes.status(200).send(fxSuccessResponse(200, { user: vUserDB }, 'Codigo verificado'))
+        const vReponseUser = {
+          ...vUserDB.dataValues,
+          count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser)
+        }
+        return pRes.status(200).send(fxSuccessResponse(200, { user: vReponseUser }, 'Codigo verificado'))
       } else {
         console.log('estoy pasando por aca')
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
     } catch (error) {
       console.log('estoy en error en next')
@@ -255,11 +268,11 @@ class AuthController {
           .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
       }
       const vResponse = {
-        user: vUserDB,
+        ...vUserDB.dataValues,
+        count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser)
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse))
+      return pRes.status(200).send(fxSuccessResponse(200, { user: vResponse }))
     } catch (error: any) {
-      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -272,6 +285,35 @@ class AuthController {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
+      }
+      const vResponse = {
+        user: vUserDB,
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+  
+  async approve(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+    try {
+      const vUserId: string = pReq.input('userId')
+      const vUserDB: IUserInstance | null = await ClassAuthService.approve(vUserId)
+      if (!vUserDB) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      if (vUserDB?.tokenPush) {
+        const notificationData = {
+          title: 'Usuario verificado',
+          body: 'tu usuario ha sido verificado',
+          data: JSON.stringify({
+            verifiedDriver: true
+          })
+        }
+        await NotificationService.sendNotification([vUserDB?.tokenPush], notificationData)
+        await fxSendMessage(vUserDB)
       }
       const vResponse = {
         user: vUserDB,

@@ -4,7 +4,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 export interface ICompanyParameterAttributes {
   id: number
   name: string
-  value: number
+  value: string
   type?: ETypeCompanyParameter
   createdAt?: Date
   updatedAt?: Date
@@ -31,7 +31,7 @@ export const vRangePriceModelAttributes: SequelizeAttributes<ICompanyParameterAt
     field: 'name',
   },
   value: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     field: 'value',
   },
   type: {

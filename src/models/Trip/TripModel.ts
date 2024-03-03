@@ -13,11 +13,15 @@ export interface ITripAttributes {
   currencyId?: number
   isPayment: number
   instructionsToDriver?: string
+  cityId?: number | null
+  regionId?: number | null
+  countryId?: number | null
+  visibility?: number | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
 }
-enum ETypeService {
+export enum ETypeService {
   MOTO = 'moto',
   CAR = 'car',
   DELIVERY = 'delivery',
@@ -26,6 +30,7 @@ enum ETypeService {
 export enum EStatusTrip {
   PENDIENTE = 'buscando driver',
   ACEPTADO = 'traslado en proceso',
+  INPLACE = 'en el sitio',
   FINALIZADO = 'traslado exitoso',
   CANCELADO = 'cancelado'
 }
@@ -88,6 +93,30 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     defaultValue: false,
     allowNull: true,
   },
+  cityId: {
+    type: DataTypes.INTEGER,
+    field: 'city_id',
+    defaultValue: null,
+    allowNull: true,
+  },
+  regionId: {
+    type: DataTypes.INTEGER,
+    field: 'region_id',
+    defaultValue: null,
+    allowNull: true,
+  },
+  countryId: {
+    type: DataTypes.INTEGER,
+    field: 'country_id',
+    defaultValue: null,
+    allowNull: true,
+  },
+  visibility: {
+    field: 'visibility',
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 1,
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -118,7 +147,15 @@ export function fxTripFactory(sequelize: Sequelize) {
   })
 
   vTrip.associate = function (models: ModelRegistry) {
-    const { modelTrip, modelTripPayment, modelTripRoute, modelUser, modelTripDelivery, modelTripSpecialRequest } = models
+    const {
+      modelTrip,
+      modelTripPayment,
+      modelTripRoute,
+      modelUser,
+      modelTripDelivery,
+      modelTripSpecialRequest,
+      modelTripTravel
+    } = models
     modelTrip.hasOne(modelTripDelivery, {
       foreignKey: 'trip_id',
       sourceKey: 'id',
@@ -128,6 +165,11 @@ export function fxTripFactory(sequelize: Sequelize) {
       foreignKey: 'trip_id',
       sourceKey: 'id',
       as: 'tripPayment',
+    })
+    modelTrip.hasOne(modelTripTravel, {
+      foreignKey: 'trip_id',
+      sourceKey: 'id',
+      as: 'tripTravel',
     })
     modelTrip.hasOne(modelTripRoute, {
       foreignKey: 'trip_id',

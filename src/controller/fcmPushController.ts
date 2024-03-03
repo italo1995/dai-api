@@ -36,13 +36,11 @@ class NotificationService {
             click_action: 'FCM_PLUGIN_ACTIVITY'
           },
         }
-        console.log('notification :>> ', notification)
         const response = await this.messaging.send(notification)
         console.log('Notificación enviada con éxito:', response)
       }
     } catch (error) {
       console.error('Error al enviar la notificación:', error)
-      throw error
     }
   }
 }

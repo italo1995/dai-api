@@ -32,6 +32,12 @@ components:
        schema:
         type: string
         description: the CompanyParameter id
+ securitySchemes:
+  BearerAuth: # puedes usar el nombre que quieras
+    type: apiKey
+    name: Authorization
+    in: header
+    x-auth-id: Bearer abcde12345
 tags:
   - name: CompanyParameter
     description: CompanyParameter endpoint
@@ -79,6 +85,8 @@ paths:
                   $ref: '#/components/schemas/CompanyParameter'
   /api/companyParameter/store:
     post:
+      security:
+      - BearerAuth: []
       summary: Creates a new CompanyParameter
       tags:
         - CompanyParameter
@@ -116,6 +124,8 @@ paths:
                 $ref: '#/components/schemas/CompanyParameter'
   /api/companyParameter/update:
     post:
+      security:
+      - BearerAuth: []
       summary: Updates an CompanyParameter element
       tags:
         - CompanyParameter

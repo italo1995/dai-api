@@ -3,6 +3,7 @@ import ClassRangePriceService from '../../services/Locations/RangePriceService'
 import type { IResponseAll } from '../../types/generalType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IRangePriceInstance } from '../../models/Locations/RangePriceModel'
+import { ETypeService } from '../../models/Trip/TripModel'
 
 class RangePriceController {
 
@@ -39,19 +40,21 @@ class RangePriceController {
   
   async showPrice(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const { cityId, regionId, countryId } = pReq.query
-  
-      if (typeof cityId !== 'string' || typeof regionId !== 'string' || typeof countryId !== 'string') {
-        return pRes
-          .status(400)
-          .send(fxErrorResponse(400, { user: null, token: null }, 'La ciudad, la región y el país deben ser cadenas de texto.'))
+      const typeService = pReq.input('typeService')
+
+      const vParam = {
+        city: pReq.input('city'),
+        region: pReq.input('region'),
+        country: pReq.input('country'),
+        isCar: typeService === ETypeService.CAR || typeService === ETypeService.TRAVEL,
+        isMoto: typeService === ETypeService.MOTO || typeService === ETypeService.DELIVERY,
       }
   
-      const vResponse: IRangePriceInstance | null = await ClassRangePriceService.showPrice(cityId, regionId, countryId)
+      const vResponse: IRangePriceInstance | null = await ClassRangePriceService.showPrice(vParam)
       if (!vResponse) {
         return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'No se encontró un rango de precios para la ubicación proporcionada.'))
+          .status(404)
+          .send(fxErrorResponse(404, null, 'No se encontró un rango de precios para la ubicación proporcionada.'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {

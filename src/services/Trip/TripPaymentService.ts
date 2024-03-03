@@ -72,6 +72,20 @@ class TripPaymentService implements ITripPaymentService {
     return vResponse
   }
 
+  async updatePrice(pData: { tripId: number | null, amount: number | null }): Promise<true | null> {
+    if (pData?.tripId && pData?.amount) {
+      await modelTripPayment.update({
+        amount: pData.amount
+      }, {
+        where: {
+          tripId: pData.tripId
+        }
+      })
+      return true
+    }
+    return null
+  }
+
   async update(pData: ITripPaymentInput): Promise<ITripPaymentInstance | null> {
     if (pData?.id) {
       const vItem: ITripPaymentInstance | null = await modelTripPayment.findOne({

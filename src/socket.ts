@@ -30,7 +30,6 @@ export class SocketService {
       io.emit('connection', {
         socketId
       })
-      // io.to('room1').emit('basicEmit', 1, '2', Buffer.from([3]))
     })
   }
 }

@@ -17,11 +17,12 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelUser, modelVehicleAdditional } from '../../models'
-import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
+import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelTripTravel, modelUser, modelVehicleAdditional } from '../../models'
+import { EStatusTrip, ETypeService, type ITripInstance } from '../../models/Trip/TripModel'
 import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip, ITripUpdate } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 import type { ITripSpecialRequestAttributes, ITripSpecialRequestInstance } from '../../models/Trip/TripSpecialRequestModel'
+import { ETypeUser } from '../../types/User'
 
 interface ITripService {
   validate(data: any): any
@@ -32,6 +33,7 @@ interface ITripService {
   createSpecialRequest(pData: ITripSpecialRequestAttributes[]): Promise<ITripSpecialRequestInstance[]>
   update(payload: ITripUpdate): Promise<ITripInstance | null>
   softDeleteRecord(pId: number, pUserId: UUID): Promise<boolean>
+  hidden(pParam: { userId: string, id: number }): Promise<boolean | null>
 }
 
 class TripService implements ITripService {
@@ -93,13 +95,14 @@ class TripService implements ITripService {
       WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)}
       GROUP BY trip_id
       ORDER BY trip_id;`
+      console.log('query NearbyTrips :>> ', query)
       const vTripRoute: any[] = await sequelize.query(query, {
         mapToModel: true,
         model: modelTripRoute,
       }
       )
       const vtripsIds: any[]  = vTripRoute.map((vTripRoute) => vTripRoute?.dataValues.trip_id)
-      const vTrip: any[] = await modelTrip.findAll({
+      const whereStatement: FindOptions = {
         where: {
           id: vtripsIds,
           status: EStatusTrip.PENDIENTE
@@ -161,7 +164,25 @@ class TripService implements ITripService {
             ]
           }
         ],
-      })
+      }
+      if (pParam?.isCar) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          typeService: {
+            [Op.or]: [ETypeService.CAR, ETypeService.DELIVERY, ETypeService.TRAVEL]
+          }
+        }
+      }
+      if (pParam?.isMoto) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          typeService: {
+            [Op.or]: [ETypeService.MOTO, ETypeService.DELIVERY, ETypeService.TRAVEL]
+          }
+        }
+      }
+      console.log('whereStatement NearbyTrips:>> ', JSON.stringify(whereStatement))
+      const vTrip: any[] = await modelTrip.findAll(whereStatement)
       const vTripJson: any[] = JSON.parse(JSON.stringify(vTrip))
       const vResponse = vTripJson.map((trip) => {
         const distance = vTripRoute.find((route) => route.trip_id === trip.id)?.dataValues?.distance || null
@@ -253,7 +274,6 @@ class TripService implements ITripService {
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
       return vResponse
     } catch (error) {
-      console.log('error :>> ', error)
       throw error
     }
   }
@@ -277,7 +297,6 @@ class TripService implements ITripService {
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
       return vResponse
     } catch (error) {
-      console.log('error :>> ', error)
       throw error
     }
   }
@@ -289,7 +308,7 @@ class TripService implements ITripService {
         whereStatement.where = {
           userId: pParam.userId,
           status:{
-            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.PENDIENTE]
+            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.PENDIENTE, EStatusTrip.INPLACE]
           }
         }
       } else if (pParam?.id && pParam.driverId) {
@@ -305,7 +324,9 @@ class TripService implements ITripService {
       } else {
         whereStatement.where = {
           driverId: pParam.userId,
-          status: EStatusTrip.ACEPTADO
+          status:{
+            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.INPLACE]
+          }
         }
       }
       whereStatement.include = [
@@ -354,6 +375,11 @@ class TripService implements ITripService {
               required: false,
             }
           ]
+        },
+        {
+          model: modelTripTravel,
+          as: 'tripTravel',
+          required: false,
         }
       ]
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
@@ -394,7 +420,7 @@ class TripService implements ITripService {
       } else if (pData.driverId) {
         whereStatement.where = {
           driverId: {
-            [Op.or]: [pData.userId, null]
+            [Op.or]: [pData.driverId, null]
           },
           id: pData.id
         }
@@ -424,14 +450,36 @@ class TripService implements ITripService {
     }
   }
 
-  async countTrip(pId: string): Promise<number> {
+  async countTrip(pId: string, type: ETypeUser = ETypeUser.driver): Promise<number> {
     try {
-      const count = await modelTrip.count({
+      const whereStatement: FindOptions = {}
+      if (type === ETypeUser.driver) {
+        whereStatement.where = {
+          driverId: pId,
+          status: EStatusTrip.FINALIZADO
+        }
+      } else {
+        whereStatement.where = {
+          userId: pId,
+          status: EStatusTrip.FINALIZADO
+        }
+      }
+      const count = await modelTrip.count(whereStatement)
+      return count
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async hidden(pParam: { userId: string, id: number }): Promise<boolean | null> {
+    try {
+      await modelTrip.update({ visibility: 0 }, {
         where: {
-          driverId: pId
+          id: pParam.userId,
+          userId: pParam.userId
         }
       })
-      return count
+      return true
     } catch (error) {
       throw error
     }

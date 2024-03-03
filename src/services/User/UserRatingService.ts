@@ -93,7 +93,6 @@ class UserRatingService implements IUserRatingService {
   
       let sum = 0
       let quantity = 0
-  
       if ('data' in response) {
         response.data.forEach((review) => {
           sum += review.qualification
@@ -170,7 +169,6 @@ class UserRatingService implements IUserRatingService {
       }
       return null
     } catch (error) {
-      console.log('error :>> ', error)
       throw error
     }
   }

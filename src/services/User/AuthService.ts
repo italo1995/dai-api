@@ -21,7 +21,7 @@
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
 import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'
-import type { IUserInstance } from '../../models/User/User'
+import { EStatusDriver, type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
 import { Op } from 'sequelize'
@@ -41,17 +41,38 @@ class AuthService implements IAuthService {
   }
 
   async show(pId: string): Promise<IUserInstance | null> {
-    const vResponse: IUserInstance | null = await modelUser.findOne({
-      where: {
-        id: pId,
-      },
-      include: {
-        model: modelDriverDetail,
-        as: 'detail',
-        required: false
+    try {
+      const vResponse: IUserInstance | null = await modelUser.findOne({
+        where: {
+          id: pId,
+        },
+        include: {
+          model: modelDriverDetail,
+          as: 'detail',
+          required: false
+        }
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async approve(pId: string): Promise<IUserInstance | null> {
+    try {
+      if (pId) {
+        const vUser: IUserInstance | null = await modelUser.findOne({
+          where: {
+            id: pId,
+          },
+        })
+        await vUser?.update({ verifiedDriver: true })
+        return vUser
       }
-    })
-    return vResponse
+      return null
+    } catch (error) {
+      throw error      
+    }
   }
 
   async showUserNumber(pPhoneNumber: string, pPhoneCode: string): Promise<IUserInstance | null> {
@@ -80,26 +101,39 @@ class AuthService implements IAuthService {
   }
 
   async update(pData: IUserInputUpdate): Promise<IUserInstance | null> {
-    if (pData?.id) {
-      const vUser: IUserInstance | null = await modelUser.findOne({
-        where: {
-          id: pData.id,
-        },
-      })
-      await vUser?.update(pData, { where: { id: pData.id } })
-      return vUser
+    try {
+      if (pData?.id) {
+        const vUser: IUserInstance | null = await modelUser.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        await vUser?.update(pData, { where: { id: pData.id } })
+        return vUser
+      }
+      return null
+    } catch (error) {
+      throw error      
     }
-    return null
   }
 
   async updateSocket(pData: IUserUpdateSocket): Promise<IUserInstance | null> {
+    console.log('updateSocket')
     if (pData?.id) {
       const vUser: IUserInstance | null = await modelUser.findOne({
         where: {
           id: pData.id,
         },
       })
-      await vUser?.update(pData, { where: { id: pData.id } })
+      const vUpdateUserSocket = {
+        id: pData.id,
+        lat: pData?.lat || vUser?.dataValues?.lat || null,
+        lon: pData?.lon || vUser?.dataValues?.lon || null,
+        socketId: pData?.socketId || vUser?.dataValues?.socketId || null,
+        statusDriver: pData?.statusDriver || vUser?.dataValues?.statusDriver || EStatusDriver.ACTIVE
+      }
+      console.log('socketId antes de actualizar :>> ', vUser?.dataValues.socketId)
+      await vUser?.update(vUpdateUserSocket, { where: { id: pData.id } })
       return vUser
     }
     return null

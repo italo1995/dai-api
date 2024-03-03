@@ -5,16 +5,16 @@
 
 - Creation: 20/02/2024  
 */
-import { type FindOptions } from 'sequelize'
+import { Op, type FindOptions } from 'sequelize'
 import type { IRangePriceInstance, IRangePriceAttributes } from '../../models/Locations/RangePriceModel'
-import { modelRangePrice } from '../../models'
+import { modelCity, modelCountry, modelRangePrice, modelRegion } from '../../models'
 import type { IResponseAll } from '../../types/generalType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 
 interface IRangePriceService {
   validate(data: any): any
   show(pId: number): Promise<IRangePriceInstance | null>
-  showPrice(city: string, region: string, country: string): Promise<IRangePriceInstance | null>
+  showPrice(pParam: { city: string, region: string, country: string, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null>
   create(payload: IRangePriceAttributes): Promise<IRangePriceInstance>
   update(payload: IRangePriceAttributes): Promise<IRangePriceInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
@@ -60,57 +60,165 @@ class RangePriceService implements IRangePriceService {
     })
     return vResponse
   }
-
-  async showPrice(city: string, region: string, country: string): Promise<IRangePriceInstance | null> {
-    let vResponse: IRangePriceInstance | null = await modelRangePrice.findOne({
-      where: {
-        cityId: city,
+  async showPrice({ city, region, country, isCar, isMoto }: { city: string, region: string, country: string, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null> {
+    try {
+      const whereStatement: FindOptions = {}
+      whereStatement.include = [{
+        model: modelCountry,
+        as: 'country',
+        required: false,
+        where: {
+          name: {
+            [Op.iLike]: `%${country}%`
+          }
+        }
       },
-      order: [
-        ['createdAt', 'ASC']
-      ]
-    })
-  
-    if (!vResponse) {
-      vResponse = await modelRangePrice.findOne({
+      {
+        model: modelRegion,
+        as: 'region',
+        required: false,
         where: {
-          regionId: region,
+          name: {
+            [Op.iLike]: `%${region}%`
+          }
+        }
+      },
+      {
+        model: modelCity,
+        as: 'city',
+        required: false,
+        where: {
+          name: {
+            [Op.iLike]: `%${city}%`
+          }
+        }
+      }]
+      whereStatement.where = {
+        isCar,
+        isMoto
+      }
+      const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
+      const vShowPriceJSON = JSON.parse(JSON.stringify(vFindAll))
+      let vResponse: IRangePriceInstance | null = null
+      vResponse = vShowPriceJSON.find((item: any) => item?.city) || vShowPriceJSON.find((item: any) => item?.region) || vShowPriceJSON.find((item: any) => item?.country)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+  async showPriceToId({ cityId, regionId, countryId, isCar, isMoto }: { cityId?: number | null, regionId?: number | null, countryId?: number | null, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null> {
+    try {
+      const whereStatement: FindOptions = {}
+      // whereStatement.include = [{
+      //   model: modelCountry,
+      //   as: 'country',
+      //   required: false,
+      //   where: {
+      //     name: {
+      //       [Op.iLike]: `%${countryId}%`
+      //     }
+      //   }
+      // },
+      // {
+      //   model: modelRegion,
+      //   as: 'region',
+      //   required: false,
+      //   where: {
+      //     name: {
+      //       [Op.iLike]: `%${regionId}%`
+      //     }
+      //   }
+      // },
+      // {
+      //   model: modelCity,
+      //   as: 'city',
+      //   required: false,
+      //   where: {
+      //     name: {
+      //       [Op.iLike]: `%${cityId}%`
+      //     }
+      //   }
+      // }]
+      whereStatement.where = {
+        isCar,
+        isMoto,
+        [Op.or]: {
+          cityId: cityId,
+          regionId: regionId,
+          countryId: countryId,
+        }
+      }
+      const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
+      const vShowPriceJSON = JSON.parse(JSON.stringify(vFindAll))
+      let vResponse: IRangePriceInstance | null = null
+      vResponse = vShowPriceJSON.find((item: any) => item?.city) || vShowPriceJSON.find((item: any) => item?.region) || vShowPriceJSON.find((item: any) => item?.country)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+  async showPriceCopy(city: string, region: string, country: string): Promise<IRangePriceInstance | null> {
+    try {
+      let vResponse: IRangePriceInstance | null = await modelRangePrice.findOne({
+        where: {
+          cityId: city,
         },
         order: [
           ['createdAt', 'ASC']
         ]
       })
+    
+      if (!vResponse) {
+        vResponse = await modelRangePrice.findOne({
+          where: {
+            regionId: region,
+          },
+          order: [
+            ['createdAt', 'ASC']
+          ]
+        })
+      }
+    
+      if (!vResponse) {
+        vResponse = await modelRangePrice.findOne({
+          where: {
+            countryId: country,
+          },
+          order: [
+            ['createdAt', 'ASC']
+          ]
+        })
+      }
+    
+      return vResponse 
+    } catch (error) {
+      throw error
     }
-  
-    if (!vResponse) {
-      vResponse = await modelRangePrice.findOne({
-        where: {
-          countryId: country,
-        },
-        order: [
-          ['createdAt', 'ASC']
-        ]
-      })
-    }
-  
-    return vResponse
   }
   async create(pData: IRangePriceAttributes): Promise<IRangePriceInstance> {
-    const vResponse: IRangePriceInstance = await modelRangePrice.create(pData)
-    return vResponse
+    try {
+      const vResponse: IRangePriceInstance = await modelRangePrice.create(pData)
+      return vResponse 
+    } catch (error) {
+      throw error
+    }
   }
 
   async update(pData: IRangePriceAttributes): Promise<IRangePriceInstance | null> {
-    if (pData?.id) {
-      const vRangePrice: IRangePriceInstance | null = await modelRangePrice.findOne({
-        where: {
-          id: pData.id,
-        },
-      })
-      await vRangePrice?.update(pData, { where: { id: pData.id } })
-      return vRangePrice
+    try {
+      if (pData?.id) {
+        const vRangePrice: IRangePriceInstance | null = await modelRangePrice.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        await vRangePrice?.update(pData, { where: { id: pData.id } })
+        return vRangePrice
+      }
+      return null
+    } catch (error) {
+      throw error
     }
-    return null
   }
 
   async softDeleteRecord(pId: number) {

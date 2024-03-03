@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import imageThumbnail from 'image-thumbnail'
 import twilio from 'twilio'
 import AppConfig from '../config/AppConfig'
-import type { IUserAttributes } from '../models/User/User'
+import type { IUserAttributes, IUserInstance } from '../models/User/User'
 
 export const fxSuccessResponse = (code: number | null = null, data: any, message: string | null = null, status: boolean | null = true) => {
   return {
@@ -86,4 +86,21 @@ export const fxTwilioSendCode = async (
     throw error
   }
   return vCode.toString()
+}
+
+export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Error>=> {
+  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
+  const vAuthToken = AppConfig.TWILIO_AUTH_Token
+  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
+  const fxClient = twilio(vAccountSid, vAuthToken)
+  try {
+    await fxClient.messages.create({
+      body: `${pUser?.dataValues.name} Fuiste verificado como conductor`,
+      from: vTwilioPhoneNumber,
+      to: `${pUser.phoneCode}${pUser.phoneNumber}`,
+    })
+  } catch (error) {
+    throw error
+  }
+  return true
 }

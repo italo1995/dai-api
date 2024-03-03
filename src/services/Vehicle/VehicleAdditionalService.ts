@@ -122,6 +122,9 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
 
   async show(pId: number): Promise<IVehicleAdditionalInstance | null> {
     try {
+      if (!pId) {
+        return null
+      }
       const vResponse: IVehicleAdditionalInstance | null = await modelVehicleAdditional.findOne({
         where: {
           id: pId,

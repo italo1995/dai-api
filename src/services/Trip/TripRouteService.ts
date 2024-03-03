@@ -68,13 +68,13 @@ class TripRouteService implements ITripRouteService {
           model: modelTrip,
           as: 'trip',
           required: true,
-          attributes: ['id', 'userId'],
+          attributes: ['id', 'userId', 'visibility'],
           where: {
-            userId: pParam.userId
+            userId: pParam.userId,
+            visibility: 1
           }
         }
       ]
-
       const vResponse: ITripRouteInstance[] = await modelTripRoute.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(pParam, whereStatement, 'TripRoute', vResponse)

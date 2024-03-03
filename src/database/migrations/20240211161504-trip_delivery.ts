@@ -11,7 +11,7 @@ module.exports = {
         autoIncrement: true,
       },
       tripId: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         field: 'trip_id',
       },
       toSearch: {

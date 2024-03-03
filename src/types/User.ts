@@ -48,6 +48,7 @@ export interface IUserUpdateSocket {
   lat?: number
   lon?: number
   socketId?: string | null
+  statusDriver?: EStatusDriver
 }
 
 export interface IUserCodeInput {

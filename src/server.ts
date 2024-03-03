@@ -14,7 +14,6 @@ import routes from './routes'
 import { ValidationError } from 'sequelize'
 import { modelErrorReporting, modelUser } from './models'
 import type { IUserInstance } from './models/User/User'
-
 export class Server {
   private app: Express
   private upload = multer()
@@ -37,23 +36,6 @@ export class Server {
 
   socket() {
     SocketService.initSocket(this.httpServer)
-  //   const io = new webSocketServer(this.httpServer, {
-  //     cors: {
-  //       origin: '*',
-  //       methods: ['GET', 'POST']
-  //     }
-  //   })
-  //   io.use(async (socket: any, next: any) => {
-  //     if (socket?.handshake?.headers?.authorization) {
-  //       const token = socket.handshake.headers.authorization.split(' ')[1]
-  //       socket.handshake.auth = await this.verifyTokenUser(token)
-  //       next()
-  //     }
-  //     next()
-  //   })
-  //   // SocketService.initSocket(io)
-  //   // this.app.io = io
-  //   // this.httpServer.listen(AppConfig.SOCKET_PORT)
   }
 
   private async verifyTokenUser(token: any) {
@@ -131,13 +113,11 @@ export class Server {
     })
     this.app.use((req, _res, next) => {
       req.only = (keys: string[]) => {
-        const body: any = req.body
+        const body: any = req?.body || req?.query || []
         const data: any = {}
         for (const key of keys) {
           if (key in body) {
             data[key] = body[key]
-          } else {
-            data[key] = null
           }
         }
         return data
@@ -178,28 +158,10 @@ export class Server {
       defaultLocale: 'es',
     })
     this.app.use(async (err: any, req: any, res: any, _next: any) => {
+      console.log('err.mensajes :>> ', err)
       if (err.issues) {
-        console.log('issues')
-        const errorMessage = err.issues.map((issue: any) => ({
-          message: `${issue.path.join('.')} is ${issue.message}`,
-        }))
-        return res.status(400).json({ error: errorMessage[0] })
-      } else if (err instanceof ValidationError) {
-        console.log('validation')
-        const errors: string[] = []
-        for (const itemError of err.errors) {
-          if (itemError?.path && itemError?.validatorKey) {
-            const vErrorTranslate = `${vI18n.__(itemError.path)} ${vI18n.__(itemError.validatorKey)}`
-            errors.push(vErrorTranslate)
-          } else {
-            errors.push(itemError.message)
-          }
-        }
-        return res.status(400).json({ success: false, type: 'validation', message: errors })
-      } else {
-        console.log('else')
         const newErrorReporting = {
-          type: 'middelware',
+          type: 'issues',
           data: JSON.stringify({
             request: {
               method: req.method,
@@ -215,6 +177,75 @@ export class Server {
           }),
         }
         await modelErrorReporting.create(newErrorReporting)
+        const errorMessage = err.issues.map((issue: any) => ({
+          message: `${issue.path.join('.')} is ${issue.message}`,
+        }))
+        return res.status(400).json({ error: errorMessage[0] })
+      } else if (err instanceof ValidationError) {
+        const newErrorReporting = {
+          type: 'validation',
+          data: JSON.stringify({
+            request: {
+              method: req.method,
+              url: req.url,
+              headers: req.headers,
+              body: req.body,
+            },
+            userId: req?.auth?.id, // Asume que el usuario está en req.user
+          }),
+          error: JSON.stringify({
+            message: err.message,
+            stack: err.stack,
+          }),
+        }
+        await modelErrorReporting.create(newErrorReporting)
+        const errors: string[] = []
+        for (const itemError of err.errors) {
+          if (itemError?.path && itemError?.validatorKey) {
+            const vErrorTranslate = `${vI18n.__(itemError.path)} ${vI18n.__(itemError.validatorKey)}`
+            errors.push(vErrorTranslate)
+          } else {
+            errors.push(itemError.message)
+          }
+        }
+        return res.status(400).json({ success: false, type: 'validation', message: errors })
+      } else {
+        const newErrorReporting = {
+          type: 'TwilioError | Error',
+          data: JSON.stringify({
+            request: {
+              method: req.method,
+              url: req.url,
+              headers: req.headers,
+              body: req.body,
+            },
+            userId: req?.auth?.id, // Asume que el usuario está en req.user
+          }),
+          error: JSON.stringify({
+            message: err.message,
+            stack: err.stack,
+          }),
+        }
+        await modelErrorReporting.create(newErrorReporting)
+        if (err.status === 400) {
+          let message = 'Ocurrió un error'
+          switch(err.code) {
+          case 21211:
+            // Error: Invalid 'To' Phone Number
+            message = vI18n.__('InvalidToPhoneNumber')
+            break
+          case 21610:
+            // Error: The 'To' number is not reachable
+            message = vI18n.__('ToNumberNotReachable')
+            break
+          case 21614:
+            // Error: The 'To' number is not a valid mobile number
+            message = vI18n.__('ToNumberNotValid')
+            break
+          }
+          console.log('Es un error de Twilio: ', message)
+          return res.status(500).send({ success: false, type: 'TwilioError', message: message })
+        }
         return res.status(500).send({ success: false, type: 'error', message: 'Ocurrió un error' })
       }
     })

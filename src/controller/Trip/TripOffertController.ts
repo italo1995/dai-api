@@ -92,6 +92,7 @@ class TripOffertController {
       }
       vData.clientId = trip.dataValues?.userId
       vData.status = ETripOffertStatus.ESPERA
+      console.log('vData tripOffert/create:>> ', vData)
       const vResponse: ITripOffertInstance | null = await ClassTripOffertService.create(vData)
       if (!vResponse) {
         return pRes
@@ -117,9 +118,12 @@ class TripOffertController {
         isClient: true,
         id: vData.clientId
       }
+      console.log('vClientParam :>> ', vClientParam)
       const vClientSocketId = await ClassUserService.show(vClientParam)
-      if (vClientSocketId?.dataValues?.socketId && vDriverSocketId) {
+      console.log('vClientSocketId?.dataValues?.socketId :>> ', vClientSocketId?.dataValues?.socketId)
+      if (vClientSocketId?.dataValues?.socketId) {
         SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffer', vDataNewTripOffert)
+        console.log('newTripOffer')
       }
       if (vClientSocketId?.dataValues?.tokenPush && vDataNewTripOffert) {
         const tokenPush = vClientSocketId?.dataValues?.tokenPush
@@ -134,8 +138,8 @@ class TripOffertController {
           distance: vData.distance,
         }
         const notificationData = {
-          title: 'Nuevo viaje',
-          body: 'Un nuevo viaje cerca de ti',
+          title: 'Tienes una oferta',
+          body: 'tu viaje tiene una oferta',
           data: JSON.stringify(VnotificationDataDriver)
         }
         await NotificationService.sendNotification([tokenPush], notificationData)
@@ -167,6 +171,7 @@ class TripOffertController {
       pNext(error)
     }
   }
+
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: string = pReq.input('id', 'number')

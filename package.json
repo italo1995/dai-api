@@ -11,6 +11,7 @@
     "build": "npm run clean && tsc --build tsconfig.json && sh ./scripts/copy.sh",
     "mi:g": "npx sequelize-cli migration:generate --name",
     "mo:g": "npx sequelize-cli model:generate --name",
+    "seed:g": "npx sequelize-cli seed:generate --name",
     "migrate": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all",
     "lint": "eslint . --ext .ts,.tsx",
