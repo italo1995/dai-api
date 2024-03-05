@@ -21,7 +21,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassTripOffertService from '../../services/Trip/TripOffertService'
 import type { ITripOffertInput, IResponseAllTripOffert, IParamShowTrip } from '../../types/TripType'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, withTimeout } from '../../utils/helpers'
 import { ETripOffertStatus, type ITripOffertInstance } from '../../models/Trip/TripOffertModel'
 import { SocketService } from '../../ws'
 import ClassUserService from '../../services/User/UserService'
@@ -66,6 +66,7 @@ class TripOffertController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserAuth = pReq.auth
+      console.log('vUserAuth :>> ', vUserAuth)
       const vData: ITripOffertInput = pReq.only([
         'tripId',
         'clientId',
@@ -122,7 +123,19 @@ class TripOffertController {
       const vClientSocketId = await ClassUserService.show(vClientParam)
       console.log('vClientSocketId?.dataValues?.socketId :>> ', vClientSocketId?.dataValues?.socketId)
       if (vClientSocketId?.dataValues?.socketId) {
-        SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffer', vDataNewTripOffert)
+        try {
+          await SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffer', vDataNewTripOffert, withTimeout(
+            () => {
+              console.log('¡Éxito!')
+            },
+            () => {
+              console.log('¡Tiempo de espera!')
+            },
+            1000
+          ))
+        } catch (error) {
+          console.log('error newTripOffer:>> ', error)
+        }
         console.log('newTripOffer')
       }
       if (vClientSocketId?.dataValues?.tokenPush && vDataNewTripOffert) {

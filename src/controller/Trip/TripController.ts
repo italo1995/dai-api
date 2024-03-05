@@ -27,7 +27,7 @@ import ClassTripDeliveryService from '../../services/Trip/TripDeliveryService'
 import ClassTripTravelService from '../../services/Trip/TripTravelService'
 import ClassUserService from '../../services/User/UserService'
 import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, ITripRouteInput, ITripTravelInput, ITripDeliveryInput, IParamShowActiveTrip, ITripUpdate, ITripCancellationOptionInput } from '../../types/TripType'
-import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages, sortLatLonDriver } from '../../utils/helpers'
 import { EStatusTrip, ETypeService, type ITripInstance } from '../../models/Trip/TripModel'
 import ClassTripPaymentService from '../../services/Trip/TripPaymentService'
 import NotificationService from '../fcmPushController'
@@ -182,13 +182,25 @@ class TripController {
         const vParamNearbyDrivers = {
           lat: vInitRoute?.dataValues.lat,
           lon: vInitRoute?.dataValues.lon,
-          distance: vDistance?.dataValues.distanceToSearch || 30,
+          distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService
         }
         const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
         const vResponseTripActive = JSON.parse(JSON.stringify(vResponse))
-        vResponseTripActive.nearbyDrivers = vNearbyDrivers
-
+        if (vNearbyDrivers.length < 10) {
+          const vNearbyDriversJSON: any[] = JSON.parse(JSON.stringify(vNearbyDrivers))
+          const existingCoords: any = vNearbyDriversJSON.map(driver => [driver.lat, driver.lon])
+          const duplicatedCoords: any = existingCoords.map(([lat, lon]: [number, number]) => sortLatLonDriver(lat, lon))
+          const newDrivers = duplicatedCoords.map(([newLat, newLon]: [number, number]) => ({
+            id: '123',
+            lat: newLat,
+            lon: newLon,
+          }))
+          const updatedDrivers = [...vNearbyDriversJSON, ...newDrivers]
+          vResponseTripActive.nearbyDrivers = updatedDrivers
+        } else {
+          vResponseTripActive.nearbyDrivers = vNearbyDrivers
+        }
         return pRes.status(200).send(fxSuccessResponse(200, vResponseTripActive, 'Correcto'))
       }
     } catch (error) {
@@ -245,10 +257,10 @@ class TripController {
         isMoto: vData.typeService === ETypeService.MOTO || vData.typeService === ETypeService.DELIVERY,
       }
       const vRangePrice = await RangePriceService.showPrice(vParamToRange)
-      if (vRangePrice?.dataValues) {
-        vData.cityId = vRangePrice?.dataValues.cityId || null
-        vData.countryId = vRangePrice?.dataValues.countryId || null
-        vData.regionId = vRangePrice?.dataValues.regionId || null
+      if (vRangePrice) {
+        vData.cityId = vRangePrice?.cityId || null
+        vData.countryId = vRangePrice?.countryId || null
+        vData.regionId = vRangePrice?.regionId || null
       }
       vData.status = EStatusTrip.PENDIENTE
       const vFee = pReq.input('fee', 'json')
@@ -310,7 +322,7 @@ class TripController {
       const vParamNearbyDrivers = {
         lat: vInitRoute.lat,
         lon: vInitRoute.lon,
-        distance: vRangePrice?.dataValues.distanceToSearch || 30,
+        distance: vRangePrice?.distanceToSearch || 30,
         typeService: vData.typeService
       }
       const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
@@ -336,6 +348,22 @@ class TripController {
         }
       }
       SocketService.io.to(socketIds).emit('newTrip', vTripOne)
+      if (vNearbyDrivers.length < 10) {
+        const vNearbyDriversJSON: any[] = JSON.parse(JSON.stringify(vNearbyDrivers))
+        const existingCoords: any = vNearbyDriversJSON.map(driver => [driver.lat, driver.lon])
+        const duplicatedCoords: any = existingCoords.map(([lat, lon]: [number, number]) => sortLatLonDriver(lat, lon))
+        const newDrivers = duplicatedCoords.map(([newLat, newLon]: [number, number]) => ({
+          id: '123',
+          lat: newLat,
+          lon: newLon,
+        }))
+        const updatedDrivers = [...vNearbyDriversJSON, ...newDrivers]
+        const vResponse = {
+          trip: vTripReponse,
+          nearbyDrivers: updatedDrivers
+        }
+        return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      }
       const vResponse = {
         trip: vTripReponse,
         nearbyDrivers: vNearbyDrivers
@@ -419,11 +447,13 @@ class TripController {
           isCar: vResponse?.dataValues.typeService === ETypeService.CAR || vResponse?.dataValues.typeService === ETypeService.TRAVEL,
           isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO || vResponse?.dataValues.typeService === ETypeService.DELIVERY,
         }
+        console.log('vParamToRange :>> ', vParamToRange)
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
+        console.log('vDistance :>> ', vDistance)
         const vParamNearbyDrivers = {
           lat: initRoute?.dataValues.lat,
           lon: initRoute?.dataValues.lon,
-          distance: vDistance?.dataValues.distanceToSearch || 30,
+          distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService
         }
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
@@ -457,13 +487,16 @@ class TripController {
           isCar: vResponse?.dataValues.typeService === ETypeService.CAR || vResponse?.dataValues.typeService === ETypeService.TRAVEL,
           isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO || vResponse?.dataValues.typeService === ETypeService.DELIVERY,
         }
+        console.log('vParamToRange :>> ', vParamToRange)
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
+        console.log('vDistance :>> ', vDistance)
         const vParamNearbyDrivers = {
           lat: initRoute?.dataValues.lat,
           lon: initRoute?.dataValues.lon,
-          distance: vDistance?.dataValues.distanceToSearch || 30,
+          distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService
         }
+        console.log('vParamNearbyDrivers :>> ', vParamNearbyDrivers)
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
           console.log('vParamNearbyDrivers update :>> ', vParamNearbyDrivers)
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
@@ -471,7 +504,7 @@ class TripController {
           const tokenPushs: any[]  = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
           console.log('socketIds :>> ', socketIds)
           if (socketIds.length) {
-            SocketService.io.to(socketIds).emit('cancelTrip', vResponse)
+            await SocketService.io.to(socketIds).emit('cancelTrip', vResponse)
           }
           const vParamTripShow = {
             id: Number(vData.id),
@@ -516,5 +549,43 @@ class TripController {
       pNext(error)
     }
   }
+
+  // async recoveryTrip(pReq: Request, pRes: Response, pNext: NextFunction) {
+  //   try {
+  //     const vParam: IParamShowActiveTrip = {
+  //       userId: pReq.auth.id,
+  //     }
+  //     const vResponse: ITripInstance | null = await ClassTripService.showActive(
+  //       vParam,
+  //     )
+  //     if (!vResponse) {
+  //       return pRes
+  //         .status(200)
+  //         .send(fxSuccessResponse(200, vResponse, 'Correcto', false))
+  //     }
+  //     if (vResponse.dataValues.status === EStatusTrip.CANCELADO) {
+  //       const vTripOffer = await TripOffertService.showAcept(vResponse?.dataValues.id)
+  //       const vDriverParam = {
+  //         id: vTripOffer?.dataValues.driverId || '',
+  //         isDriver: true,
+  //       }
+  //       const vDriverSocketId = await ClassUserService.show(vDriverParam)
+  //       const vVehicleAdditionalService = await VehicleAdditionalService.allFilterIdArray(vDriverSocketId)
+  //       const vDataNewTripOffert = {
+  //         offer: vTripOffer,
+  //         driver: vDriverSocketId,
+  //         countTrips: vTripOffer?.dataValues.driverId ? await ClassTripService.countTrip(vTripOffer.dataValues.driverId) : 0,
+  //         duration: vTripOffer?.dataValues.duration,
+  //         distance: vTripOffer?.dataValues.distance,
+  //         vehicleAdditionalService: vVehicleAdditionalService
+  //       }
+  //       const vReponseJSON = JSON.parse(JSON.stringify(vResponse))
+  //       vReponseJSON.dataDriver = vDataNewTripOffert
+  //       return pRes.status(200).send(fxSuccessResponse(200, vReponseJSON, 'Correcto'))
+  //     }
+  //   } catch (error) {
+  //     pNext(error)
+  //   }
+  // }
 }
 export default new TripController()

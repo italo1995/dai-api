@@ -104,3 +104,34 @@ export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Err
   }
   return true
 }
+
+export const sortLatLonDriver = (lat: number | null, lon: number | null): [number, number] | [null, null] => {
+  if (lat && lon) {
+    const vRandomLat = Math.random()
+    const max = 0.005
+    const min = -0.005
+    const rango = max - min
+    const vRandomLon = Math.random()
+  
+    const difLat = min + vRandomLat * rango
+    const difLon = min + vRandomLon * rango
+    const newLat = lat + difLat
+    const newLon = lon + difLon
+    return [Number(newLat.toFixed(7)), Number(newLon.toFixed(7))]
+  }
+  return [null, null]
+}
+export const withTimeout: any = (onSuccess: any, onTimeout: any, timeout: any): any => {
+  let called = false
+  const timer = setTimeout(() => {
+    if (called) return
+    called = true
+    onTimeout()
+  }, timeout)
+  return (...args: any) => {
+    if (called) return
+    called = true
+    clearTimeout(timer)
+    onSuccess.apply(this, args)
+  }
+}

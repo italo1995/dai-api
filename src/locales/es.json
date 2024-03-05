@@ -1,10 +1,12 @@
 {
+	"ToNumberNotValid": "ToNumberNotValid",
 	"is_null": "es requerida",
 	"reference": "La referencia",
 	"lat": "La ubicacion",
 	"lon": "La ubicacion",
 	"createdAt": "createdAt",
 	"updatedAt": "updatedAt",
-	"name": "name",
+	"name": "El nombre",
+	"address": "La direccion",
 	"InvalidToPhoneNumber": "Numero o codigo invalido, por favor verifique e intente de nuevo"
 }

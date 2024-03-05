@@ -16,6 +16,7 @@ import NotificationService from './controller/fcmPushController'
 import RangePriceService from './services/Locations/RangePriceService'
 import VehicleTypeService from './services/Vehicle/VehicleTypeService'
 import ErrorReportingService from './services/ErrorReportingService'
+import { withTimeout } from './utils/helpers'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
  url: string, headers: any, body: any, userId: string
@@ -64,6 +65,7 @@ export class SocketService {
     if (socket.id && !auth) {
       auth = await SocketService.verifyTokenUser(false, socket.id)
     }
+
     if (auth) {
       const user = {
         id: auth?.id,
@@ -72,6 +74,8 @@ export class SocketService {
       // Actualizamos el socket del usuario en la base de datos
       console.log('handleConnection :>> ', user)
       await ClassAuthService.updateSocket(user)
+    } else {
+      console.log('NO TIENE handleConnection :>> ', socketId)
     }
     // if (socket.recovered) {
     //   if (auth) {
@@ -88,7 +92,11 @@ export class SocketService {
     socket.emit('connection', {
       socketId
     })
-
+    // io.on('connection', (socket) => {
+    //   socket.on('updateSocketId', (userId, newSocketId) => {
+    //     userSocketMap[userId] = newSocketId;
+    //   });
+    // });
     // console.log('event :>> ', socket.event)
 
     socket.on('disconnect', async (_reason: any) => {
@@ -96,14 +104,14 @@ export class SocketService {
       try {
         const vUser = {
           id: auth?.id || user?.id,
-          statusDriver: 0,
+          // statusDriver: 0,
           socketId: null
         }
         if (vUser?.id) {
-          const vUserDB = await ClassAuthService.show(auth?.id || user.id)
-          if (vUserDB?.dataValues.statusDriver === 1) {
-            vUser.statusDriver = 0
-          }
+          // const vUserDB = await ClassAuthService.show(auth?.id || user.id)
+          // if (vUserDB?.dataValues.statusDriver === 1) {
+          //   vUser.statusDriver = 0
+          // }
           await ClassAuthService.updateSocket(vUser)
         }
       } catch (error) {
@@ -121,9 +129,10 @@ export class SocketService {
       try {
         if (auth) {
           const vUser = {
-            id: auth?.id || user?.id,
+            id: auth?.id || user?.id || data.userId,
             socketId: socketId
           }
+          console.log('vUser reConnection :>> ', vUser)
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
           }
@@ -145,7 +154,7 @@ export class SocketService {
     })
 
     socket.on('changeState', async (pStateDriver: EStatusDriver) => {
-      console.log('changeStates')
+      console.log('changeStates', pStateDriver)
       try {
         const vUser = {
           id: auth?.id || user?.id,
@@ -177,6 +186,7 @@ export class SocketService {
           socketId: coords?.socketId || socketId
         }
         console.log('coords :>> ', coords)
+        console.log('vUser coords :>> ', vUser)
         if (coords?.tripId) {
           const vParamShowTrip: IParamShowTrip = {
             id: coords.tripId,
@@ -189,7 +199,7 @@ export class SocketService {
             lat: coords?.lat,
             lon: coords?.lng,
           })
-        } else if (vUser?.lat && vUser.lon) {
+        } else if (vUser?.lat && vUser?.lon) {
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
           }
@@ -245,7 +255,7 @@ export class SocketService {
           userId: auth?.id || user?.id || null,
         })
         if (vTrip?.dataValues.status === EStatusTrip.ACEPTADO) {
-          socket.emit('acceptTripOffer', {data: 'esta aceptando dos veces .-.'})
+          socket.emit('acceptTripOffer', vTrip)
           return
         }
         const vUpdateTrip: ITripUpdate = {
@@ -263,8 +273,20 @@ export class SocketService {
         const vTripUpdate = await ClassTripService.update(vUpdateTrip)
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
         console.log('socketId del driver :>> ', vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId)
-        socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit('acceptTripOffer', vTripUpdate)
-        console.log('se envio el evento :>> ', vTripUpdate)
+        try {
+          socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit('acceptTripOffer', vTripUpdate, withTimeout(
+            () => {
+              console.log('¡Éxito!')
+            },
+            () => {
+              console.log('¡Tiempo de espera!')
+            },
+            1000
+          ))
+        } catch (error) {
+          console.log('error en acceptTripOffer :>> ', error)
+        }
+        // console.log('se envio el evento :>> ', vTripUpdate)
         const initRoute = await TripRouteService.showByTripId({
           tripId: vTripId
         })
@@ -279,7 +301,7 @@ export class SocketService {
         const vParamNearbyDrivers = {
           lat: initRoute?.dataValues.lat,
           lon: initRoute?.dataValues.lon,
-          distance: vDistance?.dataValues.distanceToSearch || 30,
+          distance: vDistance?.distanceToSearch || 30,
           typeService: vTrip?.dataValues.typeService
         }
         console.log('vParamNearbyDrivers :>> ', vParamNearbyDrivers)

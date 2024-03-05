@@ -427,6 +427,15 @@ class TripService implements ITripService {
       }
       if (pData?.id) {
         const vItem: ITripInstance | null = await modelTrip.findOne(whereStatement)
+        if (!pData?.price) {
+          pData.price = vItem?.price || 0
+        }
+        // if (vItem?.dataValues.status === EStatusTrip.CANCELADO && pData.status === EStatusTrip.PENDIENTE) {
+
+        // } else {
+          
+        // }
+        console.log('pData :>> ', pData)
         await vItem?.update(pData)
         return vItem
       }

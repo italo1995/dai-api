@@ -21,7 +21,7 @@
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
 import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'
-import { EStatusDriver, type IUserInstance } from '../../models/User/User'
+import { type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
 import { Op } from 'sequelize'
@@ -118,7 +118,6 @@ class AuthService implements IAuthService {
   }
 
   async updateSocket(pData: IUserUpdateSocket): Promise<IUserInstance | null> {
-    console.log('updateSocket')
     if (pData?.id) {
       const vUser: IUserInstance | null = await modelUser.findOne({
         where: {
@@ -130,10 +129,9 @@ class AuthService implements IAuthService {
         lat: pData?.lat || vUser?.dataValues?.lat || null,
         lon: pData?.lon || vUser?.dataValues?.lon || null,
         socketId: pData?.socketId || vUser?.dataValues?.socketId || null,
-        statusDriver: pData?.statusDriver || vUser?.dataValues?.statusDriver || EStatusDriver.ACTIVE
+        statusDriver: 'statusDriver' in pData ? pData.statusDriver : vUser!.dataValues.statusDriver!
       }
-      console.log('socketId antes de actualizar :>> ', vUser?.dataValues.socketId)
-      await vUser?.update(vUpdateUserSocket, { where: { id: pData.id } })
+      await vUser?.update(vUpdateUserSocket)
       return vUser
     }
     return null

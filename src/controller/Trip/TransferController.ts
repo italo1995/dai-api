@@ -10,49 +10,45 @@ class TransferController {
     try {
       const auth = _pReq.auth
       // const rutaYAML = path.resolve(__dirname, './documentation/*.yaml')
-      const image: any = fs.readFileSync(path.resolve(__dirname,'../../../uploads/resources/marcador-de-posicion.png'))
+      const image: any = fs.readFileSync(path.resolve(__dirname,'../../../uploads/resources/ubicacion_inicio.png'))
       let avatar: any = fs.readFileSync(path.resolve(__dirname, '../../../uploads/resources/logo.png'))
       if (auth?.avatar) {
         avatar = fs.readFileSync(path.resolve(__dirname,`../../../uploads/${auth?.avatar}`))
         const extname = path.extname(path.resolve(__dirname, `../../../uploads/${auth?.avatar}`))
         const avatarName = path.basename(path.resolve(__dirname, `../../../uploads/${auth?.avatar}`), extname)
-        if (fs.existsSync(path.resolve(__dirname,`../../../uploads/user/${avatarName}-user.png`))) {
-          return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user.png` }, 'Correcto'))
+        if (fs.existsSync(path.resolve(__dirname,`../../../uploads/user/${avatarName}-user_u.png`))) {
+          return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
         }
         const base64Image: any = Buffer.from(image).toString('base64')
         const dataURI = 'data:image/jpeg;base64,' + base64Image
         const base64ImageAvatar: any = Buffer.from(avatar).toString('base64')
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
-          output: path.resolve(__dirname,`../../../uploads/user/${avatarName}-user.png`),
-          html: '<html><body style="width: 50px;height: 50px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 50px;height: 50px;"/><img src="{{{dataURIAvatar}}}" style="width: 20px;height: 20px;position: absolute;top: 17%;left: 30%;border-radius: 50%;"></img></div></body></html>',
+          output: path.resolve(__dirname,`../../../uploads/user/${avatarName}-user_u.png`),
+          html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
           content: { imageSource: dataURI, dataURIAvatar },
           transparent: true,
           puppeteerArgs: { args: ['--no-sandbox'] }
         })
-        // pRes.writeHead(200, { 'Content-Type': 'image/png' })
-        // return pRes.end(generatedMarket, 'base64')
-        return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user.png` }, 'Correcto'))
+        return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
       } else {
-        if (fs.existsSync(path.resolve(__dirname,'../../../uploads/user/marker.png'))) {
-          console.log('Existe el user/marker.png')
-          return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker.png' }, 'Correcto'))
+        if (fs.existsSync(path.resolve(__dirname,'../../../uploads/user/marker_u.png'))) {
+          console.log('Existe el user/marker_u.png')
+          return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker_u.png' }, 'Correcto'))
         }
-        console.log('no existe el user/marker.png')
+        console.log('no existe el user/marker_u.png')
         const base64Image: any = Buffer.from(image).toString('base64')
         const dataURI = 'data:image/jpeg;base64,' + base64Image
         const base64ImageAvatar: any = Buffer.from(avatar).toString('base64')
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
-          output: path.resolve(__dirname,'../../../uploads/user/marker.png'),
-          html: '<html><body style="width: 50px;height: 50px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 50px;height: 50px;"/><img src="{{{dataURIAvatar}}}" style="width: 20px;height: 20px;position: absolute;top: 17%;left: 30%;border-radius: 50%;"></img></div></body></html>',
+          output: path.resolve(__dirname,'../../../uploads/user/marker_u.png'),
+          html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
           content: { imageSource: dataURI, dataURIAvatar },
           transparent: true,
           puppeteerArgs: { args: ['--no-sandbox'] }
         })
-        // pRes.writeHead(200, { 'Content-Type': 'image/png' })
-        // return pRes.end(generatedMarket, 'binary')
-        return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker.png' }, 'Correcto'))
+        return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker_u.png' }, 'Correcto'))
       }
     } catch (error) {
       pNext(error)
@@ -72,11 +68,13 @@ class TransferController {
         if (vTrip) {
           const vClientId = vTrip.dataValues.userId
           const vClient = await ClassAuthService.show(vClientId)
-          const avatarName = vClient?.dataValues.avatar
-          if (fs.existsSync(`./uploads/user/${avatarName}-user.png`)) {
-            return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user.png` }, 'Correcto'))
+          const avatar = vClient?.dataValues.avatar
+          const extname = path.extname(path.resolve(__dirname, `../../../uploads/${avatar}`))
+          const avatarName = path.basename(path.resolve(__dirname, `../../../uploads/${avatar}`), extname)
+          if (fs.existsSync(path.resolve(__dirname,`../../../uploads/user/${avatarName}-user_u.png`))) {
+            return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
           } else {
-            return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker.png' }, 'Correcto'))
+            return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker_u.png' }, 'Correcto'))
           }
         } else {
           return pRes.status(400).send(fxErrorResponse(400, null, 'Trip no existe'))

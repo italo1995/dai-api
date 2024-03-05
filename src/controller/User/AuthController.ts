@@ -65,18 +65,10 @@ class AuthController {
         vData.phoneNumber,
         vData.phoneCode
       )
+
       const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
       const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
-      // let vCode: string | null 
-      // try {
-      //   vCode  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
-      //   if (!vCode) {
-      //     console.log('vCode :>> ', vCode)
-      //     return pRes.status(200).send(fxErrorResponse(500, null, 'Ocurrio un error'))
-      //   }
-      // } catch (error) {
-      //   return pRes.status(200).send(fxErrorResponse(500, error, 'Ocurrio un error'))
-      // }
+
       console.log('vCode :>> ', vCode)
       let vUser: IUserInstance
       if (!vPhoneNumberExist) {

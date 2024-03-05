@@ -35,9 +35,14 @@ class NotificationService {
             data: data?.data || '',
             click_action: 'FCM_PLUGIN_ACTIVITY'
           },
+          android: {
+            notification: {
+              sound: 'default', // O especifica el nombre de un archivo de sonido personalizado
+            },
+          },
         }
-        const response = await this.messaging.send(notification)
-        console.log('Notificación enviada con éxito:', response)
+
+        await this.messaging.send(notification)
       }
     } catch (error) {
       console.error('Error al enviar la notificación:', error)
