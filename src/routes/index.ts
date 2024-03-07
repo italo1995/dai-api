@@ -23,6 +23,7 @@ import CompanyParameter from './web/CompanyParameterRoute'
 import Admin from './Admin/AdminRoute'
 import CancellationOption from './trip/CancellationOptionRoute'
 import TripCancellationOption from './trip/TripCancellationOptionRoute'
+import TermRoute from './web/TermRoute'
 
 const router = express.Router()
 
@@ -50,5 +51,6 @@ router.use('/companyParameter', CompanyParameter)
 router.use('/admin', Admin)
 router.use('/cancellationOption', CancellationOption)
 router.use('/tripCancellationOption', TripCancellationOption)
+router.use('/term', TermRoute)
 
 export default router

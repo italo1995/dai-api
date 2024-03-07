@@ -28,7 +28,6 @@ export class SocketService {
   // Creamos un método estático initSocket que recibe el servidor http y crea el objeto io
   static initSocket(httpServer: any) {
     // Creamos el objeto io con las opciones de cors
-    console.log('se inicia el socket initSocket')
     this.io = new webSocketServer(httpServer, {
       cors: {
         origin: '*',
@@ -61,7 +60,6 @@ export class SocketService {
     let auth = socket?.handshake?.auth || false
     let user: any
     const socketId = socket.id
-    console.log('socketId :>> ', socketId)
     if (socket.id && !auth) {
       auth = await SocketService.verifyTokenUser(false, socket.id)
     }
@@ -97,10 +95,8 @@ export class SocketService {
     //     userSocketMap[userId] = newSocketId;
     //   });
     // });
-    // console.log('event :>> ', socket.event)
 
     socket.on('disconnect', async (_reason: any) => {
-      console.log('disconnect')
       try {
         const vUser = {
           id: auth?.id || user?.id,
@@ -132,7 +128,6 @@ export class SocketService {
             id: auth?.id || user?.id || data.userId,
             socketId: socketId
           }
-          console.log('vUser reConnection :>> ', vUser)
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
           }
@@ -145,7 +140,7 @@ export class SocketService {
       } catch (error) {
         const req: IDataError = {
           body: data,
-          url: socket.event,
+          url: 'reConnection',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -154,7 +149,6 @@ export class SocketService {
     })
 
     socket.on('changeState', async (pStateDriver: EStatusDriver) => {
-      console.log('changeStates', pStateDriver)
       try {
         const vUser = {
           id: auth?.id || user?.id,
@@ -165,10 +159,9 @@ export class SocketService {
           await ClassAuthService.updateSocket(vUser)
         }
       } catch (error) {
-        console.log('error en chageState', error)
         const req: IDataError = {
           body: { data: pStateDriver },
-          url: socket.event,
+          url: 'changeState',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -177,7 +170,6 @@ export class SocketService {
     })
 
     socket.on('coords', async (coords: any) => {
-      console.log('coords')
       try {
         const vUser = {
           id: auth?.id || user?.id,
@@ -185,8 +177,6 @@ export class SocketService {
           lon: coords?.lng || null,
           socketId: coords?.socketId || socketId
         }
-        console.log('coords :>> ', coords)
-        console.log('vUser coords :>> ', vUser)
         if (coords?.tripId) {
           const vParamShowTrip: IParamShowTrip = {
             id: coords.tripId,
@@ -226,10 +216,9 @@ export class SocketService {
           }
         }
       } catch (error) {
-        console.log('error en coords', error)
         const req: IDataError = {
           body: coords,
-          url: socket.event,
+          url: 'coords',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -272,7 +261,6 @@ export class SocketService {
         await ClassTripOffertService.update(vUpdateTripOffert)
         const vTripUpdate = await ClassTripService.update(vUpdateTrip)
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
-        console.log('socketId del driver :>> ', vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId)
         try {
           socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit('acceptTripOffer', vTripUpdate, withTimeout(
             () => {
@@ -284,9 +272,8 @@ export class SocketService {
             1000
           ))
         } catch (error) {
-          console.log('error en acceptTripOffer :>> ', error)
+          throw error
         }
-        // console.log('se envio el evento :>> ', vTripUpdate)
         const initRoute = await TripRouteService.showByTripId({
           tripId: vTripId
         })
@@ -304,7 +291,6 @@ export class SocketService {
           distance: vDistance?.distanceToSearch || 30,
           typeService: vTrip?.dataValues.typeService
         }
-        console.log('vParamNearbyDrivers :>> ', vParamNearbyDrivers)
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
           const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
@@ -312,12 +298,10 @@ export class SocketService {
             SocketService.io.to(socketIds).emit('cancelTrip', vTrip)
           }
         }
-        console.log('aca termino acceptTripOffer')
       } catch (error) {
-        console.log('error en acceptTripOffer', error)
         const req: IDataError = {
           body: data,
-          url: socket.event,
+          url: 'acceptTripOffer',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -354,10 +338,9 @@ export class SocketService {
           }
         }
       } catch (error) {
-        console.log('error en driverInPlace', error)
         const req: IDataError = {
           body: data,
-          url: socket.event,
+          url: 'driverInPlace',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -386,10 +369,9 @@ export class SocketService {
           }
         }
       } catch (error) {
-        console.log('error en dirverIsNear', error)
         const req: IDataError = {
           body: data,
-          url: socket.event,
+          url: 'driverIsNear',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -433,10 +415,9 @@ export class SocketService {
           }
         }
       } catch (error) {
-        console.log('error en compledService', error)
         const req: IDataError = {
           body: data,
-          url: socket.event,
+          url: 'completedService',
           headers: socket.headers,
           userId: auth?.id || user?.id
         }
@@ -458,33 +439,6 @@ export class SocketService {
     //   this.io.to(room).emit('left', room)
     // })
   }
-  // static async errorCreatedReporting(dataError: IDataError, error: any) {
-  //   if (error instanceof DatabaseError) {
-  //     console.log('El error es de tipo SequelizeDatabaseError')
-  //     console.log('error.parent :>>', error.parent)
-  //     console.log('error.original :>>', error.original)
-  //     console.log('error.sql :>>', error.sql)
-  //     console.log('error.parameters :>>', error.parameters)
-  //   } 
-  //   const body = dataError.body
-  //   const headers = dataError.headers
-  //   const newErrorReporting = {
-  //     type: 'middelware',
-  //     data: JSON.stringify({
-  //       request: {
-  //         url: dataError.url,
-  //         headers: headers,
-  //         body: body,
-  //       },
-  //       userId: dataError, // Asume que el usuario está en req.user
-  //     }),
-  //     error: JSON.stringify({
-  //       message: error?.message,
-  //       stack: error?.stack,
-  //     }),
-  //   }
-  //   await modelErrorReporting.create(newErrorReporting)
-  // }
   static async verifyTokenUser(token: string | false = false, socketId: string | false = false) {
     try {
       if (token) {

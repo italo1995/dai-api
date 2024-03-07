@@ -33,10 +33,8 @@ class TransferController {
         return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
       } else {
         if (fs.existsSync(path.resolve(__dirname,'../../../uploads/user/marker_u.png'))) {
-          console.log('Existe el user/marker_u.png')
           return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker_u.png' }, 'Correcto'))
         }
-        console.log('no existe el user/marker_u.png')
         const base64Image: any = Buffer.from(image).toString('base64')
         const dataURI = 'data:image/jpeg;base64,' + base64Image
         const base64ImageAvatar: any = Buffer.from(avatar).toString('base64')

@@ -137,7 +137,7 @@ class UserRatingService implements IUserRatingService {
       return userRating
     } catch (error) {
       console.error(error)
-      throw new Error('Error al actualizar la calificación del usuario')
+      throw error
     }
   }
   async create(pData: IUserRatingInput): Promise<IUserRatingInstance> {

@@ -343,7 +343,6 @@ class TripController {
           data: JSON.stringify(vTripOne)
         }
         if (tokenPushs.length) {
-          console.log(tokenPushs, notificationData)
           await NotificationService.sendNotification(tokenPushs, notificationData)
         }
       }
@@ -437,7 +436,6 @@ class TripController {
             id: vResponse.dataValues.driverId,
             statusDriver: EStatusDriver.ACTIVE
           }
-          console.log('Trip cancel')
           await ClassAuthService.updateSocket(updateDriver)
         }
         const vParamToRange = {
@@ -447,9 +445,7 @@ class TripController {
           isCar: vResponse?.dataValues.typeService === ETypeService.CAR || vResponse?.dataValues.typeService === ETypeService.TRAVEL,
           isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO || vResponse?.dataValues.typeService === ETypeService.DELIVERY,
         }
-        console.log('vParamToRange :>> ', vParamToRange)
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
-        console.log('vDistance :>> ', vDistance)
         const vParamNearbyDrivers = {
           lat: initRoute?.dataValues.lat,
           lon: initRoute?.dataValues.lon,
@@ -487,22 +483,17 @@ class TripController {
           isCar: vResponse?.dataValues.typeService === ETypeService.CAR || vResponse?.dataValues.typeService === ETypeService.TRAVEL,
           isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO || vResponse?.dataValues.typeService === ETypeService.DELIVERY,
         }
-        console.log('vParamToRange :>> ', vParamToRange)
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
-        console.log('vDistance :>> ', vDistance)
         const vParamNearbyDrivers = {
           lat: initRoute?.dataValues.lat,
           lon: initRoute?.dataValues.lon,
           distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService
         }
-        console.log('vParamNearbyDrivers :>> ', vParamNearbyDrivers)
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
-          console.log('vParamNearbyDrivers update :>> ', vParamNearbyDrivers)
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
           const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
           const tokenPushs: any[]  = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
-          console.log('socketIds :>> ', socketIds)
           if (socketIds.length) {
             await SocketService.io.to(socketIds).emit('cancelTrip', vResponse)
           }
@@ -521,7 +512,6 @@ class TripController {
               data: JSON.stringify(vTripOne)
             }
             if (tokenPushs.length) {
-              console.log(tokenPushs, notificationData)
               await NotificationService.sendNotification(tokenPushs, notificationData)
             }
           }

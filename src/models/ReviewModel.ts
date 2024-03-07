@@ -10,9 +10,14 @@ export interface IReviewAttributes {
   comment: string
   features?: boolean
   tripId?: number
+  type?: ETypeReview
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
+}
+export enum ETypeReview {
+  'DRIVER' = 2,
+  'PASSENGER' = 1
 }
 interface IReviewCreationAttributes extends Optional<IReviewAttributes, 'id'> {}
 
@@ -63,6 +68,12 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     field: 'trip_id',
     defaultValue: null,
     allowNull: true,
+  },
+  type: {
+    type: DataTypes.INTEGER,
+    field: 'type',
+    allowNull: true,
+    defaultValue: 1,
   },
   createdAt: {
     type: DataTypes.DATE,

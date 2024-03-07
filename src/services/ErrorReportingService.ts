@@ -16,14 +16,14 @@ class ErrorReportingService {
     const body = dataError.body
     const headers = dataError.headers
     const newErrorReporting = {
-      type: 'middelware',
+      type: dataError?.url || 'socket',
       data: JSON.stringify({
         request: {
           url: dataError.url,
           headers: headers,
           body: body,
         },
-        userId: dataError, // Asume que el usuario está en req.user
+        userId: dataError.userId,
       }),
       error: JSON.stringify({
         message: error?.message,

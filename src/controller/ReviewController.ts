@@ -23,7 +23,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassReviewService from '../services/ReviewService'
 import type { IReviewInput, IResponseAllReview } from '../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../utils/helpers'
-import type { IReviewInstance } from '../models/ReviewModel'
+import { ETypeReview, type IReviewInstance } from '../models/ReviewModel'
 import ClassUserRatingService from '../services/User/UserRatingService'
 import ClassTripService from '../services/Trip/TripService'
 import type { IParamShowTrip } from '../types/TripType'
@@ -93,12 +93,14 @@ class ReviewController {
       vData.driverId = trip.dataValues?.driverId || ''
       let type, userId
 
-      if (vData.clientId) {
+      if (vParamTrip.isClient) {
         type = 'client'
         userId = vData.clientId
-      } else if (vData.driverId) {
+        vData.type = ETypeReview.PASSENGER
+      } else if (vParamTrip.isDriver) {
         type = 'driver'
         userId = vData.driverId
+        vData.type = ETypeReview.DRIVER
       } else {
         return pRes
           .status(400)

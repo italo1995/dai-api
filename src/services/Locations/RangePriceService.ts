@@ -150,7 +150,6 @@ class RangePriceService implements IRangePriceService {
       }
       const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
       const vShowPriceJSON = JSON.parse(JSON.stringify(vFindAll))
-      console.log('vShowPriceJSON :>> ', vShowPriceJSON)
       let vResponse: IRangePriceInstance | null = null
       vResponse = vShowPriceJSON.find((item: any) => item?.cityId === cityId) || vShowPriceJSON.find((item: any) => item?.regionId === regionId) || vShowPriceJSON.find((item: any) => item?.countryId === countryId)
       return vResponse

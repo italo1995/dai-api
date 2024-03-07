@@ -32,6 +32,7 @@ import { fxCancellationOptionFactory } from './Trip/CancellationOptionModel'
 import { fxTripCancellationOptionFactory } from './Trip/TripCancellationOptionModel'
 import { fxRegionFactory } from './Locations/Region'
 import { fxCityFactory } from './Locations/City'
+import { fxTermFactory } from './web/TermModel'
 
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
@@ -71,6 +72,7 @@ export const modelCancellationOption = fxCancellationOptionFactory(sequelize)
 export const modelTripCancellationOption = fxTripCancellationOptionFactory(sequelize)
 export const modelRegion = fxRegionFactory(sequelize)
 export const modelCity = fxCityFactory(sequelize)
+export const modelTerm = fxTermFactory(sequelize)
 
 const models = {
   modelUser,
@@ -101,7 +103,8 @@ const models = {
   modelCancellationOption,
   modelTripCancellationOption,
   modelRegion,
-  modelCity
+  modelCity,
+  modelTerm
 }
 
 export type ModelRegistry = typeof models

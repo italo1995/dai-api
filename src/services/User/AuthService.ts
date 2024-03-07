@@ -23,7 +23,7 @@
 import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'
 import { type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
-import { modelDriverDetail, modelUser, modelUserCode } from '../../models'
+import { modelDriverDetail, modelUser, modelUserCode, modelUserRating } from '../../models'
 import { Op } from 'sequelize'
 // import { Op } from 'sequelize'
 
@@ -46,11 +46,31 @@ class AuthService implements IAuthService {
         where: {
           id: pId,
         },
-        include: {
-          model: modelDriverDetail,
-          as: 'detail',
-          required: false
-        }
+        include: [
+          {
+            model: modelDriverDetail,
+            as: 'detail',
+            required: false
+          },
+          {
+            model: modelUserRating,
+            as: 'clientRating',
+            required: false,
+            attributes: ['quantity', 'ratings'],
+            where: {
+              type: 'clientId'
+            }
+          },
+          {
+            model: modelUserRating,
+            as: 'driverRating',
+            required: false,
+            attributes: ['quantity', 'ratings'],
+            where: {
+              type: 'driverId'
+            }
+          }
+        ]
       })
       return vResponse
     } catch (error) {
@@ -81,6 +101,26 @@ class AuthService implements IAuthService {
         phoneNumber: pPhoneNumber,
         phoneCode: pPhoneCode,
       },
+      include: [
+        {
+          model: modelUserRating,
+          as: 'clientRating',
+          required: false,
+          attributes: ['quantity', 'ratings'],
+          where: {
+            type: 'clientId'
+          }
+        },
+        {
+          model: modelUserRating,
+          as: 'driverRating',
+          required: false,
+          attributes: ['quantity', 'ratings'],
+          where: {
+            type: 'driverId'
+          }
+        }
+      ]
     })
     return vResponse
   }

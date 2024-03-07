@@ -66,7 +66,6 @@ class TripOffertController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserAuth = pReq.auth
-      console.log('vUserAuth :>> ', vUserAuth)
       const vData: ITripOffertInput = pReq.only([
         'tripId',
         'clientId',
@@ -93,7 +92,6 @@ class TripOffertController {
       }
       vData.clientId = trip.dataValues?.userId
       vData.status = ETripOffertStatus.ESPERA
-      console.log('vData tripOffert/create:>> ', vData)
       const vResponse: ITripOffertInstance | null = await ClassTripOffertService.create(vData)
       if (!vResponse) {
         return pRes
@@ -119,9 +117,7 @@ class TripOffertController {
         isClient: true,
         id: vData.clientId
       }
-      console.log('vClientParam :>> ', vClientParam)
       const vClientSocketId = await ClassUserService.show(vClientParam)
-      console.log('vClientSocketId?.dataValues?.socketId :>> ', vClientSocketId?.dataValues?.socketId)
       if (vClientSocketId?.dataValues?.socketId) {
         try {
           await SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffer', vDataNewTripOffert, withTimeout(
@@ -134,9 +130,8 @@ class TripOffertController {
             1000
           ))
         } catch (error) {
-          console.log('error newTripOffer:>> ', error)
+          throw error
         }
-        console.log('newTripOffer')
       }
       if (vClientSocketId?.dataValues?.tokenPush && vDataNewTripOffert) {
         const tokenPush = vClientSocketId?.dataValues?.tokenPush

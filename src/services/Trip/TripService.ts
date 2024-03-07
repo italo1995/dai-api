@@ -17,7 +17,7 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelTripTravel, modelUser, modelVehicleAdditional } from '../../models'
+import sequelize, { modelCurrency, modelPaymentMethod, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelTripTravel, modelUser, modelUserRating, modelVehicleAdditional } from '../../models'
 import { EStatusTrip, ETypeService, type ITripInstance } from '../../models/Trip/TripModel'
 import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip, ITripUpdate } from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
@@ -95,7 +95,6 @@ class TripService implements ITripService {
       WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)}
       GROUP BY trip_id
       ORDER BY trip_id;`
-      console.log('query NearbyTrips :>> ', query)
       const vTripRoute: any[] = await sequelize.query(query, {
         mapToModel: true,
         model: modelTripRoute,
@@ -150,6 +149,26 @@ class TripService implements ITripService {
             model: modelUser,
             as: 'user',
             required: false,
+            include: [
+              {
+                model: modelUserRating,
+                as: 'clientRating',
+                required: false,
+                attributes: ['quantity', 'ratings'],
+                where: {
+                  type: 'clientId'
+                }
+              },
+              {
+                model: modelUserRating,
+                as: 'driverRating',
+                required: false,
+                attributes: ['quantity', 'ratings'],
+                where: {
+                  type: 'driverId'
+                }
+              }
+            ]
           },
           {
             model: modelTripSpecialRequest,
@@ -181,7 +200,6 @@ class TripService implements ITripService {
           }
         }
       }
-      console.log('whereStatement NearbyTrips:>> ', JSON.stringify(whereStatement))
       const vTrip: any[] = await modelTrip.findAll(whereStatement)
       const vTripJson: any[] = JSON.parse(JSON.stringify(vTrip))
       const vResponse = vTripJson.map((trip) => {
@@ -257,6 +275,26 @@ class TripService implements ITripService {
           model: modelUser,
           as: 'user',
           required: false,
+          include: [
+            {
+              model: modelUserRating,
+              as: 'clientRating',
+              required: false,
+              attributes: ['quantity', 'ratings'],
+              where: {
+                type: 'clientId'
+              }
+            },
+            {
+              model: modelUserRating,
+              as: 'driverRating',
+              required: false,
+              attributes: ['quantity', 'ratings'],
+              where: {
+                type: 'driverId'
+              }
+            }
+          ]
         },
         {
           model: modelTripSpecialRequest,
@@ -430,12 +468,6 @@ class TripService implements ITripService {
         if (!pData?.price) {
           pData.price = vItem?.price || 0
         }
-        // if (vItem?.dataValues.status === EStatusTrip.CANCELADO && pData.status === EStatusTrip.PENDIENTE) {
-
-        // } else {
-          
-        // }
-        console.log('pData :>> ', pData)
         await vItem?.update(pData)
         return vItem
       }

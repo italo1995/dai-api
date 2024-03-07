@@ -1,6 +1,6 @@
 import { type FindOptions } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
-import sequelize, { modelDriverDetail, modelUser } from '../../models'
+import sequelize, { modelDriverDetail, modelUser, modelUserRating } from '../../models'
 import { ETypeService } from '../../models/Trip/TripModel'
 
 interface IUserService {
@@ -22,13 +22,11 @@ class UserService implements IUserService {
     try {
       let query = `SELECT temp.*, vehicle_types.is_car, vehicle_types.is_moto FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, availability_to_travel, vehicle_type, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users) as temp left join vehicle_types on temp.vehicle_type = vehicle_types.id WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2' AND socket_id is not null`
       if (pParam.typeService === ETypeService.CAR) {
-        console.log('debo filtrar por carro')
         query = query + ' AND vehicle_types.is_car = true and vehicle_types.is_moto = false'
       }
       if (pParam.typeService === ETypeService.MOTO) {
         query = query + ' AND vehicle_types.is_car = false and vehicle_types.is_moto = true'
       }
-      console.log('query NearbyDrivers :>> ', query)
       const vResponse = await sequelize.query(query, {
         mapToModel: true,
         model: modelUser,
@@ -52,7 +50,28 @@ class UserService implements IUserService {
             model: modelDriverDetail,
             as: 'detail',
             required: false
+          },
+          {
+            model: modelUserRating,
+            as: 'driverRating',
+            required: false,
+            attributes: ['quantity', 'ratings'],
+            where: {
+              type: 'driverId'
+            }
           }
+        ]
+      } else {
+        whereStatement.include = [
+          {
+            model: modelUserRating,
+            as: 'clientRating',
+            required: false,
+            attributes: ['quantity', 'ratings'],
+            where: {
+              type: 'clientId'
+            }
+          },
         ]
       }
 

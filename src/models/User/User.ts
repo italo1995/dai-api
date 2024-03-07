@@ -254,7 +254,7 @@ export function fxUserFactory(sequelize: Sequelize) {
   })
 
   vUser.associate = function (models: ModelRegistry) {
-    const { modelUser, modelDriverDetail, modelTrip  } = models
+    const { modelUser, modelDriverDetail, modelTrip, modelUserRating } = models
     modelUser.hasMany(modelDriverDetail, {
       foreignKey: 'user_id',
       as: 'detail',
@@ -262,6 +262,14 @@ export function fxUserFactory(sequelize: Sequelize) {
     modelUser.hasMany(modelTrip, {
       foreignKey: 'user_id',
       as: 'trip',
+    })
+    modelUser.hasOne(modelUserRating, {
+      foreignKey: 'user_id',
+      as: 'clientRating',
+    })
+    modelUser.hasOne(modelUserRating, {
+      foreignKey: 'user_id',
+      as: 'driverRating',
     })
   }
 

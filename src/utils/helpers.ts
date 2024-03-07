@@ -50,9 +50,14 @@ export const moveImages = async (pName: string): Promise<string> => {
     const vNameImages: string = pName.replace('temp', 'storage')
     fs.renameSync(`uploads/${pName}`, `uploads/${vNameImages}`,)
     const options: any = { width: 200, responseType: 'buffer' }
-    const thumbnail = await imageThumbnail(`uploads/${vNameImages}`, options)
-    const vThumbnailNameImages: string = pName.replace('temp', 'thumb')
-    fs.writeFileSync(`uploads/${vThumbnailNameImages}`, thumbnail)
+    try {
+      const thumbnail = await imageThumbnail(`uploads/${vNameImages}`, options)
+      const vThumbnailNameImages: string = pName.replace('temp', 'thumb')
+      fs.writeFileSync(`uploads/${vThumbnailNameImages}`, thumbnail)
+    } catch (error) {
+      console.log('error :>> ', error)
+      return vNameImages
+    }
     return vNameImages
   } else {
     const vNameImages: string = pName.replace('temp', 'storage')

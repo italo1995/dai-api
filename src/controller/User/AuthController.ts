@@ -69,7 +69,6 @@ class AuthController {
       const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
       const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
 
-      console.log('vCode :>> ', vCode)
       let vUser: IUserInstance
       if (!vPhoneNumberExist) {
         vData.balance = 0
@@ -107,14 +106,13 @@ class AuthController {
           return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
         }
         if (socketId) {
-          console.log('verifiedUserCode :>> ')
           await ClassAuthService.updateSocket({
             id: vUser.id,
             socketId: socketId
           })
         }
         const vResponse = {
-          user: vUser.dataValues,
+          user: JSON.parse(JSON.stringify(vUser)),
           token: fxGenerateAccessToken(vUser.dataValues),
         }
         await ClassAuthService.deleteUserNumber(vPhoneNumber)
@@ -130,6 +128,7 @@ class AuthController {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserId: string = pReq.auth.id
+      console.log('update :>> ')
       if (vUserId) {
         const vData: IUserInputUpdate = pReq.only([
           'avatar',
@@ -152,7 +151,6 @@ class AuthController {
           const vRouteAvatarImages = await moveImages(vData.avatar)
           vData.avatar = vRouteAvatarImages
         }
-        const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (vDetail) {
           const driverDetail: IDriverDetailInput[] = []
           for (const detail of vDetail) {
@@ -163,6 +161,9 @@ class AuthController {
                 type: field.type,
                 userId: vUserId,
                 value: ''
+              }
+              if (field.fieldName === 'vehicleType') {
+                vData.vehicleType = Number(field.value)
               }
               if (element.type === 'image') {
                 const vRouteAvatarImages = await moveImages(field.value)
@@ -175,6 +176,9 @@ class AuthController {
           }
           ClassDriverDetailService.createMany(driverDetail, vUserId)
         }
+        console.log('vData :>> ', vData)
+
+        const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (!vUserDB) {
           return pRes
             .status(500)
@@ -186,13 +190,11 @@ class AuthController {
         }
         return pRes.status(200).send(fxSuccessResponse(200, { user: vReponseUser }, 'Codigo verificado'))
       } else {
-        console.log('estoy pasando por aca')
         return pRes
           .status(500)
           .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
     } catch (error) {
-      console.log('estoy en error en next')
       pNext(error)
     }
   }

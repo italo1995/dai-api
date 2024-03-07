@@ -1,8 +1,9 @@
 import type { IBannerInstance } from '../models/web/BannerModel'
 import type { IServiceInstance } from '../models/web/ServiceModel'
-import type { IReviewInstance } from '../models/ReviewModel'
+import type { ETypeReview, IReviewInstance } from '../models/ReviewModel'
 import type { INewInstance } from '../models/web/NewsModel'
 import type { IResponseAll } from './generalType'
+import type { ITermInstance } from '../models/web/TermModel'
 
 export interface INewInput {
   id: string
@@ -37,6 +38,7 @@ export interface IReviewInput {
   icon?: string
   features?: boolean
   tripId?: number
+  type?: ETypeReview
   createdAt?: Date
   updatedAt?: Date
 }
@@ -66,5 +68,20 @@ export interface IResponseAllNew extends IResponseAll {
   total: number
   totalPage: number
   data: INewInstance[]
+  actualPage: number
+}
+export interface ITermInput {
+  id: string
+  name: string
+  description: string
+  orden?: number
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+export interface IResponseAllTerm extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ITermInstance[]
   actualPage: number
 }

@@ -32,7 +32,7 @@ class NotificationService {
             body: data.body,
           },
           data: {
-            data: data?.data || '',
+            // data: data?.data || '',
             click_action: 'FCM_PLUGIN_ACTIVITY'
           },
           android: {
