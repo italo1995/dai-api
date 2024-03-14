@@ -100,6 +100,9 @@ class UserTransaction implements IUserTransaction {
         if (pData.transactionType === EtransactionType.deposit) {
           user.balance += pData.amount
         } else if (pData.transactionType === EtransactionType.expense) {
+          if (user.balance < pData.amount) {
+            throw new Error('Saldo insuficiente, por favor recargue')
+          }
           user.balance -= pData.amount
         }
         await user.save()
@@ -134,6 +137,9 @@ class UserTransaction implements IUserTransaction {
             if (pData.transactionType === EtransactionType.deposit) {
               user.balance += pData.amount
             } else { 
+              if (user.balance < pData.amount) {
+                throw new Error('Saldo insuficiente, por favor recargue')
+              }
               user.balance -= pData.amount
             }
             await user.save()
