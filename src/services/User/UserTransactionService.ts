@@ -19,22 +19,16 @@ import {EStatusType, EtransactionType, type IUserTransactionInstance,} from '../
 import { modelUserTransaction, modelUser } from '../../models'
 import type { IUserTransactionInput, IResponseAllUserTransaction } from '../../types/User'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
+import type { IUserInstance } from '../../models/User/User'
 
 interface IUserTransaction {
   validate(data: any): any
   show(pId: number): Promise<IUserTransactionInstance | null>
   all(pParam: any): Promise<IResponseAllUserTransaction | IUserTransactionInstance[]>
-  create(req: AuthRequest, payload: IUserTransactionInput): Promise<IUserTransactionInstance>
-  update(req: AuthRequest, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null>
+  create(auth: IUserInstance, payload: IUserTransactionInput): Promise<IUserTransactionInstance>
+  update(auth: IUserInstance, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
 }
-
-export type AuthRequest = Request & {
-    auth?: {
-        rolId: number
-    }
-    only: (fields: string[]) => Partial<IUserTransactionInput>
-  }
 
 
 class UserTransaction implements IUserTransaction {
@@ -85,17 +79,14 @@ class UserTransaction implements IUserTransaction {
     }
   }
 
-  async create(req: AuthRequest, pData: IUserTransactionInput): Promise<IUserTransactionInstance> {
+  async create(auth: IUserInstance, pData: IUserTransactionInput): Promise<IUserTransactionInstance> {
     try {
-      if (!req.auth) {
-        throw new Error('Auth information is missing')
-      }
       const user = await modelUser.findOne({ where: { id: pData.userId } })
       if ((!user || user.balance === null) || (!user || user.balance === undefined)) {
         throw new Error('User or user balance not found')
       }
       let status = EStatusType.pending
-      if (req.auth.rolId === 1 || req.auth.rolId === 2) {
+      if (auth.rolId === 1 || auth.rolId === 2) {
         status = EStatusType.approved
         if (pData.transactionType === EtransactionType.deposit) {
           user.balance += pData.amount
@@ -117,11 +108,8 @@ class UserTransaction implements IUserTransaction {
     }
   }
 
-  async update(req: AuthRequest, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null> {
+  async update(auth: IUserInstance, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null> {
     try {
-      if (!req.auth) {
-        throw new Error('Auth information is missing')
-      }
       if (pData?.id) {
         const transaction: IUserTransactionInstance | null = await modelUserTransaction.findOne({
           where: {
@@ -133,7 +121,7 @@ class UserTransaction implements IUserTransaction {
           throw new Error('User or user balance not found')
         }
         if (transaction && user) {
-          if (req.auth.rolId === 1 || req.auth.rolId === 2) {
+          if (auth.rolId === 1 || auth.rolId === 2) {
             if (pData.transactionType === EtransactionType.deposit) {
               user.balance += pData.amount
             } else { 

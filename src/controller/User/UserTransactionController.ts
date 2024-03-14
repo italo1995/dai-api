@@ -7,7 +7,7 @@
 - Creation: 13/03/2024  
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassUserTransactionService, { type AuthRequest} from '../../services/User/UserTransactionService'
+import ClassUserTransactionService from '../../services/User/UserTransactionService'
 import type { IUserTransactionInput, IResponseAllUserTransaction } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IUserTransactionInstance } from '../../models/User/UserTransactionModel'
@@ -44,7 +44,7 @@ class UserTransactionController {
     }
   }
 
-  async create(pReq: AuthRequest, pRes: Response, pNext: NextFunction) {
+  async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IUserTransactionInput = pReq.only([
         'userId',
@@ -52,8 +52,8 @@ class UserTransactionController {
         'amount',
         'transactionType',
         'status'
-      ]) as IUserTransactionInput
-      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.create(pReq, vData)
+      ])
+      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.create(pReq?.auth, vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -65,7 +65,7 @@ class UserTransactionController {
     }
   }
 
-  async update(pReq: AuthRequest, pRes: Response, pNext: NextFunction) {
+  async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IUserTransactionInput = pReq.only([
         'id',
@@ -74,8 +74,8 @@ class UserTransactionController {
         'amount',
         'transactionType',
         'status'
-      ]) as IUserTransactionInput
-      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.update(pReq, vData)
+      ])
+      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.update(pReq?.auth, vData)
       if (!vResponse) {
         return pRes
           .status(500)
