@@ -57,7 +57,7 @@ paths:
     get:
       summary: Returns a list of cancellationOption
       tags:
-        - Currency
+        - CancellationOption
       parameters:
         - in: query
           name: name to search

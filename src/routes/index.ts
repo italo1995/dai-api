@@ -53,6 +53,6 @@ router.use('/admin', Admin)
 router.use('/cancellationOption', CancellationOption)
 router.use('/tripCancellationOption', TripCancellationOption)
 router.use('/term', TermRoute)
-router.use('/userTransacion', UserTransactionRoute)
+router.use('/userTransaction', UserTransactionRoute)
 
 export default router
