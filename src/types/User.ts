@@ -1,5 +1,6 @@
 import type { EStatusDriver } from '../models/User/User'
 import type { IUserRatingInstance } from '../models/User/UserRatingModel'
+import type { EtransactionType, EStatusType } from '../models/User/UserTransactionModel'
 export interface IUserInput {
   name: string
   avatar?: string
@@ -95,5 +96,24 @@ export interface IResponseAllUserRating {
   total: number
   totalPage: number
   data: IUserRatingInstance[]
+  actualPage: number
+}
+
+export interface IUserTransactionInput {
+  id: string
+  userId: string
+  operatorId: string
+  amount: number
+  transactionType: EtransactionType
+  status: EStatusType
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IResponseAllUserTransaction {
+  total: number
+  totalPage: number
+  data: IUserTransactionInput[]
   actualPage: number
 }

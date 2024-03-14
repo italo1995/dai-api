@@ -24,6 +24,7 @@ import Admin from './Admin/AdminRoute'
 import CancellationOption from './trip/CancellationOptionRoute'
 import TripCancellationOption from './trip/TripCancellationOptionRoute'
 import TermRoute from './web/TermRoute'
+import UserTransactionRoute from './User/UserTransactionRoute'
 
 const router = express.Router()
 
@@ -52,5 +53,6 @@ router.use('/admin', Admin)
 router.use('/cancellationOption', CancellationOption)
 router.use('/tripCancellationOption', TripCancellationOption)
 router.use('/term', TermRoute)
+router.use('/userTransacion', UserTransactionRoute)
 
 export default router
