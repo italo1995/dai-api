@@ -4,8 +4,10 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 export interface IUserTransactionAtributes {
   id: string
   userId: string
+  operatorId: string
   amount: number
   transactionType: EtransactionType
+  status: EStatusType
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -21,6 +23,12 @@ export enum EtransactionType {
     expense = 2
 }
 
+export enum EStatusType {
+    pending = 1,
+    approved = 2,
+    denied =3
+}
+
 export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtributes> = {
   id: {
     type: DataTypes.UUID,
@@ -32,6 +40,10 @@ export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtr
     type: DataTypes.INTEGER,
     field: 'userId',
   },
+  operatorId: {
+    type: DataTypes.STRING,
+    field: 'operator_id'
+  },
   amount: {
     type: DataTypes.FLOAT,
     field: 'amount'
@@ -39,6 +51,10 @@ export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtr
   transactionType: {
     type: DataTypes.INTEGER,
     field: 'transaction_type'
+  },
+  status: {
+    type: DataTypes.STRING,
+    field: 'status'
   },
   createdAt: {
     type: DataTypes.DATE,

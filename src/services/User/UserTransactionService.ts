@@ -15,8 +15,8 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { IUserTransactionInstance } from '../../models/User/UserTransactionModel'
-import { modelUserTransaction } from '../../models'
+import {EStatusType, EtransactionType, type IUserTransactionInstance,} from '../../models/User/UserTransactionModel'
+import { modelUserTransaction, modelUser } from '../../models'
 import type { IUserTransactionInput, IResponseAllUserTransaction } from '../../types/User'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -24,10 +24,18 @@ interface IUserTransaction {
   validate(data: any): any
   show(pId: number): Promise<IUserTransactionInstance | null>
   all(pParam: any): Promise<IResponseAllUserTransaction | IUserTransactionInstance[]>
-  create(payload: IUserTransactionInput): Promise<IUserTransactionInstance>
-  update(payload: IUserTransactionInput): Promise<IUserTransactionInstance | null>
+  create(req: AuthRequest, payload: IUserTransactionInput): Promise<IUserTransactionInstance>
+  update(req: AuthRequest, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
 }
+
+export type AuthRequest = Request & {
+    auth?: {
+        rolId: number
+    }
+    only: (fields: string[]) => Partial<IUserTransactionInput>
+  }
+
 
 class UserTransaction implements IUserTransaction {
   async validate(data: any) {
@@ -43,10 +51,12 @@ class UserTransaction implements IUserTransaction {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','UserTransaction'
+        pParam?.typeSearch || 'name',
+        'UserTransaction'
       )
 
-      const vResponse: IUserTransactionInstance[] = await modelUserTransaction.findAll(whereStatement)
+      const vResponse: IUserTransactionInstance[] =
+        await modelUserTransaction.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllUserTransaction = await fxReponseServices(
           pParam,
@@ -75,36 +85,76 @@ class UserTransaction implements IUserTransaction {
     }
   }
 
-  async create(pData: IUserTransactionInput): Promise<IUserTransactionInstance> {
+  async create(req: AuthRequest, pData: IUserTransactionInput): Promise<IUserTransactionInstance> {
     try {
-      const vResponse: IUserTransactionInstance = await modelUserTransaction.create(pData)
-      return vResponse
+      if (!req.auth) {
+        throw new Error('Auth information is missing')
+      }
+      const user = await modelUser.findOne({ where: { id: pData.userId } })
+      if ((!user || user.balance === null) || (!user || user.balance === undefined)) {
+        throw new Error('User or user balance not found')
+      }
+      let status = EStatusType.pending
+      if (req.auth.rolId === 1 || req.auth.rolId === 2) {
+        status = EStatusType.approved
+        if (pData.transactionType === EtransactionType.deposit) {
+          user.balance += pData.amount
+        } else if (pData.transactionType === EtransactionType.expense) {
+          user.balance -= pData.amount
+        }
+        await user.save()
+      }
+      const transaction: IUserTransactionInstance = await modelUserTransaction.create({
+        ...pData,
+        status,
+      })
+      return transaction
     } catch (error) {
       throw error
     }
   }
 
-  async update(pData: IUserTransactionInput): Promise<IUserTransactionInstance | null> {
+  async update(req: AuthRequest, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null> {
     try {
+      if (!req.auth) {
+        throw new Error('Auth information is missing')
+      }
       if (pData?.id) {
-        const vCountry: IUserTransactionInstance | null = await modelUserTransaction.findOne({
+        const transaction: IUserTransactionInstance | null = await modelUserTransaction.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, { where: { id: pData.id } })
-        return vCountry
+        const user = await modelUser.findOne({ where: { id: pData.userId } })
+        if ((!user || user.balance === null) || (!user || user.balance === undefined)) {
+          throw new Error('User or user balance not found')
+        }
+        if (transaction && user && (req.auth.rolId === 1 || req.auth.rolId === 2)) {
+          if (pData.transactionType === EtransactionType.deposit) {
+            user.balance += pData.amount
+          } else { 
+            user.balance -= pData.amount
+          }
+          await user.save()
+          transaction.status = EStatusType.approved
+          await transaction.update(pData, { where: { id: pData.id } })
+        }
+        return transaction
       }
       return null
     } catch (error) {
       throw error
     }
   }
+
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelUserTransaction.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelUserTransaction.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

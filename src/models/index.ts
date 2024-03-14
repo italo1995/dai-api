@@ -106,7 +106,7 @@ const models = {
   modelTripCancellationOption,
   modelRegion,
   modelCity,
-  modelTerm
+  modelTerm,
   modelUserTransaction
 }
 

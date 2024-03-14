@@ -14,6 +14,10 @@ module.exports = {
         type: DataTypes.INTEGER,
         field: 'userId',
       },
+      operatorId: {
+        type: DataTypes.STRING,
+        field: 'operator_id'
+      },
       amount: {
         type: DataTypes.FLOAT,
         field: 'amount'
@@ -21,6 +25,10 @@ module.exports = {
       transactionType: {
         type: DataTypes.INTEGER,
         field: 'transaction_type'
+      },
+      status: {
+        type: DataTypes.STRING,
+        field: 'status'
       },
       createdAt: {
         type: DataTypes.DATE,
