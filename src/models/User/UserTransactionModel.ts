@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface IUserTransactionAtributes {
   id: string
@@ -32,9 +33,8 @@ export enum EStatusType {
 export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtributes> = {
   id: {
     type: DataTypes.UUID,
-    field: 'id',
     primaryKey: true,
-    autoIncrement: true,
+    defaultValue: () => uuidv4()
   },
   userId: {
     type: DataTypes.INTEGER,

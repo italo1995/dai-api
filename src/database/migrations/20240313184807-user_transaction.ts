@@ -8,7 +8,6 @@ module.exports = {
         type: DataTypes.UUID,
         field: 'id',
         primaryKey: true,
-        autoIncrement: true,
       },
       userId: {
         type: DataTypes.INTEGER,
