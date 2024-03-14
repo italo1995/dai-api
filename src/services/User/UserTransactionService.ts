@@ -129,14 +129,18 @@ class UserTransaction implements IUserTransaction {
         if ((!user || user.balance === null) || (!user || user.balance === undefined)) {
           throw new Error('User or user balance not found')
         }
-        if (transaction && user && (req.auth.rolId === 1 || req.auth.rolId === 2)) {
-          if (pData.transactionType === EtransactionType.deposit) {
-            user.balance += pData.amount
-          } else { 
-            user.balance -= pData.amount
+        if (transaction && user) {
+          if (req.auth.rolId === 1 || req.auth.rolId === 2) {
+            if (pData.transactionType === EtransactionType.deposit) {
+              user.balance += pData.amount
+            } else { 
+              user.balance -= pData.amount
+            }
+            await user.save()
+            transaction.status = EStatusType.approved
+          } else {
+            transaction.status = EStatusType.pending 
           }
-          await user.save()
-          transaction.status = EStatusType.approved
           await transaction.update(pData, { where: { id: pData.id } })
         }
         return transaction
