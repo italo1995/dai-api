@@ -41,7 +41,7 @@ class TransferController {
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
           output: path.resolve(__dirname,'../../../uploads/user/marker_u.png'),
-          html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
+          html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;background:#fff;"></img></div></body></html>',
           content: { imageSource: dataURI, dataURIAvatar },
           transparent: true,
           puppeteerArgs: { args: ['--no-sandbox'] }

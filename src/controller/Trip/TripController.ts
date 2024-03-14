@@ -293,6 +293,7 @@ class TripController {
         await ClassTripDeliveryService.create(vTripDelivery)
       }
       if (vtripSpecialRequest) {
+        console.log('vtripSpecialRequest :>> ', vtripSpecialRequest)
         vtripSpecialRequest.map((sp: any) => sp.tripId = vTripReponse.dataValues.id)
         await ClassTripService.createSpecialRequest(vtripSpecialRequest)
       }
