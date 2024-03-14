@@ -9,8 +9,7 @@ class TransferController {
   async marker(_pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const auth = _pReq.auth
-      // const rutaYAML = path.resolve(__dirname, './documentation/*.yaml')
-      const image: any = fs.readFileSync(path.resolve(__dirname,'../../../uploads/resources/ubicacion_inicio.png'))
+      const image: any = fs.readFileSync(path.resolve(__dirname,'../../../uploads/resources/ubicacion_inicio.svg'))
       let avatar: any = fs.readFileSync(path.resolve(__dirname, '../../../uploads/resources/logo.png'))
       if (auth?.avatar) {
         avatar = fs.readFileSync(path.resolve(__dirname,`../../../uploads/${auth?.avatar}`))
@@ -20,7 +19,7 @@ class TransferController {
           return pRes.status(200).send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
         }
         const base64Image: any = Buffer.from(image).toString('base64')
-        const dataURI = 'data:image/jpeg;base64,' + base64Image
+        const dataURI = 'data:image/svg+xml;base64,' + base64Image
         const base64ImageAvatar: any = Buffer.from(avatar).toString('base64')
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
@@ -36,7 +35,7 @@ class TransferController {
           return pRes.status(200).send(fxSuccessResponse(200, { img: 'user/marker_u.png' }, 'Correcto'))
         }
         const base64Image: any = Buffer.from(image).toString('base64')
-        const dataURI = 'data:image/jpeg;base64,' + base64Image
+        const dataURI = 'data:image/svg+xml;base64,' + base64Image
         const base64ImageAvatar: any = Buffer.from(avatar).toString('base64')
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
