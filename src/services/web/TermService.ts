@@ -43,7 +43,7 @@ class TermTerm implements ITermTerm {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','Term'
+        pParam?.typeSearch || 'name', modelTerm.name
       )
 
       const vResponse: ITermInstance[] = await modelTerm.findAll(whereStatement)

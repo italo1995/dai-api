@@ -12,7 +12,7 @@ import type { ITermInput, IResponseAllTerm } from '../../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { ITermInstance } from '../../models/web/TermModel'
 
-class ServiceController {
+class TermController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
@@ -82,6 +82,7 @@ class ServiceController {
       pNext(error)
     }
   }
+
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = pReq.input('id', 'number')
@@ -98,4 +99,4 @@ class ServiceController {
   }
 }
 
-export default new ServiceController()
+export default new TermController()

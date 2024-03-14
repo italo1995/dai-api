@@ -165,6 +165,9 @@ class AuthController {
               if (field.fieldName === 'vehicleType') {
                 vData.vehicleType = Number(field.value)
               }
+              if (field.fieldName === 'travelAvailability' || field.fieldName === 'availabilityToTravel') {
+                vData.availabilityToTravel = field?.value
+              }
               if (element.type === 'image') {
                 const vRouteAvatarImages = await moveImages(field.value)
                 element.value = vRouteAvatarImages
