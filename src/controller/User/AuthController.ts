@@ -144,6 +144,22 @@ class AuthController {
           'seats',
           'tokenPush'
         ])
+        const vPhoneNumber: string = pReq.input('phoneNumber')
+        const vPhoneCode: string = pReq.input('phoneCode')
+        const vCode = pReq.input('code')
+        if (vPhoneNumber && vCode) {
+          const vPhoneNumberCode: string = `${vPhoneCode}${vPhoneNumber}`
+          const vVerifiedCode: boolean = await ClassAuthService.showCode({
+            code: vCode.trim(),
+            phoneNumber: vPhoneNumberCode,
+          })
+          if (vVerifiedCode) {
+            vData.phoneNumber = vPhoneNumber
+            vData.phoneCode = vPhoneCode
+          } else {
+            return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
+          }
+        }
         vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
         vData.id = vUserId
         const vDetail: any = pReq.input('details', 'json')
