@@ -17,7 +17,7 @@
   5 - create: crea datos del usuario
   6 - update: actualiza datos del usuario
   7 - createCode: Guarda los codigos generados en la base de datos
-  8 - showCode: Vrificar el codigo codigo enviado por el usuario es real y fue creado ese dia.
+  8 - showCode: Verifica que el codigo enviado por el usuario es real y fue creado ese dia.
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
 import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'

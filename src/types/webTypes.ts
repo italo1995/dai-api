@@ -4,6 +4,7 @@ import type { ETypeReview, IReviewInstance } from '../models/ReviewModel'
 import type { INewInstance } from '../models/web/NewsModel'
 import type { IResponseAll } from './generalType'
 import type { ITermInstance } from '../models/web/TermModel'
+import type { IHelpInformationInstance } from '../models/web/HelpInformationModel'
 
 export interface INewInput {
   id: string
@@ -83,5 +84,19 @@ export interface IResponseAllTerm extends IResponseAll {
   total: number
   totalPage: number
   data: ITermInstance[]
+  actualPage: number
+}
+
+export interface IHelpInformationInput {
+  id: string
+  name: string
+  description: string
+  orden?: number
+}
+
+export interface IResponseAllHelpInformation extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IHelpInformationInstance[]
   actualPage: number
 }
