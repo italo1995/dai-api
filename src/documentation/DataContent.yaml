@@ -37,7 +37,7 @@ components:
        required: true
        schema:
         type: string
-        description: the Term id
+        description: the DataContent id
 tags:
   - name: DataContent
     description: DataContent endpoint

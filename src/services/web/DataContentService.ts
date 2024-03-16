@@ -46,6 +46,10 @@ class DataContent implements IDataContent {
         pParam?.typeSearch || 'name', modelDataContent.name
       )
 
+      if (pParam?.type) {
+        (whereStatement.where as any)['type'] = pParam.type
+      }
+
       const vResponse: IDataContentInstance[] = await modelDataContent.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllDataContent = await fxReponseServices(

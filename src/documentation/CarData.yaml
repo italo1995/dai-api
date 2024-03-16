@@ -1,0 +1,156 @@
+components:
+ schemas:
+   CarData:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of CarData 
+       name:
+         type: string
+         description: the name of the CarData
+       icon:
+         type: string
+         description: the name of the icon
+       type:
+         type: enum
+         description: the type of data (year = 1, model = 2, color = 3, brand = 4)
+     required:
+       - name
+       - icon
+       - type
+     example:
+       id: 1
+       name: color
+       type: 3
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the CarData id
+tags:
+  - name: CarData
+    description: CarData endpoint
+paths:
+  /api/carData/show:
+    get:
+      summary: Returns a CarData element
+      tags:
+        - CarData
+      parameters:
+        - $ref: '#/components/schemas/CarData/parameters/id'
+      responses:
+        '200':
+          description: the CarData element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarData'
+  /api/carData/all:
+    get:
+      summary: Returns a list of CarData
+      tags:
+        - CarData
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of CarData
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarData'
+  /api/carData/store:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Creates a new CarData
+      tags:
+        - CarData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                 type: string
+                 description: the name of the CarData
+                icon:
+                 type: string
+                 description: the name of the icon
+                type:
+                 type: enum
+                 description: the type of data (year = 1, model = 2, color = 3, brand = 4)
+              required:
+               - name
+               - icon
+               - type
+              example:
+               id: 1
+               name: color
+               icon: /images/icons/color.png
+               type: 3
+      responses:
+        '201':
+          description: the CarData created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarData'
+  /api/carData/update:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Updates a CarData
+      tags:
+        - CarData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                 type: string
+                 description: the name of the CarData
+                icon:
+                 type: string
+                 description: the name of the icon
+                type:
+                 type: enum
+                 description: the type of data (year = 1, model = 2, color = 3, brand = 4)
+              required:
+               - name
+               - icon
+               - type
+              example:
+               id: 1
+               name: color
+               icon: /images/icon/color.png
+               type: 3
+      responses:
+        '201':
+          description: the CarData updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarData'

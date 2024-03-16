@@ -1,5 +1,5 @@
 /* 
-- File: TermTerm.ts
+- File: TermService.ts
 
 - Purpose: El serivicio Terms se encarga de las consultas con los modelos y funcionalidades relacionadas al Terminos
 
@@ -8,7 +8,7 @@
 - Creation: 06/03/2024  
 
 ==========Functions Manifest==========
-- TermsTerm Methods:
+- TermService Methods:
   1 - validate: valida los campos con respecto al modelo, para estar seguro de que son los formatos permitidos y caso contrario devuelve un error de validacion
   2 - show: trae los datos del item segun el id, puede usarse en el perfil o para verificar informacion del item
   3 - create: crea datos del item

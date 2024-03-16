@@ -9,7 +9,7 @@
 
 ==========Functions Manifest==========
 
-- TripService Methods:
+- TripPaymentService Methods:
   1 - validate: valida los campos con respecto al modelo, para estar seguro de que son los formatos permitidos y caso contrario devuelve un error de validacion
   2 - show: trae los datos del item segun el id
   3 - create: crea datos del item
