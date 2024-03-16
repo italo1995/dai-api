@@ -7,6 +7,7 @@ export interface IPaymentMethodAttributes {
   name?: string
   fullName: string
   dni?: string
+  image: string
   tax?: number
   currencyId: number
   numberAccount?: string
@@ -45,6 +46,12 @@ export const vPaymentMethodAttributes: SequelizeAttributes<IPaymentMethodAttribu
     field: 'dni',
     allowNull: true,
     defaultValue: null
+  },
+  image: {
+    type: DataTypes.STRING,
+    field: 'image',
+    allowNull: true,
+    defaultValue: null,
   },
   tax: {
     type: DataTypes.FLOAT,

@@ -21,7 +21,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 
 import type { NextFunction, Request, Response } from 'express'
-import { fxSuccessResponse, fxErrorResponse } from '../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../utils/helpers'
 import type { ITripInput, IResponseAllTrip } from '../types/PaymentMethodType'
 import ClassPaymentMethodService from '../services/PaymentMethodService'
 import type { IPaymentMethodInstance } from '../models/PaymentMethodModel'
@@ -65,13 +65,16 @@ class PaymentMethodController {
         'name',
         'fullName',
         'dni',
+        'image',
         'tax',
         'currencyId',
         'numberAccount',
         'accountType',
         'email'
       ])
-      
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
       const vResponse: IPaymentMethodInstance | null = await ClassPaymentMethodService.create(vData)
       if (!vResponse) {
         return pRes
@@ -91,12 +94,16 @@ class PaymentMethodController {
         'name',
         'fullName',
         'dni',
+        'image',
         'tax',
         'currencyId',
         'numberAccount',
         'accountType',
         'email'
       ])
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
       const vResponse: IPaymentMethodInstance | null = await ClassPaymentMethodService.update(vData)
       if (!vResponse) {
         return pRes

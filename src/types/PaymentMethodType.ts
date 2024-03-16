@@ -6,6 +6,7 @@ export interface ITripInput {
   name?: string
   fullName: string
   dni?: string
+  image: string
   tax?: number
   currencyId: number
   numberAccount?: string

@@ -15,6 +15,9 @@ components:
        dni:
          type: string
          description: the user's dni
+       image:
+         type: string
+         description: the name of the image
        tax:
          type: number
          description: taxes in the payment
