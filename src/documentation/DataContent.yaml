@@ -1,0 +1,175 @@
+components:
+ schemas:
+   DataContent:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of DataContent
+       name:
+         type: string
+         description: the name of the DataContent
+       image:
+         type: string
+         description: the name of the image
+       description: 
+         type: string
+         description: the description of the DataContent
+       orden:
+         type: number
+         description: the order uf DataContent
+       type:
+         type: enum
+         description: the type of data (guide = 1, FAQ = 2, security = 3)
+     required:
+       - name
+       - description
+       - type
+     example:
+       id: 1
+       name: security
+       description: descripcion de seguridad
+       type: 3
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Term id
+tags:
+  - name: DataContent
+    description: DataContent endpoint
+paths:
+  /api/dataContent/show:
+    get:
+      summary: Returns a DataContent element
+      tags:
+        - DataContent
+      parameters:
+        - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: the DataContent element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataContent'
+  /api/dataContent/all:
+    get:
+      summary: Returns a list of DataContent
+      tags:
+        - DataContent
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of DataContent
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataContent'
+  /api/dataContent/store:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Creates a new DataContent
+      tags:
+        - DataContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                 type: string
+                 description: the name of the DataContent
+                image:
+                 type: string
+                 description: the name of the image
+                description: 
+                 type: string
+                 description: the description of the DataContent
+                orden:
+                 type: number
+                 description: the order uf DataContent
+                type:
+                 type: enum
+                 description: the type of data (guide = 1, FAQ = 2, security = 3)
+              required:
+               - name
+               - description
+               - type
+              example:
+               id: 1
+               name: security
+               description: descripcion de seguridad
+               type: 3
+      responses:
+        '201':
+          description: the DataContent created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataContent'
+  /api/dataContent/update:
+    post:
+      security:
+      - BearerAuth: []
+      summary: Updates a DataContent
+      tags:
+        - DataContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                 type: string
+                 description: the name of the DataContent
+                image:
+                 type: string
+                 description: the name of the image
+                description: 
+                 type: string
+                 description: the description of the DataContent
+                orden:
+                 type: number
+                 description: the order uf DataContent
+                type:
+                 type: enum
+                 description: the type of data (guide = 1, FAQ = 2, security = 3)
+              required:
+               - name
+               - description
+               - type
+              example:
+               id: 1
+               name: security
+               description: descripcion de seguridad
+               type: 3
+      responses:
+        '201':
+          description: the DataContent updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataContent'

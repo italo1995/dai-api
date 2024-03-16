@@ -35,6 +35,7 @@ import { fxCityFactory } from './Locations/City'
 import { fxTermFactory } from './web/TermModel'
 import { fxUserTransactionFactory } from './User/UserTransactionModel'
 import { fxHelpInformationFactory } from './web/HelpInformationModel'
+import { fxDataContentFactory } from './web/DataContentModel'
 
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
@@ -77,6 +78,7 @@ export const modelCity = fxCityFactory(sequelize)
 export const modelTerm = fxTermFactory(sequelize)
 export const modelUserTransaction = fxUserTransactionFactory(sequelize)
 export const modelHelpInformation = fxHelpInformationFactory(sequelize)
+export const modelDataContent = fxDataContentFactory(sequelize)
 
 
 const models = {
@@ -111,7 +113,8 @@ const models = {
   modelCity,
   modelTerm,
   modelUserTransaction,
-  modelHelpInformation
+  modelHelpInformation,
+  modelDataContent
 }
 
 export type ModelRegistry = typeof models

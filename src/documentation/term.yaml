@@ -14,7 +14,7 @@ components:
          description: the description of the Term
        orden:
          type: number
-         description: el orden
+         description: the order of the Term
      required:
        - name
        - description

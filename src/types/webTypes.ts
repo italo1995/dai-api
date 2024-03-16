@@ -5,6 +5,7 @@ import type { INewInstance } from '../models/web/NewsModel'
 import type { IResponseAll } from './generalType'
 import type { ITermInstance } from '../models/web/TermModel'
 import type { IHelpInformationInstance } from '../models/web/HelpInformationModel'
+import type { EDataType, IDataContentInstance } from '../models/web/DataContentModel'
 
 export interface INewInput {
   id: string
@@ -98,5 +99,21 @@ export interface IResponseAllHelpInformation extends IResponseAll {
   total: number
   totalPage: number
   data: IHelpInformationInstance[]
+  actualPage: number
+}
+
+export interface IDataContentInput {
+  id: string
+  name: string
+  description: string
+  image?: string
+  orden?: number
+  type: EDataType
+}
+
+export interface IResponseAllDataContent extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IDataContentInstance[]
   actualPage: number
 }
