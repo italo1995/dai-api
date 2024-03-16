@@ -4,7 +4,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 module.exports = {
   async up (queryInterface: QueryInterface) {
     return Promise.all([
-      queryInterface.addColumn('payment_method', 'image', {
+      queryInterface.addColumn('payment_methods', 'image', {
         type: DataTypes.STRING,
         allowNull: true,
         defaultValue: null,
@@ -13,7 +13,7 @@ module.exports = {
   },
   async down (queryInterface: QueryInterface) {
     return Promise.all([
-      queryInterface.removeColumn('payment_method', 'image'),
+      queryInterface.removeColumn('payment_methods', 'image'),
     ])
   },
 }
