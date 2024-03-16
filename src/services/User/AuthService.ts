@@ -21,7 +21,7 @@
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
 import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'
-import { type IUserInstance } from '../../models/User/User'
+import { EStatusDriver, type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode, modelUserRating } from '../../models'
 import { Op } from 'sequelize'
@@ -32,6 +32,8 @@ interface IAuthService {
   create(payload: IUserInput): Promise<IUserInstance>
   update(payload: IUserInputUpdate): Promise<IUserInstance | null>
   updateSocket(payload: IUserUpdateSocket): Promise<IUserInstance | null>
+  disconnect(pId: string): Promise<boolean>
+  delete(pId: string): Promise<boolean>
 }
 
 class AuthService implements IAuthService {
@@ -225,6 +227,53 @@ class AuthService implements IAuthService {
       const vResponse: any = vUser.dataValues
       delete vResponse.password
       return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  async disconnect(pId: string): Promise<boolean> {
+    try {
+      const vUser: IUserInstance | null = await modelUser.findOne({
+        where: {
+          id: pId,
+        }
+      })
+      if (vUser) {
+        await vUser?.update({
+          tokenPush: null,
+          socketId: null,
+          statusDriver: EStatusDriver.INACTIVE
+        }, { where: { id: pId } })
+        return true
+      }
+      return false
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  async delete(pId: string): Promise<boolean> {
+    try {
+      const vUser: IUserInstance | null = await modelUser.findOne({
+        where: {
+          id: pId,
+        }
+      })
+      if (vUser) {
+        await vUser?.update({
+          tokenPush: null,
+          socketId: null,
+          phoneNumber: pId,
+          avatar: null,
+          email: null,
+          name: null,
+          statusDriver: EStatusDriver.INACTIVE,
+          deletedAt: new Date()
+        }, { where: { id: pId } })
+        return true
+      }
+      return false
     } catch (error) {
       throw error
     }

@@ -17,6 +17,10 @@ router.route('/login').post(controller.login)
 
 router.route('/verifiedUserCode').post(controller.verifiedUserCode)
 
+router.route('/disconnect').post(authMiddleware('client'), controller.disconnect)
+
+router.route('/delete').post(authMiddleware('client'), controller.delete)
+
 export default router
 // avatar
 // name

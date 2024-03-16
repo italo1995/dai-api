@@ -29,7 +29,7 @@ class UserTransactionController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
       const vResponse: IResponseAllUserTransaction | IUserTransactionInstance[] = await ClassUserTransactionService.all(vParam)
@@ -86,6 +86,7 @@ class UserTransactionController {
       pNext(error)
     }
   }
+
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = pReq.input('id', 'number')

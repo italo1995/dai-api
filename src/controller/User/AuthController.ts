@@ -54,13 +54,18 @@ class AuthController {
   ): Promise<Response | undefined> {
     try {
       const vData: IUserInput = pReq.only(['phoneCode', 'phoneNumber'])
+      console.log('req?.body :>> ', pReq?.body)
       const vHash: string = pReq.input('hash')
+      const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber' , 'json')
       vData.phoneNumber = vData?.phoneNumber.toString()
       vData.isNewUser = true
       const vPhoneNumberExist: IUserInstance | null = await ClassAuthService.showUserNumber(
         vData.phoneNumber,
         vData.phoneCode
       )
+      if (vUpdatePhoneNumber && vPhoneNumberExist) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'El numero ya existe'))
+      }
       const vCodePhoneNumberExist: string | null = await ClassAuthService.showUserCodeNumber(
         vData.phoneNumber,
         vData.phoneCode
@@ -70,7 +75,14 @@ class AuthController {
       const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
 
       let vUser: IUserInstance
-      if (!vPhoneNumberExist) {
+      console.log('vUpdatePhoneNumber :>> ', vUpdatePhoneNumber)
+      if (vUpdatePhoneNumber) {
+        vUser = pReq.auth
+        console.log('vUser :>> ', JSON.stringify(vUser))
+        if (!vUser) {
+          return pRes.status(500).send(fxErrorResponse(500, null, 'Error en usuario'))
+        }
+      } else if (!vPhoneNumberExist) {
         vData.balance = 0
         vUser = await ClassAuthService.create(vData)
       } else {
@@ -78,7 +90,7 @@ class AuthController {
       }
       const vCreateCode: IUserCodeInput = {
         code: vCode,
-        userId: vUser.dataValues.id,
+        userId: vUser?.dataValues?.id || vUser?.id,
         phoneNumber: `${vData.phoneCode}${vData.phoneNumber}`,
       }
       await ClassAuthService.createCode(vCreateCode)
@@ -128,7 +140,6 @@ class AuthController {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserId: string = pReq.auth.id
-      console.log('update :>> ')
       if (vUserId) {
         const vData: IUserInputUpdate = pReq.only([
           'avatar',
@@ -142,7 +153,9 @@ class AuthController {
           'availabilityToTravel',
           'typeUser',
           'seats',
-          'tokenPush'
+          'tokenPush',
+          'phoneNumber',
+          'phoneCode'
         ])
         const vPhoneNumber: string = pReq.input('phoneNumber')
         const vPhoneCode: string = pReq.input('phoneCode')
@@ -332,6 +345,36 @@ class AuthController {
         user: vUserDB,
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+
+  async disconnect(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+    try {
+      const vUserId: string = pReq.auth.id
+      const vUserDB: boolean = await ClassAuthService.disconnect(vUserId)
+      if (!vUserDB) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, true))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+
+  async delete(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+    try {
+      const vUserId: string = pReq.auth.id
+      const vUserDB: boolean = await ClassAuthService.delete(vUserId)
+      if (!vUserDB) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, true))
     } catch (error: any) {
       pNext(error)
     }

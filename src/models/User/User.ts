@@ -6,9 +6,9 @@ import type { ModelRegistry } from '..'
 
 export interface IUserAttributes {
   id: string
-  avatar?: string
-  name?: string
-  email?: string
+  avatar?: string | null
+  name?: string | null
+  email?: string | null
   password: string
   phoneCode: string
   phoneNumber: string
@@ -25,7 +25,7 @@ export interface IUserAttributes {
   isNewUser?: boolean
   seats?: number
   token?: string
-  tokenPush?: string
+  tokenPush?: string | null
   rolId?: number
   socketId?: string | null
   tokenExpire?: Date
