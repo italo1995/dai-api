@@ -3,7 +3,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface: QueryInterface) {
-    return queryInterface.createTable('terms', {
+    return queryInterface.createTable('car_data', {
       id: {
         type: DataTypes.INTEGER,
         field: 'id',
@@ -44,6 +44,6 @@ module.exports = {
     })
   },
   async down (queryInterface: QueryInterface) {
-    await queryInterface.dropTable('terms')
+    await queryInterface.dropTable('car_data')
   },
 }
