@@ -3,6 +3,7 @@ import type { IVehicleTypeInstance } from '../models/Vehicle/VehicleTypeModels'
 import type { IResponseAll } from './generalType'
 import type { ETypeCarData, ICarDataInstance } from '../models/Vehicle/CarDataModel'
 
+
 export interface IVehicleAdditionalInput {
   id?: number
   name: string

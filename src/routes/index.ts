@@ -28,6 +28,7 @@ import UserTransactionRoute from './User/UserTransactionRoute'
 import HelpInformationRoute from './web/HelpInformationRoute'
 import DataContentRoute from './web/DataContentRoute'
 import CarDataRoute from './Vehicle/CarDataRoute'
+import CommentRoute from './User/CommentRoute'
 
 const router = express.Router()
 
@@ -60,5 +61,6 @@ router.use('/userTransaction', UserTransactionRoute)
 router.use('/helpInformation', HelpInformationRoute)
 router.use('/dataContent', DataContentRoute)
 router.use('/carData', CarDataRoute)
+router.use('/comment', CommentRoute)
 
 export default router

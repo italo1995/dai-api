@@ -1,6 +1,7 @@
 import type { EStatusDriver } from '../models/User/User'
 import type { IUserRatingInstance } from '../models/User/UserRatingModel'
 import type { EtransactionType, EStatusType } from '../models/User/UserTransactionModel'
+import type { ICommentInstance } from '../models/User/CommentModel'
 export interface IUserInput {
   name: string
   avatar?: string
@@ -115,5 +116,21 @@ export interface IResponseAllUserTransaction {
   total: number
   totalPage: number
   data: IUserTransactionInput[]
+  actualPage: number
+}
+
+
+export interface ICommentInput {
+  id: string
+  userId: string
+  name: string
+  description: string
+  parentId: string
+  serviceId: string
+}
+export interface IResponseAllComment {
+  total: number
+  totalPage: number
+  data: ICommentInstance[]
   actualPage: number
 }

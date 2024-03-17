@@ -28,7 +28,7 @@ module.exports = {
         type: DataTypes.INTEGER,
         field: 'parent_id'
       },
-      service: {
+      serviceId: {
         type: DataTypes.STRING,
         field: 'service_id'
       },
@@ -51,6 +51,6 @@ module.exports = {
     })
   },
   async down (queryInterface: QueryInterface) {
-    await queryInterface.dropTable('terms')
+    await queryInterface.dropTable('comments')
   },
 }
