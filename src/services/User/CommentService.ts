@@ -50,6 +50,13 @@ class Comment implements IComment {
         (whereStatement.where as any)['type'] = pParam.type
       }
       
+      whereStatement.include = [
+        {
+          model: modelComment,
+          as: 'children',
+          foreignKey: 'parentId'
+        }
+      ]
       const vResponse: ICommentInstance[] = await modelComment.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllComment = await fxReponseServices(

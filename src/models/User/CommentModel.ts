@@ -1,6 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
-
+import { type ModelRegistry } from '..'
 export interface ICommentAttributes {
   id: string
   userId: string
@@ -80,6 +80,23 @@ export function fxCommentFactory(sequelize: Sequelize) {
     }
   )
 
+  vDataBase.associate = function (models: ModelRegistry) {
+    const { modelComment, modelUser } = models
+    
+    modelComment.hasMany(modelComment, {
+      foreignKey: 'parentId',
+      as: 'children'
+    })
+    modelUser.hasMany(modelComment, {
+      foreignKey: 'userId',
+      as: 'comments',
+    })
+    modelComment.belongsTo(modelUser, {
+      foreignKey: 'userId',
+      as: 'user'
+    })
+  }
+  
   vDataBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues
