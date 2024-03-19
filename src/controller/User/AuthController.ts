@@ -208,6 +208,17 @@ class AuthController {
           }
           ClassDriverDetailService.createMany(driverDetail, vUserId)
         }
+        if (vData?.typeUser !== pReq.auth.typeUser) {
+          const tripActive = await TripService.showActive({
+            userId: vUserId,
+            isClient: true,
+          })
+          if (tripActive) {
+            return pRes
+              .status(500)
+              .send(fxErrorResponse(500, null, 'No puede cambiar el tipo de usuario mientras tiene una orden activa'))
+          }
+        }
         console.log('vData :>> ', vData)
 
         const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)

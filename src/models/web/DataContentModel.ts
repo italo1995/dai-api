@@ -19,10 +19,10 @@ export interface IDataContentInstance
     IDataContentAttributes {}
 
 export enum EDataType {
-guide = 1,
-FAQ = 2,
-security = 3
-    }
+  guide = 1,
+  FAQ = 2,
+  security = 3
+}
 
 export const vDataContentAttributes: SequelizeAttributes<IDataContentAttributes> = {
   id: {

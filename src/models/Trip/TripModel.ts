@@ -154,7 +154,8 @@ export function fxTripFactory(sequelize: Sequelize) {
       modelUser,
       modelTripDelivery,
       modelTripSpecialRequest,
-      modelTripTravel
+      modelTripTravel,
+      modelReview
     } = models
     modelTrip.hasOne(modelTripDelivery, {
       foreignKey: 'trip_id',
@@ -192,6 +193,11 @@ export function fxTripFactory(sequelize: Sequelize) {
     modelTrip.hasMany(modelTripSpecialRequest, {
       foreignKey: 'trip_id',
       as: 'tripSpecialRequest',
+    })
+    modelTrip.hasOne(modelReview, {
+      sourceKey: 'id',
+      foreignKey: 'trip_id',
+      as: 'review',
     })
   }
   vTrip.prototype.toJSON = function () {

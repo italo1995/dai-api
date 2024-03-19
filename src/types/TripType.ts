@@ -16,6 +16,8 @@ export interface IParamAllTrip {
   pag?: number | null
   limit?: number | null
   recient?: boolean | null
+  initDate?: Date | null
+  endDate?: Date | null
 }
 
 export interface IParamShowTrip {

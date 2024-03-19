@@ -17,10 +17,10 @@ export interface ICarDataInstance
     ICarDataAttributes {}
 
 export enum ETypeCarData {
-    year = 1,
-    model = 2,
-    color = 3,
-    brand = 4
+  year = 1,
+  model = 2,
+  color = 3,
+  brand = 4
 }
 export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
   id: {

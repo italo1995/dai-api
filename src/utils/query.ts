@@ -21,7 +21,18 @@ export const fxOrderNameId = (pParam: any, pWhereStatement: FindOptions) => {
 const fxSearchILikeQuery = (pParam: any, pWhereStatement: FindOptions, pName: string, pAttibutesPermisse: string | string[]) => {
   const vName = pName.trim()
   if (pAttibutesPermisse.includes(vName)) {
-    pWhereStatement.where = { ...pWhereStatement.where, [vName]: { [Op.iLike]: `%${pParam.search}%` } }
+    if (pParam.search.includes(',')) {
+      const searchs: string[] = pParam.search.split(',')
+      const searchsParse = searchs.map((search: string) => `%${search}%`)
+      pWhereStatement.where = { 
+        ...pWhereStatement.where, 
+        [vName]: {
+          [Op.or]: searchsParse.map(search => ({ [Op.iLike]: search }))
+        }
+      }
+    } else {
+      pWhereStatement.where = { ...pWhereStatement.where, [vName]: { [Op.iLike]: `%${pParam.search}%` } }
+    }
   }
   return pWhereStatement.where || {}
 }
@@ -33,7 +44,8 @@ export const fxSearchILike = (pParam: any, pWhereStatement: FindOptions, pName: 
     if (pParam?.typeSearch && pParam.typeSearch.includes(',')) {
       const vTypeSearchs = pParam.typeSearch.split(',')
       for (const typeSearch of vTypeSearchs) {
-        pWhereStatement.where = fxSearchILikeQuery(pParam, pWhereStatement, typeSearch, vAttibutesPermisse)
+        const where = fxSearchILikeQuery(pParam, pWhereStatement, typeSearch, vAttibutesPermisse)
+        pWhereStatement.where = { ...pWhereStatement.where, ...where }
       }
     } else {
       pWhereStatement.where = fxSearchILikeQuery(pParam, pWhereStatement, pName, vAttibutesPermisse)
@@ -41,6 +53,57 @@ export const fxSearchILike = (pParam: any, pWhereStatement: FindOptions, pName: 
   }
   return pWhereStatement.where || {}
 }
+
+// export const fxFilterDate = (pParam: any, pWhereStatement: FindOptions) => {
+//   if (pParam?.initDate) {
+//     const vDate = new Date(pParam?.initDate)
+//     const where = {
+//       createdAt: {
+//         [Op.gte]: vDate.toISOString().split('T')[0]
+//       },
+//     }
+//     pWhereStatement.where = { ...pWhereStatement.where, ...where }
+//   }
+//   return pWhereStatement.where || {}
+// }
+
+export const fxFilterDate = (pParam: any, pWhereStatement: FindOptions) => {
+  pWhereStatement.where = pWhereStatement.where || {}
+  if (pParam?.initDate) {
+    const [year, day, month] = pParam.initDate.split('/')
+    const vDate = new Date(`${year}/${month}/${day}`)
+    const where = {
+      createdAt: {
+        [Op.gte]: vDate.toISOString().split('T')[0]
+      },
+    }
+    pWhereStatement.where = { ...pWhereStatement.where, ...where }
+  }
+
+  if (pParam?.endDate) {
+    const [year, day, month] = pParam.endDate.split('/')
+    const vDate = new Date(`${year}/${month}/${day}`)
+    let where = {}
+    if (pWhereStatement?.where && 'createdAt' in pWhereStatement.where) {
+      where = {
+        createdAt: {
+          ...pWhereStatement.where.createdAt,
+          [Op.lte]: vDate.toISOString().split('T')[0]
+        },
+      }
+    } else {
+      where = {
+        createdAt: {
+          [Op.lte]: vDate.toISOString().split('T')[0]
+        },
+      }
+    }
+    pWhereStatement.where = { ...pWhereStatement.where, ...where }
+  }
+
+  return pWhereStatement.where || {}
+}
+
 
 export const fxPaginate = (pParam: any, pWhereStatement: FindOptions) => {
   if (Number(pParam?.pag)) {

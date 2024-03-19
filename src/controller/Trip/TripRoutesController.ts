@@ -81,7 +81,7 @@ class TripRouteController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
       const vResponse: IResponseAllTripRoute | ITripRouteInstance[] = await ClassTripRouteService.all(vParam)
@@ -130,7 +130,6 @@ class TripRouteController {
       pNext(error)
     }
   }
-
 }
 
 export default new TripRouteController()

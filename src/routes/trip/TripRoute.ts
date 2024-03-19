@@ -10,5 +10,6 @@ router.route('/showTripActive').get(authMiddleware('client'), controller.showTri
 router.route('/all').get(authMiddleware('client'), controller.all)
 router.route('/update').post(authMiddleware('client'), controller.update)
 router.route('/store').post(authMiddleware('client'), controller.create)
+router.route('/hidde').post(authMiddleware('client'), controller.hidden)
 
 export default router

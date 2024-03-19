@@ -218,7 +218,9 @@ class TripController {
         typeSearch: pReq.query?.typeSearch?.toString() || null,
         pag: pReq.query?.pag ? Number(pReq.query?.pag) : null,
         limit: pReq.query?.limit ? Number(pReq.query?.limit) : null,
-        recient: pReq.input('recient', 'json')
+        recient: pReq.input('recient', 'json'),
+        initDate: pReq.input('initDate'),
+        endDate: pReq.input('endDate')
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes
@@ -293,7 +295,6 @@ class TripController {
         await ClassTripDeliveryService.create(vTripDelivery)
       }
       if (vtripSpecialRequest) {
-        console.log('vtripSpecialRequest :>> ', vtripSpecialRequest)
         vtripSpecialRequest.map((sp: any) => sp.tripId = vTripReponse.dataValues.id)
         await ClassTripService.createSpecialRequest(vtripSpecialRequest)
       }
@@ -536,6 +537,25 @@ class TripController {
         return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async hidden(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: any = pReq.input('id')
+      const vUserId = pReq.auth.id
+      if (vId) {
+        await ClassTripService.hidden({
+          id: vId,
+          userId: vUserId
+        })
+        return pRes.status(200).send(fxSuccessResponse(200, true, 'Borrado con exito'))
+      }
+      return pRes
+        .status(404)
+        .send(fxErrorResponse(404, null, 'Ocurrio un error'))
     } catch (error) {
       pNext(error)
     }

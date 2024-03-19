@@ -67,6 +67,11 @@ paths:
           schema:
             type: string
           description: the keyword to filter by name
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: the keyword to filter by name
       responses:
         '200':
           description: the list of CarData

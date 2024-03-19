@@ -64,7 +64,7 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     allowNull: true,
   },
   tripId: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     field: 'trip_id',
     defaultValue: null,
     allowNull: true,
