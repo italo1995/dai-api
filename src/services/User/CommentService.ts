@@ -16,7 +16,7 @@
 */
 import { type FindOptions } from 'sequelize'
 import type { ICommentInstance } from '../../models/User/CommentModel'
-import {  modelComment } from '../../models'
+import {  modelComment, modelUser } from '../../models'
 import type { ICommentInput, IResponseAllComment } from '../../types/User'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -46,15 +46,21 @@ class Comment implements IComment {
         pParam?.typeSearch || 'name', modelComment.name
       )
 
-      if (pParam?.type) {
-        (whereStatement.where as any)['type'] = pParam.type
+      if (pParam?.serviceId) {
+        whereStatement.where = { ...whereStatement.where, serviceId: pParam.serviceId}
       }
       
       whereStatement.include = [
         {
           model: modelComment,
           as: 'children',
-          foreignKey: 'parentId'
+          required: false
+        },
+        {
+          model: modelUser,
+          as: 'user',
+          required: false,
+          attributes: ['name', 'avatar']
         }
       ]
       const vResponse: ICommentInstance[] = await modelComment.findAll(whereStatement)
