@@ -3,6 +3,7 @@ export interface ICountryInput {
   name: string
   flag?: string
   state: boolean
+  phone?: string
 }
 
 export interface ICountryUpdate {
@@ -18,6 +19,7 @@ export interface IRegionInput {
   flag?: string
   countryId?: string
   state?: boolean
+  phone?: string
 }
 
 export interface ICityInput {
@@ -25,4 +27,5 @@ export interface ICityInput {
   flag?: string
   regionId?: string
   state?: boolean
+  phone?: string
 }

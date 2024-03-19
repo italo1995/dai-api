@@ -8,6 +8,7 @@ export interface IRegionAttributes {
   countryId: number
   flag: string
   state: boolean
+  phone?: string
   createdAt?: Date
   updatedAt?: Date
 }
@@ -38,6 +39,12 @@ export const vRegionModelAttributes: SequelizeAttributes<IRegionAttributes> = {
   state: {
     type: DataTypes.BOOLEAN,
     field: 'state',
+  },
+  phone: {
+    type: DataTypes.STRING,
+    field: 'phone',
+    allowNull: true,
+    defaultValue: null
   },
   createdAt: {
     type: DataTypes.DATE,

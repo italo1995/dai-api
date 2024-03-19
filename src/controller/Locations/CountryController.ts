@@ -72,7 +72,8 @@ class CountryController {
         'name',
         'flags',
         'phoneCode',
-        'state'
+        'state',
+        'phone'
       ])
 
       const vResponse: ICountryInstance | null = await ClassCountryService.create(vData)
@@ -93,7 +94,8 @@ class CountryController {
         'name',
         'flag',
         'phoneCode',
-        'state'
+        'state',
+        'phone'
       ])
       const vResponse: ICountryInstance | null = await ClassCountryService.update(vData)
       if (!vResponse) {
