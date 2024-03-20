@@ -15,6 +15,15 @@ components:
        type:
          type: enum
          description: the type of data (year = 1, model = 2, color = 3, brand = 4)
+       parentId:
+         type: string
+         description: the id that relates the branch and the model of the CarData
+       isMoto:
+         type: boolean
+         description: de vehicle is a is a Moto
+       isCar:
+         type: boolean
+         description: the vehicle is a car
      required:
        - name
        - icon
@@ -104,6 +113,15 @@ paths:
                 type:
                  type: enum
                  description: the type of data (year = 1, model = 2, color = 3, brand = 4)
+                parentId:
+                 type: string
+                 description: the id that relates the branch and the model of the CarData
+                isMoto:
+                 type: boolean
+                 description: de vehicle is a is a Moto
+                isCar:
+                 type: boolean
+                 description: the vehicle is a car
               required:
                - name
                - icon
@@ -143,6 +161,15 @@ paths:
                 type:
                  type: enum
                  description: the type of data (year = 1, model = 2, color = 3, brand = 4)
+                parentId:
+                 type: string
+                 description: the id that relates the branch and the model of the CarData
+                isMoto:
+                 type: boolean
+                 description: de vehicle is a is a Moto
+                isCar:
+                 type: boolean
+                 description: the vehicle is a car
               required:
                - name
                - icon
