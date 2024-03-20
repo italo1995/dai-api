@@ -48,6 +48,17 @@ class CarDataController {
     }
   }
 
+  async getModelsByBrand(pReq:Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const brandId = pReq.params.brandId
+      const models = await ClassCarDataService.getModelsByBrand(brandId)
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, models, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ICarDataInput = pReq.only([

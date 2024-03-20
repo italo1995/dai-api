@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { ICarDataInstance } from '../../models/Vehicle/CarDataModel'
+import { ETypeCarData, type ICarDataInstance } from '../../models/Vehicle/CarDataModel'
 import { modelCarData } from '../../models'
 import type { ICarDataInput, IResponseAllCarData } from '../../types/VehicleTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -50,6 +50,10 @@ class CarData implements ICarData {
         (whereStatement.where as any)['type'] = pParam.type
       }
       
+      if (pParam?.parentId) {
+        (whereStatement.where as any)['parentId'] = pParam.parentId
+      }
+
       const vResponse: ICarDataInstance[] = await modelCarData.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllCarData = await fxReponseServices(
@@ -61,6 +65,20 @@ class CarData implements ICarData {
         return vResponsePaginate
       }
       return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async getModelsByBrand(brandId: string): Promise<ICarDataInstance[]> {
+    try {
+      const models = await modelCarData.findAll({
+        where: {
+          parentId: brandId,
+          type: ETypeCarData.model
+        }
+      })
+      return models
     } catch (error) {
       throw error
     }

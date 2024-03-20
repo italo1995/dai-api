@@ -1,11 +1,13 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import { type ModelRegistry } from '..'
 
 export interface ICarDataAttributes {
   id: string
   name: string
   icon: string
   type: ETypeCarData
+  parentId?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -42,6 +44,16 @@ export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
     field: 'type',
     allowNull: false
   },
+  parentId: {
+    type: DataTypes.STRING,
+    field: 'parent_id',
+    allowNull: true,
+    defaultValue: null,
+    references: {
+      model: 'car_data',
+      key: 'id',
+    },
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -74,6 +86,15 @@ export function fxCarDataFactory(sequelize: Sequelize) {
       paranoid: true,
     }
   )
+
+  vDataBase.associate = function (models: ModelRegistry) {
+    const { modelCarData } = models
+    
+    modelCarData.hasMany(modelCarData, {
+      foreignKey: 'parentId',
+      as: 'children'
+    })
+  }
 
   vDataBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }

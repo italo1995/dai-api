@@ -41,6 +41,7 @@ export interface ICarDataInput {
   name: string
   icon: string
   type: ETypeCarData
+  parentId: string
 }
 
 export interface IResponseAllCarData{
