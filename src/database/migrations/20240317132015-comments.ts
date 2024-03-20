@@ -11,7 +11,7 @@ module.exports = {
         autoIncrement: true,
       },
       userId: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         field: 'user_id',
       },
       name: {

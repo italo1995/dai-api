@@ -21,7 +21,7 @@ class CommentController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes
         .status(200)
@@ -31,14 +31,14 @@ class CommentController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
       const vResponse: IResponseAllComment | ICommentInstance[] = await ClassComment.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes
         .status(200)
@@ -54,15 +54,20 @@ class CommentController {
         'userId',
         'name',
         'description',
-        'paremtId',
+        'parentId',
         'serviceId'
-        
       ])
+      console.log('vData :>> ', vData)
+      const user = pReq.auth
+      if (user) {
+        vData.name = user.name
+        vData.userId = user.ud
+      }
       const vResponse: ICommentInstance | null = await ClassComment.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes
         .status(200)
@@ -79,7 +84,7 @@ class CommentController {
         'userId',
         'name',
         'description',
-        'paremtId',
+        'parentId',
         'serviceId'
       ])
       const vResponse: ICommentInstance | null = await ClassComment.update(vData)

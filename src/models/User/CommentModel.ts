@@ -26,7 +26,7 @@ export const vCommentAttributes: SequelizeAttributes<ICommentAttributes> = {
     autoIncrement: true,
   },
   userId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     field: 'user_id',
   },
   name: {
@@ -91,8 +91,9 @@ export function fxCommentFactory(sequelize: Sequelize) {
       foreignKey: 'userId',
       as: 'comments',
     })
-    modelComment.belongsTo(modelUser, {
-      foreignKey: 'userId',
+    modelComment.hasOne(modelUser, {
+      sourceKey: 'userId',
+      foreignKey: 'id',
       as: 'user'
     })
   }

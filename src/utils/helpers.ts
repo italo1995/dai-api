@@ -83,7 +83,7 @@ export const fxTwilioSendCode = async (
   }
   try {
     await fxClient.messages.create({
-      body: `${pHash ? pHash : ''} Tu código de verificación es: ${vCode}`,
+      body: `${pHash ? pHash : ''} Tu código de verificación PAYA es: ${vCode}`,
       from: vTwilioPhoneNumber,
       to: pPhoneNumber,
     })
@@ -100,7 +100,7 @@ export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Err
   const fxClient = twilio(vAccountSid, vAuthToken)
   try {
     await fxClient.messages.create({
-      body: `${pUser?.dataValues.name} Fuiste verificado como conductor`,
+      body: `${pUser?.dataValues.name} Fuiste verificado como conductor en PAYA`,
       from: vTwilioPhoneNumber,
       to: `${pUser.phoneCode}${pUser.phoneNumber}`,
     })
