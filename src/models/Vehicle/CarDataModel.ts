@@ -8,6 +8,8 @@ export interface ICarDataAttributes {
   icon: string
   type: ETypeCarData
   parentId?: string
+  isCar?: boolean
+  isMoto?: boolean
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -53,6 +55,18 @@ export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
       model: 'car_data',
       key: 'id',
     },
+  },
+  isCar: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_car',
+    allowNull: true,
+    defaultValue: false
+  },
+  isMoto: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_moto',
+    allowNull: true,
+    defaultValue: false
   },
   createdAt: {
     type: DataTypes.DATE,
