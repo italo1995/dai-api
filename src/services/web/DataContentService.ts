@@ -47,7 +47,7 @@ class DataContent implements IDataContent {
       )
 
       if (pParam?.type) {
-        (whereStatement.where as any)['type'] = pParam.type
+        whereStatement.where = { ...whereStatement.where, type: pParam.type}
       }
 
       const vResponse: IDataContentInstance[] = await modelDataContent.findAll(whereStatement)
