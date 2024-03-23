@@ -191,9 +191,10 @@ class AuthService implements IAuthService {
       where: {
         phoneNumber: vPhoneNumber,
         createdAt: {
-          [Op.gte]: vDate.toISOString().split('T')[0]
+          [Op.gte]: this.formatearFecha(vDate)
         },
       },
+      logging: true
     })
     return vResponse?.dataValues?.code || null
   }
@@ -205,9 +206,10 @@ class AuthService implements IAuthService {
         code: pData.code,
         phoneNumber: pData.phoneNumber,
         createdAt: {
-          [Op.gte]: vDate.toISOString().split('T')[0]
+          [Op.gte]: this.formatearFecha(vDate)
         }
       },
+      logging: true
     })
 
     await vResponse?.destroy()
@@ -277,6 +279,13 @@ class AuthService implements IAuthService {
     } catch (error) {
       throw error
     }
+  }
+
+  private formatearFecha(date: Date) {
+    const dia = date.getDate().toString().padStart(2, '0')
+    const mes = (date.getMonth() + 1).toString().padStart(2, '0')
+    const año = date.getFullYear()
+    return `${año}/${mes}/${dia}`
   }
 }
 const ClassAuthService = new AuthService()

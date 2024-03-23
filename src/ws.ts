@@ -17,6 +17,8 @@ import RangePriceService from './services/Locations/RangePriceService'
 import VehicleTypeService from './services/Vehicle/VehicleTypeService'
 import ErrorReportingService from './services/ErrorReportingService'
 import { withTimeout } from './utils/helpers'
+import TripPaymentService from './services/Trip/TripPaymentService'
+import { ETypeUser } from './types/User'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
  url: string, headers: any, body: any, userId: string
@@ -70,31 +72,12 @@ export class SocketService {
         socketId: socketId
       }
       // Actualizamos el socket del usuario en la base de datos
-      console.log('handleConnection :>> ', user)
       await ClassAuthService.updateSocket(user)
-    } else {
-      console.log('NO TIENE handleConnection :>> ', socketId)
     }
-    // if (socket.recovered) {
-    //   if (auth) {
-    //     const vUser = {
-    //       id: auth?.id || user?.id,
-    //       socketId: socketId
-    //     }
-    //     if (vUser?.id) {
-    //       await ClassAuthService.updateSocket(vUser)
-    //     }
-    //   }
-    // }
-    // Emitimos el evento de conexión con el socketId
+
     socket.emit('connection', {
       socketId
     })
-    // io.on('connection', (socket) => {
-    //   socket.on('updateSocketId', (userId, newSocketId) => {
-    //     userSocketMap[userId] = newSocketId;
-    //   });
-    // });
 
     socket.on('disconnect', async (_reason: any) => {
       try {
@@ -109,6 +92,8 @@ export class SocketService {
           //   vUser.statusDriver = 0
           // }
           await ClassAuthService.updateSocket(vUser)
+        } else {
+          await ClassTripService.deletePanic({ socketId: socketId })
         }
       } catch (error) {
         const req: IDataError = {
@@ -183,12 +168,45 @@ export class SocketService {
             needClient: true
           }
           const trip = await ClassTripService.showId(vParamShowTrip)
-          const clientSocketId = JSON.parse(JSON.stringify(trip))?.user.socketId
-          socket.to(clientSocketId).emit('driverPosition', {
-            tripId: coords.tripId,
-            lat: coords?.lat,
-            lon: coords?.lng,
-          })
+          if (auth?.dataValues.type === ETypeUser.driver || auth?.type === ETypeUser.driver) {
+            const clientSocketId = JSON.parse(JSON.stringify(trip))?.user.socketId
+            socket.to(clientSocketId).emit('driverPosition', {
+              tripId: coords.tripId,
+              lat: coords?.lat,
+              lon: coords?.lng,
+            })
+          }
+          if (trip?.dataValues.id) {
+            const vTripPanics = await ClassTripService.showPanic({ tripId: trip.dataValues.id })
+            if (vTripPanics?.length) {
+              await ClassAuthService.updateSocket(vUser)
+              const socketIds: any[]  = vTripPanics.map((vTripPanic) => vTripPanic.dataValues.socketId)
+              const vRespTripCoords: any = {
+                client: null,
+                driver: null
+              }
+              if (auth?.dataValues.typeUser === ETypeUser.driver ) {
+                vRespTripCoords.driver = {
+                  lat: coords?.lat,
+                  lon: coords?.lng,
+                }
+              } else {
+                vRespTripCoords.client = {
+                  lat: coords?.lat,
+                  lon: coords?.lng,
+                }
+              }
+              socket.to(socketIds).emit('tripCoords', vRespTripCoords, withTimeout(
+                () => {
+                  console.log('¡Éxito!')
+                },
+                () => {
+                  console.log('¡Tiempo de espera!')
+                },
+                1000
+              ))
+            }
+          }
         } else if (vUser?.lat && vUser?.lon) {
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
@@ -251,7 +269,16 @@ export class SocketService {
           id: vTripId,
           status: EStatusTrip.ACEPTADO,
           driverId: vTripOffer?.dataValues.driverId,
-          userId: vTripOffer?.dataValues.clientId
+          userId: vTripOffer?.dataValues.clientId,
+          price: Number(vTripOffer.dataValues.amount)
+        }
+        if (vUpdateTrip && Number(vUpdateTrip) !== vTrip?.dataValues.price) {
+          const vUpdateTripPaymentData = {
+            tripId: vTripId,
+            amount: Number(vTripOffer.dataValues.amount),
+            currencyId: vTripOffer.dataValues.currencyId
+          }
+          await TripPaymentService.updatePrice(vUpdateTripPaymentData)
         }
         const vUpdateTripOffert: ITripOffertUpdate = {
           id: vTripOffer.dataValues.id,
@@ -259,6 +286,7 @@ export class SocketService {
           status: ETripOffertStatus.ACEPTADA
         }
         await ClassTripOffertService.update(vUpdateTripOffert)
+       
         const vTripUpdate = await ClassTripService.update(vUpdateTrip)
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
         try {

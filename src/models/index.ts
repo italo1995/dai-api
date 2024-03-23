@@ -38,7 +38,7 @@ import { fxHelpInformationFactory } from './web/HelpInformationModel'
 import { fxDataContentFactory } from './web/DataContentModel'
 import { fxCarDataFactory } from './Vehicle/CarDataModel'
 import { fxCommentFactory } from './User/CommentModel'
-
+import { fxTripPanicFactory } from './Trip/TripPanicModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -83,6 +83,7 @@ export const modelHelpInformation = fxHelpInformationFactory(sequelize)
 export const modelDataContent = fxDataContentFactory(sequelize)
 export const modelCarData = fxCarDataFactory(sequelize)
 export const modelComment = fxCommentFactory(sequelize)
+export const modelTripPanic = fxTripPanicFactory(sequelize)
 
 const models = {
   modelUser,
@@ -119,7 +120,8 @@ const models = {
   modelHelpInformation,
   modelDataContent,
   modelCarData,
-  modelComment
+  modelComment,
+  modelTripPanic
 }
 
 export type ModelRegistry = typeof models

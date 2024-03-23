@@ -8,10 +8,6 @@ class ErrorReportingService {
   async errorCreatedReporting(dataError: IDataError, error: any) {
     if (error instanceof DatabaseError) {
       console.log('El error es de tipo SequelizeDatabaseError')
-      console.log('error.parent :>>', error.parent)
-      console.log('error.original :>>', error.original)
-      console.log('error.sql :>>', error.sql)
-      console.log('error.parameters :>>', error.parameters)
     } 
     const body = dataError.body
     const headers = dataError.headers

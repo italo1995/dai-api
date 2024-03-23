@@ -5,7 +5,7 @@
 
 - Creation: 20/02/2024  
 */
-import { Op, type FindOptions } from 'sequelize'
+import { Op, Sequelize, type FindOptions } from 'sequelize'
 import type { IRangePriceInstance, IRangePriceAttributes } from '../../models/Locations/RangePriceModel'
 import { modelCity, modelCountry, modelRangePrice, modelRegion } from '../../models'
 import type { IResponseAll } from '../../types/generalType'
@@ -61,6 +61,7 @@ class RangePriceService implements IRangePriceService {
     return vResponse
   }
   async showPrice({ city, region, country, isCar, isMoto }: { city: string, region: string, country: string, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null> {
+    const formattedCity = city.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     try {
       const whereStatement: FindOptions = {}
       whereStatement.include = [{
@@ -88,14 +89,19 @@ class RangePriceService implements IRangePriceService {
         as: 'city',
         required: false,
         where: {
-          name: {
-            [Op.iLike]: `%${city}%`
-          }
+          name: Sequelize.where(
+            Sequelize.fn('unaccent', Sequelize.fn('LOWER', Sequelize.col('city.name'))),
+            {
+              [Op.iLike]: `%${formattedCity}%`
+            }
+          )
         }
       }]
-      whereStatement.where = {
-        isCar,
-        isMoto
+      if (isCar || isMoto) {
+        whereStatement.where = {
+          isCar,
+          isMoto
+        }
       }
       const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
       const vShowPriceJSON = JSON.parse(JSON.stringify(vFindAll))

@@ -55,7 +55,6 @@ export const moveImages = async (pName: string): Promise<string> => {
       const vThumbnailNameImages: string = pName.replace('temp', 'thumb')
       fs.writeFileSync(`uploads/${vThumbnailNameImages}`, thumbnail)
     } catch (error) {
-      console.log('error :>> ', error)
       return vNameImages
     }
     return vNameImages

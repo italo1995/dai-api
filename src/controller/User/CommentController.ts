@@ -57,7 +57,6 @@ class CommentController {
         'parentId',
         'serviceId'
       ])
-      console.log('vData :>> ', vData)
       const user = pReq.auth
       if (user) {
         vData.name = user.name

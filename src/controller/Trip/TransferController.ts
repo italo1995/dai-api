@@ -58,7 +58,7 @@ class TransferController {
       if (tripId) {
         const vParamTripShow = {
           id: tripId,
-          userId: vUser.id,
+          userId: vUser?.id,
           isDriver: true
         }
         const vTrip = await ClassTripService.showId(vParamTripShow)

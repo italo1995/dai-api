@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { IDataContentInstance } from '../../models/web/DataContentModel'
+import { EDataType, type IDataContentInstance } from '../../models/web/DataContentModel'
 import { modelDataContent } from '../../models'
 import type { IDataContentInput, IResponseAllDataContent } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -23,6 +23,7 @@ import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../
 interface IDataContent {
   validate(data: any): any
   show(pId: number): Promise<IDataContentInstance | null>
+  showType(pType: string): Promise<IDataContentInstance | null>
   all(pParam: any): Promise<IResponseAllDataContent | IDataContentInstance[]>
   create(payload: IDataContentInput): Promise<IDataContentInstance>
   update(payload: IDataContentInput): Promise<IDataContentInstance | null>
@@ -73,6 +74,31 @@ class DataContent implements IDataContent {
           id: pId,
         },
       })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async showType(pType: string): Promise<IDataContentInstance | null> {
+    try {
+      let type = 0
+      if (pType === 'security') {
+        type = EDataType.security
+      }
+      if (pType === 'FAQ') {
+        type = EDataType.FAQ
+      }
+      if (pType === 'guide') {
+        type = EDataType.guide
+      }
+      const vResponse: IDataContentInstance | null = await modelDataContent.findOne({
+        where: {
+          type: type,
+        },
+        logging: true
+      })
+      EDataType.security
       return vResponse
     } catch (error) {
       throw error

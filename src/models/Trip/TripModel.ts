@@ -17,6 +17,7 @@ export interface ITripAttributes {
   regionId?: number | null
   countryId?: number | null
   visibility?: number | null
+  isPanic?: boolean
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -116,6 +117,12 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     type: DataTypes.INTEGER,
     allowNull: true,
     defaultValue: 1,
+  },
+  isPanic: {
+    field: 'is_panic',
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
   },
   createdAt: {
     type: DataTypes.DATE,

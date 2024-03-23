@@ -49,6 +49,14 @@ class CarData implements ICarData {
       if (pParam?.type) {
         whereStatement.where = { ...whereStatement.where, type: pParam.type}
       }
+
+      if (pParam?.isCar) {
+        whereStatement.where = { ...whereStatement.where, isCar: true}
+      }
+
+      if (pParam?.isMoto) {
+        whereStatement.where = { ...whereStatement.where, isMoto: true}
+      }
       
       const vResponse: ICarDataInstance[] = await modelCarData.findAll(whereStatement)
       if (Number(pParam?.pag)) {
