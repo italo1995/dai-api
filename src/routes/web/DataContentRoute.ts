@@ -5,6 +5,7 @@ import controller from '../../controller/web/DataContentController'
 const router = express.Router()
 
 router.route('/show').get(controller.show)
+router.route('/showType').get(controller.showType)
 router.route('/all').get(controller.all)
 router.route('/update').post(authMiddleware('admin'), controller.update)
 router.route('/store').post(authMiddleware('admin'), controller.create)

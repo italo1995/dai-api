@@ -54,7 +54,6 @@ class AuthController {
   ): Promise<Response | undefined> {
     try {
       const vData: IUserInput = pReq.only(['phoneCode', 'phoneNumber'])
-      console.log('req?.body :>> ', pReq?.body)
       const vHash: string = pReq.input('hash')
       const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber' , 'json')
       vData.phoneNumber = vData?.phoneNumber.toString()
@@ -75,10 +74,8 @@ class AuthController {
       const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
 
       let vUser: IUserInstance
-      console.log('vUpdatePhoneNumber :>> ', vUpdatePhoneNumber)
       if (vUpdatePhoneNumber) {
         vUser = pReq.auth
-        console.log('vUser :>> ', JSON.stringify(vUser))
         if (!vUser) {
           return pRes.status(500).send(fxErrorResponse(500, null, 'Error en usuario'))
         }

@@ -17,13 +17,18 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import sequelize, { modelCurrency, modelPaymentMethod, modelReview, modelTrip, modelTripDelivery, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelTripTravel, modelUser, modelUserRating, modelVehicleAdditional } from '../../models'
+import sequelize, { modelCurrency, modelPaymentMethod, modelReview, modelTrip, modelTripDelivery, modelTripPanic, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelTripTravel, modelUser, modelUserRating, modelVehicleAdditional } from '../../models'
 import { EStatusTrip, ETypeService, type ITripInstance } from '../../models/Trip/TripModel'
 import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip, ITripUpdate } from '../../types/TripType'
 import { fxFilterDate, fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 import type { ITripSpecialRequestAttributes, ITripSpecialRequestInstance } from '../../models/Trip/TripSpecialRequestModel'
 import { ETypeUser } from '../../types/User'
+<<<<<<< HEAD
 import { ETypeReview } from '../../models/web/ReviewModel'
+=======
+import { ETypeReview } from '../../models/ReviewModel'
+import type { ITripPanicInstance } from '../../models/Trip/TripPanicModel'
+>>>>>>> 1e28809b2ec40f767a60db1f17c181ecaa4a2064
 
 interface ITripService {
   validate(data: any): any
@@ -35,6 +40,7 @@ interface ITripService {
   update(payload: ITripUpdate): Promise<ITripInstance | null>
   softDeleteRecord(pId: number, pUserId: UUID): Promise<boolean>
   hidden(pParam: { userId: string, id: number }): Promise<boolean | null>
+  showPanic(pParam: { tripId: number }): Promise<ITripPanicInstance[] | null>
 }
 
 class TripService implements ITripService {
@@ -486,6 +492,123 @@ class TripService implements ITripService {
           }
         ]
       }
+      if (pParam.panic) {
+        whereStatement.include = [
+          {
+            model: modelTripDelivery,
+            as: 'delivery',
+            required: false,
+          },
+          {
+            model: modelTripRoute,
+            as: 'initRoute',
+            required: false,
+            where: {
+              isInit: true
+            }
+          },
+          {
+            model: modelTripRoute,
+            as: 'endRoute',
+            required: false,
+            where: {
+              isEnd: true
+            }
+          },
+          {
+            model: modelTripPayment,
+            as: 'tripPayment',
+            required: false,
+            include: [
+              {
+                model: modelCurrency,
+                required: false,
+                as: 'currency'
+              },
+              {
+                model: modelPaymentMethod,
+                required: false,
+                as: 'paymentMethod'
+              }
+            ]
+          },
+          {
+            model: modelTripDelivery,
+            as: 'delivery',
+            required: false,
+          },
+          {
+            model: modelUser,
+            as: 'user',
+            required: false,
+            include: [
+              {
+                model: modelUserRating,
+                as: 'clientRating',
+                required: false,
+                attributes: ['quantity', 'ratings'],
+                where: {
+                  type: 'clientId'
+                }
+              },
+              {
+                model: modelUserRating,
+                as: 'driverRating',
+                required: false,
+                attributes: ['quantity', 'ratings'],
+                where: {
+                  type: 'driverId'
+                }
+              }
+            ]
+          },
+          {
+            model: modelUser,
+            as: 'driver',
+            required: false,
+            include: [
+              {
+                model: modelUserRating,
+                as: 'clientRating',
+                required: false,
+                attributes: ['quantity', 'ratings'],
+                where: {
+                  type: 'clientId'
+                }
+              },
+              {
+                model: modelUserRating,
+                as: 'driverRating',
+                required: false,
+                attributes: ['quantity', 'ratings'],
+                where: {
+                  type: 'driverId'
+                }
+              }
+            ]
+          },
+          {
+            model: modelTripSpecialRequest,
+            as: 'tripSpecialRequest',
+            required: false,
+            include: [
+              {
+                model: modelVehicleAdditional,
+                as: 'vehicleAdditional',
+                required: true,
+              }
+            ]
+          },
+          {
+            model: modelReview,
+            as: 'review',
+            required: false,
+            where: {
+              type: ETypeReview.PASSENGER
+            }
+          }
+        ]
+      }
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
       return vResponse
     } catch (error) {
@@ -553,6 +676,11 @@ class TripService implements ITripService {
               required: false,
               as: 'currency',
               attributes: ['id', 'name', 'symbol', 'icon']
+            },
+            {
+              model: modelPaymentMethod,
+              required: false,
+              as: 'paymentMethod',
             },
           ]
         },
@@ -675,6 +803,61 @@ class TripService implements ITripService {
         }
       })
       return true
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async showPanic(pParam: { tripId: number }): Promise<ITripPanicInstance[] | null> {
+    try {
+      if (pParam.tripId) {
+        const vResponse: ITripPanicInstance[] | null = await modelTripPanic.findAll({
+          where: {
+            tripId: pParam.tripId
+          }
+        })
+        return vResponse
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async deletePanic(pParam: { socketId: string }): Promise<boolean> {
+    try {
+      if (pParam.socketId) {
+        await modelTripPanic.destroy({
+          where: { socketId: pParam.socketId }
+        })
+        return true
+      }
+      return false
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async updatePanic(pParam: { tripId: number, socketId: string }): Promise<boolean> {
+    try {
+      if (pParam.tripId) {
+        const vItem: ITripPanicInstance | null = await modelTripPanic.findOne({
+          where: {
+            tripId: pParam.tripId,
+            socketId: pParam.socketId
+          }
+        })
+        if (vItem) {
+          await vItem?.update({ socketId: pParam.socketId })
+        } else {
+          await modelTripPanic.create({
+            tripId: pParam.tripId,
+            socketId: pParam.socketId
+          })
+        }
+        return true
+      }
+      return false
     } catch (error) {
       throw error
     }

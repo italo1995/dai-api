@@ -38,9 +38,13 @@ import { fxHelpInformationFactory } from './web/HelpInformationModel'
 import { fxDataContentFactory } from './web/DataContentModel'
 import { fxCarDataFactory } from './Vehicle/CarDataModel'
 import { fxCommentFactory } from './User/CommentModel'
+<<<<<<< HEAD
 import { fxBankFactory } from './payments/BankModel'
 import { fxBranchFactory } from './payments/BranchModel'
 
+=======
+import { fxTripPanicFactory } from './Trip/TripPanicModel'
+>>>>>>> 1e28809b2ec40f767a60db1f17c181ecaa4a2064
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -85,8 +89,12 @@ export const modelHelpInformation = fxHelpInformationFactory(sequelize)
 export const modelDataContent = fxDataContentFactory(sequelize)
 export const modelCarData = fxCarDataFactory(sequelize)
 export const modelComment = fxCommentFactory(sequelize)
+<<<<<<< HEAD
 export const modelBank = fxBankFactory(sequelize)
 export const modelBranch = fxBranchFactory(sequelize)
+=======
+export const modelTripPanic = fxTripPanicFactory(sequelize)
+>>>>>>> 1e28809b2ec40f767a60db1f17c181ecaa4a2064
 
 const models = {
   modelUser,
@@ -124,8 +132,12 @@ const models = {
   modelDataContent,
   modelCarData,
   modelComment,
+<<<<<<< HEAD
   modelBank,
   modelBranch
+=======
+  modelTripPanic
+>>>>>>> 1e28809b2ec40f767a60db1f17c181ecaa4a2064
 }
 
 export type ModelRegistry = typeof models

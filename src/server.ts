@@ -158,7 +158,6 @@ export class Server {
       defaultLocale: 'es',
     })
     this.app.use(async (err: any, req: any, res: any, _next: any) => {
-      console.log('err.mensajes :>> ', err)
       if (err.issues) {
         const newErrorReporting = {
           type: 'issues',

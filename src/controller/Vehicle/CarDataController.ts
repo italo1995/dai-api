@@ -11,6 +11,8 @@ import ClassCarDataService from '../../services/Vehicle/CarDataService'
 import type { ICarDataInput, IResponseAllCarData } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { ICarDataInstance } from '../../models//Vehicle/CarDataModel'
+import VehicleTypeService from '../../services/Vehicle/VehicleTypeService'
+import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
 
 class CarDataController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -31,9 +33,16 @@ class CarDataController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
+  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
+      if (vParam.vehicleId) {
+        const vVehicleType: IVehicleTypeInstance | null = await VehicleTypeService.show(vParam.vehicleId)
+        if (vVehicleType) {
+          vParam.isCar = vVehicleType.dataValues.isCar
+          vParam.isMoto = vVehicleType.dataValues.isMoto
+        }
+      }
       const vResponse: IResponseAllCarData | ICarDataInstance[] = await ClassCarDataService.all(vParam)
       if (!vResponse) {
         return pRes

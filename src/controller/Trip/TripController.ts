@@ -561,6 +561,30 @@ class TripController {
     }
   }
 
+  async showPanic(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: IParamShowTrip = {
+        id: pReq.input('id', 'number'),
+        panic: true
+      }
+      const socketId = pReq.input('socketId', 'string')
+      await ClassTripService.updatePanic({
+        tripId: vParam.id,
+        socketId: socketId
+      })
+      const vResponse: ITripInstance | null = await ClassTripService.showId(
+        vParam,
+      )
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
   // async recoveryTrip(pReq: Request, pRes: Response, pNext: NextFunction) {
   //   try {
   //     const vParam: IParamShowActiveTrip = {
