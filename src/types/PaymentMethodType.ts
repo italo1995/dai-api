@@ -1,4 +1,7 @@
-import type { IPaymentMethodInstance } from '../models/PaymentMethodModel'
+import type { IPaymentMethodInstance } from '../models/payments/PaymentMethodModel'
+import type { IBankInstance, EAccountType } from '../models/payments/BankModel'
+import type { IBranchInstance } from '../models/payments/BranchModel'
+
 import type { IResponseAll } from './generalType'
 
 export interface ITripInput {
@@ -24,3 +27,40 @@ export interface IResponseAllTrip extends IResponseAll {
   actualPage: number
 }
 
+export interface IBankInput {
+  id: string
+  name: string
+  icon?: string
+  phoneNumber?: string
+  accountNumber?: string
+  currencyId?: string
+  fullName: string
+  dni: string
+  accountType: EAccountType
+  email?: string
+}
+
+export interface IResponseAllBank extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IBankInstance[]
+  actualPage: number
+}
+export interface IBranchInput {
+  id: string
+  name: string
+  number: string
+  email?: string
+  direction: string
+  lat?: string
+  lon?: string
+  image?: string
+  referencePoint?: string
+}
+
+export interface IResponseAllBranch extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IBranchInstance[]
+  actualPage: number
+}

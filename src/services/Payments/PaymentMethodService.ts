@@ -17,10 +17,10 @@
 */
 import { type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import { modelPaymentMethod, modelTripPayment } from '../models'
-import type { IPaymentMethodInstance } from '../models/PaymentMethodModel'
-import type { ITripInput, IResponseAllTrip } from '../types/PaymentMethodType'
-import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../utils/query'
+import { modelPaymentMethod, modelTripPayment } from '../../models'
+import type { IPaymentMethodInstance } from '../../models/payments/PaymentMethodModel'
+import type { ITripInput, IResponseAllTrip } from '../../types/PaymentMethodType'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IPaymentMethodService {
     validate(data: any): any

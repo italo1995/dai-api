@@ -1,15 +1,15 @@
 /* 
-- File: CurrencyController.ts
+- File: BranchController.ts
 
-- Purpose: Es el controlador de auth de Currency, se encarga de la multimoneda
+- Purpose: Es el controlador de auth de bank, se encarga de los bancos
 - Author: Jairo Belen
 
-- Creation: 06/02/2024  
+- Creation: 26/03/2024  
 
 ==========Functions Manifest==========
 
 - Paya Methods:
-Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
+Para todos los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 1- show: Sirve un dato especifico filtrado por el id
 
 2 - all: Sirve todos los datos guardados o paginado
@@ -20,23 +20,25 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassCurrencyService from '../services/CurrencyService'
-import type { IResponseAllTrip, ITripInput } from '../types/CurrencyType'
-import { fxSuccessResponse, fxErrorResponse } from '../utils/helpers'
-import type { ICurrencyInstance } from '../models/CurrencyModel'
+import ClassBranchService from '../../services/Payments/BranchService'
+import type { IResponseAllBranch, IBranchInput } from '../../types/PaymentMethodType'
+import { fxSuccessResponse, fxErrorResponse,moveImages } from '../../utils/helpers'
+import type { IBranchInstance } from '../../models/payments/BranchModel'
 
-class CurrencyController {
+class BranchController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
 
-      const vResponse: ICurrencyInstance | null = await ClassCurrencyService.show(vId)
+      const vResponse: IBranchInstance | null = await ClassBranchService.show(vId)
       if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -45,7 +47,7 @@ class CurrencyController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTrip | ICurrencyInstance[] = await ClassCurrencyService.all(vParam)
+      const vResponse: IResponseAllBranch | IBranchInstance[] = await ClassBranchService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -58,15 +60,20 @@ class CurrencyController {
   }
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: IBranchInput = pReq.only([
         'name',
-        'symbol',
-        'change',
-        'type',
-        'auto',
-        'icon'
+        'number',
+        'email',
+        'direction',
+        'lat',
+        'lon',
+        'image',
+        'referencePoint'
       ])
-      const vResponse: ICurrencyInstance | null = await ClassCurrencyService.create(vData)
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
+      const vResponse: IBranchInstance | null = await ClassBranchService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -80,23 +87,30 @@ class CurrencyController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: IBranchInput = pReq.only([
         'id',
         'name',
-        'symbol',
-        'change',
-        'type',
-        'auto',
-        'icon'
+        'number',
+        'email',
+        'direction',
+        'lat',
+        'lon',
+        'image',
+        'referencePoint'
 
       ])
-      const vResponse: ICurrencyInstance | null = await ClassCurrencyService.update(vData)
+      if (vData?.image && vData?.image.includes('temp')) {
+        vData.image = await moveImages(vData.image)
+      }
+      const vResponse: IBranchInstance | null = await ClassBranchService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
@@ -104,7 +118,7 @@ class CurrencyController {
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = pReq.input('id', 'number')
-      const vResponse: boolean = await ClassCurrencyService.softDeleteRecord(vId)
+      const vResponse: boolean = await ClassBranchService.softDeleteRecord(vId)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -119,4 +133,4 @@ class CurrencyController {
 
 
 
-export default new CurrencyController()
+export default new BranchController()

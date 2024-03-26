@@ -18,9 +18,9 @@ import { type FindOptions } from 'sequelize'
 import type { IUserRatingInstance } from '../../models/User/UserRatingModel'
 import { modelUserRating } from '../../models'
 import type { IResponseAllUserRating, IUserRatingInput } from '../../types/User'
-import ClassReviewService from '../../services/ReviewService'
+import ClassReviewService from '../web/ReviewService'
 import { type IResponseAllReview } from '../../types/webTypes'
-import { type IReviewInstance } from '../../models/ReviewModel'
+import { type IReviewInstance } from '../../models/web/ReviewModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IUserRatingService {

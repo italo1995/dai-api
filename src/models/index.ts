@@ -13,14 +13,14 @@ import { fxVehicleAdditionalFactory } from './Vehicle/VehicleAdditionalModels'
 import { fxVehicleTypeFactory } from './Vehicle/VehicleTypeModels'
 import { fxBannerFactory } from './web/BannerModel'
 import { fxServiceFactory } from './web/ServiceModel'
-import { fxReviewFactory } from './ReviewModel'
+import { fxReviewFactory } from './web/ReviewModel'
 import { fxNewFactory } from './web/NewsModel'
 import { fxUserAddressFactory } from './Trip/UserAddressModel'
 import { fxTripFactory } from './Trip/TripModel'
 import { fxTripPaymentFactory } from './Trip/TripPaymentModel'
 import { fxTripRouteFactory } from './Trip/TripRouteModel'
-import { fxCurrencyFactory } from './CurrencyModel'
-import { fxPaymentMethodFactory } from './PaymentMethodModel'
+import { fxCurrencyFactory } from './payments/CurrencyModel'
+import { fxPaymentMethodFactory } from './payments/PaymentMethodModel'
 import { fxTripTravelFactory } from './Trip/TripTravelModel'
 import { fxTripDeliveryFactory } from './Trip/TripDeliveryModel'
 import { fxTripOffertFactory } from './Trip/TripOffertModel'
@@ -38,6 +38,8 @@ import { fxHelpInformationFactory } from './web/HelpInformationModel'
 import { fxDataContentFactory } from './web/DataContentModel'
 import { fxCarDataFactory } from './Vehicle/CarDataModel'
 import { fxCommentFactory } from './User/CommentModel'
+import { fxBankFactory } from './payments/BankModel'
+import { fxBranchFactory } from './payments/BranchModel'
 
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
@@ -83,6 +85,8 @@ export const modelHelpInformation = fxHelpInformationFactory(sequelize)
 export const modelDataContent = fxDataContentFactory(sequelize)
 export const modelCarData = fxCarDataFactory(sequelize)
 export const modelComment = fxCommentFactory(sequelize)
+export const modelBank = fxBankFactory(sequelize)
+export const modelBranch = fxBranchFactory(sequelize)
 
 const models = {
   modelUser,
@@ -119,7 +123,9 @@ const models = {
   modelHelpInformation,
   modelDataContent,
   modelCarData,
-  modelComment
+  modelComment,
+  modelBank,
+  modelBranch
 }
 
 export type ModelRegistry = typeof models

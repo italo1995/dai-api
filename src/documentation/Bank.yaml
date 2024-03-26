@@ -1,0 +1,213 @@
+components:
+ schemas:
+   Bank:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of bank
+       name:
+         type: string
+         description: the name of the bank
+       icon:
+         type: string
+         description: the icon of the bank
+       phoneNumber:
+         type: string
+         description: usado en caso de pago movil
+       accountNumber:
+         type: string
+         description: client's number accout
+       currencyId:
+         type: string
+         description: the currency of the payment
+       fullName:
+         type: string
+         description: the client's full name
+       dni:
+         type: string
+         description: the client's dni
+       accountType:
+         type: enum
+         description: (ahorro = 1, corriente = 2)
+       email:
+         type: string
+         description: the email of the bank
+     required:
+       - name
+       - fullName
+       - dni
+       - accountType
+     example:
+       id: 1
+       name: banesco
+       fullName: Pedro Perez Colmenares
+       dni: 1234567
+       accountType: 2
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Bank id
+tags:
+  - name: Bank
+    description: Bank endpoint
+paths:
+  /api/bank/show:
+    get:
+      summary: Returns a bank element
+      tags:
+        - Bank
+      parameters:
+        - $ref: '#/components/schemas/Bank/parameters/id'
+      responses:
+        '200':
+          description: the bank element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bank'
+  /api/bank/all:
+    get:
+      summary: Returns a list of banks
+      tags:
+        - Bank
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of Bank
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bank'
+  /api/bank/store:
+    post:
+      summary: Creates a new Bank
+      tags:
+        - Bank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                 type: string
+                 description: the name of the bank
+                icon:
+                 type: string
+                 description: the icon of the bank
+                phoneNumber:
+                 type: string
+                 description: usado en caso de pago movil
+                accountNumber:
+                 type: string
+                 description: client's number accout
+                currencyId:
+                 type: string
+                 description: the currency of the payment
+                fullName:
+                 type: string
+                 description: the client's full name
+                dni:
+                 type: string
+                 description: the client's dni
+                accountType:
+                 type: enum
+                 description: (ahorro = 1, corriente = 2)
+                email:
+                 type: string
+                 description: the email of the bank
+              required:
+              - name
+              - fullName
+              - dni
+              - accountType
+              example:
+                id: 1
+                name: banesco
+                fullName: Pedro Perez Colmenares
+                dni: 1234567
+                accountType: 2
+      responses:
+        '201':
+          description: the Bank created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bank'
+  /api/bank/update:
+    post:
+      summary: Updates a Bank
+      tags:
+        - Bank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                 type: string
+                 description: the name of the bank
+                icon:
+                 type: string
+                 description: the icon of the bank
+                phoneNumber:
+                 type: string
+                 description: usado en caso de pago movil
+                accountNumber:
+                 type: string
+                 description: client's number accout
+                currencyId:
+                 type: string
+                 description: the currency of the payment
+                fullName:
+                 type: string
+                 description: the client's full name
+                dni:
+                 type: string
+                 description: the client's dni
+                accountType:
+                 type: enum
+                 description: (ahorro = 1, corriente = 2)
+                email:
+                 type: string
+                 description: the email of the bank
+              required:
+              - name
+              - fullName
+              - dni
+              - accountType
+              example:
+                id: 1
+                name: banesco
+                fullName: Pedro Perez Colmenares
+                dni: 1234567
+                accountType: 2
+      responses:
+        '201':
+          description: the bank updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bank'

@@ -1,0 +1,198 @@
+components:
+ schemas:
+   Branch:
+     type: object
+     properties:
+       id:
+         type: number
+         description: the auto-increment id of branch
+       name:
+         type: string
+         description: the name of the branch
+       number:
+         type: string
+         description: the number of the branch
+       email:
+         type: string
+         description: the email of the branch
+       direction:
+         type: string
+         description: the branch's address
+       lat:
+         type: string
+         description: the latitude
+       lon:
+         type: string
+         description: the longitude
+       image:
+         type: string
+         description: the path of the branch image
+       referencePoint:
+         type: string
+         description: a reference point
+     required:
+       - name
+       - number
+       - direction
+     example:
+       id: 1
+       name: barrio obrero
+       number: 4-15
+       direction: calle 18 #5
+     parameters:
+      id:
+       in: query
+       name: id
+       required: true
+       schema:
+        type: string
+        description: the Branch id
+tags:
+  - name: Branch
+    description: Branch endpoint
+paths:
+  /api/branch/show:
+    get:
+      summary: Returns a branch element
+      tags:
+        - Branch
+      parameters:
+        - $ref: '#/components/schemas/Branch/parameters/id'
+      responses:
+        '200':
+          description: the branch element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Branch'
+  /api/branch/all:
+    get:
+      summary: Returns a list of branches
+      tags:
+        - Branch
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+      responses:
+        '200':
+          description: the list of Branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Branch'
+  /api/branch/store:
+    post:
+      summary: Creates a new Branch
+      tags:
+        - Branch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the branch
+                number:
+                  type: string
+                  description: the number of the branch
+                email:
+                  type: string
+                  description: the email of the branch
+                direction:
+                  type: string
+                  description: the branch's address
+                lat:
+                  type: string
+                  description: the latitude
+                lon:
+                  type: string
+                  description: the longitude
+                image:
+                  type: string
+                  description: the path of the branch image
+                referencePoint:
+                  type: string
+                  description: a reference point
+              required:
+                - name
+                - number
+                - direction
+              example:
+                id: 1
+                name: barrio obrero
+                number: 4-15
+                direction: calle 18 #5
+      responses:
+        '201':
+          description: the Branch created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+  /api/branch/update:
+    post:
+      summary: Updates a Branch
+      tags:
+        - Branch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the name of the branch
+                number:
+                  type: string
+                  description: the number of the branch
+                email:
+                  type: string
+                  description: the email of the branch
+                direction:
+                  type: string
+                  description: the branch's address
+                lat:
+                  type: string
+                  description: the latitude
+                lon:
+                  type: string
+                  description: the longitude
+                image:
+                  type: string
+                  description: the path of the branch image
+                referencePoint:
+                  type: string
+                  description: a reference point
+              required:
+                - name
+                - number
+                - direction
+              example:
+                id: 1
+                name: barrio obrero
+                number: 4-15
+                direction: calle 18 #5
+      responses:
+        '201':
+          description: the branch updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'

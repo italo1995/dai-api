@@ -1,4 +1,4 @@
-import type { ICurrencyInstance } from '../models/CurrencyModel'
+import type { ICurrencyInstance } from '../models/payments/CurrencyModel'
 import type { IResponseAll } from './generalType'
 
 export interface ITripInput {
