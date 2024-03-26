@@ -23,12 +23,8 @@ import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IPara
 import { fxFilterDate, fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 import type { ITripSpecialRequestAttributes, ITripSpecialRequestInstance } from '../../models/Trip/TripSpecialRequestModel'
 import { ETypeUser } from '../../types/User'
-<<<<<<< HEAD
 import { ETypeReview } from '../../models/web/ReviewModel'
-=======
-import { ETypeReview } from '../../models/ReviewModel'
 import type { ITripPanicInstance } from '../../models/Trip/TripPanicModel'
->>>>>>> 1e28809b2ec40f767a60db1f17c181ecaa4a2064
 
 interface ITripService {
   validate(data: any): any
