@@ -15,10 +15,10 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { IReviewInstance } from '../models/ReviewModel'
-import { modelReview } from '../models'
-import type { IReviewInput, IResponseAllReview } from '../types/webTypes'
-import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../utils/query'
+import type { IReviewInstance } from '../../models/web/ReviewModel'
+import { modelReview } from '../../models'
+import type { IReviewInput, IResponseAllReview } from '../../types/webTypes'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IReviewService {
   validate(data: any): any

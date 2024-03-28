@@ -7,13 +7,13 @@ import VehicleAdditional from './Vehicle/VehicleAdditionalRoute'
 import VehicleType from './Vehicle/VehicleTypeRoute'
 import Banner from './web/BannerRoute'
 import Service from './web/ServiceRoute'
-import Review from './ReviewRoute'
+import Review from './web/ReviewRoute'
 import Transfer from './Transfer/TransferRoute'
 import news from './web/NewRoute'
 import UserAddress from './Transfer/UserAddressRoute'
-import Currency from './CurrencyRoute'
+import Currency from './Payments/CurrencyRoute'
 import Trip from './trip/TripRoute'
-import PaymentMethod from './PaymentMethodRoute'
+import PaymentMethod from './Payments/PaymentMethodRoute'
 import TripPayment from './trip/TripPaymentRoutes'
 import TripRoute from './trip/TripRoutesRoute'
 import TripOffert from './trip/TripOffertRoute'
@@ -29,6 +29,8 @@ import HelpInformationRoute from './web/HelpInformationRoute'
 import DataContentRoute from './web/DataContentRoute'
 import CarDataRoute from './Vehicle/CarDataRoute'
 import CommentRoute from './User/CommentRoute'
+import BankRoute from './Payments/BankRoute'
+import BranchRoute from './Payments/BranchRoute'
 
 const router = express.Router()
 
@@ -62,5 +64,8 @@ router.use('/helpInformation', HelpInformationRoute)
 router.use('/dataContent', DataContentRoute)
 router.use('/carData', CarDataRoute)
 router.use('/comment', CommentRoute)
+router.use('/bank', BankRoute)
+router.use('/branch', BranchRoute)
+
 
 export default router

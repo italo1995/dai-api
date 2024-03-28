@@ -20,10 +20,10 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassCurrencyService from '../services/CurrencyService'
-import type { ICurrencyInput, IResponseAllCurrency } from '../types/CurrencyType'
-import { fxSuccessResponse, fxErrorResponse } from '../utils/helpers'
-import type { ICurrencyInstance } from '../models/CurrencyModel'
+import ClassCurrencyService from '../../services/Payments/CurrencyService'
+import type { ICurrencyInput, IResponseAllCurrency } from '../../types/CurrencyType'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import type { ICurrencyInstance } from '../../models/payments/CurrencyModel'
 
 class CurrencyController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

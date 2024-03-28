@@ -16,10 +16,10 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import { modelCurrency } from '../models'
-import type { ICurrencyInstance } from '../models/CurrencyModel'
-import type { ICurrencyInput, IResponseAllCurrency } from '../types/CurrencyType'
-import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../utils/query'
+import { modelCurrency } from '../../models'
+import type { ICurrencyInstance } from '../../models/payments/CurrencyModel'
+import type { ICurrencyInput, IResponseAllCurrency } from '../../types/CurrencyType'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface ICurrencyService {
   validate(data: any): any

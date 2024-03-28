@@ -23,7 +23,7 @@ import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IPara
 import { fxFilterDate, fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 import type { ITripSpecialRequestAttributes, ITripSpecialRequestInstance } from '../../models/Trip/TripSpecialRequestModel'
 import { ETypeUser } from '../../types/User'
-import { ETypeReview } from '../../models/ReviewModel'
+import { ETypeReview } from '../../models/web/ReviewModel'
 import type { ITripPanicInstance } from '../../models/Trip/TripPanicModel'
 
 interface ITripService {

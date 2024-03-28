@@ -21,10 +21,10 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 
 import type { NextFunction, Request, Response } from 'express'
-import { fxSuccessResponse, fxErrorResponse, moveImages } from '../utils/helpers'
-import type { ITripInput, IResponseAllTrip } from '../types/PaymentMethodType'
-import ClassPaymentMethodService from '../services/PaymentMethodService'
-import type { IPaymentMethodInstance } from '../models/PaymentMethodModel'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
+import type { ITripInput, IResponseAllTrip } from '../../types/PaymentMethodType'
+import ClassPaymentMethodService from '../../services/Payments/PaymentMethodService'
+import type { IPaymentMethodInstance } from '../../models/payments/PaymentMethodModel'
 
 class PaymentMethodController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

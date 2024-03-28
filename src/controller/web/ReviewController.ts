@@ -20,14 +20,14 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassReviewService from '../services/ReviewService'
-import type { IReviewInput, IResponseAllReview } from '../types/webTypes'
-import { fxSuccessResponse, fxErrorResponse } from '../utils/helpers'
-import { ETypeReview, type IReviewInstance } from '../models/ReviewModel'
-import ClassUserRatingService from '../services/User/UserRatingService'
-import ClassTripService from '../services/Trip/TripService'
-import type { IParamShowTrip } from '../types/TripType'
-import { ETypeUser } from '../types/User'
+import ClassReviewService from '../../services/web/ReviewService'
+import type { IReviewInput, IResponseAllReview } from '../../types/webTypes'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { ETypeReview, type IReviewInstance } from '../../models/web/ReviewModel'
+import ClassUserRatingService from '../../services/User/UserRatingService'
+import ClassTripService from '../../services/Trip/TripService'
+import type { IParamShowTrip } from '../../types/TripType'
+import { ETypeUser } from '../../types/User'
 
 class ReviewController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

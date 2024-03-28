@@ -1,5 +1,5 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
-import type { SequelizeAttributes, ModelStatic } from '../types/SequelizeTypes'
+import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
 
 export interface IReviewAttributes {

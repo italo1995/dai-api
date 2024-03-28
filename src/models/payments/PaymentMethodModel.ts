@@ -1,6 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
-import type { SequelizeAttributes, ModelStatic } from '../types/SequelizeTypes'
-import type { ModelRegistry } from '.'
+import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '../'
 
 export interface IPaymentMethodAttributes {
   id: string

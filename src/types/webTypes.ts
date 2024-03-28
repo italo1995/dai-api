@@ -1,6 +1,6 @@
 import type { IBannerInstance } from '../models/web/BannerModel'
 import type { IServiceInstance } from '../models/web/ServiceModel'
-import type { ETypeReview, IReviewInstance } from '../models/ReviewModel'
+import type { ETypeReview, IReviewInstance } from '../models/web/ReviewModel'
 import type { INewInstance } from '../models/web/NewsModel'
 import type { IResponseAll } from './generalType'
 import type { ITermInstance } from '../models/web/TermModel'
