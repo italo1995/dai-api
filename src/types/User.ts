@@ -1,8 +1,10 @@
-import type { EStatusDriver } from '../models/User/User'
+import type { EStatusDriver, IUserInstance } from '../models/User/User'
 import type { IUserRatingInstance } from '../models/User/UserRatingModel'
 import type { EtransactionType, EStatusType } from '../models/User/UserTransactionModel'
 import type { ICommentInstance } from '../models/User/CommentModel'
+import type { IResponseAll } from './generalType'
 export interface IUserInput {
+  id?: string
   name: string
   avatar?: string
   email?: string
@@ -62,6 +64,7 @@ export interface IUserCodeInput {
 export enum ETypeUser {
   passenger = '1',
   driver = '2',
+  both = '0',
 }
 
 export interface ITypeFileUserInput {
@@ -132,5 +135,12 @@ export interface IResponseAllComment {
   total: number
   totalPage: number
   data: ICommentInstance[]
+  actualPage: number
+}
+
+export interface IResponseAllUser extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IUserInstance[]
   actualPage: number
 }

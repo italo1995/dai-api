@@ -2,9 +2,13 @@ import { type FindOptions } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
 import sequelize, { modelDriverDetail, modelUser, modelUserRating } from '../../models'
 import { ETypeService } from '../../models/Trip/TripModel'
+import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'
+import type { IResponseAllUser, IUserInput } from '../../types/User'
 
 interface IUserService {
   NearbyDrivers(phoneNumber: string, phoneCode: string): Promise<IUserInstance[] | []>
+  show(pParam: { id: string, isDriver?: boolean }): Promise<IUserInstance | null>
+  all(pParam: any): Promise<IResponseAllUser | IUserInstance[]>
 }
 export interface NearbyDriversParamTypes {
   lat: string
@@ -78,6 +82,72 @@ class UserService implements IUserService {
       whereStatement.attributes = ['id', 'name', 'socketId', 'tokenPush', 'avatar', 'phoneCode', 'phoneNumber', 'availabilityToTravel', 'createdAt']
       const vResponse: IUserInstance | null = await modelUser.findOne(whereStatement)
       return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  public async all(pParam: any): Promise<IResponseAllUser | IUserInstance[]> {
+    try {
+      let whereStatement: FindOptions = {}
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name', modelUser.name
+      )
+      
+      const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllUser = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'Comment',
+          vResponse
+        )
+        return vResponsePaginate
+      }
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async create(pData: IUserInput): Promise<IUserInstance> {
+    try {
+      const vResponse: IUserInstance = await modelUser.create(pData)
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async update(pData: IUserInput): Promise<IUserInstance | null> {
+    try {
+      if (pData?.id) {
+        const vCountry: IUserInstance | null = await modelUser.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        await vCountry?.update(pData, { where: { id: pData.id } })
+        return vCountry
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelUser.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
     } catch (error) {
       throw error
     }

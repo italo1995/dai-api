@@ -46,11 +46,12 @@ class CountryController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
+
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const param = pReq.query
@@ -61,11 +62,12 @@ class CountryController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ICountryInput = pReq.only([
@@ -82,11 +84,12 @@ class CountryController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
+
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ICountryUpdate = pReq.only([
@@ -103,7 +106,22 @@ class CountryController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassCountryService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }

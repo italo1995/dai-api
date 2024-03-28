@@ -794,7 +794,7 @@ class TripService implements ITripService {
     try {
       await modelTrip.update({ visibility: 0 }, {
         where: {
-          id: pParam.userId,
+          id: pParam.id,
           userId: pParam.userId
         }
       })

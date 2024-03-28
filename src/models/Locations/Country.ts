@@ -10,6 +10,7 @@ export interface ICountryAttributes {
   phone?: string
   createdAt?: Date
   updatedAt?: Date
+  deletedAt?: Date
 }
 interface ICountryCreationAttributes extends Optional<ICountryAttributes, 'id'> {}
 
@@ -54,6 +55,12 @@ export const vCountryModelAttributes: SequelizeAttributes<ICountryAttributes> = 
     type: DataTypes.DATE,
     field: 'updatedAt',
     allowNull: false,
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    field: 'deletedAt',
+    defaultValue: null,
+    allowNull: true,
   },
 }
 

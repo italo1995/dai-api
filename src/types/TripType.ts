@@ -191,8 +191,8 @@ export interface ICancellationOptionInput {
   id: number
   name: number
   type?: number
-  isClient: false
-  isDriver: false
+  isClient: boolean
+  isDriver: boolean
   createdAt?: Date
   updatedAt?: Date
 }

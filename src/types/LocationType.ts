@@ -17,7 +17,15 @@ export interface ICountryUpdate {
 export interface IRegionInput {
   name: string
   flag?: string
-  countryId?: string
+  countryId: number
+  state: boolean
+  phone?: string
+}
+export interface IRegionUpdate {
+  id: number
+  name: string
+  flag?: string
+  countryId?: number
   state?: boolean
   phone?: string
 }
@@ -25,7 +33,16 @@ export interface IRegionInput {
 export interface ICityInput {
   name: string
   flag?: string
-  regionId?: string
-  state?: boolean
+  regionId: number
+  state: boolean
+  phone?: string
+}
+
+export interface ICityUpdate {
+  id: number
+  name: string
+  flag?: string
+  regionId?: number
+  state: boolean
   phone?: string
 }

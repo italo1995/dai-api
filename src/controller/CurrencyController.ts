@@ -21,7 +21,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassCurrencyService from '../services/CurrencyService'
-import type { IResponseAllTrip, ITripInput } from '../types/CurrencyType'
+import type { ICurrencyInput, IResponseAllCurrency } from '../types/CurrencyType'
 import { fxSuccessResponse, fxErrorResponse } from '../utils/helpers'
 import type { ICurrencyInstance } from '../models/CurrencyModel'
 
@@ -45,7 +45,7 @@ class CurrencyController {
   async all (pReq:Request, pRes: Response, pNext: NextFunction) {
     try{
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTrip | ICurrencyInstance[] = await ClassCurrencyService.all(vParam)
+      const vResponse: IResponseAllCurrency | ICurrencyInstance[] = await ClassCurrencyService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -58,7 +58,7 @@ class CurrencyController {
   }
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: ICurrencyInput = pReq.only([
         'name',
         'symbol',
         'change',
@@ -80,7 +80,7 @@ class CurrencyController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: ICurrencyInput = pReq.only([
         'id',
         'name',
         'symbol',
@@ -88,7 +88,6 @@ class CurrencyController {
         'type',
         'auto',
         'icon'
-
       ])
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.update(vData)
       if (!vResponse) {
@@ -98,6 +97,36 @@ class CurrencyController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async updateMany(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData = pReq.input('data', 'json')
+      const vUpdateData: ICurrencyInput[] = []
+      for (const item of vData) {
+        if (item.id) {
+          vUpdateData.push({
+            id: item.id,
+            name: item.name,
+            symbol: item.symbol,
+            change: item.change,
+            type: item.type,
+            auto: item.auto,
+            icon: item.icon,
+          })
+        }
+      }
+      const vResponse: ICurrencyInstance[] | null = await ClassCurrencyService.updateMany(vUpdateData)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+    } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }

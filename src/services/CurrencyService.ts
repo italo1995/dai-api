@@ -18,15 +18,15 @@
 import { type FindOptions } from 'sequelize'
 import { modelCurrency } from '../models'
 import type { ICurrencyInstance } from '../models/CurrencyModel'
-import type { ITripInput, IResponseAllTrip } from '../types/CurrencyType'
+import type { ICurrencyInput, IResponseAllCurrency } from '../types/CurrencyType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../utils/query'
 
 interface ICurrencyService {
   validate(data: any): any
-  all(pParam: any): Promise<IResponseAllTrip | ICurrencyInstance[]>
+  all(pParam: any): Promise<IResponseAllCurrency | ICurrencyInstance[]>
   show(pId: number): Promise<ICurrencyInstance | null>
-  create(payload: ITripInput): Promise<ICurrencyInstance>
-  update(payload: ITripInput): Promise<ICurrencyInstance | null>
+  create(payload: ICurrencyInput): Promise<ICurrencyInstance>
+  update(payload: ICurrencyInput): Promise<ICurrencyInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
 }
 
@@ -37,7 +37,7 @@ class CurrencyService implements ICurrencyService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllTrip | ICurrencyInstance[]> {
+  public async all(pParam: any): Promise<IResponseAllCurrency | ICurrencyInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
@@ -48,7 +48,7 @@ class CurrencyService implements ICurrencyService {
 
       const vResponse: ICurrencyInstance[] = await modelCurrency.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
+        const vResponsePaginate: IResponseAllCurrency = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
         return vResponsePaginate
       }
       return vResponse
@@ -70,7 +70,7 @@ class CurrencyService implements ICurrencyService {
     }
   }
 
-  async create(pData: ITripInput): Promise<ICurrencyInstance> {
+  async create(pData: ICurrencyInput): Promise<ICurrencyInstance> {
     try {
       const vResponse: ICurrencyInstance = await modelCurrency.create(pData)
       return vResponse
@@ -79,7 +79,7 @@ class CurrencyService implements ICurrencyService {
     }
   }
 
-  async update(pData: ITripInput): Promise<ICurrencyInstance | null> {
+  async update(pData: ICurrencyInput): Promise<ICurrencyInstance | null> {
     try {
       if (pData?.id) {
         const vReponse: ICurrencyInstance | null = await modelCurrency.findOne({
@@ -91,6 +91,15 @@ class CurrencyService implements ICurrencyService {
         return vReponse
       }
       return null
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async updateMany(pData: ICurrencyInput[]): Promise<ICurrencyInstance[]> {
+    try {
+      const vReponse: ICurrencyInstance[] = await modelCurrency.bulkCreate(pData, { updateOnDuplicate: ['name', 'symbol', 'change', 'type', 'auto', 'icon'] })
+      return vReponse
     } catch (error) {
       throw error
     }
