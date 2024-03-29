@@ -17,7 +17,7 @@ class UserAddressController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -92,7 +92,7 @@ class UserAddressController {
           .status(500)
           .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse))
     } catch (error) {
       pNext(error)
     }

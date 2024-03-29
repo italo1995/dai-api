@@ -23,6 +23,7 @@ import ClassCancellationOptionService from '../../services/Trip/CancellationOpti
 import type { ICancellationOptionInput, IResponseAllCancellationOption } from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import { type ICancellationOptionInstance } from '../../models/Trip/CancellationOptionModel'
+import { ETypeUser } from '../../types/User'
 
 class CancellationOptionController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -30,6 +31,20 @@ class CancellationOptionController {
       const vId: number = Number(pReq.query.id)
 
       const vResponse: ICancellationOptionInstance | null = await ClassCancellationOptionService.show(vId)
+      if (!vResponse) {
+        return pRes
+          .status(200)
+          .send(fxErrorResponse(200, null, 'sin datos'))
+      }
+      const vReponseParse: any = { ...vResponse.dataValues }
+
+      if (vResponse?.isDriver && vResponse?.isClient) {
+        vReponseParse.rol = ETypeUser.both
+      } else if (vResponse?.isClient) {
+        vReponseParse.rol = ETypeUser.passenger
+      }else if (vResponse?.isDriver) {
+        vReponseParse.rol = ETypeUser.driver
+      }
       if (!vResponse) {
         return pRes
           .status(500)
@@ -64,6 +79,13 @@ class CancellationOptionController {
         'isClient',
         'isDriver'
       ])
+      const vRol = pReq.input('rol')
+      if(vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
+        vData.isClient = true
+      }
+      if(vRol === ETypeUser.driver || vRol === ETypeUser.both) {
+        vData.isDriver = true
+      }
       const vResponse: ICancellationOptionInstance | null = await ClassCancellationOptionService.create(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) { 
@@ -80,6 +102,13 @@ class CancellationOptionController {
         'isClient',
         'isDriver'
       ])
+      const vRol = pReq.input('rol')
+      if(vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
+        vData.isClient = true
+      }
+      if(vRol === ETypeUser.driver || vRol === ETypeUser.both) {
+        vData.isDriver = true
+      }
       const vResponse: ICancellationOptionInstance | null = await ClassCancellationOptionService.update(vData)
       if (!vResponse) {
         return pRes

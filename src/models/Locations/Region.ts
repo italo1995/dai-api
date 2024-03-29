@@ -1,16 +1,16 @@
 import { DataTypes, type Model, type Optional, type Sequelize } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
-import { v4 as uuidv4 } from 'uuid'
 
 export interface IRegionAttributes {
-  id: string
+  id: number
   name: string
   countryId: number
-  flag: string
+  flag?: string
   state: boolean
   phone?: string
   createdAt?: Date
   updatedAt?: Date
+  deletedAt?: Date
 }
 interface IRegionCreationAttributes extends Optional<IRegionAttributes, 'id'> {}
 
@@ -20,9 +20,9 @@ export interface IRegionInstance
 
 export const vRegionModelAttributes: SequelizeAttributes<IRegionAttributes> = {
   id: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     primaryKey: true,
-    defaultValue: () => uuidv4(),
+    autoIncrement: true
   },
   name: {
     type: DataTypes.STRING,
@@ -55,6 +55,12 @@ export const vRegionModelAttributes: SequelizeAttributes<IRegionAttributes> = {
     type: DataTypes.DATE,
     field: 'updatedAt',
     allowNull: false,
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    field: 'deletedAt',
+    defaultValue: null,
+    allowNull: true,
   },
 }
 

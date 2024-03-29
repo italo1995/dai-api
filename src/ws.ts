@@ -168,7 +168,7 @@ export class SocketService {
             needClient: true
           }
           const trip = await ClassTripService.showId(vParamShowTrip)
-          if (auth?.dataValues.type === ETypeUser.driver || auth?.type === ETypeUser.driver) {
+          if (auth?.dataValues.typeUser === ETypeUser.driver || auth?.typeUser === ETypeUser.driver) {
             const clientSocketId = JSON.parse(JSON.stringify(trip))?.user.socketId
             socket.to(clientSocketId).emit('driverPosition', {
               tripId: coords.tripId,
@@ -272,14 +272,12 @@ export class SocketService {
           userId: vTripOffer?.dataValues.clientId,
           price: Number(vTripOffer.dataValues.amount)
         }
-        if (vUpdateTrip && Number(vUpdateTrip) !== vTrip?.dataValues.price) {
-          const vUpdateTripPaymentData = {
-            tripId: vTripId,
-            amount: Number(vTripOffer.dataValues.amount),
-            currencyId: vTripOffer.dataValues.currencyId
-          }
-          await TripPaymentService.updatePrice(vUpdateTripPaymentData)
+        const vUpdateTripPaymentData = {
+          tripId: vTripId,
+          amount: Number(vTripOffer.dataValues.amount),
+          currencyId: Number(vTripOffer.dataValues.currencyId)
         }
+        await TripPaymentService.updatePrice(vUpdateTripPaymentData)
         const vUpdateTripOffert: ITripOffertUpdate = {
           id: vTripOffer.dataValues.id,
           driverId: vTripOffer?.dataValues.driverId,

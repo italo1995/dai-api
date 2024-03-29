@@ -171,3 +171,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/currency'
+  /api/currency/updateMany:
+    post:
+      summary: Updates a currency
+      tags:
+        - Currency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: json
+                  description: ['name', 'symbol', 'change', 'type', 'auto', 'icon']
+              required:
+                - id
+              example:
+                '[{
+                id: 1
+                name: Currency
+                symbol: $
+                change: 1.5
+                type: true
+                }]'
+      responses:
+        '201':
+          description: the currency updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/currency'

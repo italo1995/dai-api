@@ -216,8 +216,6 @@ class AuthController {
               .send(fxErrorResponse(500, null, 'No puede cambiar el tipo de usuario mientras tiene una orden activa'))
           }
         }
-        console.log('vData :>> ', vData)
-
         const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (!vUserDB) {
           return pRes

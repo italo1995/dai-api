@@ -93,5 +93,18 @@ class CountryService implements ICountryService {
     return null
   }
 
+  async softDeleteRecord(pId: number) {
+    try {
+      const record = await modelCountry.update({ deletedAt: new Date() }, {
+        where: { id: pId }
+      })
+      if (!record) {
+        return false
+      }
+      return true
+    } catch (error) {
+      throw error
+    }
+  }
 }
 export default new CountryService()

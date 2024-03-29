@@ -3,14 +3,15 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 import { v4 as uuidv4 } from 'uuid'
 
 export interface ICityAttributes {
-  id: string
+  id: number
   name: string
   regionId: number
-  flag: string
+  flag?: string
   state: boolean
   phone?: string
   createdAt?: Date
   updatedAt?: Date
+  deletedAt?: Date
 }
 interface ICityCreationAttributes extends Optional<ICityAttributes, 'id'> {}
 
@@ -55,6 +56,12 @@ export const vCityModelAttributes: SequelizeAttributes<ICityAttributes> = {
     type: DataTypes.DATE,
     field: 'updatedAt',
     allowNull: false,
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    field: 'deletedAt',
+    defaultValue: null,
+    allowNull: true,
   },
 }
 

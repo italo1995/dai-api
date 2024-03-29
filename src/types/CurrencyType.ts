@@ -1,17 +1,17 @@
 import type { ICurrencyInstance } from '../models/payments/CurrencyModel'
 import type { IResponseAll } from './generalType'
 
-export interface ITripInput {
+export interface ICurrencyInput {
   id?: string
   name: string
   symbol: string
   change: number
   type: boolean
   auto?: string
-  tripId: number
+  icon: string
 }
 
-export interface IResponseAllTrip extends IResponseAll {
+export interface IResponseAllCurrency extends IResponseAll {
   total: number
   totalPage: number
   data: ICurrencyInstance[]

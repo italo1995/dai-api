@@ -72,11 +72,15 @@ class TripPaymentService implements ITripPaymentService {
     return vResponse
   }
 
-  async updatePrice(pData: { tripId: number | null, amount: number | null }): Promise<true | null> {
+  async updatePrice(pData: { tripId: number | null, amount: number | null, currencyId?: number | null }): Promise<true | null> {
     if (pData?.tripId && pData?.amount) {
-      await modelTripPayment.update({
+      const vDataUpdate: any = {
         amount: pData.amount
-      }, {
+      }
+      if (pData.currencyId) {
+        vDataUpdate.currencyId = pData.currencyId
+      }
+      await modelTripPayment.update(vDataUpdate, {
         where: {
           tripId: pData.tripId
         }

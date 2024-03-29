@@ -5,8 +5,8 @@ export interface ICancellationOptionAttributes {
   id: number
   name: number
   type?: ETypeCancellationOption
-  isClient: false
-  isDriver: false
+  isClient: boolean
+  isDriver: boolean
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date

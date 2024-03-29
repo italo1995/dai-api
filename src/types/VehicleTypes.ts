@@ -13,6 +13,12 @@ export interface IVehicleAdditionalInput {
   isClient?: boolean
   isRegister?: boolean
 }
+
+export enum EVehicleAdditionalRol {
+  PASAJERO = 1,
+  CONDUCTOR = 2,
+  AMBOS = 3
+}
 export interface IResponseAllVehicleAdditionalType extends IResponseAll {
   total: number
   totalPage: number

@@ -227,12 +227,12 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
-    allowNull: false,
+    allowNull: true,
   },
   updatedAt: {
     type: DataTypes.DATE,
     field: 'updatedAt',
-    allowNull: false,
+    allowNull: true,
   },
   deletedAt: {
     type: DataTypes.DATE,
