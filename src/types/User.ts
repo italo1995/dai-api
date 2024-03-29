@@ -159,6 +159,7 @@ export interface IResponseAllSuspension extends IResponseAll {
 }
 
 export interface IVerifyInput {
+  id?: string
   userId: string
   apelacion?: string
   reason?: string
