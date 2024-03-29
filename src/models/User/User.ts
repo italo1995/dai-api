@@ -32,6 +32,7 @@ export interface IUserAttributes {
   lat?: number | null
   lon?: number | null
   balance?: number | null
+  driverSuspendedTo: Date | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -216,6 +217,12 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     field: 'balance',
     allowNull: true,
     defaultValue: 0,
+  },
+  driverSuspendedTo: {
+    type: DataTypes.DATE,
+    field: 'driver_suspended_to',
+    allowNull: true,
+    defaultValue: null
   },
   createdAt: {
     type: DataTypes.DATE,

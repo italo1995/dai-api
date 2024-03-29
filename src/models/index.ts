@@ -41,6 +41,8 @@ import { fxCommentFactory } from './User/CommentModel'
 import { fxBankFactory } from './payments/BankModel'
 import { fxBranchFactory } from './payments/BranchModel'
 import { fxTripPanicFactory } from './Trip/TripPanicModel'
+import { fxSuspensionFactory } from './User/SuspensionModel'
+import { fxVerifyFactory } from './User/VerifyModel'
 
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
@@ -89,6 +91,8 @@ export const modelComment = fxCommentFactory(sequelize)
 export const modelBank = fxBankFactory(sequelize)
 export const modelBranch = fxBranchFactory(sequelize)
 export const modelTripPanic = fxTripPanicFactory(sequelize)
+export const modelSuspension = fxSuspensionFactory(sequelize)
+export const modelVerify = fxVerifyFactory(sequelize)
 
 const models = {
   modelUser,
@@ -128,7 +132,9 @@ const models = {
   modelComment,
   modelBank,
   modelBranch,
-  modelTripPanic
+  modelTripPanic,
+  modelSuspension,
+  modelVerify
 }
 
 export type ModelRegistry = typeof models
