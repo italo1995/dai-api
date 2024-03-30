@@ -1,0 +1,205 @@
+/* 
+- File: SuspensionController.ts
+
+- Purpose: Es el controlador de auth de suspensiones, se encarga de las suspensiones de los drivers
+- Author: Jairo Belen
+
+- Creation: 28/03/2024  
+
+==========Functions Manifest==========
+
+- Paya Methods:
+Para todos los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
+1- show: Sirve un dato especifico filtrado por el id
+
+2 - all: Sirve todos los datos guardados o paginado
+
+3 - update: Cumple la funcion de recibir todos los datos que se pueden actualizar luego los envia a guardar en el servicio
+
+4 - create: Esto es en caso de que en un futuro necesitos crear nuevos pero lo mas probable nunca se use
+
+ */
+import type { NextFunction, Request, Response } from 'express'
+import ClassSuspensionService from '../../services/User/SuspensionService'
+import type { IResponseAllSuspension, ISuspensionInput } from '../../types/User'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { ETypeTime, type ISuspensionInstance } from '../../models/User/SuspensionModel'
+import { modelUser } from '../../models'
+import { addYears, addHours } from 'date-fns'
+
+class SuspensionController {
+  async show(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = Number(pReq.query.id)
+
+      const vResponse: ISuspensionInstance | null = await ClassSuspensionService.show(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
+    try{
+      const vParam: any = pReq.query
+      const vResponse: IResponseAllSuspension | ISuspensionInstance[] = await ClassSuspensionService.all(vParam)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+  async create(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: ISuspensionInput = pReq.only([
+        'driverId',
+        'reason',
+        'timeFrame',
+        'init',
+        'end',
+        'isCanceled'
+      ])
+      const existingSuspension = await ClassSuspensionService.findActiveSuspension(vData.driverId)
+      if (existingSuspension) {
+        return pRes
+          .status(400)
+          .send(fxErrorResponse(400, {user: null, token: null}, 'El conductor ya tiene una suspension activa'))
+      }
+      vData.init = new Date()
+      vData.isCanceled = false
+      switch (vData.timeFrame) {
+
+      case ETypeTime.indefinido:
+        vData.end = addYears(vData.init, 100)
+        break
+
+      case ETypeTime.hoy:
+        vData.end = addHours(vData.init, 24)
+        break
+
+      case ETypeTime.horas:
+        if (!vData.hours) {
+          throw new Error('Debes proporcionar la cantidad de horas para la suspension')
+        }
+        vData.end = addHours(vData.init, vData.hours)
+        break
+      
+      case ETypeTime.fecha:
+        if (!vData.end) {
+          throw new Error('Debes proporcionar una fecha específica para cancelar la suspension')
+        }
+        break
+      }
+
+      const vResponse: ISuspensionInstance | null = await ClassSuspensionService.create(vData)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+      }
+      const user = await modelUser.findOne({ where: { id: vResponse.driverId }
+      })
+      if (user) {
+        user.driverSuspendedTo = vResponse.end
+        await user.save()
+      }
+      const message = `La suspensión del conductor fue generada hasta ${vResponse.end.toLocaleString()}`
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, { suspension: vResponse, message: message }, 'Suspension creada con éxito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async update(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: ISuspensionInput = pReq.only([
+        'id',
+        'driverId',
+        'reason',
+        'timeFrame',
+        'init',
+        'end',
+        'isCanceled'
+
+      ])
+      const vResponse: ISuspensionInstance | null = await ClassSuspensionService.update(vData)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+      }
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async CancelSuspended(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: ISuspensionInput = pReq.only([
+        'id',
+        'driverId',
+        'reason',
+        'timeFrame',
+        'init',
+        'end',
+        'isCanceled'
+      ])
+
+      const suspension = await ClassSuspensionService.show(vData.id)
+      if (!suspension) {
+        return pRes
+          .status(400)
+          .send(fxErrorResponse(400, { user: null, token: null }, 'La suspension no existe'))
+      }
+      suspension.end = new Date()
+      suspension.isCanceled = true
+      const vResponse: ISuspensionInstance | null = await ClassSuspensionService.update(suspension)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+
+      return pRes
+        .status(200)
+        .send(fxSuccessResponse(200, vResponse, 'Suspensión cancelada con éxito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: number = pReq.input('id', 'number')
+      const vResponse: boolean = await ClassSuspensionService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+}
+
+
+
+export default new SuspensionController()

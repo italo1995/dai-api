@@ -31,6 +31,8 @@ import CarDataRoute from './Vehicle/CarDataRoute'
 import CommentRoute from './User/CommentRoute'
 import BankRoute from './Payments/BankRoute'
 import BranchRoute from './Payments/BranchRoute'
+import SuspensionRoute from './User/SuspensionRoute'
+import VerifyRoute from './User/VerifyRoute'
 
 const router = express.Router()
 
@@ -66,6 +68,8 @@ router.use('/carData', CarDataRoute)
 router.use('/comment', CommentRoute)
 router.use('/bank', BankRoute)
 router.use('/branch', BranchRoute)
+router.use('/suspension', SuspensionRoute)
+router.use('/verify', VerifyRoute)
 
 
 export default router

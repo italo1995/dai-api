@@ -2,6 +2,8 @@ import type { EStatusDriver, IUserInstance } from '../models/User/User'
 import type { IUserRatingInstance } from '../models/User/UserRatingModel'
 import type { EtransactionType, EStatusType } from '../models/User/UserTransactionModel'
 import type { ICommentInstance } from '../models/User/CommentModel'
+import type { ISuspensionInstance, ETypeTime } from '../models/User/SuspensionModel'
+import type { IVerifyInstance, EStatusVerify } from '../models/User/VerifyModel'
 import type { IResponseAll } from './generalType'
 export interface IUserInput {
   id?: string
@@ -138,6 +140,37 @@ export interface IResponseAllComment {
   actualPage: number
 }
 
+export interface ISuspensionInput {
+  id: number
+  driverId: string
+  reason: string
+  timeFrame: ETypeTime
+  init: Date
+  end: Date
+  isCanceled?: boolean
+  hours?: number
+}
+
+export interface IResponseAllSuspension extends IResponseAll {
+  total: number
+  totalPage: number
+  data: ISuspensionInstance[]
+  actualPage: number
+}
+
+export interface IVerifyInput {
+  id?: string
+  userId: string
+  apelacion?: string
+  reason?: string
+  status: EStatusVerify
+}
+
+export interface IResponseAllVerify extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IVerifyInstance[]
+}
 export interface IResponseAllUser extends IResponseAll {
   total: number
   totalPage: number

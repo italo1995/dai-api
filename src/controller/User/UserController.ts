@@ -11,6 +11,8 @@ import ClassUser from '../../services/User/UserService'
 import type { IUserInput, IResponseAllUser } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IUserInstance } from '../../models/User/User'
+import ClassVerifyService from '../../services/User/VerifyService'
+import { EStatusVerify } from '../../models/User/VerifyModel'
 
 class UserController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -67,6 +69,15 @@ class UserController {
           .status(500)
           .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
+
+      if (vData.typeUser === '2') {
+        const verifyData = {
+          userId: vResponse.id,
+          status: EStatusVerify.verifying
+        }
+        await ClassVerifyService.create(verifyData)
+      }
+
       return pRes
         .status(200)
         .send(fxSuccessResponse(200, vResponse, 'Correcto'))
