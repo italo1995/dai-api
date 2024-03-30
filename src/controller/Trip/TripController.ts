@@ -238,6 +238,36 @@ class TripController {
     }
   }
 
+  async allAdmin(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: IParamAllTrip = {
+        userId: pReq.input('userId', 'string'),
+        isClient: pReq.input('isClient', 'json'),
+        isDriver: pReq.input('isDriver', 'json'),
+        search: pReq.query?.search?.toString() || null,
+        typeSearch: pReq.query?.typeSearch?.toString() || null,
+        pag: pReq.query?.pag ? Number(pReq.query?.pag) : null,
+        limit: pReq.query?.limit ? Number(pReq.query?.limit) : null,
+        recient: pReq.input('recient', 'json'),
+        initDate: pReq.input('initDate'),
+        endDate: pReq.input('endDate')
+      }
+      if (vParam.isClient === undefined && vParam.isDriver === undefined) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))
+      }
+      const vResponse: IResponseAllTrip | ITripInstance[] =
+        await ClassTripService.all(vParam)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserId = pReq.auth.id
