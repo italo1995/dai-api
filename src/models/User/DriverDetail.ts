@@ -58,7 +58,7 @@ export const vDriverDetailModelAttributes: SequelizeAttributes<IDriverDetailAttr
 
 export function fxDriverDetailFactory(sequelize: Sequelize) {
   const vDriverDetail = <ModelStatic<IDriverDetailInstance>>sequelize.define(
-    'UserCode',
+    'DriverDetail',
     vDriverDetailModelAttributes,
     {
       tableName: 'driver_details',
