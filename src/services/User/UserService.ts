@@ -97,7 +97,25 @@ class UserService implements IUserService {
         whereStatement,
         pParam?.typeSearch || 'name', modelUser.name
       )
-      
+      if (pParam.type === 'user') {
+        whereStatement.where = {
+          ...whereStatement.where,
+          rolId: 3,
+        }
+      } else if (pParam.type === 'driver') {
+        whereStatement.where = {
+          ...whereStatement.where,
+          rolId: 3,
+          verifiedDriver: true
+        }
+        whereStatement.include = [
+          {
+            model: modelDriverDetail,
+            as: 'detail',
+            required: false
+          }
+        ]
+      }
       const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllUser = await fxReponseServices(
@@ -110,6 +128,7 @@ class UserService implements IUserService {
       }
       return vResponse
     } catch (error) {
+      console.log('error :>> ', error)
       throw error
     }
   }

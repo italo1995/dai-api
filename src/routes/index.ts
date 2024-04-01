@@ -33,6 +33,7 @@ import BankRoute from './Payments/BankRoute'
 import BranchRoute from './Payments/BranchRoute'
 import SuspensionRoute from './User/SuspensionRoute'
 import VerifyRoute from './User/VerifyRoute'
+import UserRoute from './User/UserRoute'
 
 const router = express.Router()
 
@@ -70,6 +71,7 @@ router.use('/bank', BankRoute)
 router.use('/branch', BranchRoute)
 router.use('/suspension', SuspensionRoute)
 router.use('/verify', VerifyRoute)
+router.use('/user', UserRoute)
 
 
 export default router
