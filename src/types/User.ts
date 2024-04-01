@@ -5,6 +5,7 @@ import type { ICommentInstance } from '../models/User/CommentModel'
 import type { ISuspensionInstance, ETypeTime } from '../models/User/SuspensionModel'
 import type { IVerifyInstance, EStatusVerify } from '../models/User/VerifyModel'
 import type { IResponseAll } from './generalType'
+import type { IDriverReportInstance } from '../models/User/driverReportModel'
 export interface IUserInput {
   id?: string
   name: string
@@ -175,5 +176,19 @@ export interface IResponseAllUser extends IResponseAll {
   total: number
   totalPage: number
   data: IUserInstance[]
+  actualPage: number
+}
+
+export interface IDriverReportInput {
+  id: string
+  userId: string
+  ammount: number
+  quantity: number
+}
+
+export interface IResponseAllDriverReport extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IDriverReportInstance[]
   actualPage: number
 }
