@@ -29,7 +29,6 @@ import type { ITripPaymentInstance } from '../../models/Trip/TripPaymentModel'
 class TripPaymentController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-
       const vId: number = Number(pReq.query.id)
 
       const vResponse: ITripPaymentInstance | null = await ClassTripPaymentService.show(vId)
@@ -44,10 +43,11 @@ class TripPaymentController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTripPayment | ITripPaymentInput[] = await ClassTripPaymentService.all(vParam)
+      const vResponse: IResponseAllTripPayment | ITripPaymentInput[] =
+        await ClassTripPaymentService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -67,7 +67,7 @@ class TripPaymentController {
         'amount',
         'currencyId',
         'paymenMethodsId',
-        'isAprobed'
+        'isAprobed',
       ])
       const vResponse: ITripPaymentInstance | null = await ClassTripPaymentService.create(vData)
       if (!vResponse) {
@@ -90,13 +90,13 @@ class TripPaymentController {
         'amount',
         'currencyId',
         'paymenMethodsId',
-        'isAprobed'
+        'isAprobed',
       ])
       const vResponse: ITripPaymentInstance | null = await ClassTripPaymentService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -108,9 +108,7 @@ class TripPaymentController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassTripPaymentService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

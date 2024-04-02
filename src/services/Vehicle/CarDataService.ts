@@ -43,21 +43,22 @@ class CarData implements ICarData {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name', modelCarData.name
+        pParam?.typeSearch || 'name',
+        modelCarData.name
       )
 
       if (pParam?.type) {
-        whereStatement.where = { ...whereStatement.where, type: pParam.type}
+        whereStatement.where = { ...whereStatement.where, type: pParam.type }
       }
 
       if (pParam?.isCar) {
-        whereStatement.where = { ...whereStatement.where, isCar: true}
+        whereStatement.where = { ...whereStatement.where, isCar: true }
       }
 
       if (pParam?.isMoto) {
-        whereStatement.where = { ...whereStatement.where, isMoto: true}
+        whereStatement.where = { ...whereStatement.where, isMoto: true }
       }
-      
+
       const vResponse: ICarDataInstance[] = await modelCarData.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllCarData = await fxReponseServices(
@@ -79,8 +80,8 @@ class CarData implements ICarData {
       const models = await modelCarData.findAll({
         where: {
           parentId: brandId,
-          type: ETypeCarData.model
-        }
+          type: ETypeCarData.model,
+        },
       })
       return models
     } catch (error) {
@@ -128,9 +129,12 @@ class CarData implements ICarData {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelCarData.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelCarData.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

@@ -1,53 +1,53 @@
 components:
- schemas:
-   Suspension:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of suspension
-       driverId:
-         type: string
-         description: the driver id
-       reason:
-         type: string
-         description: the reason for the Suspension
-       timeFrame:
-         type: enum
-         description: the time options (indefinido = 1, hoy = 2, horas = 3, fecha = 4)
-       init:
-         type: date
-         description: the date that began the Suspension
-       end:
-         type: date
-         description: the date that wil end the Suspension
-       isCanceled:
-         type: boolean
-         description: the suspension was canceled
-       hours:
-         type: number
-         description: the quantity of hours that will last the suspension
-     required:
-       - driverId
-       - reason
-       - timeFrame
-       - init
-       - end
-     example:
-       id: 1
-       driverId: 12354
-       reason: exceso de velocidad
-       timeFrame: 2
-       init: 2024-03-29T22:10:42.000Z
-       end: 2024-03-30T22:10:42.000Z
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Suspension id
+  schemas:
+    Suspension:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of suspension
+        driverId:
+          type: string
+          description: the driver id
+        reason:
+          type: string
+          description: the reason for the Suspension
+        timeFrame:
+          type: enum
+          description: the time options (indefinido = 1, hoy = 2, horas = 3, fecha = 4)
+        init:
+          type: date
+          description: the date that began the Suspension
+        end:
+          type: date
+          description: the date that wil end the Suspension
+        isCanceled:
+          type: boolean
+          description: the suspension was canceled
+        hours:
+          type: number
+          description: the quantity of hours that will last the suspension
+      required:
+        - driverId
+        - reason
+        - timeFrame
+        - init
+        - end
+      example:
+        id: 1
+        driverId: 12354
+        reason: exceso de velocidad
+        timeFrame: 2
+        init: 2024-03-29T22:10:42.000Z
+        end: 2024-03-30T22:10:42.000Z
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Suspension id
 tags:
   - name: Suspension
     description: Suspension endpoint

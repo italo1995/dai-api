@@ -22,7 +22,7 @@ export const vCountryModelAttributes: SequelizeAttributes<ICountryAttributes> = 
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -44,7 +44,7 @@ export const vCountryModelAttributes: SequelizeAttributes<ICountryAttributes> = 
     type: DataTypes.STRING,
     field: 'phone',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,

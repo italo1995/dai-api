@@ -3,7 +3,6 @@ import type { IVehicleTypeInstance } from '../models/Vehicle/VehicleTypeModels'
 import type { IResponseAll } from './generalType'
 import type { ETypeCarData, ICarDataInstance } from '../models/Vehicle/CarDataModel'
 
-
 export interface IVehicleAdditionalInput {
   id?: number
   name: string
@@ -17,7 +16,8 @@ export interface IVehicleAdditionalInput {
 export enum EVehicleAdditionalRol {
   PASAJERO = 1,
   CONDUCTOR = 2,
-  AMBOS = 3
+  AMBOS = 3,
+  ALL = 4,
 }
 export interface IResponseAllVehicleAdditionalType extends IResponseAll {
   total: number
@@ -31,8 +31,7 @@ export interface IVehicleTypeInput {
   name: string
   icon?: string
   isMoto?: boolean
-  isCar?: boolean 
-  
+  isCar?: boolean
 }
 
 export interface IResponseAllVehicleTypeType extends IResponseAll {
@@ -50,7 +49,7 @@ export interface ICarDataInput {
   parentId: string
 }
 
-export interface IResponseAllCarData{
+export interface IResponseAllCarData {
   total: number
   totalPage: number
   data: ICarDataInstance[]

@@ -35,7 +35,6 @@ interface IRegionService {
 }
 
 class RegionService implements IRegionService {
-
   async validate(data: any) {
     const dataValidate = modelRegion.build(data)
     await dataValidate.validate()
@@ -46,7 +45,12 @@ class RegionService implements IRegionService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Region')
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        'Region'
+      )
       const vRes = await modelRegion.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
@@ -95,9 +99,12 @@ class RegionService implements IRegionService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelRegion.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelRegion.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

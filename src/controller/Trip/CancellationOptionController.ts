@@ -30,11 +30,10 @@ class CancellationOptionController {
     try {
       const vId: number = Number(pReq.query.id)
 
-      const vResponse: ICancellationOptionInstance | null = await ClassCancellationOptionService.show(vId)
+      const vResponse: ICancellationOptionInstance | null =
+        await ClassCancellationOptionService.show(vId)
       if (!vResponse) {
-        return pRes
-          .status(200)
-          .send(fxErrorResponse(200, null, 'sin datos'))
+        return pRes.status(200).send(fxErrorResponse(200, null, 'sin datos'))
       }
       const vReponseParse: any = { ...vResponse.dataValues }
 
@@ -42,24 +41,32 @@ class CancellationOptionController {
         vReponseParse.rol = ETypeUser.both
       } else if (vResponse?.isClient) {
         vReponseParse.rol = ETypeUser.passenger
-      }else if (vResponse?.isDriver) {
+      } else if (vResponse?.isDriver) {
         vReponseParse.rol = ETypeUser.driver
       }
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, {}, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vReponseParse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllCancellationOption | ICancellationOptionInstance[] = await ClassCancellationOptionService.all(vParam)
+      const vRol = pReq.input('rol')
+      if (vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
+        vParam.isClient = true
+      }
+      if (vRol === ETypeUser.driver || vRol === ETypeUser.both) {
+        vParam.isDriver = true
+      }
+      const vResponse: IResponseAllCancellationOption | ICancellationOptionInstance[] =
+        await ClassCancellationOptionService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -73,22 +80,18 @@ class CancellationOptionController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICancellationOptionInput = pReq.only([
-        'name',
-        'type',
-        'isClient',
-        'isDriver'
-      ])
+      const vData: ICancellationOptionInput = pReq.only(['name', 'type', 'isClient', 'isDriver'])
       const vRol = pReq.input('rol')
-      if(vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
+      if (vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
         vData.isClient = true
       }
-      if(vRol === ETypeUser.driver || vRol === ETypeUser.both) {
+      if (vRol === ETypeUser.driver || vRol === ETypeUser.both) {
         vData.isDriver = true
       }
-      const vResponse: ICancellationOptionInstance | null = await ClassCancellationOptionService.create(vData)
+      const vResponse: ICancellationOptionInstance | null =
+        await ClassCancellationOptionService.create(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
-    } catch (error) { 
+    } catch (error) {
       pNext(error)
     }
   }
@@ -100,20 +103,19 @@ class CancellationOptionController {
         'name',
         'type',
         'isClient',
-        'isDriver'
+        'isDriver',
       ])
       const vRol = pReq.input('rol')
-      if(vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
+      if (vRol === ETypeUser.passenger || vRol === ETypeUser.both) {
         vData.isClient = true
       }
-      if(vRol === ETypeUser.driver || vRol === ETypeUser.both) {
+      if (vRol === ETypeUser.driver || vRol === ETypeUser.both) {
         vData.isDriver = true
       }
-      const vResponse: ICancellationOptionInstance | null = await ClassCancellationOptionService.update(vData)
+      const vResponse: ICancellationOptionInstance | null =
+        await ClassCancellationOptionService.update(vData)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -125,9 +127,7 @@ class CancellationOptionController {
       const vId: string = pReq.input('id')
       const vResponse: number = await ClassCancellationOptionService.destroy(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, false, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, false, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, true, 'Borrado con exito'))
     } catch (error) {

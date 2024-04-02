@@ -44,14 +44,18 @@ export const vTripDeliveryAttributes: SequelizeAttributes<ITripDeliveryAttribute
 }
 
 export function fxTripDeliveryFactory(sequelize: Sequelize) {
-  const vTripDelivery = <ModelStatic<ITripDeliveryInstance>>sequelize.define('Trip_delivery', vTripDeliveryAttributes, {
-    tableName: 'trip_delivery',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-  })
+  const vTripDelivery = <ModelStatic<ITripDeliveryInstance>>sequelize.define(
+    'Trip_delivery',
+    vTripDeliveryAttributes,
+    {
+      tableName: 'trip_delivery',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+    }
+  )
 
   vTripDelivery.prototype.toJSON = function () {
     const vValues = { ...this.get() }

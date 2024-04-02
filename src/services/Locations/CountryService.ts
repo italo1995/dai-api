@@ -35,7 +35,6 @@ interface ICountryService {
 }
 
 class CountryService implements ICountryService {
-
   async validate(data: any) {
     const dataValidate = modelCountry.build(data)
     await dataValidate.validate()
@@ -46,7 +45,12 @@ class CountryService implements ICountryService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Country')
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        'Country'
+      )
       const vRes = await modelCountry.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
@@ -95,9 +99,12 @@ class CountryService implements ICountryService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelCountry.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelCountry.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

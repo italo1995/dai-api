@@ -56,24 +56,20 @@ export const vServicesAttributes: SequelizeAttributes<IServiceAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxServiceFactory(sequelize: Sequelize) {
-  const vService = <ModelStatic<IServiceInstance>>sequelize.define(
-    'Service',
-    vServicesAttributes,
-    {
-      tableName: 'services',
-      defaultScope: {
-        order: [['createdAt', 'DESC']],
-      },
-      freezeTableName: true,
-      timestamps: true,
-      paranoid: true,
-    }
-  )
+  const vService = <ModelStatic<IServiceInstance>>sequelize.define('Service', vServicesAttributes, {
+    tableName: 'services',
+    defaultScope: {
+      order: [['createdAt', 'DESC']],
+    },
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+  })
 
   vService.prototype.toJSON = function () {
     const vValues = { ...this.get() }

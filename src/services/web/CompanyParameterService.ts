@@ -6,7 +6,10 @@
 - Creation: 23/02/2024  
 */
 import { type FindOptions } from 'sequelize'
-import type { ICompanyParameterInstance, ICompanyParameterAttributes } from '../../models/web/CompanyParameterModel'
+import type {
+  ICompanyParameterInstance,
+  ICompanyParameterAttributes,
+} from '../../models/web/CompanyParameterModel'
 import { modelCompanyParameter } from '../../models'
 import type { IResponseAll } from '../../types/generalType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
@@ -20,7 +23,6 @@ interface ICOmpanyParameterService {
 }
 
 class COmpanyParameterService implements ICOmpanyParameterService {
-
   async validate(data: any) {
     const dataValidate = modelCompanyParameter.build(data)
     await dataValidate.validate()
@@ -31,7 +33,12 @@ class COmpanyParameterService implements ICOmpanyParameterService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', modelCompanyParameter.name)
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        modelCompanyParameter.name
+      )
       const vRes = await modelCompanyParameter.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
@@ -60,6 +67,15 @@ class COmpanyParameterService implements ICOmpanyParameterService {
     return vResponse
   }
 
+  async showByName(pName: string): Promise<ICompanyParameterInstance | null> {
+    const vResponse: ICompanyParameterInstance | null = await modelCompanyParameter.findOne({
+      where: {
+        name: pName,
+      },
+    })
+    return vResponse
+  }
+
   async create(pData: ICompanyParameterAttributes): Promise<ICompanyParameterInstance> {
     const vResponse: ICompanyParameterInstance = await modelCompanyParameter.create(pData)
     return vResponse
@@ -80,9 +96,12 @@ class COmpanyParameterService implements ICOmpanyParameterService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelCompanyParameter.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelCompanyParameter.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

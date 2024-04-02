@@ -69,13 +69,21 @@ class UserRatingService implements IUserRatingService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'UserRating'
       )
 
       const vResponse: IUserRatingInstance[] = await modelUserRating.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllUserRating = await fxReponseServices(pParam, whereStatement, 'UserRating', vResponse)
+        const vResponsePaginate: IResponseAllUserRating = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'UserRating',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -84,13 +92,12 @@ class UserRatingService implements IUserRatingService {
     }
   }
 
-
   public async updateRating(userId: string, type: string): Promise<IUserRatingInstance> {
     try {
       const response: IResponseAllReview | IReviewInstance[] = await ClassReviewService.all({
         [type + 'Id']: userId,
       })
-  
+
       let sum = 0
       let quantity = 0
       if ('data' in response) {
@@ -104,12 +111,12 @@ class UserRatingService implements IUserRatingService {
           quantity += 1
         })
       }
-  
+
       const averageRating = sum / quantity
-  
+
       // Encuentra el registro de calificación del usuario
       let userRating = await this.showUser(userId)
-  
+
       // Si el registro de calificación del usuario no existe, lo crea
       if (!userRating) {
         userRating = await this.create({
@@ -133,7 +140,7 @@ class UserRatingService implements IUserRatingService {
           throw new Error('No se pudo actualizar la calificación del usuario')
         }
       }
-  
+
       return userRating
     } catch (error) {
       console.error(error)
@@ -152,7 +159,6 @@ class UserRatingService implements IUserRatingService {
     }
   }
 
-  
   async update(pData: IUserRatingInput): Promise<IUserRatingInstance | null> {
     try {
       if (pData?.id) {

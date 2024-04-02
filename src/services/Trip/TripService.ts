@@ -17,11 +17,35 @@
 */
 import { Op, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
-import sequelize, { modelCurrency, modelPaymentMethod, modelReview, modelTrip, modelTripDelivery, modelTripPanic, modelTripPayment, modelTripRoute, modelTripSpecialRequest, modelTripTravel, modelUser, modelUserRating, modelVehicleAdditional } from '../../models'
+import sequelize, {
+  modelCurrency,
+  modelPaymentMethod,
+  modelReview,
+  modelTrip,
+  modelTripDelivery,
+  modelTripPanic,
+  modelTripPayment,
+  modelTripRoute,
+  modelTripSpecialRequest,
+  modelTripTravel,
+  modelUser,
+  modelUserRating,
+  modelVehicleAdditional,
+} from '../../models'
 import { EStatusTrip, ETypeService, type ITripInstance } from '../../models/Trip/TripModel'
-import type { ITripInput, IResponseAllTrip, IParamAllTrip, IParamShowTrip, IParamShowActiveTrip, ITripUpdate } from '../../types/TripType'
+import type {
+  ITripInput,
+  IResponseAllTrip,
+  IParamAllTrip,
+  IParamShowTrip,
+  IParamShowActiveTrip,
+  ITripUpdate,
+} from '../../types/TripType'
 import { fxFilterDate, fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
-import type { ITripSpecialRequestAttributes, ITripSpecialRequestInstance } from '../../models/Trip/TripSpecialRequestModel'
+import type {
+  ITripSpecialRequestAttributes,
+  ITripSpecialRequestInstance,
+} from '../../models/Trip/TripSpecialRequestModel'
 import { ETypeUser } from '../../types/User'
 import { ETypeReview } from '../../models/web/ReviewModel'
 import type { ITripPanicInstance } from '../../models/Trip/TripPanicModel'
@@ -32,15 +56,16 @@ interface ITripService {
   all(pParam: IParamAllTrip): Promise<IResponseAllTrip | ITripInstance[]>
   NearbyTrips(pParam: any): Promise<ITripInstance[]>
   create(payload: ITripInput): Promise<ITripInstance>
-  createSpecialRequest(pData: ITripSpecialRequestAttributes[]): Promise<ITripSpecialRequestInstance[]>
+  createSpecialRequest(
+    pData: ITripSpecialRequestAttributes[]
+  ): Promise<ITripSpecialRequestInstance[]>
   update(payload: ITripUpdate): Promise<ITripInstance | null>
   softDeleteRecord(pId: number, pUserId: UUID): Promise<boolean>
-  hidden(pParam: { userId: string, id: number }): Promise<boolean | null>
+  hidden(pParam: { userId: string; id: number }): Promise<boolean | null>
   showPanic(pParam: { tripId: number }): Promise<ITripPanicInstance[] | null>
 }
 
 class TripService implements ITripService {
-
   async validate(data: any) {
     const dataValidate = modelTrip.build(data)
     await dataValidate.validate()
@@ -51,18 +76,23 @@ class TripService implements ITripService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'Trip')
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        'Trip'
+      )
       whereStatement.where = fxFilterDate(pParam, whereStatement)
       if (pParam.userId) {
-        if(pParam.isClient) {
+        if (pParam.isClient) {
           whereStatement.where = {
             ...whereStatement.where,
-            userId: pParam.userId
+            userId: pParam.userId,
           }
         } else {
           whereStatement.where = {
             ...whereStatement.where,
-            driverId: pParam.userId
+            driverId: pParam.userId,
           }
         }
       }
@@ -81,16 +111,16 @@ class TripService implements ITripService {
             as: 'initRoute',
             required: false,
             where: {
-              isInit: true
-            }
+              isInit: true,
+            },
           },
           {
             model: modelTripRoute,
             as: 'endRoute',
             required: false,
             where: {
-              isEnd: true
-            }
+              isEnd: true,
+            },
           },
           {
             model: modelTripPayment,
@@ -100,14 +130,14 @@ class TripService implements ITripService {
               {
                 model: modelCurrency,
                 required: false,
-                as: 'currency'
+                as: 'currency',
               },
               {
                 model: modelPaymentMethod,
                 required: false,
-                as: 'paymentMethod'
-              }
-            ]
+                as: 'paymentMethod',
+              },
+            ],
           },
           {
             model: modelTripDelivery,
@@ -125,8 +155,8 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'clientId'
-                }
+                  type: 'clientId',
+                },
               },
               {
                 model: modelUserRating,
@@ -134,10 +164,10 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'driverId'
-                }
-              }
-            ]
+                  type: 'driverId',
+                },
+              },
+            ],
           },
           {
             model: modelUser,
@@ -150,8 +180,8 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'clientId'
-                }
+                  type: 'clientId',
+                },
               },
               {
                 model: modelUserRating,
@@ -159,10 +189,10 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'driverId'
-                }
-              }
-            ]
+                  type: 'driverId',
+                },
+              },
+            ],
           },
           {
             model: modelTripSpecialRequest,
@@ -173,15 +203,15 @@ class TripService implements ITripService {
                 model: modelVehicleAdditional,
                 as: 'vehicleAdditional',
                 required: false,
-              }
-            ]
-          }
+              },
+            ],
+          },
         ]
       }
       if (pParam?.isClient) {
         whereStatement.where = {
           ...whereStatement.where,
-          visibility: 1
+          visibility: 1,
         }
       }
       const vRes = await modelTrip.findAll(whereStatement)
@@ -190,7 +220,7 @@ class TripService implements ITripService {
         const vCount = await modelTrip.count({
           ...whereStatement,
           distinct: true,
-          col: 'id'
+          col: 'id',
         })
         const vResp = {
           total: vCount,
@@ -221,13 +251,12 @@ class TripService implements ITripService {
       const vTripRoute: any[] = await sequelize.query(query, {
         mapToModel: true,
         model: modelTripRoute,
-      }
-      )
-      const vtripsIds: any[]  = vTripRoute.map((vTripRoute) => vTripRoute?.dataValues.trip_id)
+      })
+      const vtripsIds: any[] = vTripRoute.map((vTripRoute) => vTripRoute?.dataValues.trip_id)
       const whereStatement: FindOptions = {
         where: {
           id: vtripsIds,
-          status: EStatusTrip.PENDIENTE
+          status: EStatusTrip.PENDIENTE,
         },
         include: [
           {
@@ -235,16 +264,16 @@ class TripService implements ITripService {
             as: 'initRoute',
             required: false,
             where: {
-              isInit: true
-            }
+              isInit: true,
+            },
           },
           {
             model: modelTripRoute,
             as: 'endRoute',
             required: false,
             where: {
-              isEnd: true
-            }
+              isEnd: true,
+            },
           },
           {
             model: modelTripPayment,
@@ -254,14 +283,14 @@ class TripService implements ITripService {
               {
                 model: modelCurrency,
                 required: false,
-                as: 'currency'
+                as: 'currency',
               },
               {
                 model: modelPaymentMethod,
                 required: false,
-                as: 'paymentMethod'
-              }
-            ]
+                as: 'paymentMethod',
+              },
+            ],
           },
           {
             model: modelTripDelivery,
@@ -279,8 +308,8 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'clientId'
-                }
+                  type: 'clientId',
+                },
               },
               {
                 model: modelUserRating,
@@ -288,10 +317,10 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'driverId'
-                }
-              }
-            ]
+                  type: 'driverId',
+                },
+              },
+            ],
           },
           {
             model: modelTripSpecialRequest,
@@ -302,31 +331,32 @@ class TripService implements ITripService {
                 model: modelVehicleAdditional,
                 as: 'vehicleAdditional',
                 required: true,
-              }
-            ]
-          }
+              },
+            ],
+          },
         ],
       }
       if (pParam?.isCar) {
         whereStatement.where = {
           ...whereStatement.where,
           typeService: {
-            [Op.or]: [ETypeService.CAR, ETypeService.DELIVERY, ETypeService.TRAVEL]
-          }
+            [Op.or]: [ETypeService.CAR, ETypeService.DELIVERY, ETypeService.TRAVEL],
+          },
         }
       }
       if (pParam?.isMoto) {
         whereStatement.where = {
           ...whereStatement.where,
           typeService: {
-            [Op.or]: [ETypeService.MOTO, ETypeService.DELIVERY, ETypeService.TRAVEL]
-          }
+            [Op.or]: [ETypeService.MOTO, ETypeService.DELIVERY, ETypeService.TRAVEL],
+          },
         }
       }
       const vTrip: any[] = await modelTrip.findAll(whereStatement)
       const vTripJson: any[] = JSON.parse(JSON.stringify(vTrip))
       const vResponse = vTripJson.map((trip) => {
-        const distance = vTripRoute.find((route) => route.trip_id === trip.id)?.dataValues?.distance || null
+        const distance =
+          vTripRoute.find((route) => route.trip_id === trip.id)?.dataValues?.distance || null
         trip.distance = distance
         return trip
       })
@@ -339,15 +369,15 @@ class TripService implements ITripService {
   async show(pParam: IParamShowTrip): Promise<ITripInstance | null> {
     try {
       const whereStatement: FindOptions = {}
-      if(pParam.isClient) {
+      if (pParam.isClient) {
         whereStatement.where = {
           userId: pParam.userId,
-          id: pParam.id
+          id: pParam.id,
         }
       } else {
         whereStatement.where = {
           driverId: pParam.userId,
-          id: pParam.id
+          id: pParam.id,
         }
       }
       whereStatement.include = [
@@ -361,16 +391,16 @@ class TripService implements ITripService {
           as: 'initRoute',
           required: false,
           where: {
-            isInit: true
-          }
+            isInit: true,
+          },
         },
         {
           model: modelTripRoute,
           as: 'endRoute',
           required: false,
           where: {
-            isEnd: true
-          }
+            isEnd: true,
+          },
         },
         {
           model: modelTripPayment,
@@ -380,14 +410,14 @@ class TripService implements ITripService {
             {
               model: modelCurrency,
               required: false,
-              as: 'currency'
+              as: 'currency',
             },
             {
               model: modelPaymentMethod,
               required: false,
-              as: 'paymentMethod'
-            }
-          ]
+              as: 'paymentMethod',
+            },
+          ],
         },
         {
           model: modelTripDelivery,
@@ -405,8 +435,8 @@ class TripService implements ITripService {
               required: false,
               attributes: ['quantity', 'ratings'],
               where: {
-                type: 'clientId'
-              }
+                type: 'clientId',
+              },
             },
             {
               model: modelUserRating,
@@ -414,10 +444,10 @@ class TripService implements ITripService {
               required: false,
               attributes: ['quantity', 'ratings'],
               where: {
-                type: 'driverId'
-              }
-            }
-          ]
+                type: 'driverId',
+              },
+            },
+          ],
         },
         {
           model: modelUser,
@@ -430,8 +460,8 @@ class TripService implements ITripService {
               required: false,
               attributes: ['quantity', 'ratings'],
               where: {
-                type: 'clientId'
-              }
+                type: 'clientId',
+              },
             },
             {
               model: modelUserRating,
@@ -439,10 +469,10 @@ class TripService implements ITripService {
               required: false,
               attributes: ['quantity', 'ratings'],
               where: {
-                type: 'driverId'
-              }
-            }
-          ]
+                type: 'driverId',
+              },
+            },
+          ],
         },
         {
           model: modelTripSpecialRequest,
@@ -453,17 +483,17 @@ class TripService implements ITripService {
               model: modelVehicleAdditional,
               as: 'vehicleAdditional',
               required: true,
-            }
-          ]
+            },
+          ],
         },
         {
           model: modelReview,
           as: 'review',
           required: false,
           where: {
-            type: ETypeReview.PASSENGER
-          }
-        }
+            type: ETypeReview.PASSENGER,
+          },
+        },
       ]
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
       return vResponse
@@ -476,7 +506,7 @@ class TripService implements ITripService {
     try {
       const whereStatement: FindOptions = {}
       whereStatement.where = {
-        id: pParam.id
+        id: pParam.id,
       }
       if (pParam?.needClient) {
         whereStatement.include = [
@@ -484,8 +514,8 @@ class TripService implements ITripService {
             model: modelUser,
             as: 'user',
             required: false,
-            attributes: ['id', 'name', 'socketId', 'tokenPush']
-          }
+            attributes: ['id', 'name', 'socketId', 'tokenPush'],
+          },
         ]
       }
       if (pParam.panic) {
@@ -500,16 +530,16 @@ class TripService implements ITripService {
             as: 'initRoute',
             required: false,
             where: {
-              isInit: true
-            }
+              isInit: true,
+            },
           },
           {
             model: modelTripRoute,
             as: 'endRoute',
             required: false,
             where: {
-              isEnd: true
-            }
+              isEnd: true,
+            },
           },
           {
             model: modelTripPayment,
@@ -519,14 +549,14 @@ class TripService implements ITripService {
               {
                 model: modelCurrency,
                 required: false,
-                as: 'currency'
+                as: 'currency',
               },
               {
                 model: modelPaymentMethod,
                 required: false,
-                as: 'paymentMethod'
-              }
-            ]
+                as: 'paymentMethod',
+              },
+            ],
           },
           {
             model: modelTripDelivery,
@@ -544,8 +574,8 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'clientId'
-                }
+                  type: 'clientId',
+                },
               },
               {
                 model: modelUserRating,
@@ -553,10 +583,10 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'driverId'
-                }
-              }
-            ]
+                  type: 'driverId',
+                },
+              },
+            ],
           },
           {
             model: modelUser,
@@ -569,8 +599,8 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'clientId'
-                }
+                  type: 'clientId',
+                },
               },
               {
                 model: modelUserRating,
@@ -578,10 +608,10 @@ class TripService implements ITripService {
                 required: false,
                 attributes: ['quantity', 'ratings'],
                 where: {
-                  type: 'driverId'
-                }
-              }
-            ]
+                  type: 'driverId',
+                },
+              },
+            ],
           },
           {
             model: modelTripSpecialRequest,
@@ -592,17 +622,17 @@ class TripService implements ITripService {
                 model: modelVehicleAdditional,
                 as: 'vehicleAdditional',
                 required: true,
-              }
-            ]
+              },
+            ],
           },
           {
             model: modelReview,
             as: 'review',
             required: false,
             where: {
-              type: ETypeReview.PASSENGER
-            }
-          }
+              type: ETypeReview.PASSENGER,
+            },
+          },
         ]
       }
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
@@ -618,9 +648,9 @@ class TripService implements ITripService {
       if (pParam.isClient) {
         whereStatement.where = {
           userId: pParam.userId,
-          status:{
-            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.PENDIENTE, EStatusTrip.INPLACE]
-          }
+          status: {
+            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.PENDIENTE, EStatusTrip.INPLACE],
+          },
         }
       } else if (pParam?.id && pParam.driverId) {
         whereStatement.where = {
@@ -635,9 +665,9 @@ class TripService implements ITripService {
       } else {
         whereStatement.where = {
           driverId: pParam.userId,
-          status:{
-            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.INPLACE]
-          }
+          status: {
+            [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.INPLACE],
+          },
         }
       }
       whereStatement.include = [
@@ -651,16 +681,16 @@ class TripService implements ITripService {
           as: 'initRoute',
           required: false,
           where: {
-            isInit: true
-          }
+            isInit: true,
+          },
         },
         {
           model: modelTripRoute,
           as: 'endRoute',
           required: false,
           where: {
-            isEnd: true
-          }
+            isEnd: true,
+          },
         },
         {
           model: modelTripPayment,
@@ -671,14 +701,14 @@ class TripService implements ITripService {
               model: modelCurrency,
               required: false,
               as: 'currency',
-              attributes: ['id', 'name', 'symbol', 'icon']
+              attributes: ['id', 'name', 'symbol', 'icon'],
             },
             {
               model: modelPaymentMethod,
               required: false,
               as: 'paymentMethod',
             },
-          ]
+          ],
         },
         {
           model: modelTripSpecialRequest,
@@ -689,17 +719,17 @@ class TripService implements ITripService {
               model: modelVehicleAdditional,
               as: 'vehicleAdditional',
               required: false,
-            }
-          ]
+            },
+          ],
         },
         {
           model: modelTripTravel,
           as: 'tripTravel',
           required: false,
-        }
+        },
       ]
       const vResponse: ITripInstance | null = await modelTrip.findOne(whereStatement)
-      return vResponse 
+      return vResponse
     } catch (error) {
       throw error
     }
@@ -710,19 +740,20 @@ class TripService implements ITripService {
       const vResponse: ITripInstance = await modelTrip.create(pData)
       return vResponse
     } catch (error) {
-      throw error 
+      throw error
     }
-
   }
 
-  async createSpecialRequest(pData: ITripSpecialRequestAttributes[]): Promise<ITripSpecialRequestInstance[]> {
+  async createSpecialRequest(
+    pData: ITripSpecialRequestAttributes[]
+  ): Promise<ITripSpecialRequestInstance[]> {
     try {
-      const vResponse: ITripSpecialRequestInstance[] = await modelTripSpecialRequest.bulkCreate(pData)
+      const vResponse: ITripSpecialRequestInstance[] =
+        await modelTripSpecialRequest.bulkCreate(pData)
       return vResponse
     } catch (error) {
-      throw error 
+      throw error
     }
-
   }
 
   async update(pData: ITripUpdate): Promise<ITripInstance | null> {
@@ -731,14 +762,14 @@ class TripService implements ITripService {
       if (pData.userId) {
         whereStatement.where = {
           userId: pData.userId,
-          id: pData.id
+          id: pData.id,
         }
       } else if (pData.driverId) {
         whereStatement.where = {
           driverId: {
-            [Op.or]: [pData.driverId, null]
+            [Op.or]: [pData.driverId, null],
           },
-          id: pData.id
+          id: pData.id,
         }
       }
       if (pData?.id) {
@@ -757,9 +788,12 @@ class TripService implements ITripService {
 
   async softDeleteRecord(pId: number, pUserId: UUID) {
     try {
-      const record = await modelTrip.update({ deletedAt: new Date() }, {
-        where: { id: pId, userId: pUserId }
-      })
+      const record = await modelTrip.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId, userId: pUserId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -775,12 +809,12 @@ class TripService implements ITripService {
       if (type === ETypeUser.driver) {
         whereStatement.where = {
           driverId: pId,
-          status: EStatusTrip.FINALIZADO
+          status: EStatusTrip.FINALIZADO,
         }
       } else {
         whereStatement.where = {
           userId: pId,
-          status: EStatusTrip.FINALIZADO
+          status: EStatusTrip.FINALIZADO,
         }
       }
       const count = await modelTrip.count(whereStatement)
@@ -790,14 +824,17 @@ class TripService implements ITripService {
     }
   }
 
-  async hidden(pParam: { userId: string, id: number }): Promise<boolean | null> {
+  async hidden(pParam: { userId: string; id: number }): Promise<boolean | null> {
     try {
-      await modelTrip.update({ visibility: 0 }, {
-        where: {
-          id: pParam.id,
-          userId: pParam.userId
+      await modelTrip.update(
+        { visibility: 0 },
+        {
+          where: {
+            id: pParam.id,
+            userId: pParam.userId,
+          },
         }
-      })
+      )
       return true
     } catch (error) {
       throw error
@@ -809,8 +846,8 @@ class TripService implements ITripService {
       if (pParam.tripId) {
         const vResponse: ITripPanicInstance[] | null = await modelTripPanic.findAll({
           where: {
-            tripId: pParam.tripId
-          }
+            tripId: pParam.tripId,
+          },
         })
         return vResponse
       }
@@ -824,7 +861,7 @@ class TripService implements ITripService {
     try {
       if (pParam.socketId) {
         await modelTripPanic.destroy({
-          where: { socketId: pParam.socketId }
+          where: { socketId: pParam.socketId },
         })
         return true
       }
@@ -834,21 +871,21 @@ class TripService implements ITripService {
     }
   }
 
-  async updatePanic(pParam: { tripId: number, socketId: string }): Promise<boolean> {
+  async updatePanic(pParam: { tripId: number; socketId: string }): Promise<boolean> {
     try {
       if (pParam.tripId) {
         const vItem: ITripPanicInstance | null = await modelTripPanic.findOne({
           where: {
             tripId: pParam.tripId,
-            socketId: pParam.socketId
-          }
+            socketId: pParam.socketId,
+          },
         })
         if (vItem) {
           await vItem?.update({ socketId: pParam.socketId })
         } else {
           await modelTripPanic.create({
             tripId: pParam.tripId,
-            socketId: pParam.socketId
+            socketId: pParam.socketId,
           })
         }
         return true
@@ -860,4 +897,3 @@ class TripService implements ITripService {
   }
 }
 export default new TripService()
-

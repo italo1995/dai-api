@@ -42,13 +42,21 @@ class CurrencyService implements ICurrencyService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         this.modelName
       )
 
       const vResponse: ICurrencyInstance[] = await modelCurrency.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllCurrency = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
+        const vResponsePaginate: IResponseAllCurrency = await fxReponseServices(
+          pParam,
+          whereStatement,
+          this.modelName,
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -98,7 +106,9 @@ class CurrencyService implements ICurrencyService {
 
   async updateMany(pData: ICurrencyInput[]): Promise<ICurrencyInstance[]> {
     try {
-      const vReponse: ICurrencyInstance[] = await modelCurrency.bulkCreate(pData, { updateOnDuplicate: ['name', 'symbol', 'change', 'type', 'auto', 'icon'] })
+      const vReponse: ICurrencyInstance[] = await modelCurrency.bulkCreate(pData, {
+        updateOnDuplicate: ['name', 'symbol', 'change', 'type', 'auto', 'icon'],
+      })
       return vReponse
     } catch (error) {
       throw error
@@ -106,9 +116,12 @@ class CurrencyService implements ICurrencyService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelCurrency.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelCurrency.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -119,4 +132,4 @@ class CurrencyService implements ICurrencyService {
   }
 }
 
-export default new CurrencyService()   
+export default new CurrencyService()

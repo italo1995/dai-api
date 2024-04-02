@@ -33,7 +33,7 @@ export enum EStatusTrip {
   ACEPTADO = 'traslado en proceso',
   INPLACE = 'en el sitio',
   FINALIZADO = 'traslado exitoso',
-  CANCELADO = 'cancelado'
+  CANCELADO = 'cancelado',
 }
 interface ITripCreationAttributes extends Optional<ITripAttributes, 'id'> {}
 
@@ -64,7 +64,7 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     type: DataTypes.STRING,
     field: 'date',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   status: {
     type: DataTypes.STRING,
@@ -80,7 +80,7 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
   },
   currencyId: {
     type: DataTypes.INTEGER,
-    field: 'currency_id'
+    field: 'currency_id',
   },
   isPayment: {
     type: DataTypes.INTEGER,
@@ -138,7 +138,7 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
@@ -162,7 +162,7 @@ export function fxTripFactory(sequelize: Sequelize) {
       modelTripDelivery,
       modelTripSpecialRequest,
       modelTripTravel,
-      modelReview
+      modelReview,
     } = models
     modelTrip.hasOne(modelTripDelivery, {
       foreignKey: 'trip_id',

@@ -24,7 +24,7 @@ export enum ETypeCarData {
   year = 1,
   model = 2,
   color = 3,
-  brand = 4
+  brand = 4,
 }
 export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
   id: {
@@ -39,12 +39,12 @@ export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
   },
   icon: {
     type: DataTypes.STRING,
-    field: 'icon'
+    field: 'icon',
   },
   type: {
     type: DataTypes.INTEGER,
     field: 'type',
-    allowNull: false
+    allowNull: false,
   },
   parentId: {
     type: DataTypes.STRING,
@@ -60,13 +60,13 @@ export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
     type: DataTypes.BOOLEAN,
     field: 'is_car',
     allowNull: true,
-    defaultValue: false
+    defaultValue: false,
   },
   isMoto: {
     type: DataTypes.BOOLEAN,
     field: 'is_moto',
     allowNull: true,
-    defaultValue: false
+    defaultValue: false,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -82,31 +82,27 @@ export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxCarDataFactory(sequelize: Sequelize) {
-  const vDataBase = <ModelStatic<ICarDataInstance>>sequelize.define(
-    'CarData',
-    vCarDataAttributes,
-    {
-      tableName: 'car_data',
-      defaultScope: {
-        order: [['createdAt', 'DESC']],
-      },
-      freezeTableName: true,
-      timestamps: true,
-      paranoid: true,
-    }
-  )
+  const vDataBase = <ModelStatic<ICarDataInstance>>sequelize.define('CarData', vCarDataAttributes, {
+    tableName: 'car_data',
+    defaultScope: {
+      order: [['createdAt', 'DESC']],
+    },
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+  })
 
   vDataBase.associate = function (models: ModelRegistry) {
     const { modelCarData } = models
-    
+
     modelCarData.hasMany(modelCarData, {
       foreignKey: 'parentId',
-      as: 'children'
+      as: 'children',
     })
   }
 

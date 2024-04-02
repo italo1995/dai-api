@@ -43,7 +43,8 @@ class ServiceService implements IServiceService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','Service'
+        pParam?.typeSearch || 'name',
+        'Service'
       )
 
       const vResponse: IServiceInstance[] = await modelService.findAll(whereStatement)
@@ -102,9 +103,12 @@ class ServiceService implements IServiceService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelService.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelService.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

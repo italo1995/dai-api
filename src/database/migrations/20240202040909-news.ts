@@ -2,7 +2,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface: QueryInterface) {
+  async up(queryInterface: QueryInterface) {
     return queryInterface.createTable('news', {
       id: {
         type: DataTypes.INTEGER,
@@ -48,13 +48,12 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
-    
   },
 
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('news')
   },
 }

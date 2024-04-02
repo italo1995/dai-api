@@ -1,42 +1,42 @@
 components:
- schemas:
-   VehicleAddittional:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of VehicleAddittional
-       name:
-         type: string
-         description: the name of the VehicleAddittional
-       icon:
-         type: string
-         description: name icon
-       isMoto:
-         type: boolean
-         description: refers to when it is a motorcycle accessory
-       isCar:
-         type: boolean
-         description: refers to when it is a car add-on
-       isClient:
-         type: boolean
-         description: refers to an additional item that the customer sees when requesting a trip
-       isRegister:
-         type: boolean
-         description: refers to an additional item that the driver sees when registering
-     required:
-       - name
-     example:
-       id: 1
-       name: A/C
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the addittional services in the vehicle
+  schemas:
+    VehicleAddittional:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of VehicleAddittional
+        name:
+          type: string
+          description: the name of the VehicleAddittional
+        icon:
+          type: string
+          description: name icon
+        isMoto:
+          type: boolean
+          description: refers to when it is a motorcycle accessory
+        isCar:
+          type: boolean
+          description: refers to when it is a car add-on
+        isClient:
+          type: boolean
+          description: refers to an additional item that the customer sees when requesting a trip
+        isRegister:
+          type: boolean
+          description: refers to an additional item that the driver sees when registering
+      required:
+        - name
+      example:
+        id: 1
+        name: A/C
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the addittional services in the vehicle
 tags:
   - name: VehicleAddittional
     description: VehicleAddittional endpoint
@@ -112,8 +112,7 @@ paths:
                 isRegister:
                   type: boolean
                   description: refers to an additional item that the driver sees when registering
-              required:
-               -name
+              required: -name
               example:
                 name: A/C
                 icon: 'temp/icono.png'
@@ -158,9 +157,8 @@ paths:
                 isRegister:
                   type: boolean
                   description: refers to an additional item that the driver sees when registering
-              required:
-               -id
-               -name
+              required: -id
+                -name
               example:
                 id: number
                 name: A/C

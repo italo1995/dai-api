@@ -12,25 +12,25 @@ module.exports = {
       },
       name: {
         type: DataTypes.STRING,
-        field: 'name'
+        field: 'name',
       },
       type: {
         type: DataTypes.INTEGER,
         field: 'type',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       isClient: {
         type: DataTypes.BOOLEAN,
         field: 'is_client',
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       },
       isDriver: {
         type: DataTypes.BOOLEAN,
         field: 'is_driver',
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -50,7 +50,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('cancellation_options')
   },
 }

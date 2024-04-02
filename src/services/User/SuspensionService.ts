@@ -42,13 +42,21 @@ class SuspensionService implements ISuspensionService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         this.modelName
       )
 
       const vResponse: ISuspensionInstance[] = await modelSuspension.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllSuspension = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
+        const vResponsePaginate: IResponseAllSuspension = await fxReponseServices(
+          pParam,
+          whereStatement,
+          this.modelName,
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -77,9 +85,9 @@ class SuspensionService implements ISuspensionService {
           driverId: driverId,
           isCanceled: false,
           end: {
-            [Op.gt]: new Date()
-          }
-        }
+            [Op.gt]: new Date(),
+          },
+        },
       })
     } catch (error) {
       throw error
@@ -113,9 +121,12 @@ class SuspensionService implements ISuspensionService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelSuspension.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelSuspension.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -126,4 +137,4 @@ class SuspensionService implements ISuspensionService {
   }
 }
 
-export default new SuspensionService()   
+export default new SuspensionService()

@@ -1,43 +1,43 @@
 components:
- schemas:
-   DataContent:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of DataContent
-       name:
-         type: string
-         description: the name of the DataContent
-       image:
-         type: string
-         description: the name of the image
-       description: 
-         type: string
-         description: the description of the DataContent
-       orden:
-         type: number
-         description: the order uf DataContent
-       type:
-         type: enum
-         description: the type of data (guide = 1, FAQ = 2, security = 3)
-     required:
-       - name
-       - description
-       - type
-     example:
-       id: 1
-       name: security
-       description: descripcion de seguridad
-       type: 3
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the DataContent id
+  schemas:
+    DataContent:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of DataContent
+        name:
+          type: string
+          description: the name of the DataContent
+        image:
+          type: string
+          description: the name of the image
+        description:
+          type: string
+          description: the description of the DataContent
+        orden:
+          type: number
+          description: the order uf DataContent
+        type:
+          type: enum
+          description: the type of data (guide = 1, FAQ = 2, security = 3)
+      required:
+        - name
+        - description
+        - type
+      example:
+        id: 1
+        name: security
+        description: descripcion de seguridad
+        type: 3
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the DataContent id
 tags:
   - name: DataContent
     description: DataContent endpoint
@@ -86,7 +86,7 @@ paths:
   /api/dataContent/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new DataContent
       tags:
         - DataContent
@@ -98,29 +98,29 @@ paths:
               type: object
               properties:
                 name:
-                 type: string
-                 description: the name of the DataContent
+                  type: string
+                  description: the name of the DataContent
                 image:
-                 type: string
-                 description: the name of the image
-                description: 
-                 type: string
-                 description: the description of the DataContent
+                  type: string
+                  description: the name of the image
+                description:
+                  type: string
+                  description: the description of the DataContent
                 orden:
-                 type: number
-                 description: the order uf DataContent
+                  type: number
+                  description: the order uf DataContent
                 type:
-                 type: enum
-                 description: the type of data (guide = 1, FAQ = 2, security = 3)
+                  type: enum
+                  description: the type of data (guide = 1, FAQ = 2, security = 3)
               required:
-               - name
-               - description
-               - type
+                - name
+                - description
+                - type
               example:
-               id: 1
-               name: security
-               description: descripcion de seguridad
-               type: 3
+                id: 1
+                name: security
+                description: descripcion de seguridad
+                type: 3
       responses:
         '201':
           description: the DataContent created
@@ -131,7 +131,7 @@ paths:
   /api/dataContent/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a DataContent
       tags:
         - DataContent
@@ -143,29 +143,29 @@ paths:
               type: object
               properties:
                 name:
-                 type: string
-                 description: the name of the DataContent
+                  type: string
+                  description: the name of the DataContent
                 image:
-                 type: string
-                 description: the name of the image
-                description: 
-                 type: string
-                 description: the description of the DataContent
+                  type: string
+                  description: the name of the image
+                description:
+                  type: string
+                  description: the description of the DataContent
                 orden:
-                 type: number
-                 description: the order uf DataContent
+                  type: number
+                  description: the order uf DataContent
                 type:
-                 type: enum
-                 description: the type of data (guide = 1, FAQ = 2, security = 3)
+                  type: enum
+                  description: the type of data (guide = 1, FAQ = 2, security = 3)
               required:
-               - name
-               - description
-               - type
+                - name
+                - description
+                - type
               example:
-               id: 1
-               name: security
-               description: descripcion de seguridad
-               type: 3
+                id: 1
+                name: security
+                description: descripcion de seguridad
+                type: 3
       responses:
         '201':
           description: the DataContent updated

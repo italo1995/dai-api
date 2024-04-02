@@ -29,10 +29,11 @@ class UserTransactionController {
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllUserTransaction | IUserTransactionInstance[] = await ClassUserTransactionService.all(vParam)
+      const vResponse: IResponseAllUserTransaction | IUserTransactionInstance[] =
+        await ClassUserTransactionService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -51,13 +52,14 @@ class UserTransactionController {
         'operatorId',
         'amount',
         'transactionType',
-        'status'
+        'status',
       ])
-      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.create(pReq?.auth, vData)
+      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.create(
+        pReq?.auth,
+        vData
+      )
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -73,13 +75,14 @@ class UserTransactionController {
         'operatorId',
         'amount',
         'transactionType',
-        'status'
+        'status',
       ])
-      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.update(pReq?.auth, vData)
+      const vResponse: IUserTransactionInstance | null = await ClassUserTransactionService.update(
+        pReq?.auth,
+        vData
+      )
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -92,9 +95,7 @@ class UserTransactionController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassUserTransactionService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

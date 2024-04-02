@@ -35,7 +35,6 @@ interface ICityService {
 }
 
 class CityService implements ICityService {
-
   async validate(data: any) {
     const dataValidate = modelCity.build(data)
     await dataValidate.validate()
@@ -46,7 +45,12 @@ class CityService implements ICityService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'City')
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        'City'
+      )
       const vRes = await modelCity.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
@@ -95,9 +99,12 @@ class CityService implements ICityService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelCity.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelCity.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

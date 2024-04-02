@@ -32,7 +32,6 @@ interface ITripPaymentService {
 }
 
 class TripPaymentService implements ITripPaymentService {
-
   async validate(data: any) {
     const dataValidate = modelTripPayment.build(data)
     await dataValidate.validate()
@@ -43,13 +42,21 @@ class TripPaymentService implements ITripPaymentService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'TripPayment'
       )
 
       const vResponse: ITripPaymentInstance[] = await modelTripPayment.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTripPayment = await fxReponseServices(pParam, whereStatement, 'TripPayment', vResponse)
+        const vResponsePaginate: IResponseAllTripPayment = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'TripPayment',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -72,18 +79,22 @@ class TripPaymentService implements ITripPaymentService {
     return vResponse
   }
 
-  async updatePrice(pData: { tripId: number | null, amount: number | null, currencyId?: number | null }): Promise<true | null> {
+  async updatePrice(pData: {
+    tripId: number | null
+    amount: number | null
+    currencyId?: number | null
+  }): Promise<true | null> {
     if (pData?.tripId && pData?.amount) {
       const vDataUpdate: any = {
-        amount: pData.amount
+        amount: pData.amount,
       }
       if (pData.currencyId) {
         vDataUpdate.currencyId = pData.currencyId
       }
       await modelTripPayment.update(vDataUpdate, {
         where: {
-          tripId: pData.tripId
-        }
+          tripId: pData.tripId,
+        },
       })
       return true
     }
@@ -105,9 +116,12 @@ class TripPaymentService implements ITripPaymentService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelTripPayment.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelTripPayment.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -118,4 +132,3 @@ class TripPaymentService implements ITripPaymentService {
   }
 }
 export default new TripPaymentService()
-

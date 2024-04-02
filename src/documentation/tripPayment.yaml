@@ -1,55 +1,55 @@
 components:
- schemas:
-   TripPayment:
-     type: object
-     properties:
-       id:
-         type: string
-         description: the auto-increment id of TripPayment
-       tripId:
-         type: number
-         description: The id of the trip
-       type:
-         type: string
-         description: the type of the trip
-       amount:
-         type: number
-         description: The amount of the trip
-       currencyId:
-         type: number
-         description: the currency of the payment
-       paymentMethodId:
-         type: number
-         description: the id of the payment method
-       isAprobed:
-         type: boolean
-         description: the state of the payment
-     required:
-       - tripId
-       - type
-       - amount
-     example:
-       id: 3
-       tripId: 25
-       tipe: VIP
-       amount: 16
-       currencyId: 3
-       paymentMethodId: 2
-       isAprobed: true
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the tripPayment id
- securitySchemes:
-  BearerAuth: # puedes usar el nombre que quieras
-   type: apiKey
-   name: Authorization
-   in: header
-   x-auth-id: Bearer abcde12345
+  schemas:
+    TripPayment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: the auto-increment id of TripPayment
+        tripId:
+          type: number
+          description: The id of the trip
+        type:
+          type: string
+          description: the type of the trip
+        amount:
+          type: number
+          description: The amount of the trip
+        currencyId:
+          type: number
+          description: the currency of the payment
+        paymentMethodId:
+          type: number
+          description: the id of the payment method
+        isAprobed:
+          type: boolean
+          description: the state of the payment
+      required:
+        - tripId
+        - type
+        - amount
+      example:
+        id: 3
+        tripId: 25
+        tipe: VIP
+        amount: 16
+        currencyId: 3
+        paymentMethodId: 2
+        isAprobed: true
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the tripPayment id
+  securitySchemes:
+    BearerAuth: # puedes usar el nombre que quieras
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-id: Bearer abcde12345
 tags:
   - name: TripPayment
     description: the payment of the trip
@@ -57,7 +57,7 @@ paths:
   /api/tripPayment/show:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a TripPayment element
       tags:
         - TripPayment
@@ -75,7 +75,7 @@ paths:
   /api/tripPayment/all:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a list of tripPayments
       tags:
         - TripPayment
@@ -102,7 +102,7 @@ paths:
   /api/tripPayment/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new TripPayment
       tags:
         - TripPayment
@@ -128,7 +128,7 @@ paths:
   /api/tripPayment/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a TripPayment
       tags:
         - TripPayment

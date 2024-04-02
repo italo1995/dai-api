@@ -18,12 +18,12 @@ module.exports = {
       },
       icon: {
         type: DataTypes.STRING,
-        field: 'icon'
+        field: 'icon',
       },
       type: {
         type: DataTypes.INTEGER,
         field: 'type',
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -43,7 +43,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('car_data')
   },
 }

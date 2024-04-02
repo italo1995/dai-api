@@ -44,11 +44,12 @@ class DataContent implements IDataContent {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name', modelDataContent.name
+        pParam?.typeSearch || 'name',
+        modelDataContent.name
       )
 
       if (pParam?.type) {
-        whereStatement.where = { ...whereStatement.where, type: pParam.type}
+        whereStatement.where = { ...whereStatement.where, type: pParam.type }
       }
 
       const vResponse: IDataContentInstance[] = await modelDataContent.findAll(whereStatement)
@@ -96,7 +97,7 @@ class DataContent implements IDataContent {
         where: {
           type: type,
         },
-        logging: true
+        logging: true,
       })
       EDataType.security
       return vResponse
@@ -132,9 +133,12 @@ class DataContent implements IDataContent {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelDataContent.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelDataContent.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

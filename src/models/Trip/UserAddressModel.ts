@@ -50,18 +50,18 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = 
   lat: {
     type: DataTypes.DOUBLE,
     field: 'lat',
-    allowNull: false
+    allowNull: false,
   },
   lon: {
     type: DataTypes.DOUBLE,
     field: 'lon',
-    allowNull: false
+    allowNull: false,
   },
   file: {
     type: DataTypes.STRING,
     allowNull: true,
     defaultValue: null,
-    field: 'file'
+    field: 'file',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -77,7 +77,7 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = 
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
@@ -95,7 +95,7 @@ export function fxUserAddressFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
-      paranoid: true
+      paranoid: true,
     }
   )
 

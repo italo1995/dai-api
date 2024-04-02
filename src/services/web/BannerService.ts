@@ -26,7 +26,7 @@ interface IBannerService {
   all(pParam: any): Promise<IResponseAllBanner | IBannerInstance[]>
   create(payload: IBannerInput): Promise<IBannerInstance>
   update(payload: IBannerInput): Promise<IBannerInstance | null>
-  softDeleteRecord(pId: number):Promise<boolean>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class BannerService implements IBannerService {
@@ -40,13 +40,21 @@ class BannerService implements IBannerService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'Banner'
       )
 
       const vResponse: IBannerInstance[] = await modelBanner.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllBanner = await fxReponseServices(pParam, whereStatement, 'banners', vResponse)
+        const vResponsePaginate: IResponseAllBanner = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'banners',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -95,9 +103,12 @@ class BannerService implements IBannerService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelBanner.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelBanner.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

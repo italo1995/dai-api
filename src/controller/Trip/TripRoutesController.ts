@@ -48,11 +48,10 @@ class TripRouteController {
       const vParam: any = pReq.query
       const vUserId = pReq.auth.id
       vParam.userId = vUserId
-      const vResponse: ITripRouteInstance[] | IResponseAllTripRoute = await ClassTripRouteService.recent(vParam)
+      const vResponse: ITripRouteInstance[] | IResponseAllTripRoute =
+        await ClassTripRouteService.recent(vParam)
       if (!vResponse) {
-        return pRes
-          .status(404)
-          .send(fxErrorResponse(404, null, 'Ocurrio un error'))
+        return pRes.status(404).send(fxErrorResponse(404, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -69,26 +68,23 @@ class TripRouteController {
       if (vTripId) {
         await TripService.hidden({
           id: vTripId,
-          userId: vUserId
+          userId: vUserId,
         })
         return pRes.status(200).send(fxSuccessResponse(200, true, 'Borrado con exito'))
       }
-      return pRes
-        .status(404)
-        .send(fxErrorResponse(404, null, 'Ocurrio un error'))
+      return pRes.status(404).send(fxErrorResponse(404, null, 'Ocurrio un error'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTripRoute | ITripRouteInstance[] = await ClassTripRouteService.all(vParam)
+      const vResponse: IResponseAllTripRoute | ITripRouteInstance[] =
+        await ClassTripRouteService.all(vParam)
       if (!vResponse) {
-        return pRes
-          .status(404)
-          .send(fxErrorResponse(404, null, 'Ocurrio un error'))
+        return pRes.status(404).send(fxErrorResponse(404, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -98,9 +94,7 @@ class TripRouteController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripRouteInput = pReq.only([
-        'name',
-      ])
+      const vData: ITripRouteInput = pReq.only(['name'])
       const vResponse: ITripRouteInstance | null = await ClassTripRouteService.create(vData)
       if (!vResponse) {
         return pRes
@@ -115,15 +109,12 @@ class TripRouteController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripRouteInput = pReq.only([
-        'id',
-        'name',
-      ])
+      const vData: ITripRouteInput = pReq.only(['id', 'name'])
       const vResponse: ITripRouteInstance | null = await ClassTripRouteService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {

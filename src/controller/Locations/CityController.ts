@@ -31,7 +31,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassCityService from '../../services/Locations/CityService'
 import type { ICityInput, ICityUpdate } from '../../types/LocationType'
-import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { ICityInstance } from '../../models/Locations/City'
 import type { IResponseAll } from '../../types/generalType'
 
@@ -70,13 +70,7 @@ class CityController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICityInput = pReq.only([
-        'name',
-        'flags',
-        'phoneCode',
-        'state',
-        'phone'
-      ])
+      const vData: ICityInput = pReq.only(['name', 'flags', 'phoneCode', 'state', 'phone'])
 
       const vResponse: ICityInstance | null = await ClassCityService.create(vData)
       if (!vResponse) {
@@ -92,14 +86,7 @@ class CityController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICityUpdate = pReq.only([
-        'id',
-        'name',
-        'flag',
-        'phoneCode',
-        'state',
-        'phone'
-      ])
+      const vData: ICityUpdate = pReq.only(['id', 'name', 'flag', 'phoneCode', 'state', 'phone'])
       const vResponse: ICityInstance | null = await ClassCityService.update(vData)
       if (!vResponse) {
         return pRes
@@ -117,9 +104,7 @@ class CityController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassCityService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

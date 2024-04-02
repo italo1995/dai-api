@@ -34,6 +34,5 @@ class FileController {
       pNext(err)
     }
   }
-
 }
 export default new FileController()

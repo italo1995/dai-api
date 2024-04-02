@@ -44,7 +44,9 @@ import { fxTripPanicFactory } from './Trip/TripPanicModel'
 import { fxSuspensionFactory } from './User/SuspensionModel'
 import { fxVerifyFactory } from './User/VerifyModel'
 import { fxDriverReportFactory } from './User/driverReportModel'
-
+import { fxViewFactory } from './web/ViewModel'
+import { fxStaffFactory } from './web/StaffModel'
+import { fxStaffViewFactory } from './web/StaffViewModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -95,6 +97,9 @@ export const modelTripPanic = fxTripPanicFactory(sequelize)
 export const modelSuspension = fxSuspensionFactory(sequelize)
 export const modelVerify = fxVerifyFactory(sequelize)
 export const modelDriverReport = fxDriverReportFactory(sequelize)
+export const modelView = fxViewFactory(sequelize)
+export const modelStaff = fxStaffFactory(sequelize)
+export const modelStaffView = fxStaffViewFactory(sequelize)
 
 const models = {
   modelUser,
@@ -137,7 +142,10 @@ const models = {
   modelTripPanic,
   modelSuspension,
   modelVerify,
-  modelDriverReport
+  modelDriverReport,
+  modelView,
+  modelStaff,
+  modelStaffView
 }
 
 export type ModelRegistry = typeof models
@@ -148,6 +156,5 @@ Object.values(models).forEach((model: ModelStatic<any>) => {
     model.associate(models)
   }
 })
-
 
 export default sequelize

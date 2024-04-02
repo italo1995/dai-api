@@ -7,10 +7,7 @@ export function upload() {
         cb(null, 'src/uploads/temp')
       },
       filename: function (_req, file, cb) {
-        const vNormalizedName = file.originalname
-          .trim()
-          .replace(/ /g, '_')
-          .toLowerCase()
+        const vNormalizedName = file.originalname.trim().replace(/ /g, '_').toLowerCase()
         cb(null, `${Date.now()}-${vNormalizedName}`)
       },
     })

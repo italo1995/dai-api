@@ -2,7 +2,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface: QueryInterface) {
+  async up(queryInterface: QueryInterface) {
     return Promise.all([
       queryInterface.addColumn('payment_methods', 'image', {
         type: DataTypes.STRING,
@@ -11,9 +11,7 @@ module.exports = {
       }),
     ])
   },
-  async down (queryInterface: QueryInterface) {
-    return Promise.all([
-      queryInterface.removeColumn('payment_methods', 'image'),
-    ])
+  async down(queryInterface: QueryInterface) {
+    return Promise.all([queryInterface.removeColumn('payment_methods', 'image')])
   },
 }

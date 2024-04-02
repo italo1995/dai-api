@@ -16,10 +16,13 @@ interface ClientToServerEvents {
 
 export class SocketService {
   public static initSocket(io: any): void {
-    io.on('connection', (socket: Socket<ServerToClientEvents, ClientToServerEvents, DefaultEventsMap>) => {
-      socket.on('disconnect', () => {
-        console.log(`Cliente desconectado: ${socket.id}`)
-      })
-    })
+    io.on(
+      'connection',
+      (socket: Socket<ServerToClientEvents, ClientToServerEvents, DefaultEventsMap>) => {
+        socket.on('disconnect', () => {
+          console.log(`Cliente desconectado: ${socket.id}`)
+        })
+      }
+    )
   }
 }

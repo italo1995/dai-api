@@ -56,6 +56,7 @@ export interface IUserUpdateSocket {
   lon?: number
   socketId?: string | null
   statusDriver?: EStatusDriver
+  discount?: number
 }
 
 export interface IUserCodeInput {
@@ -65,9 +66,10 @@ export interface IUserCodeInput {
 }
 
 export enum ETypeUser {
+  both = '0',
   passenger = '1',
   driver = '2',
-  both = '0',
+  all = '3',
 }
 
 export interface ITypeFileUserInput {
@@ -124,7 +126,6 @@ export interface IResponseAllUserTransaction {
   data: IUserTransactionInput[]
   actualPage: number
 }
-
 
 export interface ICommentInput {
   id: string

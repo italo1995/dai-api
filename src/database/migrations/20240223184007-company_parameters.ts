@@ -12,7 +12,7 @@ module.exports = {
       },
       name: {
         type: DataTypes.STRING,
-        field: 'name'
+        field: 'name',
       },
       value: {
         type: DataTypes.STRING,
@@ -22,7 +22,7 @@ module.exports = {
         type: DataTypes.INTEGER,
         field: 'type',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -42,7 +42,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('company_parameters')
   },
 }

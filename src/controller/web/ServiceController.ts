@@ -42,10 +42,11 @@ class ServiceController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllService | IServiceInstance[] = await ClassServiceService.all(vParam)
+      const vResponse: IResponseAllService | IServiceInstance[] =
+        await ClassServiceService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -59,12 +60,7 @@ class ServiceController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: INewInput = pReq.only([
-        'name',
-        'image',
-        'description',
-        'state',
-      ])
+      const vData: INewInput = pReq.only(['name', 'image', 'description', 'state'])
       if (vData?.image) {
         vData.image = await moveImages(vData.image)
       }
@@ -82,13 +78,7 @@ class ServiceController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: INewInput = pReq.only([
-        'id',
-        'name',
-        'image',
-        'description',
-        'state',
-      ])
+      const vData: INewInput = pReq.only(['id', 'name', 'image', 'description', 'state'])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
       }
@@ -96,7 +86,7 @@ class ServiceController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -108,9 +98,7 @@ class ServiceController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassServiceService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

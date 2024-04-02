@@ -10,7 +10,8 @@ export interface ITypeFileUserAttributes {
   createdAt?: Date
   updatedAt?: Date
 }
-interface ITypeFileUserCreationAttributes extends Optional<ITypeFileUserAttributes, 'id' | 'description'> {}
+interface ITypeFileUserCreationAttributes
+  extends Optional<ITypeFileUserAttributes, 'id' | 'description'> {}
 
 export interface ITypeFileUserInstance
   extends Model<ITypeFileUserAttributes, ITypeFileUserCreationAttributes>,
@@ -20,7 +21,7 @@ export const vTypeFileUserModelAttributes: SequelizeAttributes<ITypeFileUserAttr
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -33,12 +34,12 @@ export const vTypeFileUserModelAttributes: SequelizeAttributes<ITypeFileUserAttr
   isVisibility: {
     type: DataTypes.BOOLEAN,
     field: 'is_visibility',
-    defaultValue: true
+    defaultValue: true,
   },
   required: {
     type: DataTypes.BOOLEAN,
     field: 'required',
-    defaultValue: false
+    defaultValue: false,
   },
   createdAt: {
     type: DataTypes.DATE,

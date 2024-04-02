@@ -10,7 +10,8 @@ export interface ITripSpecialRequestAttributes {
   updatedAt?: Date
   deletedAt?: Date
 }
-interface ITripSpecialRequestCreationAttributes extends Optional<ITripSpecialRequestAttributes, 'id'> {}
+interface ITripSpecialRequestCreationAttributes
+  extends Optional<ITripSpecialRequestAttributes, 'id'> {}
 
 export interface ITripSpecialRequestInstance
   extends Model<ITripSpecialRequestAttributes, ITripSpecialRequestCreationAttributes>,
@@ -45,7 +46,7 @@ export const vTripSpecialRequestAttributes: SequelizeAttributes<ITripSpecialRequ
     type: DataTypes.DATE,
     field: 'deletedAt',
     defaultValue: null,
-    allowNull: true
+    allowNull: true,
   },
 }
 
@@ -60,7 +61,7 @@ export function fxTripSpecialRequestFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
-      paranoid: true
+      paranoid: true,
     }
   )
   vDataBase.associate = function (models: ModelRegistry) {

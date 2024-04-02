@@ -16,7 +16,8 @@
     "seed": "npx sequelize-cli db:seed:all",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "check-format": "prettier --check ."
+    "check-format": "prettier --check .",
+    "CRUD:g": "node ./scripts/generatedModels.js"
   },
   "keywords": [],
   "author": "",

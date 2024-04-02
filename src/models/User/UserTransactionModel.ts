@@ -20,21 +20,21 @@ export interface IUserTransactionInstance
     IUserTransactionAtributes {}
 
 export enum EtransactionType {
-    deposit = 1,
-    expense = 2
+  deposit = 1,
+  expense = 2,
 }
 
 export enum EStatusType {
-    pending = 1,
-    approved = 2,
-    denied =3
+  pending = 1,
+  approved = 2,
+  denied = 3,
 }
 
 export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtributes> = {
   id: {
     type: DataTypes.UUID,
     primaryKey: true,
-    defaultValue: () => uuidv4()
+    defaultValue: () => uuidv4(),
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -42,19 +42,19 @@ export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtr
   },
   operatorId: {
     type: DataTypes.STRING,
-    field: 'operator_id'
+    field: 'operator_id',
   },
   amount: {
     type: DataTypes.FLOAT,
-    field: 'amount'
+    field: 'amount',
   },
   transactionType: {
     type: DataTypes.INTEGER,
-    field: 'transaction_type'
+    field: 'transaction_type',
   },
   status: {
     type: DataTypes.STRING,
-    field: 'status'
+    field: 'status',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -70,7 +70,7 @@ export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtr
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 

@@ -37,15 +37,15 @@ export const vCommentAttributes: SequelizeAttributes<ICommentAttributes> = {
   },
   description: {
     type: DataTypes.STRING,
-    field: 'description'
+    field: 'description',
   },
   parentId: {
     type: DataTypes.INTEGER,
-    field: 'parent_id'
+    field: 'parent_id',
   },
   serviceId: {
     type: DataTypes.STRING,
-    field: 'service_id'
+    field: 'service_id',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -61,31 +61,27 @@ export const vCommentAttributes: SequelizeAttributes<ICommentAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxCommentFactory(sequelize: Sequelize) {
-  const vDataBase = <ModelStatic<ICommentInstance>>sequelize.define(
-    'Comment',
-    vCommentAttributes,
-    {
-      tableName: 'comments',
-      defaultScope: {
-        order: [['createdAt', 'DESC']],
-      },
-      freezeTableName: true,
-      timestamps: true,
-      paranoid: true,
-    }
-  )
+  const vDataBase = <ModelStatic<ICommentInstance>>sequelize.define('Comment', vCommentAttributes, {
+    tableName: 'comments',
+    defaultScope: {
+      order: [['createdAt', 'DESC']],
+    },
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+  })
 
   vDataBase.associate = function (models: ModelRegistry) {
     const { modelComment, modelUser } = models
-    
+
     modelComment.hasMany(modelComment, {
       foreignKey: 'parentId',
-      as: 'children'
+      as: 'children',
     })
     modelUser.hasMany(modelComment, {
       foreignKey: 'userId',
@@ -94,10 +90,10 @@ export function fxCommentFactory(sequelize: Sequelize) {
     modelComment.hasOne(modelUser, {
       sourceKey: 'userId',
       foreignKey: 'id',
-      as: 'user'
+      as: 'user',
     })
   }
-  
+
   vDataBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

@@ -1,36 +1,36 @@
 components:
- schemas:
-   VehicleTypes:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of VehicleTypes
-       name:
-         type: string
-         description: the name of the VehicleTypes
-       icon:
-        type: string
-        description: name icon
-       isMoto:
-        type: boolean
-        description: refers to when it is a motorcycle accessory
-       isCar:
-        type: boolean
-        description: refers to when it is a car add-on
-     required:
-       - name
-     example:
-       id: 1
-       name: sedan
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the types of vehicles
+  schemas:
+    VehicleTypes:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of VehicleTypes
+        name:
+          type: string
+          description: the name of the VehicleTypes
+        icon:
+          type: string
+          description: name icon
+        isMoto:
+          type: boolean
+          description: refers to when it is a motorcycle accessory
+        isCar:
+          type: boolean
+          description: refers to when it is a car add-on
+      required:
+        - name
+      example:
+        id: 1
+        name: sedan
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the types of vehicles
 tags:
   - name: VehicleTypes
     description: VehicleTypes endpoint
@@ -100,8 +100,7 @@ paths:
                 isCar:
                   type: boolean
                   description: refers to when it is a car add-on
-              required:
-               -name
+              required: -name
               example:
                 name: sedan
                 icon: 'storage/icono.png'

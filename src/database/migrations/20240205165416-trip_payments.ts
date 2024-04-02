@@ -18,7 +18,7 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'type',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       amount: {
         type: DataTypes.FLOAT,
@@ -52,11 +52,11 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('trip_payments')
   },
 }

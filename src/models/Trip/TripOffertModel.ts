@@ -20,7 +20,7 @@ export interface ITripOffertAttributes {
 export enum ETripOffertStatus {
   ESPERA = '1',
   ACEPTADA = '2',
-  CANCELADA = '3'
+  CANCELADA = '3',
 }
 interface ITripOffertCreationAttributes extends Optional<ITripOffertAttributes, 'id'> {}
 
@@ -65,19 +65,19 @@ export const vTripOffertAttributes: SequelizeAttributes<ITripOffertAttributes> =
     type: DataTypes.STRING,
     field: 'duration',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   durationInMs: {
     type: DataTypes.NUMBER,
     field: 'duration_in_ms',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   distance: {
     type: DataTypes.STRING,
     field: 'distance',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -93,7 +93,7 @@ export const vTripOffertAttributes: SequelizeAttributes<ITripOffertAttributes> =
     type: DataTypes.DATE,
     field: 'deletedAt',
     defaultValue: null,
-    allowNull: true
+    allowNull: true,
   },
 }
 
@@ -108,7 +108,7 @@ export function fxTripOffertFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
-      paranoid: true
+      paranoid: true,
     }
   )
   vTripOffert.associate = function (models: ModelRegistry) {

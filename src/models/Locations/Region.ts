@@ -22,7 +22,7 @@ export const vRegionModelAttributes: SequelizeAttributes<IRegionAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -44,7 +44,7 @@ export const vRegionModelAttributes: SequelizeAttributes<IRegionAttributes> = {
     type: DataTypes.STRING,
     field: 'phone',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,

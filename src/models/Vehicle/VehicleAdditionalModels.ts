@@ -2,58 +2,57 @@ import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
 export interface IVehicleAdditionalAtributes {
-    id: number
-    name: string
-    icon?: string
-    isMoto?: boolean
-    isCar?: boolean
-    isClient?: boolean
-    isRegister?: boolean
-    createdAt?: Date
-    updatedAt?: Date
-    deletedAt?: Date
+  id: number
+  name: string
+  icon?: string
+  isMoto?: boolean
+  isCar?: boolean
+  isClient?: boolean
+  isRegister?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
 }
 interface IVehicleAdditionalcreationAtributes extends Optional<IVehicleAdditionalAtributes, 'id'> {}
 
 export interface IVehicleAdditionalInstance
-    extends Model <IVehicleAdditionalAtributes, IVehicleAdditionalcreationAtributes>,
-        IVehicleAdditionalAtributes {}
-        
-export const vVehicleadditionalModelAttributes:
-SequelizeAttributes<IVehicleAdditionalAtributes> = {
+  extends Model<IVehicleAdditionalAtributes, IVehicleAdditionalcreationAtributes>,
+    IVehicleAdditionalAtributes {}
+
+export const vVehicleadditionalModelAttributes: SequelizeAttributes<IVehicleAdditionalAtributes> = {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   name: {
-    type:DataTypes.STRING,
+    type: DataTypes.STRING,
     field: 'name',
   },
   icon: {
-    type:DataTypes.STRING,
-    field: 'icon'
+    type: DataTypes.STRING,
+    field: 'icon',
   },
   isMoto: {
-    type:DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN,
     field: 'is_moto',
     defaultValue: true,
     allowNull: true,
   },
   isCar: {
-    type:DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN,
     field: 'is_car',
     defaultValue: true,
     allowNull: true,
   },
   isClient: {
-    type:DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN,
     field: 'is_client',
     defaultValue: true,
     allowNull: true,
   },
   isRegister: {
-    type:DataTypes.BOOLEAN,
+    type: DataTypes.BOOLEAN,
     field: 'is_register',
     defaultValue: true,
     allowNull: true,
@@ -81,7 +80,7 @@ export function fxVehicleAdditionalFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
-      paranoid: true
+      paranoid: true,
     }
   )
 

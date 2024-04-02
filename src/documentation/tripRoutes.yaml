@@ -1,76 +1,76 @@
 components:
- schemas:
-   TripRoutes:
-     type: object
-     properties:
-       id:
-         type: string
-         description: the auto-increment id of the trip routes
-       tripId:
-         type: number
-         description: The Id of the trip
-       isInit:
-         type: boolean
-         description: shows if the trip is already began
-       isEnd:
-         type: boolean
-         description: shows if the trip is already ended
-       orden:
-         type: number
-         description: the order of the trip
-       address:
-         type: string
-         description: the address of the user
-       reference:
-         type: string
-         description: the reference of the user's address
-       referencePointImage:
-         type: string
-         description: the file with the image of the reference point
-       lat:
-         type: number
-         description: latitud of the user
-       lon:
-         type: number
-         description: longitud of the user
-       userAddressId:
-         type: number
-         description: the id of the user's address
-     required:
-       - tripId
-       - isInit
-       - isEnd
-       - address
-       - reference
-       - referencePointImagen
-       - lat
-       - lon 
-       - userAddressId
-     example:
-       id: 3
-       tripId: 55
-       isInit: true
-       isEnd: true
-       address: car 7 #3-45 Barrio Obrero
-       reference: frente a supermercado
-       referencePointImage: './store/image/reference1.png'
-       lat: 7.46098
-       lon: -72.1330
-       userAddressId: 72
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: payment method id
- securitySchemes:
-  BearerAuth: # puedes usar el nombre que quieras
-   type: apiKey
-   name: Authorization
-   in: header
-   x-auth-id: Bearer abcde12345
+  schemas:
+    TripRoutes:
+      type: object
+      properties:
+        id:
+          type: string
+          description: the auto-increment id of the trip routes
+        tripId:
+          type: number
+          description: The Id of the trip
+        isInit:
+          type: boolean
+          description: shows if the trip is already began
+        isEnd:
+          type: boolean
+          description: shows if the trip is already ended
+        orden:
+          type: number
+          description: the order of the trip
+        address:
+          type: string
+          description: the address of the user
+        reference:
+          type: string
+          description: the reference of the user's address
+        referencePointImage:
+          type: string
+          description: the file with the image of the reference point
+        lat:
+          type: number
+          description: latitud of the user
+        lon:
+          type: number
+          description: longitud of the user
+        userAddressId:
+          type: number
+          description: the id of the user's address
+      required:
+        - tripId
+        - isInit
+        - isEnd
+        - address
+        - reference
+        - referencePointImagen
+        - lat
+        - lon
+        - userAddressId
+      example:
+        id: 3
+        tripId: 55
+        isInit: true
+        isEnd: true
+        address: car 7 #3-45 Barrio Obrero
+        reference: frente a supermercado
+        referencePointImage: './store/image/reference1.png'
+        lat: 7.46098
+        lon: -72.1330
+        userAddressId: 72
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: payment method id
+  securitySchemes:
+    BearerAuth: # puedes usar el nombre que quieras
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-id: Bearer abcde12345
 tags:
   - name: TripRoutes
     description: trip Routes
@@ -78,7 +78,7 @@ paths:
   /api/tripRoute/show:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a TripRoute element
       tags:
         - TripRoutes
@@ -96,7 +96,7 @@ paths:
   /api/tripRoute/recent:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns recent tripRoute elements
       tags:
         - TripRoutes
@@ -104,7 +104,7 @@ paths:
         - limit
       responses:
         '200':
-          description: limit is optional default 10 
+          description: limit is optional default 10
           content:
             application/json:
               schema:
@@ -114,7 +114,7 @@ paths:
   /api/tripRoute/all:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a list of tripRoutes
       tags:
         - TripRoutes
@@ -141,7 +141,7 @@ paths:
   /api/tripRoute/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new tripRoute
       tags:
         - TripRoutes
@@ -167,7 +167,7 @@ paths:
   /api/tripRoute/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a TripRoute
       tags:
         - TripRoutes

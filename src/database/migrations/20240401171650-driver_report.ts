@@ -12,19 +12,19 @@ module.exports = {
       },
       userId: {
         type: DataTypes.STRING,
-        field: 'user_id'
+        field: 'user_id',
       },
       ammount: {
         type: DataTypes.FLOAT,
         field: 'ammount',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       quantity: {
         type: DataTypes.INTEGER,
         field: 'quantity',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -38,8 +38,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('driver_report')
   },
 }
-

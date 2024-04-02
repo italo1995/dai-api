@@ -42,13 +42,21 @@ class BranchService implements IBranchService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         this.modelName
       )
 
       const vResponse: IBranchInstance[] = await modelBranch.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllBranch = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
+        const vResponsePaginate: IResponseAllBranch = await fxReponseServices(
+          pParam,
+          whereStatement,
+          this.modelName,
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -97,9 +105,12 @@ class BranchService implements IBranchService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelBranch.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelBranch.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -110,4 +121,4 @@ class BranchService implements IBranchService {
   }
 }
 
-export default new BranchService()   
+export default new BranchService()

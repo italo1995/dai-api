@@ -1,35 +1,35 @@
 components:
- schemas:
-   HelpInformation:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of HelpInformation
-       name:
-         type: string
-         description: the name of the HelpInformation
-       description: 
-         type: string
-         description: the description of the HelpInformation
-       orden:
-         type: number
-         description: the order of the HelpInformation
-     required:
-       - name
-       - description
-     example:
-       id: 1
-       name: informacion para el usuario
-       description: Esto es informacion de ayuda
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the HelpInformation id
+  schemas:
+    HelpInformation:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of HelpInformation
+        name:
+          type: string
+          description: the name of the HelpInformation
+        description:
+          type: string
+          description: the description of the HelpInformation
+        orden:
+          type: number
+          description: the order of the HelpInformation
+      required:
+        - name
+        - description
+      example:
+        id: 1
+        name: informacion para el usuario
+        description: Esto es informacion de ayuda
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the HelpInformation id
 tags:
   - name: HelpInformation
     description: HelpInformation endpoint
@@ -78,7 +78,7 @@ paths:
   /api/helpInformation/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new HelpInformation
       tags:
         - HelpInformation
@@ -116,7 +116,7 @@ paths:
   /api/helpInformation/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a HelpInformation
       tags:
         - HelpInformation

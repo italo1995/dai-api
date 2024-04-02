@@ -32,7 +32,6 @@ interface ICountryService {
 }
 
 class UserAddressService implements ICountryService {
-
   async validate(data: any) {
     const dataValidate = modelUserAddress.build(data)
     await dataValidate.validate()
@@ -43,10 +42,15 @@ class UserAddressService implements ICountryService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'UserAddress')
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        'UserAddress'
+      )
       whereStatement.where = {
         ...whereStatement.where,
-        userId: pParam.userId
+        userId: pParam.userId,
       }
       const vRes = await modelUserAddress.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -71,7 +75,7 @@ class UserAddressService implements ICountryService {
     const vResponse: IUserAddressInstance | null = await modelUserAddress.findOne({
       where: {
         id: pId,
-        userId: pUserId
+        userId: pUserId,
       },
     })
     return vResponse
@@ -87,7 +91,7 @@ class UserAddressService implements ICountryService {
       const vItem: IUserAddressInstance | null = await modelUserAddress.findOne({
         where: {
           id: pData.id,
-          userId: pData.userId
+          userId: pData.userId,
         },
       })
       await vItem?.update(pData)
@@ -98,9 +102,12 @@ class UserAddressService implements ICountryService {
 
   async softDeleteRecord(pId: number, pUserId: UUID) {
     try {
-      const record = await modelUserAddress.update({ deletedAt: new Date() }, {
-        where: { id: pId, userId: pUserId }
-      })
+      const record = await modelUserAddress.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId, userId: pUserId },
+        }
+      )
       if (!record) {
         return false
       }

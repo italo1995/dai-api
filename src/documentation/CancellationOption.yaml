@@ -1,38 +1,38 @@
 components:
- schemas:
-   CancellationOption:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of cancellationOption
-       name:
-         type: string
-         description: the name of the cancellationOption
-       type:
-         type: boolean
-         description: the type of the cancellationOption
-     required:
-       - name
-       - type
-     example:
-       id: 1
-       name: Ya no lo necesito
-       type: 1
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the cancellationOption id
- securitySchemes:
-   BearerAuth: # puedes usar el nombre que quieras
-    type: apiKey
-    name: Authorization
-    in: header
-    x-auth-id: Bearer abcde12345
+  schemas:
+    CancellationOption:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of cancellationOption
+        name:
+          type: string
+          description: the name of the cancellationOption
+        type:
+          type: boolean
+          description: the type of the cancellationOption
+      required:
+        - name
+        - type
+      example:
+        id: 1
+        name: Ya no lo necesito
+        type: 1
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the cancellationOption id
+  securitySchemes:
+    BearerAuth: # puedes usar el nombre que quieras
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-id: Bearer abcde12345
 tags:
   - name: CancellationOption
     description: CancellationOption endpoint
@@ -74,7 +74,7 @@ paths:
   /api/cancellationOption/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new cancellationOption
       tags:
         - CancellationOption

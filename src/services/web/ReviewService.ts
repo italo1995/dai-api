@@ -43,10 +43,11 @@ class ReviewService implements IReviewService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','Review'
+        pParam?.typeSearch || 'name',
+        'Review'
       )
 
-      const vResponse: IReviewInstance[] =await modelReview.findAll(whereStatement)
+      const vResponse: IReviewInstance[] = await modelReview.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllReview = await fxReponseServices(
           pParam,
@@ -102,9 +103,12 @@ class ReviewService implements IReviewService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelReview.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelReview.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

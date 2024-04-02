@@ -22,7 +22,7 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'email',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       direction: {
         type: DataTypes.STRING,
@@ -32,25 +32,25 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'lat',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       lon: {
         type: DataTypes.STRING,
         field: 'lon',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       image: {
         type: DataTypes.STRING,
         field: 'image',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       referencePoint: {
         type: DataTypes.STRING,
         field: 'reference_point',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -70,8 +70,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('branches')
   },
 }
-

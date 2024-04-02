@@ -31,7 +31,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassRegionService from '../../services/Locations/RegionService'
 import type { IRegionInput, IRegionUpdate } from '../../types/LocationType'
-import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IRegionInstance } from '../../models/Locations/Region'
 import type { IResponseAll } from '../../types/generalType'
 
@@ -70,13 +70,7 @@ class RegionController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IRegionInput = pReq.only([
-        'name',
-        'flags',
-        'phoneCode',
-        'state',
-        'phone'
-      ])
+      const vData: IRegionInput = pReq.only(['name', 'flags', 'phoneCode', 'state', 'phone'])
 
       const vResponse: IRegionInstance | null = await ClassRegionService.create(vData)
       if (!vResponse) {
@@ -92,14 +86,7 @@ class RegionController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IRegionUpdate = pReq.only([
-        'id',
-        'name',
-        'flag',
-        'phoneCode',
-        'state',
-        'phone'
-      ])
+      const vData: IRegionUpdate = pReq.only(['id', 'name', 'flag', 'phoneCode', 'state', 'phone'])
       const vResponse: IRegionInstance | null = await ClassRegionService.update(vData)
       if (!vResponse) {
         return pRes
@@ -117,9 +104,7 @@ class RegionController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassRegionService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

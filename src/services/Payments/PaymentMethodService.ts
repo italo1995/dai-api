@@ -23,12 +23,12 @@ import type { ITripInput, IResponseAllTrip } from '../../types/PaymentMethodType
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IPaymentMethodService {
-    validate(data: any): any
-    show(pId: number, pUserId: UUID): Promise<IPaymentMethodInstance | null>
-    all(pParam: any): Promise<IResponseAllTrip | IPaymentMethodInstance[]>
-    create(payload: ITripInput): Promise<IPaymentMethodInstance>
-    update(payload: ITripInput): Promise<IPaymentMethodInstance | null>
-    softDeleteRecord(pId: number): Promise<boolean>
+  validate(data: any): any
+  show(pId: number, pUserId: UUID): Promise<IPaymentMethodInstance | null>
+  all(pParam: any): Promise<IResponseAllTrip | IPaymentMethodInstance[]>
+  create(payload: ITripInput): Promise<IPaymentMethodInstance>
+  update(payload: ITripInput): Promise<IPaymentMethodInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class PaymentMethodService implements IPaymentMethodService {
@@ -42,13 +42,21 @@ class PaymentMethodService implements IPaymentMethodService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'PaymentMethod'
       )
 
       const vResponse: IPaymentMethodInstance[] = await modelPaymentMethod.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(pParam, whereStatement, 'PaymentMethod', vResponse)
+        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'PaymentMethod',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -92,9 +100,12 @@ class PaymentMethodService implements IPaymentMethodService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelPaymentMethod.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelPaymentMethod.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

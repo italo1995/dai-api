@@ -1,41 +1,41 @@
 components:
- schemas:
-   Review:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of new
-       clientId:
-         type: number
-         description: the  id of the client that comment
-       driverId:
-         type: number
-         description: the id of the driver that made the service
-       qualifiaction: 
-         type: number
-         description: between 1 and 5
-       comment:
-         type: string
-         description: the comment of the client
-     required:
-       - tripId
-       - qualification
-       - comment
-     example:
-       id: 1
-       clientId: asdsa-dasdasd-asdsad
-       driverId: asdsa-dasdasd-asdsad
-       qualification: 5
-       comment: excellent service
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Review id
+  schemas:
+    Review:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of new
+        clientId:
+          type: number
+          description: the  id of the client that comment
+        driverId:
+          type: number
+          description: the id of the driver that made the service
+        qualifiaction:
+          type: number
+          description: between 1 and 5
+        comment:
+          type: string
+          description: the comment of the client
+      required:
+        - tripId
+        - qualification
+        - comment
+      example:
+        id: 1
+        clientId: asdsa-dasdasd-asdsad
+        driverId: asdsa-dasdasd-asdsad
+        qualification: 5
+        comment: excellent service
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Review id
 tags:
   - name: Review
     description: Review endpoint
@@ -100,7 +100,7 @@ paths:
                   driverId:
                     type: number
                     description: the id of the driver that made the service
-                  qualifiaction: 
+                  qualifiaction:
                     type: number
                     description: between 1 and 5
                   comment:

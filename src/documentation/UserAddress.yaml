@@ -1,55 +1,55 @@
 components:
- schemas:
-   UserAddress:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of UserAddress
-       name:
-         type: string
-         description: The name given by the user
-       address:
-         type: string
-         description: It refers to the address returned by Google Maps.
-       reference:
-         type: string
-         description: The user-written reference point.
-       lat:
-         type: string
-         description: google maps latitude coordinate.
-       lon:
-         type: string
-         description: google maps longitude coordinate.
-       file:
-         type: string
-         description: image name.
-     required:
-       - name
-       - lat
-       - lon
-     example:
-       id: 3
-       name: mi casa 2 update
-       address: Guásimos, 5015, Táchira
-       reference: mi referencia
-       lat: 7.856909894631252
-       lon: -72.2192597230659
-       file: storage/1706891934498-13d8e4e0-4632-4061-85e5-ab9cbe4a1898.jpg
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the UserAddress id
- securitySchemes:
-  BearerAuth: # puedes usar el nombre que quieras
-   type: apiKey
-   name: Authorization
-   in: header
-   x-auth-id: Bearer abcde12345
+  schemas:
+    UserAddress:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of UserAddress
+        name:
+          type: string
+          description: The name given by the user
+        address:
+          type: string
+          description: It refers to the address returned by Google Maps.
+        reference:
+          type: string
+          description: The user-written reference point.
+        lat:
+          type: string
+          description: google maps latitude coordinate.
+        lon:
+          type: string
+          description: google maps longitude coordinate.
+        file:
+          type: string
+          description: image name.
+      required:
+        - name
+        - lat
+        - lon
+      example:
+        id: 3
+        name: mi casa 2 update
+        address: Guásimos, 5015, Táchira
+        reference: mi referencia
+        lat: 7.856909894631252
+        lon: -72.2192597230659
+        file: storage/1706891934498-13d8e4e0-4632-4061-85e5-ab9cbe4a1898.jpg
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the UserAddress id
+  securitySchemes:
+    BearerAuth: # puedes usar el nombre que quieras
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-id: Bearer abcde12345
 tags:
   - name: UserAddress
     description: User saved locations.
@@ -57,7 +57,7 @@ paths:
   /api/userAddress/show:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns an UserAddress element
       tags:
         - UserAddress
@@ -75,7 +75,7 @@ paths:
   /api/userAddress/all:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a list of UserAddress
       tags:
         - UserAddress
@@ -102,7 +102,7 @@ paths:
   /api/userAddress/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new UserAddress
       tags:
         - UserAddress
@@ -128,7 +128,7 @@ paths:
   /api/userAddress/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a UserAddress
       tags:
         - UserAddress
@@ -154,7 +154,7 @@ paths:
   /api/userAddress/destroy:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: deletes an UserAddress element
       tags:
         - UserAddress

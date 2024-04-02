@@ -1,36 +1,36 @@
 components:
- schemas:
-   Banner:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of banner
-       name:
-         type: string
-         description: the name of the banner
-       image:
-         type: string
-         description: the name of the file of the image for the banner
-       link: 
-         type: string
-         description: the link of the banner
-     required:
-       - name
-       - image
-     example:
-       id: 1
-       name: Portada
-       image: storage/fileBannerPortada.png
-       link: https://Paya.com/banner1
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Banner id
+  schemas:
+    Banner:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of banner
+        name:
+          type: string
+          description: the name of the banner
+        image:
+          type: string
+          description: the name of the file of the image for the banner
+        link:
+          type: string
+          description: the link of the banner
+      required:
+        - name
+        - image
+      example:
+        id: 1
+        name: Portada
+        image: storage/fileBannerPortada.png
+        link: https://Paya.com/banner1
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Banner id
 tags:
   - name: Banner
     description: Banner endpoint

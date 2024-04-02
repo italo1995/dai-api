@@ -5,7 +5,12 @@ import twilio from 'twilio'
 import AppConfig from '../config/AppConfig'
 import type { IUserAttributes, IUserInstance } from '../models/User/User'
 
-export const fxSuccessResponse = (code: number | null = null, data: any, message: string | null = null, status: boolean | null = true) => {
+export const fxSuccessResponse = (
+  code: number | null = null,
+  data: any,
+  message: string | null = null,
+  status: boolean | null = true
+) => {
   return {
     status: status,
     code: code || 200,
@@ -48,7 +53,7 @@ export const moveImages = async (pName: string): Promise<string> => {
   }
   if (pName && fs.existsSync(`uploads/${pName}`)) {
     const vNameImages: string = pName.replace('temp', 'storage')
-    fs.renameSync(`uploads/${pName}`, `uploads/${vNameImages}`,)
+    fs.renameSync(`uploads/${pName}`, `uploads/${vNameImages}`)
     const options: any = { width: 200, responseType: 'buffer' }
     try {
       const thumbnail = await imageThumbnail(`uploads/${vNameImages}`, options)
@@ -92,7 +97,7 @@ export const fxTwilioSendCode = async (
   return vCode.toString()
 }
 
-export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Error>=> {
+export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Error> => {
   const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
   const vAuthToken = AppConfig.TWILIO_AUTH_Token
   const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
@@ -109,14 +114,17 @@ export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Err
   return true
 }
 
-export const sortLatLonDriver = (lat: number | null, lon: number | null): [number, number] | [null, null] => {
+export const sortLatLonDriver = (
+  lat: number | null,
+  lon: number | null
+): [number, number] | [null, null] => {
   if (lat && lon) {
     const vRandomLat = Math.random()
     const max = 0.005
     const min = -0.005
     const rango = max - min
     const vRandomLon = Math.random()
-  
+
     const difLat = min + vRandomLat * rango
     const difLon = min + vRandomLon * rango
     const newLat = lat + difLat

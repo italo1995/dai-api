@@ -18,13 +18,13 @@ module.exports = {
         type: DataTypes.INTEGER,
         field: 'cancellation_option_id',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       comment: {
         type: DataTypes.STRING,
         field: 'comment',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       userId: {
         type: DataTypes.UUID,
@@ -42,7 +42,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('trip_cancellation_options')
   },
 }

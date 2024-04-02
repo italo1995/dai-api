@@ -39,13 +39,21 @@ class DriverReportService implements IDriverReportService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'DriverReport'
       )
 
       const vResponse: IDriverReportInstance[] = await modelDriverReport.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllDriverReport = await fxReponseServices(pParam, whereStatement, 'driver_report', vResponse)
+        const vResponsePaginate: IResponseAllDriverReport = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'driver_report',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse

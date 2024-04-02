@@ -19,9 +19,7 @@ class DataContentController {
 
       const vResponse: IDataContentInstance | null = await ClassDataContentService.show(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -35,29 +33,23 @@ class DataContentController {
       if (vType) {
         const vResponse: IDataContentInstance | null = await ClassDataContentService.showType(vType)
         if (!vResponse) {
-          return pRes
-            .status(500)
-            .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+          return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
         }
         return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
-
       }
-      return pRes
-        .status(500)
-        .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllDataContent | IDataContentInstance[] = await ClassDataContentService.all(vParam)
+      const vResponse: IResponseAllDataContent | IDataContentInstance[] =
+        await ClassDataContentService.all(vParam)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -67,21 +59,13 @@ class DataContentController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IDataContentInput = pReq.only([
-        'name',
-        'description',
-        'image',
-        'orden',
-        'type'
-      ])
+      const vData: IDataContentInput = pReq.only(['name', 'description', 'image', 'orden', 'type'])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
       }
       const vResponse: IDataContentInstance | null = await ClassDataContentService.create(vData)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -97,7 +81,7 @@ class DataContentController {
         'description',
         'image',
         'orden',
-        'type'
+        'type',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
@@ -106,7 +90,7 @@ class DataContentController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -119,9 +103,7 @@ class DataContentController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassDataContentService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

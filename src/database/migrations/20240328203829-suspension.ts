@@ -12,11 +12,11 @@ module.exports = {
       },
       driverId: {
         type: DataTypes.STRING,
-        field: 'driver_id'
+        field: 'driver_id',
       },
       reason: {
         type: DataTypes.TEXT,
-        field: 'reason'
+        field: 'reason',
       },
       timeFrame: {
         type: DataTypes.INTEGER,
@@ -25,23 +25,23 @@ module.exports = {
       init: {
         type: DataTypes.DATE,
         field: 'init',
-        allowNull: false
+        allowNull: false,
       },
-      end:{
+      end: {
         type: DataTypes.DATE,
         field: 'end',
-        allowNull: false
+        allowNull: false,
       },
       hours: {
         type: DataTypes.INTEGER,
         field: 'hours',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       isCanceled: {
         type: DataTypes.BOOLEAN,
         field: 'is_canceled',
-        defaultValue: false
+        defaultValue: false,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -61,8 +61,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('suspension')
   },
 }
-

@@ -56,7 +56,7 @@ export const vBranchAttributes: SequelizeAttributes<IBranchAttributes> = {
     type: DataTypes.STRING,
     field: 'lon',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   image: {
     type: DataTypes.STRING,

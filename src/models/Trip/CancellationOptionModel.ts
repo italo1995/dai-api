@@ -15,7 +15,8 @@ export enum ETypeCancellationOption {
   DRIVER = 0,
   CLIENT = 1,
 }
-interface ICancellationOptionCreationAttributes extends Optional<ICancellationOptionAttributes, 'id'> {}
+interface ICancellationOptionCreationAttributes
+  extends Optional<ICancellationOptionAttributes, 'id'> {}
 
 export interface ICancellationOptionInstance
   extends Model<ICancellationOptionAttributes, ICancellationOptionCreationAttributes>,
@@ -30,25 +31,25 @@ export const vCancellationOptionAttributes: SequelizeAttributes<ICancellationOpt
   },
   name: {
     type: DataTypes.STRING,
-    field: 'name'
+    field: 'name',
   },
   type: {
     type: DataTypes.INTEGER,
     field: 'type',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   isClient: {
     type: DataTypes.BOOLEAN,
     field: 'is_client',
     allowNull: true,
-    defaultValue: false
+    defaultValue: false,
   },
   isDriver: {
     type: DataTypes.BOOLEAN,
     field: 'is_driver',
     allowNull: true,
-    defaultValue: false
+    defaultValue: false,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -69,14 +70,18 @@ export const vCancellationOptionAttributes: SequelizeAttributes<ICancellationOpt
 }
 
 export function fxCancellationOptionFactory(sequelize: Sequelize) {
-  const vDataBase = <ModelStatic<ICancellationOptionInstance>>sequelize.define('CancellationOption', vCancellationOptionAttributes, {
-    tableName: 'cancellation_options',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-  })
+  const vDataBase = <ModelStatic<ICancellationOptionInstance>>sequelize.define(
+    'CancellationOption',
+    vCancellationOptionAttributes,
+    {
+      tableName: 'cancellation_options',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+    }
+  )
 
   vDataBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }

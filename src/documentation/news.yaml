@@ -1,37 +1,37 @@
 components:
- schemas:
-   New:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of new
-       name:
-         type: string
-         description: the name of the new
-       image:
-         type: string
-         description: the name of the file of the image for the new
-       description: 
-         type: string
-         description: the description of the new
-     required:
-       - name
-       - image
-       - description
-     example:
-       id: 1
-       name: Noticia
-       image: storage/filenew.png
-       description: new information about the app
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the New id
+  schemas:
+    New:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of new
+        name:
+          type: string
+          description: the name of the new
+        image:
+          type: string
+          description: the name of the file of the image for the new
+        description:
+          type: string
+          description: the description of the new
+      required:
+        - name
+        - image
+        - description
+      example:
+        id: 1
+        name: Noticia
+        image: storage/filenew.png
+        description: new information about the app
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the New id
 tags:
   - name: New
     description: New endpoint

@@ -20,25 +20,25 @@ import { modelVehicleAdditional } from '../../models'
 import type { IVehicleAdditionalInput } from '../../types/VehicleTypes.js'
 import type { IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'
 
-
 interface IVehicleAdditionalService {
-    validate (data: any): any
-    show(pId: number): Promise<IVehicleAdditionalInstance | null>
-    all(pParam: any): Promise<IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[]>
-    create(payload: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance>
-    update(payload: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance | null>
-    softDeleteRecord(pId: number): Promise<boolean>
+  validate(data: any): any
+  show(pId: number): Promise<IVehicleAdditionalInstance | null>
+  all(pParam: any): Promise<IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[]>
+  create(payload: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance>
+  update(payload: IVehicleAdditionalInput): Promise<IVehicleAdditionalInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class VehicleAdditionalService implements IVehicleAdditionalService {
-
   async validate(data: any) {
     const dataValidate = modelVehicleAdditional.build(data)
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[]> {
-    try {            
+  public async all(
+    pParam: any
+  ): Promise<IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[]> {
+    try {
       const whereStatement: FindOptions = {}
       if (Number(pParam?.pag)) {
         const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
@@ -46,21 +46,22 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
         whereStatement.offset = (pParam.pag - 1) * limit
       }
       if (Number(pParam?.orden) === 2) {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['name', 'ASC']
-        ] : [
-          ['name', 'ASC']
-        ]
+        whereStatement.order =
+          whereStatement.order instanceof Array
+            ? [...whereStatement.order, ['name', 'ASC']]
+            : [['name', 'ASC']]
       } else {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['id', 'DESC']
-        ] : [
-          ['id', 'DESC']
-        ]
+        whereStatement.order =
+          whereStatement.order instanceof Array
+            ? [...whereStatement.order, ['id', 'DESC']]
+            : [['id', 'DESC']]
       }
 
       if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
+        whereStatement.where = {
+          ...whereStatement.where,
+          name: { [Op.iLike]: `%${pParam.search}%` },
+        }
       }
       if ('isMoto' in pParam) {
         whereStatement.where = { ...whereStatement.where, isMoto: pParam.isMoto }
@@ -74,7 +75,8 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
       if ('isRegister' in pParam) {
         whereStatement.where = { ...whereStatement.where, isRegister: pParam.isRegister }
       }
-      const vResponse: IVehicleAdditionalInstance[] = await modelVehicleAdditional.findAll(whereStatement)
+      const vResponse: IVehicleAdditionalInstance[] =
+        await modelVehicleAdditional.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
         const vCount = await modelVehicleAdditional.count(whereStatement)
@@ -84,7 +86,7 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
           data: vResponse,
           actualPage: Number(pParam.pag),
         }
-        return vResponsePaginate                 
+        return vResponsePaginate
       }
       return vResponse
     } catch (error) {
@@ -109,8 +111,8 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
         }
         const vResponse: IVehicleAdditionalInstance[] = await modelVehicleAdditional.findAll({
           where: {
-            id: ids
-          }
+            id: ids,
+          },
         })
         return vResponse
       }
@@ -130,7 +132,7 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
           id: pId,
         },
       })
-      return vResponse   
+      return vResponse
     } catch (error) {
       throw error
     }
@@ -153,19 +155,22 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
             id: pData.id,
           },
         })
-        await vReponse?.update(pData, {where: { id: pData. id } })
+        await vReponse?.update(pData, { where: { id: pData.id } })
         return vReponse
       }
       return null
     } catch (error) {
-      throw error        
+      throw error
     }
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelVehicleAdditional.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelVehicleAdditional.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -174,6 +179,5 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
       throw error
     }
   }
-
 }
 export default new VehicleAdditionalService()

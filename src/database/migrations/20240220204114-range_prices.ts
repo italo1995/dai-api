@@ -29,31 +29,31 @@ module.exports = {
         allowNull: true,
       },
       isMoto: {
-        type:DataTypes.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         field: 'is_moto',
         defaultValue: false,
         allowNull: true,
       },
       isCar: {
-        type:DataTypes.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         field: 'is_car',
         defaultValue: false,
         allowNull: true,
       },
       baseKilometer: {
-        type:DataTypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         field: 'base_kilometer',
         defaultValue: 0,
         allowNull: true,
       },
       basePrice: {
-        type:DataTypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         field: 'base_price',
         defaultValue: 0,
         allowNull: true,
       },
       extraPrice: {
-        type:DataTypes.DOUBLE,
+        type: DataTypes.DOUBLE,
         field: 'extra_price',
         defaultValue: 0,
         allowNull: true,
@@ -76,7 +76,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('range_prices')
   },
 }

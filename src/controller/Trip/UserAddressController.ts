@@ -11,7 +11,10 @@ class UserAddressController {
       const vUserId: UUID = pReq.auth.id
       const vId: number = Number(pReq.query.id)
 
-      const vResponse: IUserAddressInstance | null = await ClassUserAddressService.show(vId, vUserId)
+      const vResponse: IUserAddressInstance | null = await ClassUserAddressService.show(
+        vId,
+        vUserId
+      )
       if (!vResponse) {
         return pRes
           .status(500)
@@ -23,16 +26,15 @@ class UserAddressController {
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vUserId = pReq.auth.id
       vParam.userId = vUserId
-      const vResponse: IResponseAllUserAddress | IUserAddressInstance[] = await ClassUserAddressService.all(vParam)
+      const vResponse: IResponseAllUserAddress | IUserAddressInstance[] =
+        await ClassUserAddressService.all(vParam)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -88,9 +90,7 @@ class UserAddressController {
       vData.userId = vUserId
       const vResponse: IUserAddressInstance | null = await ClassUserAddressService.update(vData)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse))
     } catch (error) {
@@ -104,9 +104,7 @@ class UserAddressController {
       const vUserId: UUID = pReq.auth.id
       const vResponse: boolean = await ClassUserAddressService.softDeleteRecord(vId, vUserId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

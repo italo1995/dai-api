@@ -26,7 +26,7 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'date',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       status: {
         type: DataTypes.STRING,
@@ -42,7 +42,7 @@ module.exports = {
       },
       currencyId: {
         type: DataTypes.INTEGER,
-        field: 'currency_id'
+        field: 'currency_id',
       },
       isPayment: {
         type: DataTypes.BOOLEAN,
@@ -64,11 +64,11 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('trips')
   },
 }

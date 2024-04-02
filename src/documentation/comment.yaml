@@ -1,47 +1,47 @@
 components:
- schemas:
-   comment:
-     type: object
-     properties:
-       id:
-         type: string
-         description: the auto-increment id of Comment
-       userId:
-         type: string
-         description: the id of the user
-       name:
-         type: string
-         description: the name of the comment
-       description: 
-         type: string
-         description: the description of the Comment
-       parentId:
-         type: string
-         description: The id that relates to the children
-       serviceId:
-         type: string
-         description: The id that relates to the services
-     required:
-       - userId
-       - name
-       - description
-       - parentId
-       - serviceId
-     example:
-       id: 1
-       userId: 1234
-       name: titulo del comentario
-       description: comentario escrito por usuario
-       parentId: 4567
-       serviceId: 7890
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Comment id
+  schemas:
+    comment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: the auto-increment id of Comment
+        userId:
+          type: string
+          description: the id of the user
+        name:
+          type: string
+          description: the name of the comment
+        description:
+          type: string
+          description: the description of the Comment
+        parentId:
+          type: string
+          description: The id that relates to the children
+        serviceId:
+          type: string
+          description: The id that relates to the services
+      required:
+        - userId
+        - name
+        - description
+        - parentId
+        - serviceId
+      example:
+        id: 1
+        userId: 1234
+        name: titulo del comentario
+        description: comentario escrito por usuario
+        parentId: 4567
+        serviceId: 7890
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Comment id
 tags:
   - name: Comment
     description: Comment endpoint
@@ -90,7 +90,7 @@ paths:
   /api/comment/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new Comment
       tags:
         - Comment
@@ -102,26 +102,26 @@ paths:
               type: object
               properties:
                 userId:
-                 type: string
-                 description: the id of the user
+                  type: string
+                  description: the id of the user
                 name:
-                 type: string
-                 description: the name of the comment
-                description: 
-                 type: string
-                 description: the description of the Comment
+                  type: string
+                  description: the name of the comment
+                description:
+                  type: string
+                  description: the description of the Comment
                 parentId:
-                 type: string
-                 description: The id that relates to the children
+                  type: string
+                  description: The id that relates to the children
                 serviceId:
-                 type: string
-                 description: The id that relates to the services
+                  type: string
+                  description: The id that relates to the services
               required:
-               - userId
-               - name
-               - description
-               - parentId
-               - serviceId
+                - userId
+                - name
+                - description
+                - parentId
+                - serviceId
               example:
                 id: 1
                 userId: 1234
@@ -139,7 +139,7 @@ paths:
   /api/comment/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a Comment
       tags:
         - Comment
@@ -151,20 +151,20 @@ paths:
               type: object
               properties:
                 userId:
-                 type: string
-                 description: the id of the user
+                  type: string
+                  description: the id of the user
                 name:
-                 type: string
-                 description: the name of the comment
-                description: 
-                 type: string
-                 description: the description of the Comment
+                  type: string
+                  description: the name of the comment
+                description:
+                  type: string
+                  description: the description of the Comment
                 parentId:
-                 type: string
-                 description: The id that relates to the children
+                  type: string
+                  description: The id that relates to the children
                 serviceId:
-                 type: string
-                 description: The id that relates to the services
+                  type: string
+                  description: The id that relates to the services
               required:
                 - userId
                 - name

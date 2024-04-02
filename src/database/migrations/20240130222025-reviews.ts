@@ -14,13 +14,13 @@ module.exports = {
         type: DataTypes.INTEGER,
         field: 'client_id',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       driverId: {
         type: DataTypes.INTEGER,
         field: 'driver_id',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       qualification: {
         type: DataTypes.FLOAT,
@@ -55,7 +55,7 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },

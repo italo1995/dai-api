@@ -2,9 +2,9 @@ import * as admin from 'firebase-admin'
 import path from 'path'
 
 interface NotificationData {
-  title: string;
-  body: string;
-  data?: string;
+  title: string
+  body: string
+  data?: string
 }
 
 class NotificationService {
@@ -13,16 +13,13 @@ class NotificationService {
   constructor() {
     const vRutaJSON = path.resolve(__dirname, '../paya-7871b-a25830197977.json')
     admin.initializeApp({
-      credential: admin.credential.cert(vRutaJSON)
+      credential: admin.credential.cert(vRutaJSON),
     })
 
     this.messaging = admin.messaging()
   }
 
-  public async sendNotification(
-    token: string[],
-    data: NotificationData
-  ): Promise<void> {
+  public async sendNotification(token: string[], data: NotificationData): Promise<void> {
     try {
       if (token[0]) {
         const notification = {
@@ -33,7 +30,7 @@ class NotificationService {
           },
           data: {
             // data: data?.data || '',
-            click_action: 'FCM_PLUGIN_ACTIVITY'
+            click_action: 'FCM_PLUGIN_ACTIVITY',
           },
           android: {
             notification: {

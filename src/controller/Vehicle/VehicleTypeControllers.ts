@@ -27,16 +27,15 @@ import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
 
 class VehicleTypeController {
-
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
 
-      const vResponse:IVehicleTypeInstance | null = await ClassVehicleTypeService.show(vId)
+      const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.show(vId)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -44,10 +43,11 @@ class VehicleTypeController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllVehicleTypeType | IVehicleTypeInstance[] = await ClassVehicleTypeService.all(vParam)
+      const vResponse: IResponseAllVehicleTypeType | IVehicleTypeInstance[] =
+        await ClassVehicleTypeService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -61,11 +61,7 @@ class VehicleTypeController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IVehicleTypeInput = pReq.only([
-        'name',
-        'isMoto',
-        'isCar'
-      ])
+      const vData: IVehicleTypeInput = pReq.only(['name', 'isMoto', 'isCar'])
       const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.create(vData)
       if (!vResponse) {
         return pRes
@@ -80,17 +76,12 @@ class VehicleTypeController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IVehicleTypeInput = pReq.only([
-        'id',
-        'name',
-        'isMoto',
-        'isCar'
-      ])
+      const vData: IVehicleTypeInput = pReq.only(['id', 'name', 'isMoto', 'isCar'])
       const vResponse: IVehicleTypeInstance | null = await ClassVehicleTypeService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -102,9 +93,7 @@ class VehicleTypeController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassVehicleTypeService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

@@ -17,19 +17,22 @@ interface ClientToServerEvents {
 
 export class SocketService {
   public static initSocket(io: any): void {
-    io.on('connection', (socket: Socket<ServerToClientEvents, ClientToServerEvents, DefaultEventsMap>) => {
-      const auth = socket?.handshake?.auth || false
-      const socketId = socket.id
-      if (auth) {
-        const user = {
-          id: auth.id,
-          socketId: socketId
+    io.on(
+      'connection',
+      (socket: Socket<ServerToClientEvents, ClientToServerEvents, DefaultEventsMap>) => {
+        const auth = socket?.handshake?.auth || false
+        const socketId = socket.id
+        if (auth) {
+          const user = {
+            id: auth.id,
+            socketId: socketId,
+          }
+          ClassAuthService.updateSocket(user)
         }
-        ClassAuthService.updateSocket(user)
+        io.emit('connection', {
+          socketId,
+        })
       }
-      io.emit('connection', {
-        socketId
-      })
-    })
+    )
   }
 }

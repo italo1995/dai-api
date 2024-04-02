@@ -90,7 +90,6 @@ export interface ITripPaymentInput {
   isAprobed?: boolean
 }
 
-
 export interface IResponseAllTripPayment extends IResponseAll {
   total: number
   totalPage: number

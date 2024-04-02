@@ -23,12 +23,11 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassTypeFileUserService from '../../services/User/TypeFileUserService'
 import type { ITypeFileUserInput } from '../../types/User'
-import { fxSuccessResponse, fxErrorResponse, } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { ITypeFileUserInstance } from '../../models/User/TypeFileUser'
 import type { IResponseAll } from '../../types/generalType'
 
 class TypeFileUserController {
-
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
@@ -49,7 +48,8 @@ class TypeFileUserController {
     try {
       const vParam: any = pReq.query
 
-      const vResponse: IResponseAll | ITypeFileUserInstance[] = await ClassTypeFileUserService.all(vParam)
+      const vResponse: IResponseAll | ITypeFileUserInstance[] =
+        await ClassTypeFileUserService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)

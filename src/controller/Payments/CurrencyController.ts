@@ -42,10 +42,11 @@ class CurrencyController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllCurrency | ICurrencyInstance[] = await ClassCurrencyService.all(vParam)
+      const vResponse: IResponseAllCurrency | ICurrencyInstance[] =
+        await ClassCurrencyService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -58,14 +59,7 @@ class CurrencyController {
   }
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICurrencyInput = pReq.only([
-        'name',
-        'symbol',
-        'change',
-        'type',
-        'auto',
-        'icon'
-      ])
+      const vData: ICurrencyInput = pReq.only(['name', 'symbol', 'change', 'type', 'auto', 'icon'])
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.create(vData)
       if (!vResponse) {
         return pRes
@@ -87,13 +81,13 @@ class CurrencyController {
         'change',
         'type',
         'auto',
-        'icon'
+        'icon',
       ])
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -118,11 +112,10 @@ class CurrencyController {
           })
         }
       }
-      const vResponse: ICurrencyInstance[] | null = await ClassCurrencyService.updateMany(vUpdateData)
+      const vResponse: ICurrencyInstance[] | null =
+        await ClassCurrencyService.updateMany(vUpdateData)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -135,9 +128,7 @@ class CurrencyController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassCurrencyService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
@@ -145,7 +136,5 @@ class CurrencyController {
     }
   }
 }
-
-
 
 export default new CurrencyController()
