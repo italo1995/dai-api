@@ -58,6 +58,7 @@ class BankController {
       pNext(error)
     }
   }
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IBankInput = pReq.only([
@@ -117,6 +118,7 @@ class BankController {
       pNext(error)
     }
   }
+
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = pReq.input('id', 'number')

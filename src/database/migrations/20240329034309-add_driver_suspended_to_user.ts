@@ -4,7 +4,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 module.exports = {
   async up (queryInterface: QueryInterface) {
     return Promise.all([
-      queryInterface.addColumn('user', 'driver_suspended_to', {
+      queryInterface.addColumn('users', 'driver_suspended_to', {
         type: DataTypes.DATE,
         allowNull: true,
         defaultValue: null
@@ -13,7 +13,7 @@ module.exports = {
   },
   async down (queryInterface: QueryInterface) {
     return Promise.all([
-      queryInterface.removeColumn('user', 'driver_suspended_to'),
+      queryInterface.removeColumn('users', 'driver_suspended_to'),
     ])
   },
 }
