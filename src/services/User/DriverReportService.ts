@@ -11,7 +11,7 @@
 - CommentService Methods:
   1 - validate: valida los campos con respecto al modelo, para estar seguro de que son los formatos permitidos y caso contrario devuelve un error de validacion
   2 - show: trae los datos del item segun el id, puede usarse en el perfil o para verificar informacion del item
-  3 - create: crea datos del item
+  3 - create: crea datos del item, es necesario agregar los datos totalAmount (precio de cada viaje) 
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
@@ -24,8 +24,8 @@ interface IDriverReportService {
   validate(data: any): any
   show(pId: number): Promise<IDriverReportInstance | null>
   all(pParam: any): Promise<IResponseAllDriverReport | IDriverReportInstance[]>
-  create(payload: IDriverReportInput): Promise<IDriverReportInstance>
-  update(payload: IDriverReportInput): Promise<IDriverReportInstance | null>
+  create(payload: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance>
+  update(payload: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance | null>
 }
 
 class DriverReportService implements IDriverReportService {
@@ -67,8 +67,11 @@ class DriverReportService implements IDriverReportService {
     }
   }
 
-  async create(pData: IDriverReportInput): Promise<IDriverReportInstance> {
+  async create(pData: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance> {
     try {
+      pData.amount = totalAmount
+      pData.quantity = tripCount
+
       const vResponse: IDriverReportInstance = await modelDriverReport.create(pData)
       return vResponse
     } catch (error) {
@@ -76,9 +79,12 @@ class DriverReportService implements IDriverReportService {
     }
   }
 
-  async update(pData: IDriverReportInput): Promise<IDriverReportInstance | null> {
+  async update(pData: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance | null> {
     try {
       if (pData?.id) {
+        pData.amount = totalAmount
+        pData.quantity = tripCount
+
         const vReponse: IDriverReportInstance | null = await modelDriverReport.findOne({
           where: {
             id: pData.id,

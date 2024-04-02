@@ -182,7 +182,7 @@ export interface IResponseAllUser extends IResponseAll {
 export interface IDriverReportInput {
   id: string
   userId: string
-  ammount: number
+  amount: number
   quantity: number
 }
 

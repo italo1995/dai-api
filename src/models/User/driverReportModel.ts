@@ -4,7 +4,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 export interface IDriverReportAttributes {
   id: string
   userId: string
-  ammount: number
+  amount: number
   quantity: number
   createdAt?: Date
   updatedAt?: Date
@@ -26,7 +26,7 @@ export const vDriverReportModelAttributes: SequelizeAttributes<IDriverReportAttr
     type: DataTypes.STRING,
     field: 'user_id',
   },
-  ammount: {
+  amount: {
     type: DataTypes.FLOAT,
     field: 'ammount',
     defaultValue: null,
