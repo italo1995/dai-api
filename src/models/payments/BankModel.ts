@@ -12,6 +12,7 @@ export interface IBankAttributes {
   dni: string
   accountType: EAccountType
   email?: string
+  hasCapture?: boolean
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -78,6 +79,12 @@ export const vBankAttributes: SequelizeAttributes<IBankAttributes> = {
     field: 'email',
     allowNull: true,
     defaultValue: null,
+  },
+  hasCapture: {
+    type: DataTypes.BOOLEAN,
+    field:'has_capture',
+    allowNull: true,
+    defaultValue: false
   },
   createdAt: {
     type: DataTypes.DATE,

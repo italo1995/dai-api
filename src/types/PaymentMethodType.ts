@@ -37,6 +37,7 @@ export interface IBankInput {
   dni: string
   accountType: EAccountType
   email?: string
+  hasCapture?: boolean
 }
 
 export interface IResponseAllBank extends IResponseAll {

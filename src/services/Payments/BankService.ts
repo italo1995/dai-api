@@ -48,6 +48,12 @@ class BankService implements IBankService {
         pParam?.typeSearch || 'name',
         this.modelName
       )
+      if (pParam.accountType) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          accountType: pParam.accountType,
+        }
+      }
 
       const vResponse: IBankInstance[] = await modelBank.findAll(whereStatement)
       if (Number(pParam?.pag)) {
