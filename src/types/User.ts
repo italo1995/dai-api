@@ -29,6 +29,7 @@ export interface IUserInput {
   token?: string
   socketId?: string
   balance?: number
+  staffId?: number | null
 }
 
 export interface IUserInputUpdate {
@@ -181,7 +182,7 @@ export interface IResponseAllUser extends IResponseAll {
 }
 
 export interface IDriverReportInput {
-  id: string
+  id?: string
   userId: string
   amount: number
   quantity: number

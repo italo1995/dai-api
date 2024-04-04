@@ -29,8 +29,7 @@ import type {
 import { EStatusDriver, type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode, modelUserRating } from '../../models'
-import { Op } from 'sequelize'
-// import { Op } from 'sequelize'
+import { Op, ValidationError, ValidationErrorItem } from 'sequelize'
 
 interface IAuthService {
   showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
@@ -43,6 +42,25 @@ interface IAuthService {
 
 class AuthService implements IAuthService {
   async validate(data: any) {
+    const fieldsToCheck = ['email', 'phoneNumber']
+    for (const field of fieldsToCheck) {
+      const existingUser = await modelUser.findOne({ where: { [field]: data[field] }, logging: true })
+      if (existingUser) {
+        const errorItems = [
+          new ValidationErrorItem(
+            `${field} already in use`,
+            'unique violation', // type
+            field, // path
+            data[field], // value
+            existingUser,
+            'notUnique', // validatorKey
+            'validate',
+            []
+          )
+        ]
+        throw new ValidationError('Validation error', errorItems)
+      }
+    }
     const dataValidate = modelUser.build(data)
     await dataValidate.validate()
   }
@@ -228,17 +246,17 @@ class AuthService implements IAuthService {
     }
   }
 
-  async login(pEmail: string, pPassword: string): Promise<IUserInstance | null> {
+  async login(pEmail: string): Promise<IUserInstance | null> {
     try {
       const vUser = await modelUser.scope('withPassword').findOne({ where: { email: pEmail } })
-      if (!vUser || pPassword !== vUser.password) {
-        return null
-      }
-      console.log('vUser.password :>> ', vUser.password)
-      console.log('pPasword :>> ', pPassword)
-      const vResponse: any = vUser.dataValues
-      delete vResponse.password
-      return vResponse
+      return vUser
+      // if (!vUser || !bcrypt.compareSync(pPassword, vUser.password)) {
+      //   throw new Error('Email or password is incorrect')
+      // } else {
+      //   const userResponse = JSON.parse(JSON.stringify(vUser))
+      //   delete userResponse.password
+      //   return vUser
+      // }
     } catch (error) {
       throw error
     }

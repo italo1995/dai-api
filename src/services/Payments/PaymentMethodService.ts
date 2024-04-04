@@ -19,15 +19,15 @@ import { type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
 import { modelPaymentMethod, modelTripPayment } from '../../models'
 import type { IPaymentMethodInstance } from '../../models/payments/PaymentMethodModel'
-import type { ITripInput, IResponseAllTrip } from '../../types/PaymentMethodType'
+import type { IPaymentMethodInput, IResponseAllPaymentMethod } from '../../types/PaymentMethodType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IPaymentMethodService {
   validate(data: any): any
   show(pId: number, pUserId: UUID): Promise<IPaymentMethodInstance | null>
-  all(pParam: any): Promise<IResponseAllTrip | IPaymentMethodInstance[]>
-  create(payload: ITripInput): Promise<IPaymentMethodInstance>
-  update(payload: ITripInput): Promise<IPaymentMethodInstance | null>
+  all(pParam: any): Promise<IResponseAllPaymentMethod | IPaymentMethodInstance[]>
+  create(payload: IPaymentMethodInput): Promise<IPaymentMethodInstance>
+  update(payload: IPaymentMethodInput): Promise<IPaymentMethodInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
 }
 
@@ -37,7 +37,7 @@ class PaymentMethodService implements IPaymentMethodService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllTrip | IPaymentMethodInstance[]> {
+  public async all(pParam: any): Promise<IResponseAllPaymentMethod | IPaymentMethodInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
@@ -51,7 +51,7 @@ class PaymentMethodService implements IPaymentMethodService {
 
       const vResponse: IPaymentMethodInstance[] = await modelPaymentMethod.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTrip = await fxReponseServices(
+        const vResponsePaginate: IResponseAllPaymentMethod = await fxReponseServices(
           pParam,
           whereStatement,
           'PaymentMethod',
@@ -73,7 +73,7 @@ class PaymentMethodService implements IPaymentMethodService {
     return vResponse
   }
 
-  async create(pData: ITripInput): Promise<IPaymentMethodInstance> {
+  async create(pData: IPaymentMethodInput): Promise<IPaymentMethodInstance> {
     try {
       const vResponse: IPaymentMethodInstance = await modelPaymentMethod.create(pData)
       return vResponse
@@ -82,7 +82,7 @@ class PaymentMethodService implements IPaymentMethodService {
     }
   }
 
-  async update(pData: ITripInput): Promise<IPaymentMethodInstance | null> {
+  async update(pData: IPaymentMethodInput): Promise<IPaymentMethodInstance | null> {
     try {
       if (pData?.id) {
         const vReponse: IPaymentMethodInstance | null = await modelPaymentMethod.findOne({

@@ -229,18 +229,18 @@ export class Server {
         if (err.status === 400) {
           let message = 'Ocurrió un error'
           switch (err.code) {
-            case 21211:
-              // Error: Invalid 'To' Phone Number
-              message = vI18n.__('InvalidToPhoneNumber')
-              break
-            case 21610:
-              // Error: The 'To' number is not reachable
-              message = vI18n.__('ToNumberNotReachable')
-              break
-            case 21614:
-              // Error: The 'To' number is not a valid mobile number
-              message = vI18n.__('ToNumberNotValid')
-              break
+          case 21211:
+            // Error: Invalid 'To' Phone Number
+            message = vI18n.__('InvalidToPhoneNumber')
+            break
+          case 21610:
+            // Error: The 'To' number is not reachable
+            message = vI18n.__('ToNumberNotReachable')
+            break
+          case 21614:
+            // Error: The 'To' number is not a valid mobile number
+            message = vI18n.__('ToNumberNotValid')
+            break
           }
           console.log('Es un error de Twilio: ', message)
           return res.status(500).send({ success: false, type: 'TwilioError', message: message })

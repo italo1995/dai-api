@@ -26,25 +26,18 @@ components:
           description: defines whether the user is active or not
         statusDriver:
           type: number
-          description: The name given by the user
+          description: INACTIVE = 0, ACTIVE = 1 , BUSSY = 2
         verifiedDriver:
           type: boolean
-          description: The name given by the user
+          description: The driver is verified by the administrator
         typeUser:
           type: string
-          description: The name given by the user
+          description: It is not modifiable, it indicates the status of the client (driver or client)
       required:
         - name
-        - lat
-        - lon
-      example:
-        id: 3
-        name: mi casa 2 update
-        address: Guásimos, 5015, Táchira
-        reference: mi referencia
-        lat: 7.856909894631252
-        lon: -72.2192597230659
-        file: storage/1706891934498-13d8e4e0-4632-4061-85e5-ab9cbe4a1898.jpg
+        - email
+        - phoneCode
+        - phoneNumber
       parameters:
         id:
           in: query
@@ -99,6 +92,16 @@ paths:
           schema:
             type: string
           description: the keyword to filter by name
+        - in: query
+          name: typeSearch
+          schema:
+            type: string
+          description: the field by which you want to do the search if it is not a name
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: type user (user, driver)
       responses:
         '200':
           description: the list of User

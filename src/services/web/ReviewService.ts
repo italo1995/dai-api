@@ -46,7 +46,18 @@ class ReviewService implements IReviewService {
         pParam?.typeSearch || 'name',
         'Review'
       )
-
+      if (pParam?.userId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          userId: pParam.userId
+        }
+      }
+      if (pParam?.type) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          type: pParam.type
+        }
+      }
       const vResponse: IReviewInstance[] = await modelReview.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllReview = await fxReponseServices(

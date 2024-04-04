@@ -106,5 +106,34 @@ class DriverReportService implements IDriverReportService {
       throw error
     }
   }
+
+  async updatedOrCreate(pData: IDriverReportInput): Promise<IDriverReportInstance | null> {
+    try {
+      if (pData?.userId) {
+        const vResponse: IDriverReportInstance | null = await modelDriverReport.findOne({
+          where: {
+            userId: pData.userId,
+          },
+        })
+        if (vResponse) {
+          await vResponse?.update({
+            quantity: vResponse.dataValues.quantity + 1,
+            amount: (vResponse?.dataValues?.amount || 0) + pData.amount
+          })
+          return vResponse
+        } else {
+          const vCreate: IDriverReportInstance = await modelDriverReport.create({
+            quantity: 1,
+            amount: pData.amount,
+            userId: pData.userId
+          })
+          return vCreate
+        }
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
 }
 export default new DriverReportService()

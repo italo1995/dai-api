@@ -34,6 +34,7 @@ export interface IUserAttributes {
   balance?: number | null
   driverSuspendedTo: Date | null
   staffId?: number | null
+  branchId?: number | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -72,7 +73,15 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     type: DataTypes.STRING,
     field: 'email',
     defaultValue: null,
-    unique: true
+    unique: true,
+    validate: {
+      isEmail: true,
+      customValidator(value: string) {
+        if (!/^[\w\\.g]+@+[\w]+[.]+[\D]{2,10}$/.test(value)) {
+          throw new Error(`${value} is not a valid email!`)
+        }
+      },
+    }
   },
   password: {
     type: DataTypes.STRING,
@@ -82,7 +91,7 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
   phoneCode: {
     type: DataTypes.STRING,
     field: 'phone_code',
-    unique: true,
+    // unique: true,
     allowNull: true,
     set(pVal) {
       if (typeof pVal === 'number') {
@@ -235,6 +244,12 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     allowNull: true,
     defaultValue: null,
   },
+  branchId: {
+    type: DataTypes.INTEGER,
+    field: 'branch_id',
+    allowNull: true,
+    defaultValue: null,
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -272,7 +287,7 @@ export function fxUserFactory(sequelize: Sequelize) {
   })
 
   vUser.associate = function (models: ModelRegistry) {
-    const { modelUser, modelDriverDetail, modelTrip, modelUserRating } = models
+    const { modelUser, modelDriverDetail, modelTrip, modelUserRating, modelStaff } = models
     modelUser.hasMany(modelDriverDetail, {
       foreignKey: 'user_id',
       as: 'detail',
@@ -288,6 +303,11 @@ export function fxUserFactory(sequelize: Sequelize) {
     modelUser.hasOne(modelUserRating, {
       foreignKey: 'user_id',
       as: 'driverRating',
+    })
+    modelUser.hasOne(modelStaff, {
+      sourceKey: 'staffId',
+      foreignKey: 'id',
+      as: 'staff',
     })
   }
 

@@ -25,6 +25,7 @@ import { withTimeout } from './utils/helpers'
 import TripPaymentService from './services/Trip/TripPaymentService'
 import { ETypeUser } from './types/User'
 import CompanyParameterService from './services/web/CompanyParameterService'
+import DriverReportService from './services/User/DriverReportService'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
   url: string
@@ -452,8 +453,12 @@ export class SocketService {
           const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
           const vTripPrice = Number(vTrip?.dataValues.price)
           const commission: number = (vTripPrice * vPercentage) / 100
-
           if (vTrip?.dataValues?.driverId) {
+            await DriverReportService.updatedOrCreate({
+              userId: vTrip?.dataValues.driverId,
+              amount: commission,
+              quantity: 1
+            })
             const updateDriver = {
               id: vTrip.dataValues.driverId,
               statusDriver: EStatusDriver.ACTIVE,

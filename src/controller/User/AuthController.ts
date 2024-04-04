@@ -281,6 +281,9 @@ class AuthController {
       //validamos que esten completos
       await ClassAuthService.validate(vData)
       //registramos el usuario usando el servicio
+      if(typeof vData.password === 'string') {
+        vData.password = bcrypt.hashSync(vData.password, 10)
+      }
       const vUser: IUserInstance = await ClassAuthService.create(vData)
       //respondemos
       const vToken = fxGenerateAccessToken(vUser)
@@ -297,15 +300,17 @@ class AuthController {
   async login(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
     try {
       const vData = pReq.only(['email', 'password'])
-      vData.password = await bcrypt.hash(vData.password, 10)
-      const user = await ClassAuthService.login(vData.email, vData.password)
-      if (user) {
-        const vToken = fxGenerateAccessToken(user)
+      const vUser = await ClassAuthService.login(vData.email)
+      if (!vUser || !bcrypt.compareSync(vData.password, vUser.password)) {
+        return pRes.status(400).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
+      } else {
+        const userResponse = JSON.parse(JSON.stringify(vUser))
+        delete userResponse.password
+        const vToken = fxGenerateAccessToken(vUser)
         return pRes
           .status(200)
-          .send(fxSuccessResponse(200, { token: vToken, user }, 'logueado con exito'))
+          .send(fxSuccessResponse(200, { token: vToken, user: vUser }, 'logueado con exito'))
       }
-      return pRes.status(400).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
     } catch (error) {
       pNext(error)
     }

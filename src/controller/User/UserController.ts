@@ -18,8 +18,8 @@ class UserController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: string = pReq.input('id', 'string')
-
-      const vResponse: IUserInstance | null = await ClassUser.show({ id: vId, isDriver: false })
+      const vIsDriver: boolean = pReq.input('isDriver', 'json') ?? false
+      const vResponse: IUserInstance | null = await ClassUser.show({ id: vId, isDriver: vIsDriver || false })
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
@@ -55,6 +55,7 @@ class UserController {
         'verifiedDriver',
         'typeUser',
       ])
+      await ClassUser.validate(vData)
       const vResponse: IUserInstance | null = await ClassUser.create(vData)
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))

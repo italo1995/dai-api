@@ -22,7 +22,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
 import type { NextFunction, Request, Response } from 'express'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
-import type { ITripInput, IResponseAllTrip } from '../../types/PaymentMethodType'
+import type { IPaymentMethodInput, IResponseAllPaymentMethod } from '../../types/PaymentMethodType'
 import ClassPaymentMethodService from '../../services/Payments/PaymentMethodService'
 import type { IPaymentMethodInstance } from '../../models/payments/PaymentMethodModel'
 
@@ -46,7 +46,7 @@ class PaymentMethodController {
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTrip | IPaymentMethodInstance[] =
+      const vResponse: IResponseAllPaymentMethod | IPaymentMethodInstance[] =
         await ClassPaymentMethodService.all(vParam)
       if (!vResponse) {
         return pRes
@@ -61,7 +61,7 @@ class PaymentMethodController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: IPaymentMethodInput = pReq.only([
         'name',
         'fullName',
         'dni',
@@ -89,7 +89,7 @@ class PaymentMethodController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: IPaymentMethodInput = pReq.only([
         'id',
         'name',
         'fullName',

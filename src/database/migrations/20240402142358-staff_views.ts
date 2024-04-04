@@ -15,7 +15,7 @@ module.exports = {
         field: 'staff_id',
       },
       viewId: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         field: 'view_id',
       },
       createdAt: {

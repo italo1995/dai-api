@@ -15,7 +15,7 @@
   3 - create: crea datos del item
   4 - update: actualiza datos del item
 */
-import { Op, type FindOptions } from 'sequelize'
+import { Op, Sequelize, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
 import sequelize, {
   modelCurrency,
@@ -222,16 +222,30 @@ class TripService implements ITripService {
           distinct: true,
           col: 'id',
         })
-        const vResp = {
+        const vResp: any = {
           total: vCount,
           totalPage: Math.ceil(vCount / vLimit),
           data: vRes,
           actualPage: Number(pParam.pag),
         }
+        console.log('pParam :>> ', pParam)
+        console.log('vCount :>> ', vCount)
+        if (pParam?.again && pParam.userId) {
+          whereStatement.include = []
+          delete whereStatement.limit
+          delete whereStatement.offset
+          'visibility' in whereStatement.where && (delete whereStatement.where.visibility)
+          whereStatement.attributes = [[Sequelize.fn('sum',  Sequelize.col('price')), 'again'], 'driverId']
+          whereStatement.group = ['driver_id']
+          delete whereStatement.order
+          whereStatement.logging = true
+          vResp.again = await modelTrip.unscoped().findAll(whereStatement)
+        }
         return vResp
       }
       return vRes
     } catch (error) {
+      console.log('error :>> ', error)
       throw error
     }
   }

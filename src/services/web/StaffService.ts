@@ -1,5 +1,5 @@
 import { type FindOptions } from 'sequelize'
-import { modelStaff } from '../../models'
+import { modelStaff, modelView } from '../../models'
 import type { staffInstance, staffAttributes, staffReponseAll } from '../../models/web/StaffModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -28,7 +28,13 @@ class staffService implements IstaffService {
         pParam?.typeSearch || 'name',
         'staff'
       )
-
+      whereStatement.include = [
+        {
+          model: modelView,
+          as: 'views',
+          attributes: ['icon', 'title', 'url']
+        }
+      ]
       const vResponse: staffInstance[] = await modelStaff.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: staffReponseAll = await fxReponseServices(
@@ -51,6 +57,13 @@ class staffService implements IstaffService {
         where: {
           id: pId,
         },
+        include: [
+          {
+            model: modelView,
+            as: 'views',
+            attributes: ['icon', 'title', 'url']
+          }
+        ]
       })
       return vResponse
     } catch (error) {

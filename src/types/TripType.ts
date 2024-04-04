@@ -18,6 +18,7 @@ export interface IParamAllTrip {
   recient?: boolean | null
   initDate?: Date | null
   endDate?: Date | null
+  again?: boolean
 }
 
 export interface IParamShowTrip {

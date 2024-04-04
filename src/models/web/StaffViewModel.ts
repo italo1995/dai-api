@@ -4,7 +4,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 export interface staffViewAttributes {
   id?: number
   staffId?: number
-  viewId?: string
+  viewId?: number
   createdAt?: Date
   updatedAt?: Date
 }
@@ -34,7 +34,7 @@ export const staffViewModelAttributes: SequelizeAttributes<staffViewAttributes> 
     field: 'staff_id',
   },
   viewId: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     field: 'view_id',
   },
   createdAt: {

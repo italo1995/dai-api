@@ -239,6 +239,7 @@ class TripController {
         recient: pReq.input('recient', 'json'),
         initDate: pReq.input('initDate'),
         endDate: pReq.input('endDate'),
+        again: pReq.input('again'),
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))
@@ -257,8 +258,8 @@ class TripController {
     try {
       const vParam: IParamAllTrip = {
         userId: pReq.input('userId', 'string'),
-        isClient: pReq.input('isClient', 'json'),
-        isDriver: pReq.input('isDriver', 'json'),
+        isClient: pReq.input('isClient', 'json') || true,
+        isDriver: pReq.input('isDriver', 'json') || true,
         search: pReq.query?.search?.toString() || null,
         typeSearch: pReq.query?.typeSearch?.toString() || null,
         pag: pReq.query?.pag ? Number(pReq.query?.pag) : null,
@@ -266,6 +267,7 @@ class TripController {
         recient: pReq.input('recient', 'json'),
         initDate: pReq.input('initDate'),
         endDate: pReq.input('endDate'),
+        again: true
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))

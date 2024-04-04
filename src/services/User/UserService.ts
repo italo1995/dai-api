@@ -1,6 +1,6 @@
-import { type FindOptions } from 'sequelize'
+import { Op, type FindOptions, ValidationError, ValidationErrorItem } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
-import sequelize, { modelDriverDetail, modelUser, modelUserRating } from '../../models'
+import sequelize, { modelDriverDetail, modelStaff, modelUser, modelUserRating } from '../../models'
 import { ETypeService } from '../../models/Trip/TripModel'
 import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'
 import type { IResponseAllUser, IUserInput } from '../../types/User'
@@ -18,6 +18,27 @@ export interface NearbyDriversParamTypes {
 }
 class UserService implements IUserService {
   async validate(data: any) {
+    const fieldsToCheck = ['email', 'phoneNumber']
+    for (const field of fieldsToCheck) {
+      if (data[field]) {
+        const existingUser = await modelUser.findOne({ where: { [field]: data[field] }, logging: true })
+        if (existingUser) {
+          const errorItems = [
+            new ValidationErrorItem(
+              `${field} already in use`,
+              'unique violation', // type
+              field, // path
+              data[field], // value
+              existingUser,
+              'notUnique', // validatorKey
+              'validate',
+              []
+            )
+          ]
+          throw new ValidationError('Validation error', errorItems)
+        }
+      }
+    }
     const dataValidate = modelUser.build(data)
     await dataValidate.validate()
   }
@@ -78,17 +99,17 @@ class UserService implements IUserService {
         ]
       }
 
-      whereStatement.attributes = [
-        'id',
-        'name',
-        'socketId',
-        'tokenPush',
-        'avatar',
-        'phoneCode',
-        'phoneNumber',
-        'availabilityToTravel',
-        'createdAt',
-      ]
+      // whereStatement.attributes = [
+      //   'id',
+      //   'name',
+      //   'socketId',
+      //   'tokenPush',
+      //   'avatar',
+      //   'phoneCode',
+      //   'phoneNumber',
+      //   'availabilityToTravel',
+      //   'createdAt',
+      // ]
       const vResponse: IUserInstance | null = await modelUser.findOne(whereStatement)
       return vResponse
     } catch (error) {
@@ -126,12 +147,26 @@ class UserService implements IUserService {
           },
         ]
       }
+      if (pParam?.isStaff) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          staffId: {
+            [Op.not]: null
+          },
+        }
+        whereStatement.include = [
+          {
+            model: modelStaff,
+            as: 'staff'
+          }
+        ]
+      }
       const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllUser = await fxReponseServices(
           pParam,
           whereStatement,
-          'Comment',
+          modelUser.name,
           vResponse
         )
         return vResponsePaginate

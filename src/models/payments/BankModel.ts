@@ -2,7 +2,7 @@ import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
 export interface IBankAttributes {
-  id: string
+  id: number
   name: string
   icon?: string
   phoneNumber?: string
