@@ -63,24 +63,20 @@ export const vNewAttributes: SequelizeAttributes<INewAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxNewFactory(sequelize: Sequelize) {
-  const vNew = <ModelStatic<INewInstance>>sequelize.define(
-    'new',
-    vNewAttributes,
-    {
-      tableName: 'news',
-      defaultScope: {
-        order: [['createdAt', 'DESC']],
-      },
-      freezeTableName: true,
-      timestamps: true,
-      paranoid: true,
-    }
-  )
+  const vNew = <ModelStatic<INewInstance>>sequelize.define('new', vNewAttributes, {
+    tableName: 'news',
+    defaultScope: {
+      order: [['createdAt', 'DESC']],
+    },
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+  })
 
   vNew.prototype.toJSON = function () {
     const vValues = { ...this.get() }

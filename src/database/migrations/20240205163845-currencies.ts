@@ -54,11 +54,11 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('currencies')
   },
 }

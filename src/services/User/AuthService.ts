@@ -20,12 +20,16 @@
   8 - showCode: Verifica que el codigo enviado por el usuario es real y fue creado ese dia.
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
-import type { IUserInput, IUserCodeInput, IUserInputUpdate, IUserUpdateSocket } from '../../types/User'
+import type {
+  IUserInput,
+  IUserCodeInput,
+  IUserInputUpdate,
+  IUserUpdateSocket,
+} from '../../types/User'
 import { EStatusDriver, type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
 import { modelDriverDetail, modelUser, modelUserCode, modelUserRating } from '../../models'
-import { Op } from 'sequelize'
-// import { Op } from 'sequelize'
+import { Op, ValidationError, ValidationErrorItem } from 'sequelize'
 
 interface IAuthService {
   showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
@@ -38,6 +42,25 @@ interface IAuthService {
 
 class AuthService implements IAuthService {
   async validate(data: any) {
+    const fieldsToCheck = ['email', 'phoneNumber']
+    for (const field of fieldsToCheck) {
+      const existingUser = await modelUser.findOne({ where: { [field]: data[field] }, logging: true })
+      if (existingUser) {
+        const errorItems = [
+          new ValidationErrorItem(
+            `${field} already in use`,
+            'unique violation', // type
+            field, // path
+            data[field], // value
+            existingUser,
+            'notUnique', // validatorKey
+            'validate',
+            []
+          )
+        ]
+        throw new ValidationError('Validation error', errorItems)
+      }
+    }
     const dataValidate = modelUser.build(data)
     await dataValidate.validate()
   }
@@ -52,7 +75,7 @@ class AuthService implements IAuthService {
           {
             model: modelDriverDetail,
             as: 'detail',
-            required: false
+            required: false,
           },
           {
             model: modelUserRating,
@@ -60,8 +83,8 @@ class AuthService implements IAuthService {
             required: false,
             attributes: ['quantity', 'ratings'],
             where: {
-              type: 'clientId'
-            }
+              type: 'clientId',
+            },
           },
           {
             model: modelUserRating,
@@ -69,10 +92,10 @@ class AuthService implements IAuthService {
             required: false,
             attributes: ['quantity', 'ratings'],
             where: {
-              type: 'driverId'
-            }
-          }
-        ]
+              type: 'driverId',
+            },
+          },
+        ],
       })
       return vResponse
     } catch (error) {
@@ -93,7 +116,7 @@ class AuthService implements IAuthService {
       }
       return null
     } catch (error) {
-      throw error      
+      throw error
     }
   }
 
@@ -110,8 +133,8 @@ class AuthService implements IAuthService {
           required: false,
           attributes: ['quantity', 'ratings'],
           where: {
-            type: 'clientId'
-          }
+            type: 'clientId',
+          },
         },
         {
           model: modelUserRating,
@@ -119,10 +142,10 @@ class AuthService implements IAuthService {
           required: false,
           attributes: ['quantity', 'ratings'],
           where: {
-            type: 'driverId'
-          }
-        }
-      ]
+            type: 'driverId',
+          },
+        },
+      ],
     })
     return vResponse
   }
@@ -132,7 +155,7 @@ class AuthService implements IAuthService {
       where: {
         phoneNumber: pPhoneNumber,
       },
-      logging: true
+      logging: true,
     })
     return vResponse
   }
@@ -155,7 +178,7 @@ class AuthService implements IAuthService {
       }
       return null
     } catch (error) {
-      throw error      
+      throw error
     }
   }
 
@@ -166,12 +189,15 @@ class AuthService implements IAuthService {
           id: pData.id,
         },
       })
+      const balance = Number(vUser?.dataValues.balance) || 0
       const vUpdateUserSocket = {
         id: pData.id,
         lat: pData?.lat || vUser?.dataValues?.lat || null,
         lon: pData?.lon || vUser?.dataValues?.lon || null,
         socketId: pData?.socketId || vUser?.dataValues?.socketId || null,
-        statusDriver: 'statusDriver' in pData ? pData.statusDriver : vUser!.dataValues.statusDriver!
+        statusDriver:
+          'statusDriver' in pData ? pData.statusDriver : vUser!.dataValues.statusDriver!,
+        balance: pData?.discount ? Number(balance) - pData.discount : balance,
       }
       await vUser?.update(vUpdateUserSocket)
       return vUser
@@ -191,10 +217,10 @@ class AuthService implements IAuthService {
       where: {
         phoneNumber: vPhoneNumber,
         createdAt: {
-          [Op.gte]: this.formatearFecha(vDate)
+          [Op.gte]: this.formatearFecha(vDate),
         },
       },
-      logging: true
+      logging: true,
     })
     return vResponse?.dataValues?.code || null
   }
@@ -206,10 +232,10 @@ class AuthService implements IAuthService {
         code: pData.code,
         phoneNumber: pData.phoneNumber,
         createdAt: {
-          [Op.gte]: this.formatearFecha(vDate)
-        }
+          [Op.gte]: this.formatearFecha(vDate),
+        },
       },
-      logging: true
+      logging: true,
     })
 
     await vResponse?.destroy()
@@ -220,33 +246,38 @@ class AuthService implements IAuthService {
     }
   }
 
-  async login(pEmail: string, pPassword: string): Promise<IUserInstance | null> {
+  async login(pEmail: string): Promise<IUserInstance | null> {
     try {
       const vUser = await modelUser.scope('withPassword').findOne({ where: { email: pEmail } })
-      if (!vUser || pPassword === vUser.password) {
-        return null
-      }
-      const vResponse: any = vUser.dataValues
-      delete vResponse.password
-      return vResponse
+      return vUser
+      // if (!vUser || !bcrypt.compareSync(pPassword, vUser.password)) {
+      //   throw new Error('Email or password is incorrect')
+      // } else {
+      //   const userResponse = JSON.parse(JSON.stringify(vUser))
+      //   delete userResponse.password
+      //   return vUser
+      // }
     } catch (error) {
       throw error
     }
   }
-  
+
   async disconnect(pId: string): Promise<boolean> {
     try {
       const vUser: IUserInstance | null = await modelUser.findOne({
         where: {
           id: pId,
-        }
+        },
       })
       if (vUser) {
-        await vUser?.update({
-          tokenPush: null,
-          socketId: null,
-          statusDriver: EStatusDriver.INACTIVE
-        }, { where: { id: pId } })
+        await vUser?.update(
+          {
+            tokenPush: null,
+            socketId: null,
+            statusDriver: EStatusDriver.INACTIVE,
+          },
+          { where: { id: pId } }
+        )
         return true
       }
       return false
@@ -254,25 +285,28 @@ class AuthService implements IAuthService {
       throw error
     }
   }
-  
+
   async delete(pId: string): Promise<boolean> {
     try {
       const vUser: IUserInstance | null = await modelUser.findOne({
         where: {
           id: pId,
-        }
+        },
       })
       if (vUser) {
-        await vUser?.update({
-          tokenPush: null,
-          socketId: null,
-          phoneNumber: pId,
-          avatar: null,
-          email: null,
-          name: null,
-          statusDriver: EStatusDriver.INACTIVE,
-          deletedAt: new Date()
-        }, { where: { id: pId } })
+        await vUser?.update(
+          {
+            tokenPush: null,
+            socketId: null,
+            phoneNumber: pId,
+            avatar: null,
+            email: null,
+            name: null,
+            statusDriver: EStatusDriver.INACTIVE,
+            deletedAt: new Date(),
+          },
+          { where: { id: pId } }
+        )
         return true
       }
       return false

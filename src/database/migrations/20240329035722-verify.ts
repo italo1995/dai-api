@@ -12,23 +12,23 @@ module.exports = {
       },
       userId: {
         type: DataTypes.STRING,
-        field: 'user_id'
+        field: 'user_id',
       },
       appeal: {
         type: DataTypes.TEXT,
         field: 'appeal',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       reason: {
         type: DataTypes.TEXT,
         field: 'reason',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       status: {
         type: DataTypes.INTEGER,
-        field: 'status'
+        field: 'status',
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -48,8 +48,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('verify')
   },
 }
-

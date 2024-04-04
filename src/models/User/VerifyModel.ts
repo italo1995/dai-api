@@ -20,7 +20,7 @@ export interface IVerifyInstance
 export enum EStatusVerify {
   verified = 1,
   verifying = 2,
-  denied = 3
+  denied = 3,
 }
 
 export const vVerifyAttributes: SequelizeAttributes<IVerifyAttributes> = {
@@ -32,23 +32,23 @@ export const vVerifyAttributes: SequelizeAttributes<IVerifyAttributes> = {
   },
   userId: {
     type: DataTypes.STRING,
-    field: 'user_id'
+    field: 'user_id',
   },
   appeal: {
     type: DataTypes.TEXT,
     field: 'appeal',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   reason: {
     type: DataTypes.TEXT,
     field: 'reason',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   status: {
     type: DataTypes.INTEGER,
-    field: 'status'
+    field: 'status',
   },
   createdAt: {
     type: DataTypes.DATE,

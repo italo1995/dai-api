@@ -46,8 +46,8 @@ class ReviewController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllReview | IReviewInstance[] = await ClassReviewService.all(vParam)
       if (!vResponse) {
@@ -64,11 +64,7 @@ class ReviewController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vUserAuth = pReq.auth
-      const vData: IReviewInput = pReq.only([
-        'qualification',
-        'comment',
-        'tripId'
-      ])
+      const vData: IReviewInput = pReq.only(['qualification', 'comment', 'tripId'])
       vData.features = false
       if (!vData.tripId) {
         // TODO://
@@ -80,7 +76,7 @@ class ReviewController {
         id: vData.tripId,
         isClient: vUserAuth?.typeUser === ETypeUser.passenger ? true : false,
         userId: vUserAuth.id,
-        isDriver: vUserAuth?.typeUser === ETypeUser.driver ? true : false
+        isDriver: vUserAuth?.typeUser === ETypeUser.driver ? true : false,
       }
       const trip = await ClassTripService.show(vParamTrip)
       if (!trip?.dataValues.id) {
@@ -104,7 +100,13 @@ class ReviewController {
       } else {
         return pRes
           .status(400)
-          .send(fxErrorResponse(400, { user: null, token: null }, 'Review must have either clientId or driverId'))
+          .send(
+            fxErrorResponse(
+              400,
+              { user: null, token: null },
+              'Review must have either clientId or driverId'
+            )
+          )
       }
       const vResponse: IReviewInstance | null = await ClassReviewService.create(vData)
       if (!vResponse) {
@@ -116,9 +118,7 @@ class ReviewController {
       // Actualizar la calificación del usuario
       await ClassUserRatingService.updateRating(userId, type)
 
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -133,13 +133,13 @@ class ReviewController {
         'qualification',
         'comment',
         'features',
-        'tripId'
+        'tripId',
       ])
       const vResponse: IReviewInstance | null = await ClassReviewService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -151,17 +151,13 @@ class ReviewController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassReviewService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }
   }
-
-
 }
 
 export default new ReviewController()

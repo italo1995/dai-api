@@ -18,6 +18,7 @@ export interface IParamAllTrip {
   recient?: boolean | null
   initDate?: Date | null
   endDate?: Date | null
+  again?: boolean
 }
 
 export interface IParamShowTrip {
@@ -89,7 +90,6 @@ export interface ITripPaymentInput {
   paymentMethodId?: number
   isAprobed?: boolean
 }
-
 
 export interface IResponseAllTripPayment extends IResponseAll {
   total: number

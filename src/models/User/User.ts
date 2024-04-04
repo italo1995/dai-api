@@ -33,6 +33,8 @@ export interface IUserAttributes {
   lon?: number | null
   balance?: number | null
   driverSuspendedTo: Date | null
+  staffId?: number | null
+  branchId?: number | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -40,10 +42,13 @@ export interface IUserAttributes {
 export enum EStatusDriver {
   INACTIVE = 0,
   ACTIVE = 1,
-  BUSSY = 2
+  BUSSY = 2,
 }
 interface IUserCreationAttributes
-  extends Optional<IUserAttributes, 'id' | 'email' | 'password' | 'status' | 'lat' | 'lon' | 'socketId' | 'balance'> {}
+  extends Optional<
+    IUserAttributes,
+    'id' | 'email' | 'password' | 'status' | 'lat' | 'lon' | 'socketId' | 'balance'
+  > {}
 
 export interface IUserInstance
   extends Model<IUserAttributes, IUserCreationAttributes>,
@@ -68,6 +73,15 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     type: DataTypes.STRING,
     field: 'email',
     defaultValue: null,
+    unique: true,
+    validate: {
+      isEmail: true,
+      customValidator(value: string) {
+        if (!/^[\w\\.g]+@+[\w]+[.]+[\D]{2,10}$/.test(value)) {
+          throw new Error(`${value} is not a valid email!`)
+        }
+      },
+    }
   },
   password: {
     type: DataTypes.STRING,
@@ -77,7 +91,7 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
   phoneCode: {
     type: DataTypes.STRING,
     field: 'phone_code',
-    unique: true,
+    // unique: true,
     allowNull: true,
     set(pVal) {
       if (typeof pVal === 'number') {
@@ -204,13 +218,13 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     type: DataTypes.DOUBLE,
     field: 'lat',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   lon: {
     type: DataTypes.DOUBLE,
     field: 'lon',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   balance: {
     type: DataTypes.FLOAT,
@@ -222,7 +236,19 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     type: DataTypes.DATE,
     field: 'driver_suspended_to',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
+  },
+  staffId: {
+    type: DataTypes.INTEGER,
+    field: 'staff_id',
+    allowNull: true,
+    defaultValue: null,
+  },
+  branchId: {
+    type: DataTypes.INTEGER,
+    field: 'branch_id',
+    allowNull: true,
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -252,7 +278,7 @@ export function fxUserFactory(sequelize: Sequelize) {
     },
     scopes: {
       withPassword: {
-        attributes: ['id', 'email', 'password'],
+        attributes: ['id', 'email', 'rolId', 'password'],
       },
     },
     freezeTableName: true,
@@ -261,7 +287,7 @@ export function fxUserFactory(sequelize: Sequelize) {
   })
 
   vUser.associate = function (models: ModelRegistry) {
-    const { modelUser, modelDriverDetail, modelTrip, modelUserRating } = models
+    const { modelUser, modelDriverDetail, modelTrip, modelUserRating, modelStaff } = models
     modelUser.hasMany(modelDriverDetail, {
       foreignKey: 'user_id',
       as: 'detail',
@@ -277,6 +303,11 @@ export function fxUserFactory(sequelize: Sequelize) {
     modelUser.hasOne(modelUserRating, {
       foreignKey: 'user_id',
       as: 'driverRating',
+    })
+    modelUser.hasOne(modelStaff, {
+      sourceKey: 'staffId',
+      foreignKey: 'id',
+      as: 'staff',
     })
   }
 

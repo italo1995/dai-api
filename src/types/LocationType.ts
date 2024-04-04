@@ -1,4 +1,3 @@
-
 export interface ICountryInput {
   name: string
   flag?: string

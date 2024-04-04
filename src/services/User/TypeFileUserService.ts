@@ -28,7 +28,6 @@ interface ITypeFileUserService {
   update(payload: ITypeFileUserInput): Promise<ITypeFileUserInstance | null>
 }
 class TypeFileUserService implements ITypeFileUserService {
-
   async validate(data: any) {
     const dataValidate = modelTypeFileUser.build(data)
     await dataValidate.validate()
@@ -43,21 +42,22 @@ class TypeFileUserService implements ITypeFileUserService {
         whereStatement.offset = (pParam.pag - 1) * limit
       }
       if (Number(pParam?.orden) === 2) {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['name', 'ASC']
-        ] : [
-          ['name', 'ASC']
-        ]
+        whereStatement.order =
+          whereStatement.order instanceof Array
+            ? [...whereStatement.order, ['name', 'ASC']]
+            : [['name', 'ASC']]
       } else {
-        whereStatement.order =  whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['id', 'DESC']
-        ] : [
-          ['id', 'DESC']
-        ]
+        whereStatement.order =
+          whereStatement.order instanceof Array
+            ? [...whereStatement.order, ['id', 'DESC']]
+            : [['id', 'DESC']]
       }
 
       if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
+        whereStatement.where = {
+          ...whereStatement.where,
+          name: { [Op.iLike]: `%${pParam.search}%` },
+        }
       }
       const res = await modelTypeFileUser.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -103,6 +103,5 @@ class TypeFileUserService implements ITypeFileUserService {
     }
     return null
   }
-
 }
 export default new TypeFileUserService()

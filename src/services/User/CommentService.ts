@@ -16,7 +16,7 @@
 */
 import { type FindOptions } from 'sequelize'
 import type { ICommentInstance } from '../../models/User/CommentModel'
-import {  modelComment, modelUser } from '../../models'
+import { modelComment, modelUser } from '../../models'
 import type { ICommentInput, IResponseAllComment } from '../../types/User'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -43,25 +43,26 @@ class Comment implements IComment {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name', modelComment.name
+        pParam?.typeSearch || 'name',
+        modelComment.name
       )
 
       if (pParam?.serviceId) {
-        whereStatement.where = { ...whereStatement.where, serviceId: pParam.serviceId}
+        whereStatement.where = { ...whereStatement.where, serviceId: pParam.serviceId }
       }
-      
+
       whereStatement.include = [
         {
           model: modelComment,
           as: 'children',
-          required: false
+          required: false,
         },
         {
           model: modelUser,
           as: 'user',
           required: false,
-          attributes: ['name', 'avatar']
-        }
+          attributes: ['name', 'avatar'],
+        },
       ]
       const vResponse: ICommentInstance[] = await modelComment.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -119,9 +120,12 @@ class Comment implements IComment {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelComment.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelComment.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

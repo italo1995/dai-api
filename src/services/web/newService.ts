@@ -20,14 +20,13 @@ import { modelNew } from '../../models'
 import type { INewInput, IResponseAllNew } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
-interface INewService{
-    validate(data: any): any
-    show(pId: number): Promise<INewInstance | null>
-    all(pParam: any): Promise<IResponseAllNew | INewInstance[]>
-    create(payload: INewInput): Promise<INewInstance>
-    update(payload: INewInput): Promise<INewInstance | null>
-    softDeleteRecord(pId: number): Promise <boolean>
-
+interface INewService {
+  validate(data: any): any
+  show(pId: number): Promise<INewInstance | null>
+  all(pParam: any): Promise<IResponseAllNew | INewInstance[]>
+  create(payload: INewInput): Promise<INewInstance>
+  update(payload: INewInput): Promise<INewInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class NewService implements INewService {
@@ -44,7 +43,8 @@ class NewService implements INewService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name','new'
+        pParam?.typeSearch || 'name',
+        'new'
       )
 
       const vResponse: INewInstance[] = await modelNew.findAll(whereStatement)
@@ -62,7 +62,7 @@ class NewService implements INewService {
       throw error
     }
   }
-  
+
   async show(pId: number): Promise<INewInstance | null> {
     try {
       const vResponse: INewInstance | null = await modelNew.findOne({
@@ -104,9 +104,12 @@ class NewService implements INewService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelNew.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelNew.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -115,6 +118,5 @@ class NewService implements INewService {
       throw error
     }
   }
-
 }
 export default new NewService()

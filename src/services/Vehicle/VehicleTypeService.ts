@@ -21,16 +21,15 @@ import type { IVehicleTypeInput, IResponseAllVehicleTypeType } from '../../types
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IVehicleTypeService {
-    validate (data: any): any
-    show(pId: number): Promise<IVehicleTypeInstance | null>
-    all(pParam: any): Promise<IResponseAllVehicleTypeType | IVehicleTypeInstance[]>
-    create(payload: IVehicleTypeInput): Promise<IVehicleTypeInstance>
-    update(payload: IVehicleTypeInput): Promise<IVehicleTypeInstance | null>
-    softDeleteRecord(pId: number): Promise<boolean>
+  validate(data: any): any
+  show(pId: number): Promise<IVehicleTypeInstance | null>
+  all(pParam: any): Promise<IResponseAllVehicleTypeType | IVehicleTypeInstance[]>
+  create(payload: IVehicleTypeInput): Promise<IVehicleTypeInstance>
+  update(payload: IVehicleTypeInput): Promise<IVehicleTypeInstance | null>
+  softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class VehicleTypeService implements IVehicleTypeService {
-
   async validate(data: any) {
     const dataValidate = modelVehicleType.build(data)
     await dataValidate.validate()
@@ -41,7 +40,12 @@ class VehicleTypeService implements IVehicleTypeService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', 'VehicleType')
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        'VehicleType'
+      )
       if (pParam?.isMoto) {
         whereStatement.where = { ...whereStatement.where, isMoto: true }
       }
@@ -50,7 +54,12 @@ class VehicleTypeService implements IVehicleTypeService {
       }
       const vResponse: IVehicleTypeInstance[] = await modelVehicleType.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllVehicleTypeType = await fxReponseServices(pParam, whereStatement, 'VehicleType', vResponse)
+        const vResponsePaginate: IResponseAllVehicleTypeType = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'VehicleType',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -89,7 +98,7 @@ class VehicleTypeService implements IVehicleTypeService {
             id: pData.id,
           },
         })
-        await vReponse?.update(pData, {where: { id: pData.id } })
+        await vReponse?.update(pData, { where: { id: pData.id } })
         return vReponse
       }
       return null
@@ -99,9 +108,12 @@ class VehicleTypeService implements IVehicleTypeService {
   }
   async softDeleteRecord(vId: number) {
     try {
-      const record = await modelVehicleType.update({ deletedAt: new Date() }, {
-        where: { id: vId }
-      })
+      const record = await modelVehicleType.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: vId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -110,6 +122,5 @@ class VehicleTypeService implements IVehicleTypeService {
       throw error
     }
   }
-
 }
 export default new VehicleTypeService()

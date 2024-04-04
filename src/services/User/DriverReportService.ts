@@ -39,13 +39,21 @@ class DriverReportService implements IDriverReportService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'DriverReport'
       )
 
       const vResponse: IDriverReportInstance[] = await modelDriverReport.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllDriverReport = await fxReponseServices(pParam, whereStatement, 'driver_report', vResponse)
+        const vResponsePaginate: IResponseAllDriverReport = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'driver_report',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -92,6 +100,35 @@ class DriverReportService implements IDriverReportService {
         })
         await vReponse?.update(pData, { where: { id: pData.id } })
         return vReponse
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async updatedOrCreate(pData: IDriverReportInput): Promise<IDriverReportInstance | null> {
+    try {
+      if (pData?.userId) {
+        const vResponse: IDriverReportInstance | null = await modelDriverReport.findOne({
+          where: {
+            userId: pData.userId,
+          },
+        })
+        if (vResponse) {
+          await vResponse?.update({
+            quantity: vResponse.dataValues.quantity + 1,
+            amount: (vResponse?.dataValues?.amount || 0) + pData.amount
+          })
+          return vResponse
+        } else {
+          const vCreate: IDriverReportInstance = await modelDriverReport.create({
+            quantity: 1,
+            amount: pData.amount,
+            userId: pData.userId
+          })
+          return vCreate
+        }
       }
       return null
     } catch (error) {

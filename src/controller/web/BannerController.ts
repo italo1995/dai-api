@@ -42,8 +42,8 @@ class BannerController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllBanner | IBannerInstance[] = await ClassBannerService.all(vParam)
       if (!vResponse) {
@@ -59,14 +59,7 @@ class BannerController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IBannerInput = pReq.only([
-        'name',
-        'name',
-        'image',
-        'orden',
-        'link',
-        'state',
-      ])
+      const vData: IBannerInput = pReq.only(['name', 'name', 'image', 'orden', 'link', 'state'])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
       }
@@ -84,14 +77,7 @@ class BannerController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IBannerInput = pReq.only([
-        'id',
-        'name',
-        'image',
-        'orden',
-        'link',
-        'state',
-      ])
+      const vData: IBannerInput = pReq.only(['id', 'name', 'image', 'orden', 'link', 'state'])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
       }
@@ -99,7 +85,7 @@ class BannerController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -111,16 +97,13 @@ class BannerController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassBannerService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }
   }
-
 }
 
 export default new BannerController()

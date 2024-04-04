@@ -65,7 +65,7 @@ export const vBannerAttributes: SequelizeAttributes<IBannerAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 

@@ -38,7 +38,7 @@ export const vRangePriceModelAttributes: SequelizeAttributes<ICompanyParameterAt
     type: DataTypes.NUMBER,
     field: 'type',
     allowNull: true,
-    defaultValue: 0
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -69,7 +69,7 @@ export function fxCompanyParameterFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
-      paranoid: true
+      paranoid: true,
     }
   )
 

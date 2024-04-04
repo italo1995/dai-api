@@ -31,14 +31,19 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import ClassAuthService from '../../services/User/AuthService'
-import { type IDriverDetailInput, type IUserCodeInput, type IUserInput, type IUserInputUpdate } from '../../types/User'
+import {
+  type IDriverDetailInput,
+  type IUserCodeInput,
+  type IUserInput,
+  type IUserInputUpdate,
+} from '../../types/User'
 import {
   fxSuccessResponse,
   fxErrorResponse,
   fxGenerateAccessToken,
   fxTwilioSendCode,
   moveImages,
-  fxSendMessage
+  fxSendMessage,
 } from '../../utils/helpers'
 import type { IUserInstance } from '../../models/User/User'
 import ClassDriverDetailService from '../../services/User/DriverDetailService'
@@ -55,7 +60,7 @@ class AuthController {
     try {
       const vData: IUserInput = pReq.only(['phoneCode', 'phoneNumber'])
       const vHash: string = pReq.input('hash')
-      const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber' , 'json')
+      const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber', 'json')
       vData.phoneNumber = vData?.phoneNumber.toString()
       vData.isNewUser = true
       const vPhoneNumberExist: IUserInstance | null = await ClassAuthService.showUserNumber(
@@ -71,7 +76,11 @@ class AuthController {
       )
 
       const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
-      const vCode: string | null  = await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
+      const vCode: string | null = await fxTwilioSendCode(
+        vPhoneNumberSend,
+        vCodePhoneNumberExist || null,
+        vHash
+      )
 
       let vUser: IUserInstance
       if (vUpdatePhoneNumber) {
@@ -103,21 +112,26 @@ class AuthController {
       const vCode: string = pReq.input('code')
       const vphoneCode: string = pReq.input('phoneCode').toString()
       const vphoneNumber: string = pReq.input('phoneNumber').toString()
-      const socketId: string | null = pReq.input('socketId') ? pReq.input('socketId').toString() : null
+      const socketId: string | null = pReq.input('socketId')
+        ? pReq.input('socketId').toString()
+        : null
       const vPhoneNumber: string = `${vphoneCode}${vphoneNumber}`
       const vVerifiedCode: boolean = await ClassAuthService.showCode({
         code: vCode.trim(),
         phoneNumber: vPhoneNumber,
       })
       if (vVerifiedCode) {
-        const vUser: IUserInstance | null = await ClassAuthService.showUserNumber(vphoneNumber, vphoneCode)
+        const vUser: IUserInstance | null = await ClassAuthService.showUserNumber(
+          vphoneNumber,
+          vphoneCode
+        )
         if (!vUser) {
           return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
         }
         if (socketId) {
           await ClassAuthService.updateSocket({
             id: vUser.id,
-            socketId: socketId
+            socketId: socketId,
           })
         }
         const vResponse = {
@@ -152,7 +166,7 @@ class AuthController {
           'seats',
           'tokenPush',
           'phoneNumber',
-          'phoneCode'
+          'phoneCode',
         ])
         const vPhoneNumber: string = pReq.input('phoneNumber')
         const vPhoneCode: string = pReq.input('phoneCode')
@@ -186,12 +200,15 @@ class AuthController {
                 fieldName: field.fieldName,
                 type: field.type,
                 userId: vUserId,
-                value: ''
+                value: '',
               }
               if (field.fieldName === 'vehicleType') {
                 vData.vehicleType = Number(field.value)
               }
-              if (field.fieldName === 'travelAvailability' || field.fieldName === 'availabilityToTravel') {
+              if (
+                field.fieldName === 'travelAvailability' ||
+                field.fieldName === 'availabilityToTravel'
+              ) {
                 vData.availabilityToTravel = field?.value
               }
               if (element.type === 'image') {
@@ -213,24 +230,28 @@ class AuthController {
           if (tripActive) {
             return pRes
               .status(500)
-              .send(fxErrorResponse(500, null, 'No puede cambiar el tipo de usuario mientras tiene una orden activa'))
+              .send(
+                fxErrorResponse(
+                  500,
+                  null,
+                  'No puede cambiar el tipo de usuario mientras tiene una orden activa'
+                )
+              )
           }
         }
         const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (!vUserDB) {
-          return pRes
-            .status(500)
-            .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+          return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
         }
         const vReponseUser = {
           ...vUserDB.dataValues,
-          count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser)
+          count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser),
         }
-        return pRes.status(200).send(fxSuccessResponse(200, { user: vReponseUser }, 'Codigo verificado'))
-      } else {
         return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+          .status(200)
+          .send(fxSuccessResponse(200, { user: vReponseUser }, 'Codigo verificado'))
+      } else {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
     } catch (error) {
       pNext(error)
@@ -260,6 +281,9 @@ class AuthController {
       //validamos que esten completos
       await ClassAuthService.validate(vData)
       //registramos el usuario usando el servicio
+      if(typeof vData.password === 'string') {
+        vData.password = bcrypt.hashSync(vData.password, 10)
+      }
       const vUser: IUserInstance = await ClassAuthService.create(vData)
       //respondemos
       const vToken = fxGenerateAccessToken(vUser)
@@ -276,15 +300,17 @@ class AuthController {
   async login(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
     try {
       const vData = pReq.only(['email', 'password'])
-      vData.password = bcrypt.hash(vData.password, 10)
-      const user = await ClassAuthService.login(vData.email, vData.password)
-      if (user) {
-        const vToken = fxGenerateAccessToken(user)
+      const vUser = await ClassAuthService.login(vData.email)
+      if (!vUser || !bcrypt.compareSync(vData.password, vUser.password)) {
+        return pRes.status(400).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
+      } else {
+        const userResponse = JSON.parse(JSON.stringify(vUser))
+        delete userResponse.password
+        const vToken = fxGenerateAccessToken(vUser)
         return pRes
           .status(200)
-          .send(fxSuccessResponse(200, { token: vToken }, 'logueado con exito'))
+          .send(fxSuccessResponse(200, { token: vToken, user: vUser }, 'logueado con exito'))
       }
-      return pRes.status(200).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
     } catch (error) {
       pNext(error)
     }
@@ -295,13 +321,11 @@ class AuthController {
       const vUserId: string = pReq.auth.id
       const vUserDB: IUserInstance | null = await ClassAuthService.show(vUserId)
       if (!vUserDB) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
       }
       const vResponse = {
         ...vUserDB.dataValues,
-        count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser)
+        count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser),
       }
       return pRes.status(200).send(fxSuccessResponse(200, { user: vResponse }))
     } catch (error: any) {
@@ -309,14 +333,16 @@ class AuthController {
     }
   }
 
-  async NearbyDrivers(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+  async NearbyDrivers(
+    pReq: Request,
+    pRes: Response,
+    pNext: NextFunction
+  ): Promise<Response | undefined> {
     try {
       const vParam = pReq.only(['lat', 'lon', 'distance'])
       const vUserDB: IUserInstance[] | [] = await ClassUserService.NearbyDrivers(vParam)
       if (!vUserDB) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
       }
       const vResponse = {
         user: vUserDB,
@@ -326,23 +352,21 @@ class AuthController {
       pNext(error)
     }
   }
-  
+
   async approve(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
     try {
       const vUserId: string = pReq.input('userId')
       const vUserDB: IUserInstance | null = await ClassAuthService.approve(vUserId)
       if (!vUserDB) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       if (vUserDB?.tokenPush) {
         const notificationData = {
           title: 'Usuario verificado',
           body: 'tu usuario ha sido verificado',
           data: JSON.stringify({
-            verifiedDriver: true
-          })
+            verifiedDriver: true,
+          }),
         }
         await NotificationService.sendNotification([vUserDB?.tokenPush], notificationData)
         await fxSendMessage(vUserDB)
@@ -356,14 +380,16 @@ class AuthController {
     }
   }
 
-  async disconnect(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
+  async disconnect(
+    pReq: Request,
+    pRes: Response,
+    pNext: NextFunction
+  ): Promise<Response | undefined> {
     try {
       const vUserId: string = pReq.auth.id
       const vUserDB: boolean = await ClassAuthService.disconnect(vUserId)
       if (!vUserDB) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, true))
     } catch (error: any) {
@@ -376,9 +402,7 @@ class AuthController {
       const vUserId: string = pReq.auth.id
       const vUserDB: boolean = await ClassAuthService.delete(vUserId)
       if (!vUserDB) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, true))
     } catch (error: any) {

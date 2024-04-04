@@ -43,10 +43,12 @@ class HelpInformation implements IHelpInformation {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name', modelHelpInformation.name
+        pParam?.typeSearch || 'name',
+        modelHelpInformation.name
       )
 
-      const vResponse: IHelpInformationInstance[] = await modelHelpInformation.findAll(whereStatement)
+      const vResponse: IHelpInformationInstance[] =
+        await modelHelpInformation.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllHelpInformation = await fxReponseServices(
           pParam,
@@ -102,9 +104,12 @@ class HelpInformation implements IHelpInformation {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelHelpInformation.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelHelpInformation.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

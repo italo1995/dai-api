@@ -18,19 +18,19 @@ module.exports = {
         type: DataTypes.BOOLEAN,
         field: 'is_init',
         allowNull: true,
-        defaultValue: true
+        defaultValue: true,
       },
       isEnd: {
         type: DataTypes.BOOLEAN,
         field: 'is_end',
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       },
       orden: {
         type: DataTypes.INTEGER,
         field: 'orden',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       address: {
         type: DataTypes.TEXT,
@@ -66,7 +66,7 @@ module.exports = {
         type: DataTypes.INTEGER,
         field: 'user_address_id',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -82,11 +82,11 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('trip_routes')
   },
 }

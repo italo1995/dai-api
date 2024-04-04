@@ -20,25 +20,25 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'icon',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       phoneNumber: {
         type: DataTypes.STRING,
         field: 'phone_number',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       accountNumber: {
         type: DataTypes.STRING,
         field: 'account_number',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       currencyId: {
         type: DataTypes.STRING,
         field: 'currency_id',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       fullName: {
         type: DataTypes.STRING,
@@ -46,15 +46,15 @@ module.exports = {
       },
       dni: {
         type: DataTypes.STRING,
-        field: 'dni'
+        field: 'dni',
       },
       accountType: {
         type: DataTypes.INTEGER,
-        field: 'account_type'
+        field: 'account_type',
       },
       email: {
         type: DataTypes.STRING,
-        field: 'email'
+        field: 'email',
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -74,7 +74,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('banks')
   },
 }

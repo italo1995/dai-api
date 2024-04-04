@@ -35,7 +35,7 @@ export const vTermAttributes: SequelizeAttributes<ITermAttributes> = {
     type: DataTypes.TEXT,
     field: 'orden',
     allowNull: true,
-    defaultValue: 0
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -51,24 +51,20 @@ export const vTermAttributes: SequelizeAttributes<ITermAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxTermFactory(sequelize: Sequelize) {
-  const vDataBase = <ModelStatic<ITermInstance>>sequelize.define(
-    'Terms',
-    vTermAttributes,
-    {
-      tableName: 'terms',
-      defaultScope: {
-        order: [['createdAt', 'DESC']],
-      },
-      freezeTableName: true,
-      timestamps: true,
-      paranoid: true,
-    }
-  )
+  const vDataBase = <ModelStatic<ITermInstance>>sequelize.define('Terms', vTermAttributes, {
+    tableName: 'terms',
+    defaultScope: {
+      order: [['createdAt', 'DESC']],
+    },
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+  })
 
   vDataBase.prototype.toJSON = function () {
     const vValues = { ...this.get() }

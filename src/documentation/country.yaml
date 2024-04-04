@@ -1,31 +1,31 @@
 components:
- schemas:
-   Country:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of country
-       name:
-         type: string
-         description: the name of the country
-       flag:
-         type: string
-         description: the file name of the flag for country
-     required:
-       - name
-     example:
-       id: 1
-       name: Venezuela
-       flag: fileFlagVenezuela.png
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Countries id
+  schemas:
+    Country:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of country
+        name:
+          type: string
+          description: the name of the country
+        flag:
+          type: string
+          description: the file name of the flag for country
+      required:
+        - name
+      example:
+        id: 1
+        name: Venezuela
+        flag: fileFlagVenezuela.png
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Countries id
 tags:
   - name: Countries
     description: Countries endpoint

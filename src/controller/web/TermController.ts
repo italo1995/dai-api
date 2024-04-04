@@ -29,8 +29,8 @@ class TermController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllTerm | ITermInstance[] = await ClassTermService.all(vParam)
       if (!vResponse) {
@@ -46,11 +46,7 @@ class TermController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITermInput = pReq.only([
-        'name',
-        'description',
-        'orden',
-      ])
+      const vData: ITermInput = pReq.only(['name', 'description', 'orden'])
       const vResponse: ITermInstance | null = await ClassTermService.create(vData)
       if (!vResponse) {
         return pRes
@@ -65,17 +61,12 @@ class TermController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITermInput = pReq.only([
-        'id',
-        'name',
-        'description',
-        'orden',
-      ])
+      const vData: ITermInput = pReq.only(['id', 'name', 'description', 'orden'])
       const vResponse: ITermInstance | null = await ClassTermService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -88,9 +79,7 @@ class TermController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassTermService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

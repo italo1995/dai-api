@@ -1,13 +1,13 @@
-import { type FindOptions } from 'sequelize'
+import { Op, type FindOptions, ValidationError, ValidationErrorItem } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
-import sequelize, { modelDriverDetail, modelUser, modelUserRating } from '../../models'
+import sequelize, { modelDriverDetail, modelStaff, modelUser, modelUserRating } from '../../models'
 import { ETypeService } from '../../models/Trip/TripModel'
 import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'
 import type { IResponseAllUser, IUserInput } from '../../types/User'
 
 interface IUserService {
   NearbyDrivers(phoneNumber: string, phoneCode: string): Promise<IUserInstance[] | []>
-  show(pParam: { id: string, isDriver?: boolean }): Promise<IUserInstance | null>
+  show(pParam: { id: string; isDriver?: boolean }): Promise<IUserInstance | null>
   all(pParam: any): Promise<IResponseAllUser | IUserInstance[]>
 }
 export interface NearbyDriversParamTypes {
@@ -15,9 +15,30 @@ export interface NearbyDriversParamTypes {
   lon: string
   distance: number
   typeService: ETypeService
-} 
+}
 class UserService implements IUserService {
   async validate(data: any) {
+    const fieldsToCheck = ['email', 'phoneNumber']
+    for (const field of fieldsToCheck) {
+      if (data[field]) {
+        const existingUser = await modelUser.findOne({ where: { [field]: data[field] }, logging: true })
+        if (existingUser) {
+          const errorItems = [
+            new ValidationErrorItem(
+              `${field} already in use`,
+              'unique violation', // type
+              field, // path
+              data[field], // value
+              existingUser,
+              'notUnique', // validatorKey
+              'validate',
+              []
+            )
+          ]
+          throw new ValidationError('Validation error', errorItems)
+        }
+      }
+    }
     const dataValidate = modelUser.build(data)
     await dataValidate.validate()
   }
@@ -34,26 +55,25 @@ class UserService implements IUserService {
       const vResponse = await sequelize.query(query, {
         mapToModel: true,
         model: modelUser,
-      }
-      )
+      })
       return vResponse
     } catch (error) {
       throw error
     }
   }
-  
-  async show(pParam: { id: string, isDriver?: boolean }): Promise<IUserInstance | null> {
+
+  async show(pParam: { id: string; isDriver?: boolean }): Promise<IUserInstance | null> {
     try {
       const whereStatement: FindOptions = {}
       whereStatement.where = {
-        id: pParam.id
+        id: pParam.id,
       }
       if (pParam?.isDriver) {
         whereStatement.include = [
           {
             model: modelDriverDetail,
             as: 'detail',
-            required: false
+            required: false,
           },
           {
             model: modelUserRating,
@@ -61,9 +81,9 @@ class UserService implements IUserService {
             required: false,
             attributes: ['quantity', 'ratings'],
             where: {
-              type: 'driverId'
-            }
-          }
+              type: 'driverId',
+            },
+          },
         ]
       } else {
         whereStatement.include = [
@@ -73,20 +93,30 @@ class UserService implements IUserService {
             required: false,
             attributes: ['quantity', 'ratings'],
             where: {
-              type: 'clientId'
-            }
+              type: 'clientId',
+            },
           },
         ]
       }
 
-      whereStatement.attributes = ['id', 'name', 'socketId', 'tokenPush', 'avatar', 'phoneCode', 'phoneNumber', 'availabilityToTravel', 'createdAt']
+      // whereStatement.attributes = [
+      //   'id',
+      //   'name',
+      //   'socketId',
+      //   'tokenPush',
+      //   'avatar',
+      //   'phoneCode',
+      //   'phoneNumber',
+      //   'availabilityToTravel',
+      //   'createdAt',
+      // ]
       const vResponse: IUserInstance | null = await modelUser.findOne(whereStatement)
       return vResponse
     } catch (error) {
       throw error
     }
   }
-  
+
   public async all(pParam: any): Promise<IResponseAllUser | IUserInstance[]> {
     try {
       let whereStatement: FindOptions = {}
@@ -95,7 +125,8 @@ class UserService implements IUserService {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name', modelUser.name
+        pParam?.typeSearch || 'name',
+        modelUser.name
       )
       if (pParam.type === 'user') {
         whereStatement.where = {
@@ -106,13 +137,27 @@ class UserService implements IUserService {
         whereStatement.where = {
           ...whereStatement.where,
           rolId: 3,
-          verifiedDriver: true
+          verifiedDriver: true,
         }
         whereStatement.include = [
           {
             model: modelDriverDetail,
             as: 'detail',
-            required: false
+            required: false,
+          },
+        ]
+      }
+      if (pParam?.isStaff) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          staffId: {
+            [Op.not]: null
+          },
+        }
+        whereStatement.include = [
+          {
+            model: modelStaff,
+            as: 'staff'
           }
         ]
       }
@@ -121,7 +166,7 @@ class UserService implements IUserService {
         const vResponsePaginate: IResponseAllUser = await fxReponseServices(
           pParam,
           whereStatement,
-          'Comment',
+          modelUser.name,
           vResponse
         )
         return vResponsePaginate
@@ -160,9 +205,12 @@ class UserService implements IUserService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelUser.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelUser.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

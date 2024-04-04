@@ -40,13 +40,21 @@ class TripRouteService implements ITripRouteService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         'TripRoute'
       )
 
       const vResponse: ITripRouteInstance[] = await modelTripRoute.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(pParam, whereStatement, 'TripRoute', vResponse)
+        const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'TripRoute',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -60,9 +68,7 @@ class TripRouteService implements ITripRouteService {
       const whereStatement: FindOptions = {}
       const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
       whereStatement.limit = limit
-      whereStatement.order = [
-        ['createdAt', 'DESC']
-      ]
+      whereStatement.order = [['createdAt', 'DESC']]
       whereStatement.include = [
         {
           model: modelTrip,
@@ -71,13 +77,18 @@ class TripRouteService implements ITripRouteService {
           attributes: ['id', 'userId', 'visibility'],
           where: {
             userId: pParam.userId,
-            visibility: 1
-          }
-        }
+            visibility: 1,
+          },
+        },
       ]
       const vResponse: ITripRouteInstance[] = await modelTripRoute.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(pParam, whereStatement, 'TripRoute', vResponse)
+        const vResponsePaginate: IResponseAllTripRoute = await fxReponseServices(
+          pParam,
+          whereStatement,
+          'TripRoute',
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -104,7 +115,7 @@ class TripRouteService implements ITripRouteService {
       const vResponse: ITripRouteInstance | null = await modelTripRoute.findOne({
         where: {
           tripId: pParam.tripId,
-          isInit: true
+          isInit: true,
         },
       })
       return vResponse
@@ -148,5 +159,4 @@ class TripRouteService implements ITripRouteService {
     }
   }
 }
-export default new TripRouteService()   
-
+export default new TripRouteService()

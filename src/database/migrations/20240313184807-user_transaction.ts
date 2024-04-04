@@ -15,19 +15,19 @@ module.exports = {
       },
       operatorId: {
         type: DataTypes.STRING,
-        field: 'operator_id'
+        field: 'operator_id',
       },
       amount: {
         type: DataTypes.FLOAT,
-        field: 'amount'
+        field: 'amount',
       },
       transactionType: {
         type: DataTypes.INTEGER,
-        field: 'transaction_type'
+        field: 'transaction_type',
       },
       status: {
         type: DataTypes.STRING,
-        field: 'status'
+        field: 'status',
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -47,7 +47,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('user_transaction')
   },
 }

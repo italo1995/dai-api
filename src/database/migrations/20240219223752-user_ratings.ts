@@ -27,8 +27,8 @@ module.exports = {
           max: 5,
         },
       },
-      averageRating:{
-        type:DataTypes.FLOAT,
+      averageRating: {
+        type: DataTypes.FLOAT,
         field: 'average_rating',
       },
       quantity: {
@@ -49,11 +49,11 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('user_ratings')
   },
 }

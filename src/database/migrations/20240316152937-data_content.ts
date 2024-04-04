@@ -26,7 +26,7 @@ module.exports = {
         type: DataTypes.STRING,
         field: 'image',
         defaultValue: null,
-        allowNull: true
+        allowNull: true,
       },
       orden: {
         type: DataTypes.INTEGER,
@@ -37,7 +37,7 @@ module.exports = {
       type: {
         type: DataTypes.INTEGER,
         field: 'type',
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -57,7 +57,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('data_content')
   },
 }

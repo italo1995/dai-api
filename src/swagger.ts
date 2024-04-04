@@ -10,7 +10,7 @@ export const startSwagger = (app: Express, _port: string) => {
     const rutaYAML = path.resolve(__dirname, './documentation/*.yaml')
     const options = {
       swaggerDefinition: swaggerDoc,
-      apis: [rutaYAML]
+      apis: [rutaYAML],
     }
     const swaggerSpec = swaggerJSDoc(options)
     app.use('/doc', swaggerUI.serve, swaggerUI.setup(swaggerSpec))

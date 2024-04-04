@@ -42,14 +42,18 @@ export const vTripPanicAttributes: SequelizeAttributes<ITripPanicAttributes> = {
 }
 
 export function fxTripPanicFactory(sequelize: Sequelize) {
-  const vTripPanic = <ModelStatic<ITripPanicInstance>>sequelize.define('TripPanic', vTripPanicAttributes, {
-    tableName: 'trip_panics',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-  })
+  const vTripPanic = <ModelStatic<ITripPanicInstance>>sequelize.define(
+    'TripPanic',
+    vTripPanicAttributes,
+    {
+      tableName: 'trip_panics',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+    }
+  )
 
   vTripPanic.prototype.toJSON = function () {
     const vValues = { ...this.get() }

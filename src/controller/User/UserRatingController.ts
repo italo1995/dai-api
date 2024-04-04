@@ -5,11 +5,11 @@ import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IUserRatingInstance } from '../../models/User/UserRatingModel'
 
 class UserRatingController {
-
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllUserRating | IUserRatingInstance[] = await ClassUserRatingService.all(vParam)
+      const vResponse: IResponseAllUserRating | IUserRatingInstance[] =
+        await ClassUserRatingService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -21,7 +21,6 @@ class UserRatingController {
     }
   }
 
-  
   async updateAverageRating(pReq: Request, pRes: Response) {
     try {
       const userId = pReq.params.userId
@@ -30,7 +29,9 @@ class UserRatingController {
       return pRes.status(200).send({ message: 'Calificación del usuario actualizada con éxito' })
     } catch (error) {
       console.error(error)
-      return pRes.status(500).send({ message: 'Ocurrió un error al actualizar la calificación del usuario' })
+      return pRes
+        .status(500)
+        .send({ message: 'Ocurrió un error al actualizar la calificación del usuario' })
     }
   }
 
@@ -39,16 +40,14 @@ class UserRatingController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassUserRatingService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }
   }
-  
+
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IUserRatingInput = pReq.only([
@@ -63,14 +62,14 @@ class UserRatingController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
   }
-  
+
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
@@ -106,7 +105,6 @@ class UserRatingController {
       pNext(error)
     }
   }
-
 }
 
 export default new UserRatingController()

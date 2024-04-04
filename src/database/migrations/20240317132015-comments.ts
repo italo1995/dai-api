@@ -22,15 +22,15 @@ module.exports = {
       },
       description: {
         type: DataTypes.STRING,
-        field: 'description'
+        field: 'description',
       },
       parentId: {
         type: DataTypes.INTEGER,
-        field: 'parent_id'
+        field: 'parent_id',
       },
       serviceId: {
         type: DataTypes.STRING,
-        field: 'service_id'
+        field: 'service_id',
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -50,7 +50,7 @@ module.exports = {
       },
     })
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('comments')
   },
 }

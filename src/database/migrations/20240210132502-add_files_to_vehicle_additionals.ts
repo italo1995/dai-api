@@ -2,7 +2,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface: QueryInterface) {
+  async up(queryInterface: QueryInterface) {
     return Promise.all([
       queryInterface.addColumn('vehicle_additionals', 'icon', {
         type: DataTypes.STRING,
@@ -12,26 +12,26 @@ module.exports = {
       queryInterface.addColumn('vehicle_additionals', 'is_moto', {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_car', {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_client', {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       }),
       queryInterface.addColumn('vehicle_additionals', 'is_register', {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: false
+        defaultValue: false,
       }),
     ])
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     return Promise.all([
       queryInterface.removeColumn('vehicle_additionals', 'icon'),
       queryInterface.removeColumn('vehicle_additionals', 'is_moto'),

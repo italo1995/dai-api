@@ -11,6 +11,4 @@ router.route('/cancel').post(authMiddleware('admin'), controller.CancelSuspended
 router.route('/store').post(authMiddleware('admin'), controller.create)
 router.route('/delete').post(authMiddleware('admin'), controller.destroy)
 
-
-
 export default router

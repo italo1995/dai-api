@@ -1,46 +1,46 @@
 components:
- schemas:
-   UserTransaction:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of Term
-       userId:
-         type: string
-         description: the id of the user
-       operatorId: 
-         type: string
-         description: the id of the operator that approved de transaction
-       amount:
-         type: number
-         description: the amount to payment
-       transactionType:
-         type: enum
-         description: the type of the transaction(deposit = 1, expense = 2)
-       status:
-         type: enum
-         description: the status of the transaction(pending = 1, approved = 2, denied = 3)
-     required:
-       - userId
-       - operatorId
-       - amount
-       - transactionType
-       - status
-     example:
-       id: 1
-       operatorId: 1
-       amount: 3
-       transactionType: 2
-       status: 2
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the UserTransaction id
+  schemas:
+    UserTransaction:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of Term
+        userId:
+          type: string
+          description: the id of the user
+        operatorId:
+          type: string
+          description: the id of the operator that approved de transaction
+        amount:
+          type: number
+          description: the amount to payment
+        transactionType:
+          type: enum
+          description: the type of the transaction(deposit = 1, expense = 2)
+        status:
+          type: enum
+          description: the status of the transaction(pending = 1, approved = 2, denied = 3)
+      required:
+        - userId
+        - operatorId
+        - amount
+        - transactionType
+        - status
+      example:
+        id: 1
+        operatorId: 1
+        amount: 3
+        transactionType: 2
+        status: 2
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the UserTransaction id
 tags:
   - name: UserTransaction
     description: UserTransaction endpoint
@@ -89,7 +89,7 @@ paths:
   /api/userTransaction/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new userTransaction and modifies the user.balance
       tags:
         - UserTransaction
@@ -101,32 +101,32 @@ paths:
               type: object
               properties:
                 userId:
-                 type: string
-                 description: the id of the user
-                operatorId: 
-                 type: string
-                 description: the id of the operator that approved de transaction
+                  type: string
+                  description: the id of the user
+                operatorId:
+                  type: string
+                  description: the id of the operator that approved de transaction
                 amount:
-                 type: number
-                 description: the amount to payment
+                  type: number
+                  description: the amount to payment
                 transactionType:
-                 type: enum
-                 description: the type of the transaction(deposit = 1, expense = 2)
+                  type: enum
+                  description: the type of the transaction(deposit = 1, expense = 2)
                 status:
-                 type: enum
-                 description: the status of the transaction(pending = 1, approved = 2, denied = 3)
+                  type: enum
+                  description: the status of the transaction(pending = 1, approved = 2, denied = 3)
               required:
-              - userId
-              - operatorId
-              - amount
-              - transactionType
-              - status
+                - userId
+                - operatorId
+                - amount
+                - transactionType
+                - status
               example:
-               id: 1
-               operatorId: 1
-               amount: 3
-               transactionType: 2
-               status: 2
+                id: 1
+                operatorId: 1
+                amount: 3
+                transactionType: 2
+                status: 2
       responses:
         '201':
           description: the UserTransaction created
@@ -137,7 +137,7 @@ paths:
   /api/userTransaction/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates an UserTransaction
       tags:
         - UserTransaction
@@ -149,26 +149,26 @@ paths:
               type: object
               properties:
                 userId:
-                 type: string
-                 description: the id of the user
-                operatorId: 
-                 type: string
-                 description: the id of the operator that approved de transaction
+                  type: string
+                  description: the id of the user
+                operatorId:
+                  type: string
+                  description: the id of the operator that approved de transaction
                 amount:
-                 type: number
-                 description: the amount to payment
+                  type: number
+                  description: the amount to payment
                 transactionType:
-                 type: enum
-                 description: the type of the transaction(deposit = 1, expense = 2)
+                  type: enum
+                  description: the type of the transaction(deposit = 1, expense = 2)
                 status:
-                 type: enum
-                 description: the status of the transaction(pending = 1, approved = 2, denied = 3)
+                  type: enum
+                  description: the status of the transaction(pending = 1, approved = 2, denied = 3)
               required:
-               - userId
-               - operatorId
-               - amount
-               - transactionType
-               - status
+                - userId
+                - operatorId
+                - amount
+                - transactionType
+                - status
             example:
               id: 1
               operatorId: 1

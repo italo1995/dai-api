@@ -48,10 +48,11 @@ class TripOffertController {
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTripOffert | ITripOffertInstance[] = await ClassTripOffertService.all(vParam)
+      const vResponse: IResponseAllTripOffert | ITripOffertInstance[] =
+        await ClassTripOffertService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -75,60 +76,63 @@ class TripOffertController {
         'duration',
         'durationInMs',
         'distance',
-        'status'
+        'status',
       ])
       vData.driverId = vUserAuth.id
       const vParamTrip: IParamShowTrip = {
         id: vData.tripId,
         isClient: vUserAuth?.typeUser === ETypeUser.passenger ? true : false,
         userId: vUserAuth.id,
-        isDriver: vUserAuth?.typeUser === ETypeUser.driver ? true : false
+        isDriver: vUserAuth?.typeUser === ETypeUser.driver ? true : false,
       }
       const trip: ITripInstance | null = await ClassTripService.showId(vParamTrip)
       if (!trip) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Trip no encontrado'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Trip no encontrado'))
       }
       vData.clientId = trip.dataValues?.userId
       vData.status = ETripOffertStatus.ESPERA
       const vResponse: ITripOffertInstance | null = await ClassTripOffertService.create(vData)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'No se pudo crear la oferta'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'No se pudo crear la oferta'))
       }
       const vDriverParam = {
         id: vData.driverId,
         isDriver: true,
       }
       const vDriverSocketId = await ClassUserService.show(vDriverParam)
-      const vTripOffer: ITripOffertInstance | null = await ClassTripOffertService.show(Number(vResponse?.dataValues.id))
-      const vVehicleAdditionalService = await ClassVehicleAdditionalService.allFilterIdArray(vDriverSocketId)
+      const vTripOffer: ITripOffertInstance | null = await ClassTripOffertService.show(
+        Number(vResponse?.dataValues.id)
+      )
+      const vVehicleAdditionalService =
+        await ClassVehicleAdditionalService.allFilterIdArray(vDriverSocketId)
       const vDataNewTripOffert = {
         offer: vTripOffer,
         driver: vDriverSocketId,
         countTrips: await ClassTripService.countTrip(vData.driverId),
         duration: vData.duration,
         distance: vData.distance,
-        vehicleAdditionalService: vVehicleAdditionalService
+        vehicleAdditionalService: vVehicleAdditionalService,
       }
       const vClientParam = {
         isClient: true,
-        id: vData.clientId
+        id: vData.clientId,
       }
       const vClientSocketId = await ClassUserService.show(vClientParam)
       if (vClientSocketId?.dataValues?.socketId) {
         try {
-          await SocketService.io.to(vClientSocketId.dataValues.socketId).emit('newTripOffer', vDataNewTripOffert, withTimeout(
-            () => {
-              console.log('¡Éxito!')
-            },
-            () => {
-              console.log('¡Tiempo de espera!')
-            },
-            1000
-          ))
+          await SocketService.io.to(vClientSocketId.dataValues.socketId).emit(
+            'newTripOffer',
+            vDataNewTripOffert,
+            withTimeout(
+              () => {
+                console.log('¡Éxito!')
+              },
+              () => {
+                console.log('¡Tiempo de espera!')
+              },
+              1000
+            )
+          )
         } catch (error) {
           throw error
         }
@@ -139,7 +143,7 @@ class TripOffertController {
           offer: vResponse,
           driver: {
             name: vDriverSocketId?.dataValues.name,
-            icon: vDriverSocketId?.dataValues.avatar
+            icon: vDriverSocketId?.dataValues.avatar,
           },
           countTrips: await ClassTripService.countTrip(vData.driverId),
           duration: vData.duration,
@@ -148,12 +152,12 @@ class TripOffertController {
         const notificationData = {
           title: 'Tienes una oferta',
           body: 'tu viaje tiene una oferta',
-          data: JSON.stringify(VnotificationDataDriver)
+          data: JSON.stringify(VnotificationDataDriver),
         }
         await NotificationService.sendNotification([tokenPush], notificationData)
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
-    } catch (error) { 
+    } catch (error) {
       pNext(error)
     }
   }
@@ -166,13 +170,13 @@ class TripOffertController {
         'clientId',
         'driverId',
         'amount',
-        'status'
+        'status',
       ])
       const vResponse: ITripOffertInstance | null = await ClassTripOffertService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -185,9 +189,7 @@ class TripOffertController {
       const vId: string = pReq.input('id', 'number')
       const vResponse: boolean = await ClassTripOffertService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

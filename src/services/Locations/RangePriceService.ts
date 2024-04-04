@@ -6,7 +6,10 @@
 - Creation: 20/02/2024  
 */
 import { Op, Sequelize, type FindOptions } from 'sequelize'
-import type { IRangePriceInstance, IRangePriceAttributes } from '../../models/Locations/RangePriceModel'
+import type {
+  IRangePriceInstance,
+  IRangePriceAttributes,
+} from '../../models/Locations/RangePriceModel'
 import { modelCity, modelCountry, modelRangePrice, modelRegion } from '../../models'
 import type { IResponseAll } from '../../types/generalType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
@@ -14,14 +17,19 @@ import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'
 interface IRangePriceService {
   validate(data: any): any
   show(pId: number): Promise<IRangePriceInstance | null>
-  showPrice(pParam: { city: string, region: string, country: string, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null>
+  showPrice(pParam: {
+    city: string
+    region: string
+    country: string
+    isCar: boolean
+    isMoto: boolean
+  }): Promise<IRangePriceInstance | null>
   create(payload: IRangePriceAttributes): Promise<IRangePriceInstance>
   update(payload: IRangePriceAttributes): Promise<IRangePriceInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
 }
 
 class RangePriceService implements IRangePriceService {
-
   async validate(data: any) {
     const dataValidate = modelRangePrice.build(data)
     await dataValidate.validate()
@@ -32,7 +40,12 @@ class RangePriceService implements IRangePriceService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement, pParam?.typeSearch || 'name', modelRangePrice.name)
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        modelRangePrice.name
+      )
       const vRes = await modelRangePrice.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
@@ -60,59 +73,91 @@ class RangePriceService implements IRangePriceService {
     })
     return vResponse
   }
-  async showPrice({ city, region, country, isCar, isMoto }: { city: string, region: string, country: string, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null> {
-    const formattedCity = city.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  async showPrice({
+    city,
+    region,
+    country,
+    isCar,
+    isMoto,
+  }: {
+    city: string
+    region: string
+    country: string
+    isCar: boolean
+    isMoto: boolean
+  }): Promise<IRangePriceInstance | null> {
+    const formattedCity = city
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
     try {
       const whereStatement: FindOptions = {}
-      whereStatement.include = [{
-        model: modelCountry,
-        as: 'country',
-        required: false,
-        where: {
-          name: {
-            [Op.iLike]: `%${country}%`
-          }
-        }
-      },
-      {
-        model: modelRegion,
-        as: 'region',
-        required: false,
-        where: {
-          name: {
-            [Op.iLike]: `%${region}%`
-          }
-        }
-      },
-      {
-        model: modelCity,
-        as: 'city',
-        required: false,
-        where: {
-          name: Sequelize.where(
-            Sequelize.fn('unaccent', Sequelize.fn('LOWER', Sequelize.col('city.name'))),
-            {
-              [Op.iLike]: `%${formattedCity}%`
-            }
-          )
-        }
-      }]
+      whereStatement.include = [
+        {
+          model: modelCountry,
+          as: 'country',
+          required: false,
+          where: {
+            name: {
+              [Op.iLike]: `%${country}%`,
+            },
+          },
+        },
+        {
+          model: modelRegion,
+          as: 'region',
+          required: false,
+          where: {
+            name: {
+              [Op.iLike]: `%${region}%`,
+            },
+          },
+        },
+        {
+          model: modelCity,
+          as: 'city',
+          required: false,
+          where: {
+            name: Sequelize.where(
+              Sequelize.fn('unaccent', Sequelize.fn('LOWER', Sequelize.col('city.name'))),
+              {
+                [Op.iLike]: `%${formattedCity}%`,
+              }
+            ),
+          },
+        },
+      ]
       if (isCar || isMoto) {
         whereStatement.where = {
           isCar,
-          isMoto
+          isMoto,
         }
       }
       const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
       const vShowPriceJSON = JSON.parse(JSON.stringify(vFindAll))
       let vResponse: IRangePriceInstance | null = null
-      vResponse = vShowPriceJSON.find((item: any) => item?.city) || vShowPriceJSON.find((item: any) => item?.region) || vShowPriceJSON.find((item: any) => item?.country)
+      vResponse =
+        vShowPriceJSON.find((item: any) => item?.city) ||
+        vShowPriceJSON.find((item: any) => item?.region) ||
+        vShowPriceJSON.find((item: any) => item?.country)
       return vResponse
     } catch (error) {
       throw error
     }
   }
-  async showPriceToId({ cityId, regionId, countryId, isCar, isMoto }: { cityId?: number | null, regionId?: number | null, countryId?: number | null, isCar: boolean, isMoto: boolean}): Promise<IRangePriceInstance | null> {
+  async showPriceToId({
+    cityId,
+    regionId,
+    countryId,
+    isCar,
+    isMoto,
+  }: {
+    cityId?: number | null
+    regionId?: number | null
+    countryId?: number | null
+    isCar: boolean
+    isMoto: boolean
+  }): Promise<IRangePriceInstance | null> {
     try {
       const whereStatement: FindOptions = {}
       // whereStatement.include = [{
@@ -152,51 +197,52 @@ class RangePriceService implements IRangePriceService {
           cityId: cityId,
           regionId: regionId,
           countryId: countryId,
-        }
+        },
       }
       const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
       const vShowPriceJSON = JSON.parse(JSON.stringify(vFindAll))
       let vResponse: IRangePriceInstance | null = null
-      vResponse = vShowPriceJSON.find((item: any) => item?.cityId === cityId) || vShowPriceJSON.find((item: any) => item?.regionId === regionId) || vShowPriceJSON.find((item: any) => item?.countryId === countryId)
+      vResponse =
+        vShowPriceJSON.find((item: any) => item?.cityId === cityId) ||
+        vShowPriceJSON.find((item: any) => item?.regionId === regionId) ||
+        vShowPriceJSON.find((item: any) => item?.countryId === countryId)
       return vResponse
     } catch (error) {
       throw error
     }
   }
-  async showPriceCopy(city: string, region: string, country: string): Promise<IRangePriceInstance | null> {
+  async showPriceCopy(
+    city: string,
+    region: string,
+    country: string
+  ): Promise<IRangePriceInstance | null> {
     try {
       let vResponse: IRangePriceInstance | null = await modelRangePrice.findOne({
         where: {
           cityId: city,
         },
-        order: [
-          ['createdAt', 'ASC']
-        ]
+        order: [['createdAt', 'ASC']],
       })
-    
+
       if (!vResponse) {
         vResponse = await modelRangePrice.findOne({
           where: {
             regionId: region,
           },
-          order: [
-            ['createdAt', 'ASC']
-          ]
+          order: [['createdAt', 'ASC']],
         })
       }
-    
+
       if (!vResponse) {
         vResponse = await modelRangePrice.findOne({
           where: {
             countryId: country,
           },
-          order: [
-            ['createdAt', 'ASC']
-          ]
+          order: [['createdAt', 'ASC']],
         })
       }
-    
-      return vResponse 
+
+      return vResponse
     } catch (error) {
       throw error
     }
@@ -204,7 +250,7 @@ class RangePriceService implements IRangePriceService {
   async create(pData: IRangePriceAttributes): Promise<IRangePriceInstance> {
     try {
       const vResponse: IRangePriceInstance = await modelRangePrice.create(pData)
-      return vResponse 
+      return vResponse
     } catch (error) {
       throw error
     }
@@ -229,9 +275,12 @@ class RangePriceService implements IRangePriceService {
 
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelRangePrice.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelRangePrice.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

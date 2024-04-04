@@ -22,7 +22,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 
 import type { NextFunction, Request, Response } from 'express'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
-import type { ITripInput, IResponseAllTrip } from '../../types/PaymentMethodType'
+import type { IPaymentMethodInput, IResponseAllPaymentMethod } from '../../types/PaymentMethodType'
 import ClassPaymentMethodService from '../../services/Payments/PaymentMethodService'
 import type { IPaymentMethodInstance } from '../../models/payments/PaymentMethodModel'
 
@@ -43,10 +43,11 @@ class PaymentMethodController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTrip | IPaymentMethodInstance[] = await ClassPaymentMethodService.all(vParam)
+      const vResponse: IResponseAllPaymentMethod | IPaymentMethodInstance[] =
+        await ClassPaymentMethodService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -58,10 +59,9 @@ class PaymentMethodController {
     }
   }
 
-
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: IPaymentMethodInput = pReq.only([
         'name',
         'fullName',
         'dni',
@@ -70,7 +70,7 @@ class PaymentMethodController {
         'currencyId',
         'numberAccount',
         'accountType',
-        'email'
+        'email',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
@@ -89,7 +89,7 @@ class PaymentMethodController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ITripInput = pReq.only([
+      const vData: IPaymentMethodInput = pReq.only([
         'id',
         'name',
         'fullName',
@@ -99,7 +99,7 @@ class PaymentMethodController {
         'currencyId',
         'numberAccount',
         'accountType',
-        'email'
+        'email',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
@@ -108,7 +108,7 @@ class PaymentMethodController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -121,9 +121,7 @@ class PaymentMethodController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassPaymentMethodService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

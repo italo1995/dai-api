@@ -1,64 +1,64 @@
 components:
- schemas:
-   PaymentMethod:
-     type: object
-     properties:
-       id:
-         type: string
-         description: the auto-increment id of the payment method
-       name:
-         type: string
-         description: The name of the payment method
-       fullName:
-         type: string
-         description: user's full name
-       dni:
-         type: string
-         description: the user's dni
-       image:
-         type: string
-         description: the name of the image
-       tax:
-         type: number
-         description: taxes in the payment
-       currencyId:
-         type: number
-         description: the id of the currency used
-       numberAccount:
-         type: string
-         description: number account of the Bearer
-       accountType:
-         type: string
-         description: the type of the user's account 
-       email:
-         type: string
-         description: the user's email
-     required:
-       - fullName
-       - currencyId
-     example:
-       id: 3
-       name: credit card
-       fullName: Carlos Contreras
-       dni: 12345
-       currencyId: 7
-       numberAccount: 456789
-       accountType: tdc
-       email: example@example.paya
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: payment method id
- securitySchemes:
-  BearerAuth: # puedes usar el nombre que quieras
-   type: apiKey
-   name: Authorization
-   in: header
-   x-auth-id: Bearer abcde12345
+  schemas:
+    PaymentMethod:
+      type: object
+      properties:
+        id:
+          type: string
+          description: the auto-increment id of the payment method
+        name:
+          type: string
+          description: The name of the payment method
+        fullName:
+          type: string
+          description: user's full name
+        dni:
+          type: string
+          description: the user's dni
+        image:
+          type: string
+          description: the name of the image
+        tax:
+          type: number
+          description: taxes in the payment
+        currencyId:
+          type: number
+          description: the id of the currency used
+        numberAccount:
+          type: string
+          description: number account of the Bearer
+        accountType:
+          type: string
+          description: the type of the user's account
+        email:
+          type: string
+          description: the user's email
+      required:
+        - fullName
+        - currencyId
+      example:
+        id: 3
+        name: credit card
+        fullName: Carlos Contreras
+        dni: 12345
+        currencyId: 7
+        numberAccount: 456789
+        accountType: tdc
+        email: example@example.paya
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: payment method id
+  securitySchemes:
+    BearerAuth: # puedes usar el nombre que quieras
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-id: Bearer abcde12345
 tags:
   - name: PaymentMethod
     description: payment methods.
@@ -66,7 +66,7 @@ paths:
   /api/paymentMethod/show:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a PaymentMethod element
       tags:
         - PaymentMethod
@@ -84,7 +84,7 @@ paths:
   /api/paymentMethod/all:
     get:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Returns a list of payment methods
       tags:
         - PaymentMethod
@@ -111,7 +111,7 @@ paths:
   /api/paymentMwethod/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new payment Method
       tags:
         - PaymentMethod
@@ -137,7 +137,7 @@ paths:
   /api/paymentMethod/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a PaymentMethod
       tags:
         - PaymentMethod

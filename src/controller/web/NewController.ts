@@ -42,9 +42,9 @@ class NewController {
       pNext(error)
     }
   }
-  
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllNew | INewInstance[] = await ClassNewService.all(vParam)
       if (!vResponse) {
@@ -60,13 +60,7 @@ class NewController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: INewInput = pReq.only([
-        'name',
-        'image',
-        'description',
-        'state',
-        'isFeatured',
-      ])
+      const vData: INewInput = pReq.only(['name', 'image', 'description', 'state', 'isFeatured'])
       if (vData?.image) {
         vData.image = await moveImages(vData.image)
       }
@@ -99,7 +93,7 @@ class NewController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -108,9 +102,12 @@ class NewController {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelNew.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelNew.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -125,16 +122,13 @@ class NewController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassNewService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }
   }
-
 }
 
 export default new NewController()

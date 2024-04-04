@@ -1,0 +1,183 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of User
+        name:
+          type: string
+          description: The name given by the user
+        email:
+          type: string
+          description: The email given by the user
+        phoneCode:
+          type: number
+          description: The phoneCode given by the user
+        phoneNumber:
+          type: number
+          description: The phoneNumber given by the user
+        rolId:
+          type: number
+          description: Rol for user if /rol/all
+        status:
+          type: boolean
+          description: defines whether the user is active or not
+        statusDriver:
+          type: number
+          description: INACTIVE = 0, ACTIVE = 1 , BUSSY = 2
+        verifiedDriver:
+          type: boolean
+          description: The driver is verified by the administrator
+        typeUser:
+          type: string
+          description: It is not modifiable, it indicates the status of the client (driver or client)
+      required:
+        - name
+        - email
+        - phoneCode
+        - phoneNumber
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the User id
+  securitySchemes:
+    BearerAuth: # puedes usar el nombre que quieras
+      type: apiKey
+      name: Authorization
+      in: header
+      x-auth-id: Bearer abcde12345
+tags:
+  - name: User
+    description: User saved locations.
+paths:
+  /api/user/show:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Returns an User element
+      tags:
+        - User
+      parameters:
+        - $ref: '#/components/schemas/User/parameters/id'
+      responses:
+        '200':
+          description: an User element
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/user/all:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Returns a list of User
+      tags:
+        - User
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: the page number to fetch
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: the keyword to filter by name
+        - in: query
+          name: typeSearch
+          schema:
+            type: string
+          description: the field by which you want to do the search if it is not a name
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: type user (user, driver)
+      responses:
+        '200':
+          description: the list of User
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/user/store:
+    post:
+      security:
+        - BearerAuth: []
+      summary: Creates a new User
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $ref: '#/components/schemas/User'
+              required:
+                $ref: '#/components/schemas/required'
+              example:
+                $ref: '#/components/schemas/User/example'
+      responses:
+        '201':
+          description: the User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /api/user/update:
+    post:
+      security:
+        - BearerAuth: []
+      summary: Updates a User
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $ref: '#/components/schemas/User'
+              required:
+                $ref: '#/components/schemas/required'
+              example:
+                $ref: '#/components/schemas/User/example'
+      responses:
+        '201':
+          description: the User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /api/user/destroy:
+    post:
+      security:
+        - BearerAuth: []
+      summary: deletes an User element
+      tags:
+        - User
+      parameters:
+        - $ref: '#/components/schemas/User/parameters/id'
+      responses:
+        '200':
+          description: an User element deleted
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'

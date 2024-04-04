@@ -1,7 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
-
 export interface IReviewAttributes {
   id: number
   clientId?: string
@@ -17,7 +16,7 @@ export interface IReviewAttributes {
 }
 export enum ETypeReview {
   'DRIVER' = 2,
-  'PASSENGER' = 1
+  'PASSENGER' = 1,
 }
 interface IReviewCreationAttributes extends Optional<IReviewAttributes, 'id'> {}
 
@@ -36,13 +35,13 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     type: DataTypes.UUID,
     field: 'client_id',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   driverId: {
     type: DataTypes.UUID,
     field: 'driver_id',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   qualification: {
     type: DataTypes.FLOAT,
@@ -89,8 +88,8 @@ export const vReviewAttributes: SequelizeAttributes<IReviewAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
-  }
+    defaultValue: null,
+  },
 }
 
 export function fxReviewFactory(sequelize: Sequelize) {
@@ -101,7 +100,7 @@ export function fxReviewFactory(sequelize: Sequelize) {
     },
     freezeTableName: true,
     timestamps: true,
-    paranoid: true
+    paranoid: true,
   })
 
   vReview.prototype.toJSON = function () {

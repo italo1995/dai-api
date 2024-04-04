@@ -1,38 +1,38 @@
 components:
- schemas:
-   Verify:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of the verify
-       userId:
-         type: string
-         description: the user's id
-       appeal:
-         type: string
-         description: a field for appeals
-       reason:
-         type: string
-         description: the reason for not verifying
-       status:
-         type: enum
-         description: de verifying status (verified = 1, verifying = 2, denied = 3)
-     required:
-       - userId
-       - status
-     example:
-       id: 1
-       userId: 123
-       status: verified
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the verify id
+  schemas:
+    Verify:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of the verify
+        userId:
+          type: string
+          description: the user's id
+        appeal:
+          type: string
+          description: a field for appeals
+        reason:
+          type: string
+          description: the reason for not verifying
+        status:
+          type: enum
+          description: de verifying status (verified = 1, verifying = 2, denied = 3)
+      required:
+        - userId
+        - status
+      example:
+        id: 1
+        userId: 123
+        status: verified
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the verify id
 tags:
   - name: Verify
     description: Verify endpoint

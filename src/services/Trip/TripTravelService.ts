@@ -28,7 +28,6 @@ interface ITripTravelService {
 }
 
 class TripTravelService implements ITripTravelService {
-
   async validate(data: any) {
     const dataValidate = modelTripTravel.build(data)
     await dataValidate.validate()
@@ -43,14 +42,14 @@ class TripTravelService implements ITripTravelService {
     if (pData.tripId) {
       whereStatement.where = {
         tripId: pData.id,
-        id: pData.id
+        id: pData.id,
       }
     } else if (pData.id) {
       whereStatement.where = {
         driverId: {
-          [Op.or]: [pData.id, null]
+          [Op.or]: [pData.id, null],
         },
-        id: pData.id
+        id: pData.id,
       }
     }
     if (pData?.id) {
@@ -63,7 +62,7 @@ class TripTravelService implements ITripTravelService {
   async destroy(id: string): Promise<number> {
     try {
       const result: number = await modelTripTravel.destroy({
-        where: { id: id }
+        where: { id: id },
       })
       return result
     } catch (error) {
@@ -71,7 +70,5 @@ class TripTravelService implements ITripTravelService {
       throw error
     }
   }
-  
 }
 export default new TripTravelService()
-

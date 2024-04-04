@@ -41,8 +41,8 @@ export const vUserRatingAttributes: SequelizeAttributes<IUserRatingAttributes> =
       max: 5,
     },
   },
-  averageRating:{
-    type:DataTypes.NUMBER,
+  averageRating: {
+    type: DataTypes.NUMBER,
     field: 'average_rating',
   },
   quantity: {
@@ -68,15 +68,19 @@ export const vUserRatingAttributes: SequelizeAttributes<IUserRatingAttributes> =
 }
 
 export function fxUserRatingFactory(sequelize: Sequelize) {
-  const vUserRating = <ModelStatic<IUserRatingInstance>>sequelize.define('UserRating', vUserRatingAttributes, {
-    tableName: 'user_ratings',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-    paranoid: true,
-  })
+  const vUserRating = <ModelStatic<IUserRatingInstance>>sequelize.define(
+    'UserRating',
+    vUserRatingAttributes,
+    {
+      tableName: 'user_ratings',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
+    }
+  )
 
   vUserRating.prototype.toJSON = function () {
     const vValues = { ...this.get() }

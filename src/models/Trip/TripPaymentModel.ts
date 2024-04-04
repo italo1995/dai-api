@@ -35,7 +35,7 @@ export const vTripPaymentAttributes: SequelizeAttributes<ITripPaymentAttributes>
     type: DataTypes.STRING,
     field: 'type',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   amount: {
     type: DataTypes.FLOAT,
@@ -69,20 +69,24 @@ export const vTripPaymentAttributes: SequelizeAttributes<ITripPaymentAttributes>
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxTripPaymentFactory(sequelize: Sequelize) {
-  const vTripPayment = <ModelStatic<ITripPaymentInstance>>sequelize.define('TripPayment', vTripPaymentAttributes, {
-    tableName: 'trip_payments',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-    paranoid: true,
-  })
+  const vTripPayment = <ModelStatic<ITripPaymentInstance>>sequelize.define(
+    'TripPayment',
+    vTripPaymentAttributes,
+    {
+      tableName: 'trip_payments',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
+    }
+  )
   vTripPayment.associate = function (models: ModelRegistry) {
     const { modelCurrency, modelTripPayment, modelPaymentMethod } = models
     modelTripPayment.belongsTo(modelPaymentMethod, {

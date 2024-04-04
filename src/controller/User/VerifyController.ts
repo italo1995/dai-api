@@ -37,16 +37,14 @@ class VerifyController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllVerify | IVerifyInstance[] = await ClassVerifyService.all(vParam)
       if (!vResponse) {
@@ -59,15 +57,10 @@ class VerifyController {
       pNext(error)
     }
   }
-  
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IVerifyInput = pReq.only([
-        'userId',
-        'appeal',
-        'reason',
-        'status'
-      ])
+      const vData: IVerifyInput = pReq.only(['userId', 'appeal', 'reason', 'status'])
       const vResponse: IVerifyInstance | null = await ClassVerifyService.create(vData)
       if (!vResponse) {
         return pRes
@@ -82,18 +75,12 @@ class VerifyController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IVerifyInput = pReq.only([
-        'id',
-        'userId',
-        'appeal',
-        'reason',
-        'status'
-      ])
+      const vData: IVerifyInput = pReq.only(['id', 'userId', 'appeal', 'reason', 'status'])
       const vResponse: IVerifyInstance | null = await ClassVerifyService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
 
       if (vResponse.status === EStatusVerify.verified) {
@@ -103,9 +90,7 @@ class VerifyController {
           await user.save()
         }
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
@@ -116,9 +101,7 @@ class VerifyController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassVerifyService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

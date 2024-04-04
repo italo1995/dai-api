@@ -43,7 +43,8 @@ class TermTerm implements ITermTerm {
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
-        pParam?.typeSearch || 'name', modelTerm.name
+        pParam?.typeSearch || 'name',
+        modelTerm.name
       )
 
       const vResponse: ITermInstance[] = await modelTerm.findAll(whereStatement)
@@ -102,9 +103,12 @@ class TermTerm implements ITermTerm {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelTerm.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelTerm.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }

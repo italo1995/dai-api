@@ -42,13 +42,21 @@ class VerifyService implements IVerifyService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         this.modelName
       )
 
       const vResponse: IVerifyInstance[] = await modelVerify.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllVerify = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
+        const vResponsePaginate: IResponseAllVerify = await fxReponseServices(
+          pParam,
+          whereStatement,
+          this.modelName,
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -97,9 +105,12 @@ class VerifyService implements IVerifyService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelVerify.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelVerify.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -110,4 +121,4 @@ class VerifyService implements IVerifyService {
   }
 }
 
-export default new VerifyService()   
+export default new VerifyService()

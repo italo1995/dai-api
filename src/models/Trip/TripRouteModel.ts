@@ -40,19 +40,19 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
     type: DataTypes.BOOLEAN,
     field: 'is_init',
     allowNull: true,
-    defaultValue: true
+    defaultValue: true,
   },
   isEnd: {
     type: DataTypes.BOOLEAN,
     field: 'is_end',
     allowNull: true,
-    defaultValue: false
+    defaultValue: false,
   },
   orden: {
     type: DataTypes.INTEGER,
     field: 'orden',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   address: {
     type: DataTypes.TEXT,
@@ -88,7 +88,7 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
     type: DataTypes.INTEGER,
     field: 'user_address_id',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -104,20 +104,24 @@ export const vTripRouteAttributes: SequelizeAttributes<ITripRouteAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxTripRouteFactory(sequelize: Sequelize) {
-  const vTripRoute = <ModelStatic<ITripRouteInstance>>sequelize.define('TripRoute', vTripRouteAttributes, {
-    tableName: 'trip_routes',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-    paranoid: true,
-  })
+  const vTripRoute = <ModelStatic<ITripRouteInstance>>sequelize.define(
+    'TripRoute',
+    vTripRouteAttributes,
+    {
+      tableName: 'trip_routes',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
+    }
+  )
 
   vTripRoute.associate = function (models: ModelRegistry) {
     const { modelTripRoute, modelTrip } = models

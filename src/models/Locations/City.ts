@@ -45,7 +45,7 @@ export const vCityModelAttributes: SequelizeAttributes<ICityAttributes> = {
     type: DataTypes.STRING,
     field: 'phone',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,

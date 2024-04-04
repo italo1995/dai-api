@@ -2,7 +2,7 @@ import { DataTypes, type QueryInterface } from 'sequelize'
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface: QueryInterface) {
+  async up(queryInterface: QueryInterface) {
     return Promise.all([
       queryInterface.addColumn('countries', 'deletedAt', {
         type: DataTypes.DATE,
@@ -21,14 +21,14 @@ module.exports = {
         field: 'deletedAt',
         defaultValue: null,
         allowNull: true,
-      })
+      }),
     ])
   },
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     return Promise.all([
       queryInterface.removeColumn('countries', 'deletedAt'),
       queryInterface.removeColumn('regions', 'deletedAt'),
-      queryInterface.removeColumn('cities', 'deletedAt')
+      queryInterface.removeColumn('cities', 'deletedAt'),
     ])
   },
 }

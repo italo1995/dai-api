@@ -29,6 +29,7 @@ export interface IUserInput {
   token?: string
   socketId?: string
   balance?: number
+  staffId?: number | null
 }
 
 export interface IUserInputUpdate {
@@ -56,6 +57,7 @@ export interface IUserUpdateSocket {
   lon?: number
   socketId?: string | null
   statusDriver?: EStatusDriver
+  discount?: number
 }
 
 export interface IUserCodeInput {
@@ -65,9 +67,10 @@ export interface IUserCodeInput {
 }
 
 export enum ETypeUser {
+  both = '0',
   passenger = '1',
   driver = '2',
-  both = '0',
+  all = '3',
 }
 
 export interface ITypeFileUserInput {
@@ -125,7 +128,6 @@ export interface IResponseAllUserTransaction {
   actualPage: number
 }
 
-
 export interface ICommentInput {
   id: string
   userId: string
@@ -180,7 +182,7 @@ export interface IResponseAllUser extends IResponseAll {
 }
 
 export interface IDriverReportInput {
-  id: string
+  id?: string
   userId: string
   amount: number
   quantity: number

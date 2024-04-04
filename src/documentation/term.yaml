@@ -1,35 +1,35 @@
 components:
- schemas:
-   Term:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of Term
-       name:
-         type: string
-         description: the name of the Term
-       description: 
-         type: string
-         description: the description of the Term
-       orden:
-         type: number
-         description: the order of the Term
-     required:
-       - name
-       - description
-     example:
-       id: 1
-       name: termino 1
-       description: Esto es un termino y condicion
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Term id
+  schemas:
+    Term:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of Term
+        name:
+          type: string
+          description: the name of the Term
+        description:
+          type: string
+          description: the description of the Term
+        orden:
+          type: number
+          description: the order of the Term
+      required:
+        - name
+        - description
+      example:
+        id: 1
+        name: termino 1
+        description: Esto es un termino y condicion
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Term id
 tags:
   - name: Term
     description: Term endpoint
@@ -78,7 +78,7 @@ paths:
   /api/term/store:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new Term
       tags:
         - Term
@@ -116,7 +116,7 @@ paths:
   /api/term/update:
     post:
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Updates a Term
       tags:
         - Term

@@ -2,7 +2,7 @@ import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
 export interface IBankAttributes {
-  id: string
+  id: number
   name: string
   icon?: string
   phoneNumber?: string
@@ -22,9 +22,9 @@ export interface IBankInstance
   extends Model<IBankAttributes, IBankCreationAttributes>,
     IBankAttributes {}
 export enum EAccountType {
-    ahorro = 1,
-    corriente = 2
-   }
+  ahorro = 1,
+  corriente = 2,
+}
 
 export const vBankAttributes: SequelizeAttributes<IBankAttributes> = {
   id: {
@@ -35,7 +35,7 @@ export const vBankAttributes: SequelizeAttributes<IBankAttributes> = {
   },
   name: {
     type: DataTypes.STRING,
-    field: 'name'
+    field: 'name',
   },
   icon: {
     type: DataTypes.STRING,
@@ -77,7 +77,7 @@ export const vBankAttributes: SequelizeAttributes<IBankAttributes> = {
     type: DataTypes.STRING,
     field: 'email',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -98,19 +98,15 @@ export const vBankAttributes: SequelizeAttributes<IBankAttributes> = {
 }
 
 export function fxBankFactory(sequelize: Sequelize) {
-  const vBank = <ModelStatic<IBankInstance>>sequelize.define(
-    'Bank',
-    vBankAttributes,
-    {
-      tableName: 'banks',
-      defaultScope: {
-        order: [['createdAt', 'DESC']],
-      },
-      freezeTableName: true,
-      timestamps: true,
-      paranoid: true,
-    }
-  )
+  const vBank = <ModelStatic<IBankInstance>>sequelize.define('Bank', vBankAttributes, {
+    tableName: 'banks',
+    defaultScope: {
+      order: [['createdAt', 'DESC']],
+    },
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+  })
 
   vBank.prototype.toJSON = function () {
     const vValues = { ...this.get() }

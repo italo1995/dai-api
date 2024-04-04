@@ -20,7 +20,10 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassTripCancellationOptionService from '../../services/Trip/TripCancellationOptionService'
-import type { ITripCancellationOptionInput, IResponseAllTripCancellationOption } from '../../types/TripType'
+import type {
+  ITripCancellationOptionInput,
+  IResponseAllTripCancellationOption,
+} from '../../types/TripType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import { type ITripCancellationOptionInstance } from '../../models/Trip/TripCancellationOptionModel'
 
@@ -29,7 +32,8 @@ class TripCancellationOptionController {
     try {
       const vId: number = Number(pReq.query.id)
 
-      const vResponse: ITripCancellationOptionInstance | null = await ClassTripCancellationOptionService.show(vId)
+      const vResponse: ITripCancellationOptionInstance | null =
+        await ClassTripCancellationOptionService.show(vId)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -41,10 +45,11 @@ class TripCancellationOptionController {
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllTripCancellationOption | ITripCancellationOptionInstance[] = await ClassTripCancellationOptionService.all(vParam)
+      const vResponse: IResponseAllTripCancellationOption | ITripCancellationOptionInstance[] =
+        await ClassTripCancellationOptionService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -65,9 +70,10 @@ class TripCancellationOptionController {
         'comment',
       ])
       vData.userId = auth.id
-      const vResponse: ITripCancellationOptionInstance | null = await ClassTripCancellationOptionService.create(vData)
+      const vResponse: ITripCancellationOptionInstance | null =
+        await ClassTripCancellationOptionService.create(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
-    } catch (error) { 
+    } catch (error) {
       pNext(error)
     }
   }
@@ -82,11 +88,10 @@ class TripCancellationOptionController {
         'comment',
       ])
       vData.userId = auth.id
-      const vResponse: ITripCancellationOptionInstance | null = await ClassTripCancellationOptionService.update(vData)
+      const vResponse: ITripCancellationOptionInstance | null =
+        await ClassTripCancellationOptionService.update(vData)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -98,9 +103,7 @@ class TripCancellationOptionController {
       const vId: string = pReq.input('id')
       const vResponse: number = await ClassTripCancellationOptionService.destroy(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, false, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, false, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, true, 'Borrado con exito'))
     } catch (error) {

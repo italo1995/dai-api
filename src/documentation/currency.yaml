@@ -1,45 +1,45 @@
 components:
- schemas:
-   Currency:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of currency
-       name:
-         type: string
-         description: the name of the currency
-       symbol:
-         type: string
-         description: the name of the file of the symbol of the currency
-       change: 
-         type: number
-         description: the change of the currency
-       type:
-         type: boolean
-         description: the type of the currency
-       auto:
-         type: string
-         description: the auto of the currency
-     required:
-       - name
-       - symbol
-       - change
-       - type
-     example:
-       id: 1
-       name: Dollars
-       symbol: $
-       change: 1.5
-       type: true
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Currency id
+  schemas:
+    Currency:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of currency
+        name:
+          type: string
+          description: the name of the currency
+        symbol:
+          type: string
+          description: the name of the file of the symbol of the currency
+        change:
+          type: number
+          description: the change of the currency
+        type:
+          type: boolean
+          description: the type of the currency
+        auto:
+          type: string
+          description: the auto of the currency
+      required:
+        - name
+        - symbol
+        - change
+        - type
+      example:
+        id: 1
+        name: Dollars
+        symbol: $
+        change: 1.5
+        type: true
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Currency id
 tags:
   - name: Currency
     description: Currency endpoint
@@ -188,8 +188,7 @@ paths:
                   description: ['name', 'symbol', 'change', 'type', 'auto', 'icon']
               required:
                 - id
-              example:
-                '[{
+              example: '[{
                 id: 1
                 name: Currency
                 symbol: $

@@ -22,7 +22,7 @@ Para todos los caso si ocurre cualquier error, lo envia usando NextFunction al m
 import type { NextFunction, Request, Response } from 'express'
 import ClassBankService from '../../services/Payments/BankService'
 import type { IResponseAllBank, IBankInput } from '../../types/PaymentMethodType'
-import { fxSuccessResponse, fxErrorResponse,moveImages } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IBankInstance } from '../../models/payments/BankModel'
 
 class BankController {
@@ -36,16 +36,14 @@ class BankController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllBank | IBankInstance[] = await ClassBankService.all(vParam)
       if (!vResponse) {
@@ -70,7 +68,7 @@ class BankController {
         'fullName',
         'dni',
         'accountType',
-        'email'
+        'email',
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
@@ -99,8 +97,7 @@ class BankController {
         'fullName',
         'dni',
         'accountType',
-        'email'
-
+        'email',
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
@@ -109,11 +106,9 @@ class BankController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
@@ -124,9 +119,7 @@ class BankController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassBankService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
@@ -134,7 +127,5 @@ class BankController {
     }
   }
 }
-
-
 
 export default new BankController()

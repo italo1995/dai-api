@@ -228,7 +228,7 @@ export class Server {
         await modelErrorReporting.create(newErrorReporting)
         if (err.status === 400) {
           let message = 'Ocurrió un error'
-          switch(err.code) {
+          switch (err.code) {
           case 21211:
             // Error: Invalid 'To' Phone Number
             message = vI18n.__('InvalidToPhoneNumber')

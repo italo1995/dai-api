@@ -10,5 +10,4 @@ router.route('/update').post(authMiddleware('admin'), controller.update)
 router.route('/store').post(authMiddleware('client'), controller.create)
 router.route('/delete').post(authMiddleware('admin'), controller.destroy)
 
-
 export default router

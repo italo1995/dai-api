@@ -1,37 +1,37 @@
 components:
- schemas:
-   Service:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of service
-       name:
-         type: string
-         description: the name of the service
-       image:
-         type: string
-         description: the name of the file of the image for the service
-       description: 
-         type: string
-         description: the description of the service
-     required:
-       - name
-       - image
-       - description
-     example:
-       id: 1
-       name: VIP
-       image: storage/fileService.png
-       description: a VIP vehicle trip 
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the Service id
+  schemas:
+    Service:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of service
+        name:
+          type: string
+          description: the name of the service
+        image:
+          type: string
+          description: the name of the file of the image for the service
+        description:
+          type: string
+          description: the description of the service
+      required:
+        - name
+        - image
+        - description
+      example:
+        id: 1
+        name: VIP
+        image: storage/fileService.png
+        description: a VIP vehicle trip
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the Service id
 tags:
   - name: Service
     description: Service endpoint

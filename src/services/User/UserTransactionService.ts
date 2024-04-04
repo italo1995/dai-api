@@ -15,7 +15,11 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import {EStatusType, EtransactionType, type IUserTransactionInstance,} from '../../models/User/UserTransactionModel'
+import {
+  EStatusType,
+  EtransactionType,
+  type IUserTransactionInstance,
+} from '../../models/User/UserTransactionModel'
 import { modelUserTransaction, modelUser } from '../../models'
 import type { IUserTransactionInput, IResponseAllUserTransaction } from '../../types/User'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -26,10 +30,12 @@ interface IUserTransaction {
   show(pId: number): Promise<IUserTransactionInstance | null>
   all(pParam: any): Promise<IResponseAllUserTransaction | IUserTransactionInstance[]>
   create(auth: IUserInstance, payload: IUserTransactionInput): Promise<IUserTransactionInstance>
-  update(auth: IUserInstance, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null>
+  update(
+    auth: IUserInstance,
+    pData: IUserTransactionInput
+  ): Promise<IUserTransactionInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
 }
-
 
 class UserTransaction implements IUserTransaction {
   async validate(data: any) {
@@ -79,10 +85,13 @@ class UserTransaction implements IUserTransaction {
     }
   }
 
-  async create(auth: IUserInstance, pData: IUserTransactionInput): Promise<IUserTransactionInstance> {
+  async create(
+    auth: IUserInstance,
+    pData: IUserTransactionInput
+  ): Promise<IUserTransactionInstance> {
     try {
       const user = await modelUser.findOne({ where: { id: pData.userId } })
-      if ((!user || user.balance === null) || (!user || user.balance === undefined)) {
+      if (!user || user.balance === null || !user || user.balance === undefined) {
         throw new Error('User or user balance not found')
       }
       let status = EStatusType.pending
@@ -108,7 +117,10 @@ class UserTransaction implements IUserTransaction {
     }
   }
 
-  async update(auth: IUserInstance, pData: IUserTransactionInput): Promise<IUserTransactionInstance | null> {
+  async update(
+    auth: IUserInstance,
+    pData: IUserTransactionInput
+  ): Promise<IUserTransactionInstance | null> {
     try {
       if (pData?.id) {
         const transaction: IUserTransactionInstance | null = await modelUserTransaction.findOne({
@@ -117,14 +129,14 @@ class UserTransaction implements IUserTransaction {
           },
         })
         const user = await modelUser.findOne({ where: { id: pData.userId } })
-        if ((!user || user.balance === null) || (!user || user.balance === undefined)) {
+        if (!user || user.balance === null || !user || user.balance === undefined) {
           throw new Error('User or user balance not found')
         }
         if (transaction && user) {
           if (auth.rolId === 1 || auth.rolId === 2) {
             if (pData.transactionType === EtransactionType.deposit) {
               user.balance += pData.amount
-            } else { 
+            } else {
               if (user.balance < pData.amount) {
                 throw new Error('Saldo insuficiente, por favor recargue')
               }
@@ -133,7 +145,7 @@ class UserTransaction implements IUserTransaction {
             await user.save()
             transaction.status = EStatusType.approved
           } else {
-            transaction.status = EStatusType.pending 
+            transaction.status = EStatusType.pending
           }
           await transaction.update(pData, { where: { id: pData.id } })
         }

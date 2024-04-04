@@ -18,7 +18,11 @@
 import { Op, type FindOptions } from 'sequelize'
 import sequelize, { modelCurrency, modelTripOffert, modelUser } from '../../models'
 import { ETripOffertStatus, type ITripOffertInstance } from '../../models/Trip/TripOffertModel'
-import type { IResponseAllTripOffert, ITripOffertInput, ITripOffertUpdate } from '../../types/TripType'
+import type {
+  IResponseAllTripOffert,
+  ITripOffertInput,
+  ITripOffertUpdate,
+} from '../../types/TripType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface ITripOffertService {
@@ -27,8 +31,7 @@ interface ITripOffertService {
   all(pParam: any): Promise<IResponseAllTripOffert | ITripOffertInstance[]>
   create(payload: ITripOffertInput): Promise<ITripOffertInstance>
   update(payload: ITripOffertUpdate): Promise<ITripOffertInstance | null>
-  softDeleteRecord(pId:string): Promise<boolean>
-
+  softDeleteRecord(pId: string): Promise<boolean>
 }
 
 class TripOffertService implements ITripOffertService {
@@ -50,9 +53,9 @@ class TripOffertService implements ITripOffertService {
             model: modelCurrency,
             required: false,
             as: 'currency',
-            attributes: ['id', 'name', 'symbol']
+            attributes: ['id', 'name', 'symbol'],
           },
-        ]
+        ],
       })
       return vResponse
     } catch (error) {
@@ -72,9 +75,9 @@ class TripOffertService implements ITripOffertService {
             model: modelUser,
             required: true,
             as: 'driver',
-            attributes: ['id', 'socketId', 'tokenPush']
-          }
-        ]
+            attributes: ['id', 'socketId', 'tokenPush'],
+          },
+        ],
       })
       return vResponse
     } catch (error) {
@@ -85,25 +88,36 @@ class TripOffertService implements ITripOffertService {
   async showAcept(pId: number): Promise<ITripOffertInstance | null> {
     try {
       const vResponse: ITripOffertInstance | null = await this.model.findOne({
-        attributes: ['id', 'tripId', 'driverId', 'clientId', 'currencyId', 'amount', 'createdAt', 'distance', 'duration', 'durationInMs'],
+        attributes: [
+          'id',
+          'tripId',
+          'driverId',
+          'clientId',
+          'currencyId',
+          'amount',
+          'createdAt',
+          'distance',
+          'duration',
+          'durationInMs',
+        ],
         where: {
           tripId: pId,
-          status: ETripOffertStatus.ACEPTADA
+          status: ETripOffertStatus.ACEPTADA,
         },
         include: [
           {
             model: modelUser,
             required: true,
             as: 'driver',
-            attributes: ['id', 'socketId', 'tokenPush']
+            attributes: ['id', 'socketId', 'tokenPush'],
           },
           {
             model: modelCurrency,
             required: false,
             as: 'currency',
-            attributes: ['id', 'name', 'symbol']
+            attributes: ['id', 'name', 'symbol'],
           },
-        ]
+        ],
       })
       return vResponse
     } catch (error) {
@@ -146,7 +160,6 @@ class TripOffertService implements ITripOffertService {
     } catch (error) {
       throw error
     }
-
   }
 
   async update(pData: ITripOffertUpdate): Promise<ITripOffertInstance | null> {
@@ -160,9 +173,9 @@ class TripOffertService implements ITripOffertService {
       } else if (pData.id) {
         whereStatement.where = {
           driverId: {
-            [Op.or]: [pData.driverId, null]
+            [Op.or]: [pData.driverId, null],
           },
-          id: pData.id
+          id: pData.id,
         }
       }
       if (pData?.id) {
@@ -177,9 +190,12 @@ class TripOffertService implements ITripOffertService {
   }
   async softDeleteRecord(pId: string) {
     try {
-      const record = await this.model.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await this.model.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -201,7 +217,7 @@ class TripOffertService implements ITripOffertService {
       const vNowTimeString: string = vNow[0][0].now.toString() || new Date().toISOString()
       const currentDate = new Date(vNowTimeString)
       const diff = currentDate.getTime() - vCreatedAtParse.getTime()
-      const remaining = duration - (diff / 1000)
+      const remaining = duration - diff / 1000
       return remaining
     } catch (error) {
       throw error
@@ -210,4 +226,3 @@ class TripOffertService implements ITripOffertService {
 }
 
 export default new TripOffertService()
-

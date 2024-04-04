@@ -1,8 +1,8 @@
 import { DataTypes, type QueryInterface } from 'sequelize'
 
-/** @type {import('sequelize-cli').Migration} */ 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface: QueryInterface) {
+  async up(queryInterface: QueryInterface) {
     return queryInterface.createTable('vehicle_additionals', {
       id: {
         type: DataTypes.INTEGER,
@@ -11,11 +11,11 @@ module.exports = {
         autoIncrement: true,
       },
       name: {
-        type:DataTypes.STRING,
+        type: DataTypes.STRING,
         field: 'name',
       },
       createdAt: {
-        type:DataTypes.DATE,
+        type: DataTypes.DATE,
         field: 'createdAt',
         allowNull: false,
       },
@@ -28,12 +28,12 @@ module.exports = {
         type: DataTypes.DATE,
         field: 'deletedAt',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
     })
   },
 
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('vehicle_additionals')
   },
 }

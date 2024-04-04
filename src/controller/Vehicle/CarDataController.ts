@@ -25,56 +25,49 @@ class CarDataController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all(pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       if (vParam.vehicleId) {
-        const vVehicleType: IVehicleTypeInstance | null = await VehicleTypeService.show(vParam.vehicleId)
+        const vVehicleType: IVehicleTypeInstance | null = await VehicleTypeService.show(
+          vParam.vehicleId
+        )
         if (vVehicleType) {
           vParam.isCar = vVehicleType.dataValues.isCar
           vParam.isMoto = vVehicleType.dataValues.isMoto
         }
       }
-      const vResponse: IResponseAllCarData | ICarDataInstance[] = await ClassCarDataService.all(vParam)
+      const vResponse: IResponseAllCarData | ICarDataInstance[] =
+        await ClassCarDataService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async getModelsByBrand(pReq:Request, pRes: Response, pNext: NextFunction) {
+  async getModelsByBrand(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const brandId = pReq.params.brandId
       const models = await ClassCarDataService.getModelsByBrand(brandId)
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, models, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, models, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICarDataInput = pReq.only([
-        'name',
-        'icon',
-        'type'
-      ])
+      const vData: ICarDataInput = pReq.only(['name', 'icon', 'type'])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
       }
@@ -84,9 +77,7 @@ class CarDataController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -94,12 +85,7 @@ class CarDataController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICarDataInput = pReq.only([
-        'id',
-        'name',
-        'icon',
-        'type'
-      ])
+      const vData: ICarDataInput = pReq.only(['id', 'name', 'icon', 'type'])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
       }
@@ -107,11 +93,9 @@ class CarDataController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
@@ -122,13 +106,9 @@ class CarDataController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassCarDataService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }

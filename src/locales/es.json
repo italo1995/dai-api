@@ -8,5 +8,10 @@
 	"updatedAt": "updatedAt",
 	"name": "El nombre",
 	"address": "La direccion",
-	"InvalidToPhoneNumber": "Numero o codigo invalido, por favor verifique e intente de nuevo"
+	"InvalidToPhoneNumber": "Numero o codigo invalido, por favor verifique e intente de nuevo",
+	"email": "El correo electronico",
+	"customValidator": "customValidator",
+	"isEmail": "isEmail",
+	"notUnique": "no puede repetirse",
+	"phoneNumber": "El numero de telefono"
 }

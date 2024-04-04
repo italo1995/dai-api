@@ -30,7 +30,6 @@ interface IDriverDetailService {
 }
 
 class DriverDetailsService implements IDriverDetailService {
-
   async validate(data: any) {
     const dataValidate = modelDriverDetail.build(data)
     await dataValidate.validate()
@@ -45,21 +44,22 @@ class DriverDetailsService implements IDriverDetailService {
         whereStatement.offset = (pParam.pag - 1) * limit
       }
       if (Number(pParam?.orden) === 2) {
-        whereStatement.order = whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['name', 'ASC']
-        ] : [
-          ['name', 'ASC']
-        ]
+        whereStatement.order =
+          whereStatement.order instanceof Array
+            ? [...whereStatement.order, ['name', 'ASC']]
+            : [['name', 'ASC']]
       } else {
-        whereStatement.order =  whereStatement.order instanceof Array ? [
-          ...whereStatement.order, ['id', 'DESC']
-        ] : [
-          ['id', 'DESC']
-        ]
+        whereStatement.order =
+          whereStatement.order instanceof Array
+            ? [...whereStatement.order, ['id', 'DESC']]
+            : [['id', 'DESC']]
       }
 
       if (pParam?.search) {
-        whereStatement.where = { ...whereStatement.where, name: { [Op.iLike]: `%${pParam.search}%` } }
+        whereStatement.where = {
+          ...whereStatement.where,
+          name: { [Op.iLike]: `%${pParam.search}%` },
+        }
       }
       const res = await modelDriverDetail.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -96,8 +96,8 @@ class DriverDetailsService implements IDriverDetailService {
   async createMany(pData: IDriverDetailInput[], pUserId: string): Promise<IDriverDetailInstance[]> {
     modelDriverDetail.destroy({
       where: {
-        userId: pUserId
-      }
+        userId: pUserId,
+      },
     })
     const vResponse: IDriverDetailInstance[] = await modelDriverDetail.bulkCreate(pData)
     return vResponse
@@ -115,6 +115,5 @@ class DriverDetailsService implements IDriverDetailService {
     }
     return null
   }
-
 }
 export default new DriverDetailsService()

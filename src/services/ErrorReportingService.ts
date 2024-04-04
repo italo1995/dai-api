@@ -2,13 +2,16 @@ import { DatabaseError } from 'sequelize'
 import { modelErrorReporting } from '../models'
 
 interface IDataError {
-  url: string, headers: any, body: any, userId: string
- }
+  url: string
+  headers: any
+  body: any
+  userId: string
+}
 class ErrorReportingService {
   async errorCreatedReporting(dataError: IDataError, error: any) {
     if (error instanceof DatabaseError) {
       console.log('El error es de tipo SequelizeDatabaseError')
-    } 
+    }
     const body = dataError.body
     const headers = dataError.headers
     const newErrorReporting = {

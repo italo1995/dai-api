@@ -1,61 +1,61 @@
 components:
- schemas:
-   TripOffert:
-     type: object
-     properties:
-       id:
-         type: number
-         description: the auto-increment id of TripOffert
-       typeService:
-         type: sring
-         description: the type of the service
-       userId:
-         type: string
-         description: the user's ID
-       driverID: 
-         type: string
-         description: the driver's ID
-       date:
-         type: string
-         description: the date of the Trip
-       status:
-         type: string
-         description: the status of the Trip
-       price:
-         type: number
-         description: the price of the Trip
-       currencyId:
-         type: number
-         description: the ID of the type of payment
-       isPayment:
-         type: number
-         descrption: payment realized
-       instructionToDriver:
-         type: string
-         description: instruction to the driver
-     required:
-       - typeService
-       - userId
-       - isPayment
-     example:
-       id: 1
-       typeService: VIP
-       userId: 845e1dcc-4483-4bc4-88aa-55c9b000ee04
-       driverId: 845e1dcc-4483-5tv7-99ab-44f8b000ee07
-       date: 2024-02-22-05:07:0000
-       status: completed
-       price: 4
-       currencyId: 1
-       isPayment: 1
-       instructionToDriver: cerca de la plaza
-     parameters:
-      id:
-       in: query
-       name: id
-       required: true
-       schema:
-        type: string
-        description: the tripOffert id
+  schemas:
+    TripOffert:
+      type: object
+      properties:
+        id:
+          type: number
+          description: the auto-increment id of TripOffert
+        typeService:
+          type: sring
+          description: the type of the service
+        userId:
+          type: string
+          description: the user's ID
+        driverID:
+          type: string
+          description: the driver's ID
+        date:
+          type: string
+          description: the date of the Trip
+        status:
+          type: string
+          description: the status of the Trip
+        price:
+          type: number
+          description: the price of the Trip
+        currencyId:
+          type: number
+          description: the ID of the type of payment
+        isPayment:
+          type: number
+          descrption: payment realized
+        instructionToDriver:
+          type: string
+          description: instruction to the driver
+      required:
+        - typeService
+        - userId
+        - isPayment
+      example:
+        id: 1
+        typeService: VIP
+        userId: 845e1dcc-4483-4bc4-88aa-55c9b000ee04
+        driverId: 845e1dcc-4483-5tv7-99ab-44f8b000ee07
+        date: 2024-02-22-05:07:0000
+        status: completed
+        price: 4
+        currencyId: 1
+        isPayment: 1
+        instructionToDriver: cerca de la plaza
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            type: string
+            description: the tripOffert id
 tags:
   - name: TripOffert
     description: tripOffert endpoint
@@ -114,50 +114,50 @@ paths:
               type: object
               properties:
                 id:
-                 type: number
-                 description: the auto-increment id of tripOffert
+                  type: number
+                  description: the auto-increment id of tripOffert
                 typeService:
-                 type: sring
-                 description: the type of the service
+                  type: sring
+                  description: the type of the service
                 userId:
-                 type: string
-                 description: the user's ID
-                driverID: 
-                 type: string
-                 description: the driver's ID
+                  type: string
+                  description: the user's ID
+                driverID:
+                  type: string
+                  description: the driver's ID
                 date:
-                 type: string
-                 description: the date of the Trip
+                  type: string
+                  description: the date of the Trip
                 status:
-                 type: string
-                 description: the status of the Trip
+                  type: string
+                  description: the status of the Trip
                 price:
-                 type: number
-                 description: the price of the Trip
+                  type: number
+                  description: the price of the Trip
                 currencyId:
-                 type: number
-                 description: the ID of the type of payment
+                  type: number
+                  description: the ID of the type of payment
                 isPayment:
-                 type: number
-                 descrption: payment realized
+                  type: number
+                  descrption: payment realized
                 instructionToDriver:
-                 type: string
-                 description: instruction to the driver
+                  type: string
+                  description: instruction to the driver
               required:
-              - typeService
-              - userId
-              - isPayment
+                - typeService
+                - userId
+                - isPayment
               example:
-               id: 1
-               typeService: VIP
-               userId: 845e1dcc-4483-4bc4-88aa-55c9b000ee04
-               driverId: 845e1dcc-4483-5tv7-99ab-44f8b000ee07
-               date: 2024-02-22-05:07:0000
-               status: completed
-               price: 4
-               currencyId: 1
-               isPayment: 1
-               instructionToDriver: cerca de la plaza
+                id: 1
+                typeService: VIP
+                userId: 845e1dcc-4483-4bc4-88aa-55c9b000ee04
+                driverId: 845e1dcc-4483-5tv7-99ab-44f8b000ee07
+                date: 2024-02-22-05:07:0000
+                status: completed
+                price: 4
+                currencyId: 1
+                isPayment: 1
+                instructionToDriver: cerca de la plaza
       responses:
         '201':
           description: the TripOffert created
@@ -178,50 +178,50 @@ paths:
               type: object
               properties:
                 id:
-                 type: number
-                 description: the auto-increment id of banner
+                  type: number
+                  description: the auto-increment id of banner
                 typeService:
-                 type: sring
-                 description: the type of the service
+                  type: sring
+                  description: the type of the service
                 userId:
-                 type: string
-                 description: the user's ID
-                driverID: 
-                 type: string
-                 description: the driver's ID
+                  type: string
+                  description: the user's ID
+                driverID:
+                  type: string
+                  description: the driver's ID
                 date:
-                 type: string
-                 description: the date of the Trip
+                  type: string
+                  description: the date of the Trip
                 status:
-                 type: string
-                 description: the status of the Trip
+                  type: string
+                  description: the status of the Trip
                 price:
-                 type: number
-                 description: the price of the Trip
+                  type: number
+                  description: the price of the Trip
                 currencyId:
-                 type: number
-                 description: the ID of the type of payment
+                  type: number
+                  description: the ID of the type of payment
                 isPayment:
-                 type: number
-                 descrption: payment realized
+                  type: number
+                  descrption: payment realized
                 instructionToDriver:
-                 type: string
-                 description: instruction to the driver
+                  type: string
+                  description: instruction to the driver
               required:
-              - typeService
-              - userId
-              - isPayment
+                - typeService
+                - userId
+                - isPayment
               example:
-               id: 1
-               typeService: VIP
-               userId: 845e1dcc-4483-4bc4-88aa-55c9b000ee04
-               driverId: 845e1dcc-4483-5tv7-99ab-44f8b000ee07
-               date: 2024-02-22-05:07:0000
-               status: completed
-               price: 4
-               currencyId: 1
-               isPayment: 1
-               instructionToDriver: cerca de la plaza
+                id: 1
+                typeService: VIP
+                userId: 845e1dcc-4483-4bc4-88aa-55c9b000ee04
+                driverId: 845e1dcc-4483-5tv7-99ab-44f8b000ee07
+                date: 2024-02-22-05:07:0000
+                status: completed
+                price: 4
+                currencyId: 1
+                isPayment: 1
+                instructionToDriver: cerca de la plaza
       responses:
         '201':
           description: the tripOffert updated

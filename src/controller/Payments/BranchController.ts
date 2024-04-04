@@ -22,7 +22,7 @@ Para todos los caso si ocurre cualquier error, lo envia usando NextFunction al m
 import type { NextFunction, Request, Response } from 'express'
 import ClassBranchService from '../../services/Payments/BranchService'
 import type { IResponseAllBranch, IBranchInput } from '../../types/PaymentMethodType'
-import { fxSuccessResponse, fxErrorResponse,moveImages } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IBranchInstance } from '../../models/payments/BranchModel'
 
 class BranchController {
@@ -36,16 +36,14 @@ class BranchController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
       const vResponse: IResponseAllBranch | IBranchInstance[] = await ClassBranchService.all(vParam)
       if (!vResponse) {
@@ -68,7 +66,7 @@ class BranchController {
         'lat',
         'lon',
         'image',
-        'referencePoint'
+        'referencePoint',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
@@ -96,8 +94,7 @@ class BranchController {
         'lat',
         'lon',
         'image',
-        'referencePoint'
-
+        'referencePoint',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
@@ -106,11 +103,9 @@ class BranchController {
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
       pNext(error)
     }
@@ -120,9 +115,7 @@ class BranchController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassBranchService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
@@ -130,7 +123,5 @@ class BranchController {
     }
   }
 }
-
-
 
 export default new BranchController()

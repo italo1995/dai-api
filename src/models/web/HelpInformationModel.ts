@@ -35,7 +35,7 @@ export const vHelpInformationAttributes: SequelizeAttributes<IHelpInformationAtt
     type: DataTypes.TEXT,
     field: 'orden',
     allowNull: true,
-    defaultValue: 0
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -51,7 +51,7 @@ export const vHelpInformationAttributes: SequelizeAttributes<IHelpInformationAtt
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 

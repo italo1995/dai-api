@@ -7,7 +7,12 @@ import { modelUser } from './models'
 import { EStatusDriver, type IUserInstance } from './models/User/User'
 import ClassTripService from './services/Trip/TripService'
 import { EStatusTrip, ETypeService, type ITripInstance } from './models/Trip/TripModel'
-import type { IParamShowTrip, IResponseAllTrip, ITripOffertUpdate, ITripUpdate } from './types/TripType'
+import type {
+  IParamShowTrip,
+  IResponseAllTrip,
+  ITripOffertUpdate,
+  ITripUpdate,
+} from './types/TripType'
 import ClassTripOffertService from './services/Trip/TripOffertService'
 import { ETripOffertStatus } from './models/Trip/TripOffertModel'
 import TripRouteService from './services/Trip/TripRouteService'
@@ -19,9 +24,14 @@ import ErrorReportingService from './services/ErrorReportingService'
 import { withTimeout } from './utils/helpers'
 import TripPaymentService from './services/Trip/TripPaymentService'
 import { ETypeUser } from './types/User'
+import CompanyParameterService from './services/web/CompanyParameterService'
+import DriverReportService from './services/User/DriverReportService'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
- url: string, headers: any, body: any, userId: string
+  url: string
+  headers: any
+  body: any
+  userId: string
 }
 export class SocketService {
   // Declaramos una propiedad estática io que contendrá el objeto io que crearemos
@@ -33,7 +43,7 @@ export class SocketService {
     this.io = new webSocketServer(httpServer, {
       cors: {
         origin: '*',
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
       },
       connectionStateRecovery: {
         // the backup duration of the sessions and the packets
@@ -69,14 +79,14 @@ export class SocketService {
     if (auth) {
       const user = {
         id: auth?.id,
-        socketId: socketId
+        socketId: socketId,
       }
       // Actualizamos el socket del usuario en la base de datos
       await ClassAuthService.updateSocket(user)
     }
 
     socket.emit('connection', {
-      socketId
+      socketId,
     })
 
     socket.on('disconnect', async (_reason: any) => {
@@ -84,7 +94,7 @@ export class SocketService {
         const vUser = {
           id: auth?.id || user?.id,
           // statusDriver: 0,
-          socketId: null
+          socketId: null,
         }
         if (vUser?.id) {
           // const vUserDB = await ClassAuthService.show(auth?.id || user.id)
@@ -100,7 +110,7 @@ export class SocketService {
           body: _reason,
           url: 'disconnect',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
@@ -111,7 +121,7 @@ export class SocketService {
         if (auth) {
           const vUser = {
             id: auth?.id || user?.id || data.userId,
-            socketId: socketId
+            socketId: socketId,
           }
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
@@ -127,7 +137,7 @@ export class SocketService {
           body: data,
           url: 'reConnection',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
@@ -148,7 +158,7 @@ export class SocketService {
           body: { data: pStateDriver },
           url: 'changeState',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
@@ -160,15 +170,18 @@ export class SocketService {
           id: auth?.id || user?.id,
           lat: coords?.lat || null,
           lon: coords?.lng || null,
-          socketId: coords?.socketId || socketId
+          socketId: coords?.socketId || socketId,
         }
         if (coords?.tripId) {
           const vParamShowTrip: IParamShowTrip = {
             id: coords.tripId,
-            needClient: true
+            needClient: true,
           }
           const trip = await ClassTripService.showId(vParamShowTrip)
-          if (auth?.dataValues.typeUser === ETypeUser.driver || auth?.typeUser === ETypeUser.driver) {
+          if (
+            auth?.dataValues.typeUser === ETypeUser.driver ||
+            auth?.typeUser === ETypeUser.driver
+          ) {
             const clientSocketId = JSON.parse(JSON.stringify(trip))?.user.socketId
             socket.to(clientSocketId).emit('driverPosition', {
               tripId: coords.tripId,
@@ -180,12 +193,14 @@ export class SocketService {
             const vTripPanics = await ClassTripService.showPanic({ tripId: trip.dataValues.id })
             if (vTripPanics?.length) {
               await ClassAuthService.updateSocket(vUser)
-              const socketIds: any[]  = vTripPanics.map((vTripPanic) => vTripPanic.dataValues.socketId)
+              const socketIds: any[] = vTripPanics.map(
+                (vTripPanic) => vTripPanic.dataValues.socketId
+              )
               const vRespTripCoords: any = {
                 client: null,
-                driver: null
+                driver: null,
               }
-              if (auth?.dataValues.typeUser === ETypeUser.driver ) {
+              if (auth?.dataValues.typeUser === ETypeUser.driver) {
                 vRespTripCoords.driver = {
                   lat: coords?.lat,
                   lon: coords?.lng,
@@ -196,15 +211,19 @@ export class SocketService {
                   lon: coords?.lng,
                 }
               }
-              socket.to(socketIds).emit('tripCoords', vRespTripCoords, withTimeout(
-                () => {
-                  console.log('¡Éxito!')
-                },
-                () => {
-                  console.log('¡Tiempo de espera!')
-                },
-                1000
-              ))
+              socket.to(socketIds).emit(
+                'tripCoords',
+                vRespTripCoords,
+                withTimeout(
+                  () => {
+                    console.log('¡Éxito!')
+                  },
+                  () => {
+                    console.log('¡Tiempo de espera!')
+                  },
+                  1000
+                )
+              )
             }
           }
         } else if (vUser?.lat && vUser?.lon) {
@@ -213,13 +232,15 @@ export class SocketService {
           }
           if (coords?.isDriver) {
             const vDriver = auth || user
-            const vVehicleType = await VehicleTypeService.show(vDriver?.dataValues?.vehicleType || vDriver?.vehicleType)
+            const vVehicleType = await VehicleTypeService.show(
+              vDriver?.dataValues?.vehicleType || vDriver?.vehicleType
+            )
             const vParamToRange = {
               city: coords?.city || null,
               region: coords?.region || null,
               country: coords?.country || null,
               isCar: vVehicleType?.dataValues?.isCar || false,
-              isMoto: vVehicleType?.dataValues?.isMoto || false
+              isMoto: vVehicleType?.dataValues?.isMoto || false,
             }
             const vRangePrice = await RangePriceService.showPrice(vParamToRange)
             const vParamTripShow = {
@@ -227,9 +248,10 @@ export class SocketService {
               lon: coords?.lng || null,
               distance: vRangePrice?.distanceToSearch || 30,
               isCar: vVehicleType?.dataValues?.isCar || false,
-              isMoto: vVehicleType?.dataValues?.isMoto || false
+              isMoto: vVehicleType?.dataValues?.isMoto || false,
             }
-            const vTripOne: IResponseAllTrip | ITripInstance[] = await ClassTripService.NearbyTrips(vParamTripShow)
+            const vTripOne: IResponseAllTrip | ITripInstance[] =
+              await ClassTripService.NearbyTrips(vParamTripShow)
             socket.emit('newTrips', vTripOne)
           }
         }
@@ -238,7 +260,7 @@ export class SocketService {
           body: coords,
           url: 'coords',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
@@ -253,7 +275,7 @@ export class SocketService {
         }
         const updateDriver = {
           id: vTripOffer?.dataValues.driverId,
-          statusDriver: EStatusDriver.BUSSY
+          statusDriver: EStatusDriver.BUSSY,
         }
         const vDriver: IUserInstance | null = await ClassAuthService.updateSocket(updateDriver)
         const vTripId = Number(vTripOffer.dataValues.tripId)
@@ -270,56 +292,64 @@ export class SocketService {
           status: EStatusTrip.ACEPTADO,
           driverId: vTripOffer?.dataValues.driverId,
           userId: vTripOffer?.dataValues.clientId,
-          price: Number(vTripOffer.dataValues.amount)
+          price: Number(vTripOffer.dataValues.amount),
         }
         const vUpdateTripPaymentData = {
           tripId: vTripId,
           amount: Number(vTripOffer.dataValues.amount),
-          currencyId: Number(vTripOffer.dataValues.currencyId)
+          currencyId: Number(vTripOffer.dataValues.currencyId),
         }
         await TripPaymentService.updatePrice(vUpdateTripPaymentData)
         const vUpdateTripOffert: ITripOffertUpdate = {
           id: vTripOffer.dataValues.id,
           driverId: vTripOffer?.dataValues.driverId,
-          status: ETripOffertStatus.ACEPTADA
+          status: ETripOffertStatus.ACEPTADA,
         }
         await ClassTripOffertService.update(vUpdateTripOffert)
-       
+
         const vTripUpdate = await ClassTripService.update(vUpdateTrip)
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
         try {
-          socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit('acceptTripOffer', vTripUpdate, withTimeout(
-            () => {
-              console.log('¡Éxito!')
-            },
-            () => {
-              console.log('¡Tiempo de espera!')
-            },
-            1000
-          ))
+          socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit(
+            'acceptTripOffer',
+            vTripUpdate,
+            withTimeout(
+              () => {
+                console.log('¡Éxito!')
+              },
+              () => {
+                console.log('¡Tiempo de espera!')
+              },
+              1000
+            )
+          )
         } catch (error) {
           throw error
         }
         const initRoute = await TripRouteService.showByTripId({
-          tripId: vTripId
+          tripId: vTripId,
         })
         const vParamToRange = {
           cityId: vTrip?.dataValues.cityId || null,
           regionId: vTrip?.dataValues.regionId || null,
           countryId: vTrip?.dataValues.countryId || null,
-          isCar: vTrip?.dataValues.typeService === ETypeService.CAR || vTrip?.dataValues.typeService === ETypeService.TRAVEL,
-          isMoto: vTrip?.dataValues.typeService === ETypeService.MOTO || vTrip?.dataValues.typeService === ETypeService.DELIVERY,
+          isCar:
+            vTrip?.dataValues.typeService === ETypeService.CAR ||
+            vTrip?.dataValues.typeService === ETypeService.TRAVEL,
+          isMoto:
+            vTrip?.dataValues.typeService === ETypeService.MOTO ||
+            vTrip?.dataValues.typeService === ETypeService.DELIVERY,
         }
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
         const vParamNearbyDrivers = {
           lat: initRoute?.dataValues.lat,
           lon: initRoute?.dataValues.lon,
           distance: vDistance?.distanceToSearch || 30,
-          typeService: vTrip?.dataValues.typeService
+          typeService: vTrip?.dataValues.typeService,
         }
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
-          const socketIds: any[]  = vNearbyDrivers.map((vUser) => vUser.socketId)
+          const socketIds: any[] = vNearbyDrivers.map((vUser) => vUser.socketId)
           if (socketIds.length) {
             SocketService.io.to(socketIds).emit('cancelTrip', vTrip)
           }
@@ -329,13 +359,13 @@ export class SocketService {
           body: data,
           url: 'acceptTripOffer',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
     })
 
-    socket.on('driverInPlace', async (data: { tripId: number}) => {
+    socket.on('driverInPlace', async (data: { tripId: number }) => {
       try {
         const vTrip = await ClassTripService.show({
           id: data.tripId,
@@ -346,7 +376,7 @@ export class SocketService {
             id: data.tripId,
             status: EStatusTrip.INPLACE,
             driverId: vTrip?.dataValues.driverId || '',
-            userId: vTrip?.dataValues.userId || ''
+            userId: vTrip?.dataValues.userId || '',
           })
           if (vTrip?.dataValues?.userId) {
             const vClientId: string = vTrip?.dataValues?.userId
@@ -359,7 +389,10 @@ export class SocketService {
                 title: 'Ya llegue',
                 body: 'Te estoy esperando',
               }
-              await NotificationService.sendNotification([vClient.dataValues.tokenPush], notificationData)
+              await NotificationService.sendNotification(
+                [vClient.dataValues.tokenPush],
+                notificationData
+              )
             }
           }
         }
@@ -368,13 +401,13 @@ export class SocketService {
           body: data,
           url: 'driverInPlace',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
     })
 
-    socket.on('driverIsNear', async (data: { tripId: number}) => {
+    socket.on('driverIsNear', async (data: { tripId: number }) => {
       try {
         const vTrip = await ClassTripService.show({
           id: data.tripId,
@@ -391,7 +424,10 @@ export class SocketService {
               title: 'Voy llegando',
               body: 'Esperame afuera',
             }
-            await NotificationService.sendNotification([vClient.dataValues.tokenPush], notificationData)
+            await NotificationService.sendNotification(
+              [vClient.dataValues.tokenPush],
+              notificationData
+            )
           }
         }
       } catch (error) {
@@ -399,23 +435,34 @@ export class SocketService {
           body: data,
           url: 'driverIsNear',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
     })
 
-    socket.on('completedService', async (data: { tripId: number}) => {
+    socket.on('completedService', async (data: { tripId: number }) => {
       try {
         const vTrip = await ClassTripService.show({
           id: data.tripId,
           userId: auth?.id || user?.id,
         })
         if (vTrip?.dataValues.status !== EStatusTrip.FINALIZADO) {
+          // TODO: aca debo sumarle al driver monto
+          const vPercentageParameter = await CompanyParameterService.showByName('percentage')
+          const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
+          const vTripPrice = Number(vTrip?.dataValues.price)
+          const commission: number = (vTripPrice * vPercentage) / 100
           if (vTrip?.dataValues?.driverId) {
+            await DriverReportService.updatedOrCreate({
+              userId: vTrip?.dataValues.driverId,
+              amount: commission,
+              quantity: 1
+            })
             const updateDriver = {
               id: vTrip.dataValues.driverId,
-              statusDriver: EStatusDriver.ACTIVE
+              statusDriver: EStatusDriver.ACTIVE,
+              discount: commission,
             }
             await ClassAuthService.updateSocket(updateDriver)
           }
@@ -423,20 +470,25 @@ export class SocketService {
             id: data.tripId,
             status: EStatusTrip.FINALIZADO,
             driverId: vTrip?.dataValues.driverId || '',
-            userId: vTrip?.dataValues.userId || ''
+            userId: vTrip?.dataValues.userId || '',
           })
           if (vTrip?.dataValues?.userId) {
             const vClientId: string = vTrip?.dataValues?.userId
             const vClient = await ClassUserService.show({ id: vClientId })
             if (vClient?.dataValues.socketId) {
-              await SocketService.io.to(vClient?.dataValues.socketId).emit('completedService', vTrip)
+              await SocketService.io
+                .to(vClient?.dataValues.socketId)
+                .emit('completedService', vTrip)
             }
             if (vClient?.dataValues.tokenPush) {
               const notificationData = {
                 title: 'Actualizacion de tu viaje',
                 body: 'Tu viaje ha finalizado',
               }
-              await NotificationService.sendNotification([vClient.dataValues.tokenPush], notificationData)
+              await NotificationService.sendNotification(
+                [vClient.dataValues.tokenPush],
+                notificationData
+              )
             }
           }
         }
@@ -445,7 +497,7 @@ export class SocketService {
           body: data,
           url: 'completedService',
           headers: socket.headers,
-          userId: auth?.id || user?.id
+          userId: auth?.id || user?.id,
         }
         ErrorReportingService.errorCreatedReporting(req, error)
       }
@@ -476,8 +528,8 @@ export class SocketService {
       } else if (socketId) {
         const user: IUserInstance | null = await modelUser.findOne({
           where: {
-            socketId: socketId
-          }
+            socketId: socketId,
+          },
         })
         if (user) {
           return user

@@ -113,11 +113,11 @@ export function fxRangePriceFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
-      paranoid: true
+      paranoid: true,
     }
   )
   vDateBase.associate = function (models: ModelRegistry) {
-    const { modelRangePrice, modelCity, modelRegion, modelCountry  } = models
+    const { modelRangePrice, modelCity, modelRegion, modelCountry } = models
     modelRangePrice.hasOne(modelCity, {
       sourceKey: 'cityId',
       foreignKey: 'id',

@@ -22,21 +22,25 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
-import { type IVehicleAdditionalInput, type IResponseAllVehicleAdditionalType, EVehicleAdditionalRol } from '../../types/VehicleTypes'
+import {
+  type IVehicleAdditionalInput,
+  type IResponseAllVehicleAdditionalType,
+  EVehicleAdditionalRol,
+} from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
 
 class VehicleAdditionalController {
-
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: number = Number(pReq.query.id)
 
-      const vResponse:IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.show(vId)
+      const vResponse: IVehicleAdditionalInstance | null =
+        await ClassVehicleAdditionalService.show(vId)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       const vReponseParse: any = { ...vResponse.dataValues }
 
@@ -44,7 +48,7 @@ class VehicleAdditionalController {
         vReponseParse.rol = EVehicleAdditionalRol.AMBOS
       } else if (vResponse?.isClient) {
         vReponseParse.rol = EVehicleAdditionalRol.PASAJERO
-      }else if (vResponse?.isRegister) {
+      } else if (vResponse?.isRegister) {
         vReponseParse.rol = EVehicleAdditionalRol.CONDUCTOR
       }
       console.log('vReponseParse :>> ', vReponseParse)
@@ -55,9 +59,17 @@ class VehicleAdditionalController {
   }
 
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
-    try{
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[] = await ClassVehicleAdditionalService.all(vParam)
+      const vRol = pReq.input('rol', 'number')
+      if (vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
+        vParam.isClient = true
+      }
+      if (vRol === EVehicleAdditionalRol.CONDUCTOR || vRol === EVehicleAdditionalRol.AMBOS) {
+        vParam.isRegister = true
+      }
+      const vResponse: IResponseAllVehicleAdditionalType | IVehicleAdditionalInstance[] =
+        await ClassVehicleAdditionalService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -77,19 +89,20 @@ class VehicleAdditionalController {
         'isMoto',
         'isCar',
         'isClient',
-        'isRegister'
+        'isRegister',
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
       }
       const vRol = pReq.input('rol')
-      if(vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
+      if (vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
         vData.isClient = true
       }
-      if(vRol === EVehicleAdditionalRol.CONDUCTOR || vRol === EVehicleAdditionalRol.AMBOS) {
+      if (vRol === EVehicleAdditionalRol.CONDUCTOR || vRol === EVehicleAdditionalRol.AMBOS) {
         vData.isRegister = true
       }
-      const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.create(vData)
+      const vResponse: IVehicleAdditionalInstance | null =
+        await ClassVehicleAdditionalService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -110,19 +123,20 @@ class VehicleAdditionalController {
         'isMoto',
         'isCar',
         'isClient',
-        'isRegister'
+        'isRegister',
       ])
       const vRol = pReq.input('rol')
-      if(vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
+      if (vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
         vData.isClient = true
       }
-      if(vRol === EVehicleAdditionalRol.CONDUCTOR || vRol === EVehicleAdditionalRol.AMBOS) {
+      if (vRol === EVehicleAdditionalRol.CONDUCTOR || vRol === EVehicleAdditionalRol.AMBOS) {
         vData.isRegister = true
       }
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
       }
-      const vResponse: IVehicleAdditionalInstance | null = await ClassVehicleAdditionalService.update(vData)
+      const vResponse: IVehicleAdditionalInstance | null =
+        await ClassVehicleAdditionalService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -138,17 +152,13 @@ class VehicleAdditionalController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassVehicleAdditionalService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {
       pNext(error)
     }
   }
-
-
 }
 
 export default new VehicleAdditionalController()

@@ -29,10 +29,11 @@ class HelpInformationController {
     }
   }
 
-  async all (pReq:Request, pRes: Response, pNext: NextFunction) {
-    try{
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllHelpInformation | IHelpInformationInstance[] = await ClassHelpInformationService.all(vParam)
+      const vResponse: IResponseAllHelpInformation | IHelpInformationInstance[] =
+        await ClassHelpInformationService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -46,12 +47,9 @@ class HelpInformationController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IHelpInformationInput = pReq.only([
-        'name',
-        'description',
-        'orden',
-      ])
-      const vResponse: IHelpInformationInstance | null = await ClassHelpInformationService.create(vData)
+      const vData: IHelpInformationInput = pReq.only(['name', 'description', 'orden'])
+      const vResponse: IHelpInformationInstance | null =
+        await ClassHelpInformationService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
@@ -65,17 +63,13 @@ class HelpInformationController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IHelpInformationInput = pReq.only([
-        'id',
-        'name',
-        'description',
-        'orden',
-      ])
-      const vResponse: IHelpInformationInstance | null = await ClassHelpInformationService.update(vData)
+      const vData: IHelpInformationInput = pReq.only(['id', 'name', 'description', 'orden'])
+      const vResponse: IHelpInformationInstance | null =
+        await ClassHelpInformationService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null}, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {
@@ -88,9 +82,7 @@ class HelpInformationController {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassHelpInformationService.softDeleteRecord(vId)
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
     } catch (error) {

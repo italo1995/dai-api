@@ -42,13 +42,21 @@ class BankService implements IBankService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
-      whereStatement.where = fxSearchILike(pParam, whereStatement,pParam?.typeSearch || 'name',
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
         this.modelName
       )
 
       const vResponse: IBankInstance[] = await modelBank.findAll(whereStatement)
       if (Number(pParam?.pag)) {
-        const vResponsePaginate: IResponseAllBank = await fxReponseServices(pParam, whereStatement, this.modelName, vResponse)
+        const vResponsePaginate: IResponseAllBank = await fxReponseServices(
+          pParam,
+          whereStatement,
+          this.modelName,
+          vResponse
+        )
         return vResponsePaginate
       }
       return vResponse
@@ -97,9 +105,12 @@ class BankService implements IBankService {
   }
   async softDeleteRecord(pId: number) {
     try {
-      const record = await modelBank.update({ deletedAt: new Date() }, {
-        where: { id: pId }
-      })
+      const record = await modelBank.update(
+        { deletedAt: new Date() },
+        {
+          where: { id: pId },
+        }
+      )
       if (!record) {
         return false
       }
@@ -110,4 +121,4 @@ class BankService implements IBankService {
   }
 }
 
-export default new BankService()   
+export default new BankService()

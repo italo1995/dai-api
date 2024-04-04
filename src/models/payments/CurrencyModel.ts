@@ -71,20 +71,24 @@ export const vCurrencyAttributes: SequelizeAttributes<ICurrencyAttributes> = {
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxCurrencyFactory(sequelize: Sequelize) {
-  const vCurrency = <ModelStatic<ICurrencyInstance>>sequelize.define('Currency', vCurrencyAttributes, {
-    tableName: 'currencies',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-    paranoid: true,
-  })
+  const vCurrency = <ModelStatic<ICurrencyInstance>>sequelize.define(
+    'Currency',
+    vCurrencyAttributes,
+    {
+      tableName: 'currencies',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
+    }
+  )
   vCurrency.associate = function (models: ModelRegistry) {
     const { modelCurrency, modelTripPayment } = models
     modelCurrency.hasOne(modelTripPayment, {

@@ -33,19 +33,19 @@ export const vPaymentMethodAttributes: SequelizeAttributes<IPaymentMethodAttribu
   name: {
     type: DataTypes.STRING,
     field: 'name',
-    allowNull: false
+    allowNull: false,
   },
   fullName: {
     type: DataTypes.STRING,
     field: 'full_name',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   dni: {
     type: DataTypes.STRING,
     field: 'dni',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   image: {
     type: DataTypes.STRING,
@@ -57,29 +57,29 @@ export const vPaymentMethodAttributes: SequelizeAttributes<IPaymentMethodAttribu
     type: DataTypes.FLOAT,
     field: 'tax',
     allowNull: true,
-    defaultValue: 0
+    defaultValue: 0,
   },
   currencyId: {
     type: DataTypes.INTEGER,
-    field: 'currency_id'
+    field: 'currency_id',
   },
   numberAccount: {
     type: DataTypes.STRING,
     field: 'number_account',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   accountType: {
     type: DataTypes.STRING,
     field: 'account_type',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   email: {
     type: DataTypes.STRING,
     field: 'email',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -95,20 +95,24 @@ export const vPaymentMethodAttributes: SequelizeAttributes<IPaymentMethodAttribu
     type: DataTypes.DATE,
     field: 'deletedAt',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
 }
 
 export function fxPaymentMethodFactory(sequelize: Sequelize) {
-  const vPaymentMethod = <ModelStatic<IPaymentMethodInstance>>sequelize.define('PaymentMethod', vPaymentMethodAttributes, {
-    tableName: 'payment_methods',
-    defaultScope: {
-      order: [['createdAt', 'DESC']],
-    },
-    freezeTableName: true,
-    timestamps: true,
-    paranoid: true,
-  })
+  const vPaymentMethod = <ModelStatic<IPaymentMethodInstance>>sequelize.define(
+    'PaymentMethod',
+    vPaymentMethodAttributes,
+    {
+      tableName: 'payment_methods',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
+    }
+  )
   vPaymentMethod.associate = function (models: ModelRegistry) {
     const { modelCurrency, modelTripPayment } = models
     modelTripPayment.belongsTo(modelCurrency, {

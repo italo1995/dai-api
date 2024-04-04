@@ -31,7 +31,7 @@ class TripDeliveryService implements ITripDeliveryService {
     const dataValidate = this.model.build(data)
     await dataValidate.validate()
   }
-  
+
   async show(pId: number): Promise<ICancellationOptionInstance | null> {
     try {
       const vResponse: ICancellationOptionInstance | null = await this.model.findOne({
@@ -45,7 +45,9 @@ class TripDeliveryService implements ITripDeliveryService {
     }
   }
 
-  public async all(pParam: any): Promise<IResponseAllCancellationOption | ICancellationOptionInstance[]> {
+  public async all(
+    pParam: any
+  ): Promise<IResponseAllCancellationOption | ICancellationOptionInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
@@ -68,7 +70,7 @@ class TripDeliveryService implements ITripDeliveryService {
         const vResponsePaginate: IResponseAllCancellationOption = await fxReponseServices(
           pParam,
           whereStatement,
-          'TripOffert',
+          this.model.name,
           vResponse
         )
         return vResponsePaginate
@@ -87,7 +89,7 @@ class TripDeliveryService implements ITripDeliveryService {
   async update(pData: ICancellationOptionInput): Promise<ICancellationOptionInstance | null> {
     const whereStatement: FindOptions = {}
     whereStatement.where = {
-      id: pData.id
+      id: pData.id,
     }
     if (pData?.id) {
       const vItem: ICancellationOptionInstance | null = await this.model.findOne(whereStatement)
@@ -99,7 +101,7 @@ class TripDeliveryService implements ITripDeliveryService {
   async destroy(id: string): Promise<number> {
     try {
       const result: number = await this.model.destroy({
-        where: { id: id }
+        where: { id: id },
       })
       return result
     } catch (error) {
@@ -107,7 +109,5 @@ class TripDeliveryService implements ITripDeliveryService {
       throw error
     }
   }
-  
 }
 export default new TripDeliveryService()
-
