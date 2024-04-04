@@ -23,7 +23,7 @@ import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../
 
 interface IBranchService {
   validate(data: any): any
-  all(pParam: any): Promise<IResponseAllBranch | IBranchInstance[]>
+  all(pParam: any, countryId?: number): Promise<IResponseAllBranch | IBranchInstance[]>
   show(pId: number): Promise<IBranchInstance | null>
   create(payload: IBranchInput): Promise<IBranchInstance>
   update(payload: IBranchInput): Promise<IBranchInstance | null>
@@ -37,7 +37,7 @@ class BranchService implements IBranchService {
     await dataValidate.validate()
   }
 
-  public async all(pParam: any): Promise<IResponseAllBranch | IBranchInstance[]> {
+  public async all(pParam: any, countryId?: number): Promise<IResponseAllBranch | IBranchInstance[]> {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
@@ -48,6 +48,10 @@ class BranchService implements IBranchService {
         pParam?.typeSearch || 'name',
         this.modelName
       )
+
+      if (countryId) {
+        (whereStatement.where as any).countryId = countryId
+      }
 
       const vResponse: IBranchInstance[] = await modelBranch.findAll(whereStatement)
       if (Number(pParam?.pag)) {

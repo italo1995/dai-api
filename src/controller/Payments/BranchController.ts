@@ -45,7 +45,9 @@ class BranchController {
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllBranch | IBranchInstance[] = await ClassBranchService.all(vParam)
+      const countryId: number | undefined = pReq.query.countryId ? Number(pReq.query.countryId) : undefined
+
+      const vResponse: IResponseAllBranch | IBranchInstance[] = await ClassBranchService.all(vParam, countryId)
       if (!vResponse) {
         return pRes
           .status(500)
