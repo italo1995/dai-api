@@ -19,7 +19,10 @@ class UserController {
     try {
       const vId: string = pReq.input('id', 'string')
       const vIsDriver: boolean = pReq.input('isDriver', 'json') ?? false
-      const vResponse: IUserInstance | null = await ClassUser.show({ id: vId, isDriver: vIsDriver || false })
+      const vResponse: IUserInstance | null = await ClassUser.show({
+        id: vId,
+        isDriver: vIsDriver || false,
+      })
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }

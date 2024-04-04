@@ -70,7 +70,7 @@ export const staff = {
       for (const item of vModule) {
         vViews.push({
           staffId: Number(vResponse.dataValues.id),
-          viewId: Number(item)
+          viewId: Number(item),
         })
       }
       await StaffViewService.createMany(vViews)
@@ -89,9 +89,7 @@ export const staff = {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
-      return pRes
-        .status(200)
-        .send(fxSuccessResponse(200, vResponse, 'Creado con exito'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Creado con exito'))
     } catch (error) {
       pNext(error)
     }

@@ -75,7 +75,7 @@ export const vBranchAttributes: SequelizeAttributes<IBranchAttributes> = {
     type: DataTypes.INTEGER,
     field: 'country_id',
     defaultValue: null,
-    allowNull: true
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,

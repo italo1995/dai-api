@@ -21,7 +21,10 @@ class UserService implements IUserService {
     const fieldsToCheck = ['email', 'phoneNumber']
     for (const field of fieldsToCheck) {
       if (data[field]) {
-        const existingUser = await modelUser.findOne({ where: { [field]: data[field] }, logging: true })
+        const existingUser = await modelUser.findOne({
+          where: { [field]: data[field] },
+          logging: true,
+        })
         if (existingUser) {
           const errorItems = [
             new ValidationErrorItem(
@@ -33,7 +36,7 @@ class UserService implements IUserService {
               'notUnique', // validatorKey
               'validate',
               []
-            )
+            ),
           ]
           throw new ValidationError('Validation error', errorItems)
         }
@@ -151,14 +154,14 @@ class UserService implements IUserService {
         whereStatement.where = {
           ...whereStatement.where,
           staffId: {
-            [Op.not]: null
+            [Op.not]: null,
           },
         }
         whereStatement.include = [
           {
             model: modelStaff,
-            as: 'staff'
-          }
+            as: 'staff',
+          },
         ]
       }
       const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)

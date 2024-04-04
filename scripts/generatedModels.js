@@ -30,17 +30,17 @@ const attributes = attributeMatches
     const name = match[1]
     let type
     switch (match[2]) {
-      case 'INTEGER':
-        type = 'number'
-        break
-      case 'STRING':
-        type = 'string'
-        break
-      case 'DATE':
-        type = 'Date'
-        break
-      default:
-        type = 'any'
+    case 'INTEGER':
+      type = 'number'
+      break
+    case 'STRING':
+      type = 'string'
+      break
+    case 'DATE':
+      type = 'Date'
+      break
+    default:
+      type = 'any'
     }
     if (name === 'deletedAt') {
       isDeletedAt = true

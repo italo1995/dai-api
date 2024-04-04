@@ -234,8 +234,11 @@ class TripService implements ITripService {
           whereStatement.include = []
           delete whereStatement.limit
           delete whereStatement.offset
-          'visibility' in whereStatement.where && (delete whereStatement.where.visibility)
-          whereStatement.attributes = [[Sequelize.fn('sum',  Sequelize.col('price')), 'again'], 'driverId']
+          'visibility' in whereStatement.where && delete whereStatement.where.visibility
+          whereStatement.attributes = [
+            [Sequelize.fn('sum', Sequelize.col('price')), 'again'],
+            'driverId',
+          ]
           whereStatement.group = ['driver_id']
           delete whereStatement.order
           whereStatement.logging = true

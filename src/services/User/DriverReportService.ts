@@ -24,8 +24,16 @@ interface IDriverReportService {
   validate(data: any): any
   show(pId: number): Promise<IDriverReportInstance | null>
   all(pParam: any): Promise<IResponseAllDriverReport | IDriverReportInstance[]>
-  create(payload: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance>
-  update(payload: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance | null>
+  create(
+    payload: IDriverReportInput,
+    totalAmount: number,
+    tripCount: number
+  ): Promise<IDriverReportInstance>
+  update(
+    payload: IDriverReportInput,
+    totalAmount: number,
+    tripCount: number
+  ): Promise<IDriverReportInstance | null>
 }
 
 class DriverReportService implements IDriverReportService {
@@ -75,7 +83,11 @@ class DriverReportService implements IDriverReportService {
     }
   }
 
-  async create(pData: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance> {
+  async create(
+    pData: IDriverReportInput,
+    totalAmount: number,
+    tripCount: number
+  ): Promise<IDriverReportInstance> {
     try {
       pData.amount = totalAmount
       pData.quantity = tripCount
@@ -87,7 +99,11 @@ class DriverReportService implements IDriverReportService {
     }
   }
 
-  async update(pData: IDriverReportInput, totalAmount: number, tripCount: number): Promise<IDriverReportInstance | null> {
+  async update(
+    pData: IDriverReportInput,
+    totalAmount: number,
+    tripCount: number
+  ): Promise<IDriverReportInstance | null> {
     try {
       if (pData?.id) {
         pData.amount = totalAmount
@@ -118,14 +134,14 @@ class DriverReportService implements IDriverReportService {
         if (vResponse) {
           await vResponse?.update({
             quantity: vResponse.dataValues.quantity + 1,
-            amount: (vResponse?.dataValues?.amount || 0) + pData.amount
+            amount: (vResponse?.dataValues?.amount || 0) + pData.amount,
           })
           return vResponse
         } else {
           const vCreate: IDriverReportInstance = await modelDriverReport.create({
             quantity: 1,
             amount: pData.amount,
-            userId: pData.userId
+            userId: pData.userId,
           })
           return vCreate
         }

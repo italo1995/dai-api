@@ -281,7 +281,7 @@ class AuthController {
       //validamos que esten completos
       await ClassAuthService.validate(vData)
       //registramos el usuario usando el servicio
-      if(typeof vData.password === 'string') {
+      if (typeof vData.password === 'string') {
         vData.password = bcrypt.hashSync(vData.password, 10)
       }
       const vUser: IUserInstance = await ClassAuthService.create(vData)

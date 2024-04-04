@@ -81,7 +81,7 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
           throw new Error(`${value} is not a valid email!`)
         }
       },
-    }
+    },
   },
   password: {
     type: DataTypes.STRING,

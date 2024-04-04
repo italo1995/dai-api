@@ -82,9 +82,9 @@ export const vBankAttributes: SequelizeAttributes<IBankAttributes> = {
   },
   hasCapture: {
     type: DataTypes.BOOLEAN,
-    field:'has_capture',
+    field: 'has_capture',
     allowNull: true,
-    defaultValue: false
+    defaultValue: false,
   },
   createdAt: {
     type: DataTypes.DATE,
