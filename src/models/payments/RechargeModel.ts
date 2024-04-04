@@ -34,7 +34,7 @@ export interface rechargeInstance
 export enum EStatusRecharge {
   approved = 1,
   pending = 2,
-  rejected = 3
+  rejected = 3,
 }
 
 export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = {
@@ -88,7 +88,7 @@ export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = 
     type: DataTypes.TEXT,
     field: 'reason',
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -103,8 +103,8 @@ export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = 
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false
-  }
+    allowNull: false,
+  },
 }
 
 export function fxRechargeFactory(sequelize: Sequelize) {

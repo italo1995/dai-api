@@ -48,6 +48,7 @@ import { fxViewFactory } from './web/ViewModel'
 import { fxStaffFactory } from './web/StaffModel'
 import { fxStaffViewFactory } from './web/StaffViewModel'
 import { fxRechargeFactory } from './payments/RechargeModel'
+import { fxPruebaFactory } from './Vehicle/PruebaModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -148,7 +149,7 @@ const models = {
   modelView,
   modelStaff,
   modelStaffView,
-  modelRecharge
+  modelRecharge,
 }
 
 export type ModelRegistry = typeof models

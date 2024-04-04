@@ -1,6 +1,10 @@
 import { type FindOptions } from 'sequelize'
 import { modelRecharge } from '../../models'
-import type { rechargeInstance, rechargeAttributes, rechargeReponseAll } from '../../models/payments/RechargeModel'
+import type {
+  rechargeInstance,
+  rechargeAttributes,
+  rechargeReponseAll,
+} from '../../models/payments/RechargeModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IrechargeService {

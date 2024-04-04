@@ -54,7 +54,7 @@ module.exports = {
         type: DataTypes.TEXT,
         field: 'reason',
         allowNull: true,
-        defaultValue: null
+        defaultValue: null,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -69,8 +69,8 @@ module.exports = {
       deletedAt: {
         type: DataTypes.DATE,
         field: 'deletedAt',
-        allowNull: false
-      }
+        allowNull: false,
+      },
     })
   },
   async down(queryInterface: QueryInterface) {

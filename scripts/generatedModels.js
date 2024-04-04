@@ -30,17 +30,17 @@ const attributes = attributeMatches
     const name = match[1]
     let type
     switch (match[2]) {
-    case 'INTEGER':
-      type = 'number'
-      break
-    case 'STRING':
-      type = 'string'
-      break
-    case 'DATE':
-      type = 'Date'
-      break
-    default:
-      type = 'any'
+      case 'INTEGER':
+        type = 'number'
+        break
+      case 'STRING':
+        type = 'string'
+        break
+      case 'DATE':
+        type = 'Date'
+        break
+      default:
+        type = 'any'
     }
     if (name === 'deletedAt') {
       isDeletedAt = true
@@ -81,7 +81,7 @@ export const ${modelName}ModelAttributes: SequelizeAttributes<${modelName}Attrib
   ${adjustedModelDefinition.trim()}
 };
 
-export function ${modelName}Factory(sequelize: Sequelize) {
+export function fx${modelName}Factory(sequelize: Sequelize) {
   const ${modelName} = <ModelStatic<${modelName}Instance>>sequelize.define('${modelName}', ${modelName}ModelAttributes, {
     tableName: '${tableName}',
     defaultScope: {
@@ -123,7 +123,7 @@ if (isDeletedAt) {
   deletedMethod = `
   async softDeleteRecord(pId: string) {
     try {
-      const record = await ${modelName}.update({ deletedAt: new Date() }, {
+      const record = await model${modelName}.update({ deletedAt: new Date() }, {
         where: { id: pId }
       })
       if (!record) {
@@ -139,8 +139,8 @@ if (isDeletedAt) {
 
 const serviceTemplate = `
 import { type FindOptions } from 'sequelize'
-import { ${modelName} } from '../../models'
-import type { ${modelName}Instance, ${modelName}Attributes, ${modelName}ReponseAll } from '../../models/web/${modelName}'
+import { model${modelName} } from '../../models'
+import type { ${modelName}Instance, ${modelName}Attributes, ${modelName}ReponseAll } from '../../models/${outputPath}Model'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface I${modelName}Service {
@@ -153,7 +153,7 @@ interface I${modelName}Service {
 
 class ${modelName}Service implements I${modelName}Service {
   async validate(data: any) {
-    const dataValidate = ${modelName}.build(data)
+    const dataValidate = model${modelName}.build(data)
     await dataValidate.validate()
   }
 
@@ -166,7 +166,7 @@ class ${modelName}Service implements I${modelName}Service {
         '${modelName}'
       )
 
-      const vResponse: ${modelName}Instance[] = await ${modelName}.findAll(whereStatement)
+      const vResponse: ${modelName}Instance[] = await model${modelName}.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: ${modelName}ReponseAll = await fxReponseServices(pParam, whereStatement, '${modelName}', vResponse)
         return vResponsePaginate
@@ -179,7 +179,7 @@ class ${modelName}Service implements I${modelName}Service {
 
   async show(pId: string): Promise<${modelName}Instance | null> {
     try {
-      const vResponse: ${modelName}Instance | null = await ${modelName}.findOne({
+      const vResponse: ${modelName}Instance | null = await model${modelName}.findOne({
         where: {
           id: pId,
         },
@@ -192,7 +192,7 @@ class ${modelName}Service implements I${modelName}Service {
 
   async create(pData: ${modelName}Attributes): Promise<${modelName}Instance> {
     try {
-      const vResponse: ${modelName}Instance = await ${modelName}.create(pData)
+      const vResponse: ${modelName}Instance = await model${modelName}.create(pData)
       return vResponse
     } catch (error) {
       throw error
@@ -202,7 +202,7 @@ class ${modelName}Service implements I${modelName}Service {
   async update(pData: ${modelName}Attributes): Promise<${modelName}Instance | null> {
     try {
       if (pData?.id) {
-        const vCountry: ${modelName}Instance | null = await ${modelName}.findOne({
+        const vCountry: ${modelName}Instance | null = await model${modelName}.findOne({
           where: {
             id: pData.id,
           },
@@ -228,7 +228,7 @@ const formattedKeys = keysAttributes.map((key) => `'${key}'`)
 const controllerTemplate = `
 import type { NextFunction, Request, Response } from 'express'
 import ${modelName}Service from '../../services/${outputPath}Service'
-import type { ${modelName}Attributes, ${modelName}ReponseAll, ${modelName}Instance } from '../../models/web/${modelName}'
+import type { ${modelName}Attributes, ${modelName}ReponseAll, ${modelName}Instance } from '../../models/${outputPath}Model'
 import { fxSuccessResponse, fxErrorResponse${isContainImages ? ', moveImages' : ''} } from '../../utils/helpers'
 
 export const ${modelName} = {

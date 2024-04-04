@@ -1,6 +1,10 @@
 import type { NextFunction, Request, Response } from 'express'
 import rechargeService from '../../services/Payments/RechargeService'
-import type { rechargeAttributes, rechargeReponseAll, rechargeInstance } from '../../models/payments/RechargeModel'
+import type {
+  rechargeAttributes,
+  rechargeReponseAll,
+  rechargeInstance,
+} from '../../models/payments/RechargeModel'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 
 export const recharge = {
@@ -101,5 +105,3 @@ export const recharge = {
     }
   },
 }
-
-
