@@ -1,7 +1,7 @@
 /* 
 - File: DriverReportService.ts
 
-- Purpose: El serivicio DriverReport se encarga de almacenar el numero de viajes hechos por un driver y la cantidad de dinero acumulada
+- Purpose: El serivicio DriverReport se encarga de almacenar el numero de viajes hechos por un driver y el monto de dinero acumulado
 
 - Author: Jairo belen
 
@@ -11,8 +11,8 @@
 - CommentService Methods:
   1 - validate: valida los campos con respecto al modelo, para estar seguro de que son los formatos permitidos y caso contrario devuelve un error de validacion
   2 - show: trae los datos del item segun el id, puede usarse en el perfil o para verificar informacion del item
-  3 - create: crea datos del item, es necesario agregar los datos totalAmount (precio de cada viaje) 
-  4 - update: actualiza datos del item
+  3 - create: crea datos del item, es necesario agregar los datos totalAmount (precio de cada viaje) y tripCount (numero de viajes a agregar a quantity)
+  4 - update: actualiza datos del item es necesario agregar los datos totalAmount (precio de cada viaje) y tripCount (numero de viajes a agregar a quantity)
 */
 import { type FindOptions } from 'sequelize'
 import type { IDriverReportInstance } from '../../models/User/driverReportModel'
