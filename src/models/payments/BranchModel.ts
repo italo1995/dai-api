@@ -11,6 +11,7 @@ export interface IBranchAttributes {
   lon?: string
   image?: string
   referencePoint?: string
+  countryId?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -69,6 +70,12 @@ export const vBranchAttributes: SequelizeAttributes<IBranchAttributes> = {
     field: 'reference_point',
     defaultValue: null,
     allowNull: true,
+  },
+  countryId: {
+    type: DataTypes.INTEGER,
+    field: 'country_id',
+    defaultValue: null,
+    allowNull: true
   },
   createdAt: {
     type: DataTypes.DATE,

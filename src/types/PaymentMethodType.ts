@@ -55,6 +55,7 @@ export interface IBranchInput {
   lon?: string
   image?: string
   referencePoint?: string
+  countryId?: number
 }
 
 export interface IResponseAllBranch extends IResponseAll {
