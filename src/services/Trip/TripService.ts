@@ -383,9 +383,13 @@ class TripService implements ITripService {
   async show(pParam: IParamShowTrip): Promise<ITripInstance | null> {
     try {
       const whereStatement: FindOptions = {}
-      if (pParam.isClient) {
+      if (pParam?.isClient) {
         whereStatement.where = {
           userId: pParam.userId,
+          id: pParam.id,
+        }
+      } else if (pParam?.isAdmin) {
+        whereStatement.where = {
           id: pParam.id,
         }
       } else {

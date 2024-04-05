@@ -48,7 +48,7 @@ class BankService implements IBankService {
         pParam?.typeSearch || 'name',
         this.modelName
       )
-      if (pParam.accountType) {
+      if (pParam?.accountType) {
         whereStatement.where = {
           ...whereStatement.where,
           accountType: pParam.accountType,

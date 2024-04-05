@@ -63,12 +63,14 @@ class TripController {
         isClient: pReq.input('isClient', 'json'),
         isDriver: pReq.input('isDriver', 'json'),
         id: pReq.input('id', 'number'),
+        isAdmin: (pReq.auth.rolId === 2 || pReq.auth.rolId === 1)
       }
+      console.log('vParam :>> ', vParam)
       if (vParam.id === undefined) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'El id es requerido'))
       }
-      if (vParam.isClient === undefined && vParam.isDriver === undefined) {
-        return pRes.status(500).send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))
+      if (vParam.isClient === undefined && vParam.isDriver === undefined && !vParam.isAdmin) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Se requiere isClient o isDriver'))
       }
       const vResponse: ITripInstance | null = await ClassTripService.show(vParam)
       if (!vResponse) {

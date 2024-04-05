@@ -28,6 +28,7 @@ export interface IParamShowTrip {
   isDriver?: boolean
   needClient?: boolean
   panic?: boolean
+  isAdmin?: boolean
 }
 
 export interface IParamShowActiveTrip {

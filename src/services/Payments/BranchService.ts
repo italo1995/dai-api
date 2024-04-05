@@ -48,7 +48,7 @@ class BranchService implements IBranchService {
         pParam?.typeSearch || 'name',
         this.modelName
       )
-      if (pParam.countryId) {
+      if (pParam?.countryId) {
         whereStatement.where = {
           ...whereStatement.where,
           countryId: pParam.countryId,
