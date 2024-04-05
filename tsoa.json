@@ -1,7 +1,7 @@
 {
   "swagger": {
-      "outputDirectory": ".",
-      "entryFile": "./src/index.ts"
+    "outputDirectory": ".",
+    "entryFile": "./src/index.ts"
   },
   "entryFile": "src/index.ts",
   "spec": {
@@ -9,11 +9,9 @@
     "specVersion": 3
   },
   "routes": {
-      "basePath": "/",
-      "entryFile": "./src/index.ts",
-      "routesDir": "build",
-      "controllerPathGlobs": [
-        "./src/controller/**/*.ts"
-      ]
+    "basePath": "/",
+    "entryFile": "./src/index.ts",
+    "routesDir": "build",
+    "controllerPathGlobs": ["./src/controller/**/*.ts"]
   }
 }
