@@ -32,8 +32,8 @@ class staffService implements IstaffService {
         {
           model: modelView,
           as: 'views',
-          attributes: ['icon', 'title', 'url']
-        }
+          attributes: ['icon', 'title', 'url'],
+        },
       ]
       const vResponse: staffInstance[] = await modelStaff.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -61,9 +61,9 @@ class staffService implements IstaffService {
           {
             model: modelView,
             as: 'views',
-            attributes: ['icon', 'title', 'url']
-          }
-        ]
+            attributes: ['icon', 'title', 'url'],
+          },
+        ],
       })
       return vResponse
     } catch (error) {

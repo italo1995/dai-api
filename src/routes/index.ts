@@ -36,6 +36,7 @@ import VerifyRoute from './User/VerifyRoute'
 import UserRoute from './User/UserRoute'
 import ViewRoute from './web/ViewRoute'
 import StaffRoute from './web/StaffRoute'
+import RechargeRoute from './Payments/RechargeRoute'
 
 const router = express.Router()
 
@@ -76,5 +77,6 @@ router.use('/verify', VerifyRoute)
 router.use('/user', UserRoute)
 router.use('/view', ViewRoute)
 router.use('/staff', StaffRoute)
+router.use('/recharge', RechargeRoute)
 
 export default router

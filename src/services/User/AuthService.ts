@@ -44,7 +44,10 @@ class AuthService implements IAuthService {
   async validate(data: any) {
     const fieldsToCheck = ['email', 'phoneNumber']
     for (const field of fieldsToCheck) {
-      const existingUser = await modelUser.findOne({ where: { [field]: data[field] }, logging: true })
+      const existingUser = await modelUser.findOne({
+        where: { [field]: data[field] },
+        logging: true,
+      })
       if (existingUser) {
         const errorItems = [
           new ValidationErrorItem(
@@ -56,7 +59,7 @@ class AuthService implements IAuthService {
             'notUnique', // validatorKey
             'validate',
             []
-          )
+          ),
         ]
         throw new ValidationError('Validation error', errorItems)
       }

@@ -45,9 +45,7 @@ class CancellationOptionController {
         vReponseParse.rol = ETypeUser.driver
       }
       if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, {}, 'Ocurrio un error'))
+        return pRes.status(500).send(fxErrorResponse(500, {}, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vReponseParse, 'Correcto'))
     } catch (error) {

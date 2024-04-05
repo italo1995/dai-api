@@ -269,7 +269,7 @@ class TripController {
         recient: pReq.input('recient', 'json'),
         initDate: pReq.input('initDate'),
         endDate: pReq.input('endDate'),
-        again: true
+        again: true,
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))

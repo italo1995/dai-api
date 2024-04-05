@@ -49,13 +49,13 @@ class ReviewService implements IReviewService {
       if (pParam?.userId) {
         whereStatement.where = {
           ...whereStatement.where,
-          userId: pParam.userId
+          userId: pParam.userId,
         }
       }
       if (pParam?.type) {
         whereStatement.where = {
           ...whereStatement.where,
-          type: pParam.type
+          type: pParam.type,
         }
       }
       const vResponse: IReviewInstance[] = await modelReview.findAll(whereStatement)

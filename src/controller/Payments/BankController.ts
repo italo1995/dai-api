@@ -46,7 +46,6 @@ class BankController {
     try {
       const vParam: any = pReq.query
       // vParam.accountType = pReq.query.accountType ? Number(pReq.query.accountType) : undefined
-      
       const vResponse: IResponseAllBank | IBankInstance[] = await ClassBankService.all(vParam)
       if (!vResponse) {
         return pRes
@@ -71,7 +70,7 @@ class BankController {
         'dni',
         'accountType',
         'email',
-        'hasCapture'
+        'hasCapture',
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)

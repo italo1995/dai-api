@@ -47,6 +47,8 @@ import { fxDriverReportFactory } from './User/driverReportModel'
 import { fxViewFactory } from './web/ViewModel'
 import { fxStaffFactory } from './web/StaffModel'
 import { fxStaffViewFactory } from './web/StaffViewModel'
+import { fxRechargeFactory } from './payments/RechargeModel'
+import { fxPruebaFactory } from './Vehicle/PruebaModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -100,6 +102,7 @@ export const modelDriverReport = fxDriverReportFactory(sequelize)
 export const modelView = fxViewFactory(sequelize)
 export const modelStaff = fxStaffFactory(sequelize)
 export const modelStaffView = fxStaffViewFactory(sequelize)
+export const modelRecharge = fxRechargeFactory(sequelize)
 
 const models = {
   modelUser,
@@ -145,7 +148,8 @@ const models = {
   modelDriverReport,
   modelView,
   modelStaff,
-  modelStaffView
+  modelStaffView,
+  modelRecharge,
 }
 
 export type ModelRegistry = typeof models

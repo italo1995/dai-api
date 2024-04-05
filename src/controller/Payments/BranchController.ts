@@ -69,7 +69,7 @@ class BranchController {
         'lon',
         'image',
         'referencePoint',
-        'countryId'
+        'countryId',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
@@ -98,7 +98,7 @@ class BranchController {
         'lon',
         'image',
         'referencePoint',
-        'countryId'
+        'countryId',
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)

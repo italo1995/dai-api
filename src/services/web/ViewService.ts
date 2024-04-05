@@ -75,85 +75,85 @@ class ViewService implements IViewService {
           icon: 'assets/image/capa2.png',
           title: 'Pasajeros',
           url: 'pasajeros',
-          route: 'user'
+          route: 'user',
         },
         {
           icon: 'assets/image/capa1.png',
           title: 'Conductores',
           url: 'conductores',
-          route: 'user'
+          route: 'user',
         },
         {
           icon: 'assets/image/receipt-outline.png',
           title: 'Solicitudes de Servicios',
           url: 'solicitudes',
-          route: 'trip'
+          route: 'trip',
         },
         {
           icon: 'assets/image/grid-outline.png',
           title: 'Tipos de Servicios',
           url: 'tipoServicio',
-          route: 'trip'
+          route: 'trip',
         },
         {
           icon: 'assets/image/location-outline.png',
           title: 'Conductores Activos',
           url: 'conductorAct',
-          route: 'user'
+          route: 'user',
         },
         {
           icon: 'assets/image/wallet-outline.png',
           title: 'Recargas',
           url: 'recargas',
-          route: ''
+          route: '',
         },
         {
           icon: 'assets/image/globe-outline.png',
           title: 'Paises',
           url: 'paises',
-          route: 'location'
+          route: 'location',
         },
         {
           icon: 'assets/image/add-circle-outline.png',
           title: 'Peticiones Especiales',
           url: 'peticionEsp',
-          route: 'vehicleAdditional'
+          route: 'vehicleAdditional',
         },
         {
           icon: 'assets/image/camada1.png',
           title: 'Cuentas Bancarias',
           url: 'cuentasBanc',
-          route: 'bank'
+          route: 'bank',
         },
         {
           icon: 'assets/image/camada2.png',
           title: 'Multimoneda',
           url: 'multimoneda',
-          route: 'currency'
+          route: 'currency',
         },
         {
           icon: 'assets/image/list-outline.png',
           title: 'Opciones de Cancelacion',
           url: 'opCancel',
-          route: 'cancellationOption'
+          route: 'cancellationOption',
         },
         {
           icon: 'assets/image/people-circle-outline.png',
           title: 'Staff',
           url: 'staff',
-          route: 'staff'
+          route: 'staff',
         },
         {
           icon: 'assets/image/trazado-list.png',
           title: 'Reportes',
           url: 'reportes',
-          route: 'report'
+          route: 'report',
         },
         {
           icon: 'assets/image/log-in-outline.png',
           title: 'Cerrar Sesión',
           url: 'logout',
-          route: 'user'
+          route: 'user',
         },
       ]
       const vResponse: ViewInstance[] = await modelView.bulkCreate(vData)

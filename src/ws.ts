@@ -457,7 +457,7 @@ export class SocketService {
             await DriverReportService.updatedOrCreate({
               userId: vTrip?.dataValues.driverId,
               amount: commission,
-              quantity: 1
+              quantity: 1,
             })
             const updateDriver = {
               id: vTrip.dataValues.driverId,
