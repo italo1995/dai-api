@@ -117,6 +117,41 @@ export const fxFilterDate = (pParam: any, pWhereStatement: FindOptions) => {
   return pWhereStatement.where || {}
 }
 
+export const fxFilterDateUTC = (pParam: any, pWhereStatement: FindOptions) => {
+  pWhereStatement.where = pWhereStatement.where || {}
+  if (pParam?.initDate) {
+    const vDate = pParam.initDate
+    const where = {
+      createdAt: {
+        [Op.gte]: vDate.toISOString().split('T')[0] + 'Z',
+      },
+    }
+    pWhereStatement.where = { ...pWhereStatement.where, ...where }
+  }
+
+  if (pParam?.endDate) {
+    const vDate = pParam.endDate
+    let where = {}
+    if (pWhereStatement?.where && 'createdAt' in pWhereStatement.where) {
+      where = {
+        createdAt: {
+          ...pWhereStatement.where.createdAt,
+          [Op.lte]: vDate.toISOString().split('T')[0] + 'Z',
+        },
+      }
+    } else {
+      where = {
+        createdAt: {
+          [Op.lte]: vDate.toISOString().split('T')[0] + 'Z',
+        },
+      }
+    }
+    pWhereStatement.where = { ...pWhereStatement.where, ...where }
+  }
+
+  return pWhereStatement.where || {}
+}
+
 export const fxPaginate = (pParam: any, pWhereStatement: FindOptions) => {
   if (Number(pParam?.pag)) {
     const limit = Number(pParam?.limit) || 10 // Define cuantos registros por pagina quieres mostrar
