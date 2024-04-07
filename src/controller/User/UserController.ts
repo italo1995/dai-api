@@ -45,6 +45,19 @@ class UserController {
     }
   }
 
+  async location(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: any = pReq.query
+      const vResponse: IResponseAllUser | IUserInstance[] = await ClassUser.all(vParam)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IUserInput = pReq.only([

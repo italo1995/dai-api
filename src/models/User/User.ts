@@ -35,6 +35,9 @@ export interface IUserAttributes {
   driverSuspendedTo: Date | null
   staffId?: number | null
   branchId?: number | null
+  cityId?: number
+  regionId?: number
+  countryId?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -249,6 +252,24 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     field: 'branch_id',
     allowNull: true,
     defaultValue: null,
+  },
+  cityId: {
+    type: DataTypes.INTEGER,
+    field: 'city_id',
+    defaultValue: null,
+    allowNull: true,
+  },
+  regionId: {
+    type: DataTypes.INTEGER,
+    field: 'region_id',
+    defaultValue: null,
+    allowNull: true,
+  },
+  countryId: {
+    type: DataTypes.INTEGER,
+    field: 'country_id',
+    defaultValue: null,
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,

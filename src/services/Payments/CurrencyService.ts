@@ -28,6 +28,7 @@ interface ICurrencyService {
   create(payload: ICurrencyInput): Promise<ICurrencyInstance>
   update(payload: ICurrencyInput): Promise<ICurrencyInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
+  convert(data: { currencyId?: number, amount: number }): Promise<number>
 }
 
 class CurrencyService implements ICurrencyService {
@@ -114,6 +115,7 @@ class CurrencyService implements ICurrencyService {
       throw error
     }
   }
+
   async softDeleteRecord(pId: number) {
     try {
       const record = await modelCurrency.update(
@@ -126,6 +128,33 @@ class CurrencyService implements ICurrencyService {
         return false
       }
       return true
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async convert(data: { currencyId?: number, amount: number }): Promise<number> {
+    try {
+      if (!data?.currencyId) {
+        return data.amount
+      }
+      const vResponse: ICurrencyInstance | null = await modelCurrency.findOne({
+        where: {
+          id: data.currencyId,
+        },
+      })
+      if (vResponse) {
+        const vChange = vResponse?.dataValues.change
+        const vType = vResponse?.dataValues.type
+        let vAmountConvertReponse = data.amount
+        if (vType) {
+          vAmountConvertReponse = data.amount * vChange
+        } else {
+          vAmountConvertReponse = data.amount / vChange
+        }
+        return Number(vAmountConvertReponse.toFixed(4))
+      }
+      return data.amount
     } catch (error) {
       throw error
     }

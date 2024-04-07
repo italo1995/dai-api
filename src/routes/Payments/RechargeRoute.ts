@@ -7,7 +7,7 @@ const router = express.Router()
 router.route('/show').get(recharge.show)
 router.route('/all').get(recharge.all)
 router.route('/update').post(authMiddleware('admin'), recharge.update)
-router.route('/store').post(authMiddleware('admin'), recharge.create)
+router.route('/store').post(recharge.create)
 router.route('/delete').post(authMiddleware('admin'), recharge.destroy)
 
 export default router

@@ -1,22 +1,25 @@
 import type { NextFunction, Request, Response } from 'express'
 import rechargeService from '../../services/Payments/RechargeService'
-import type {
-  rechargeAttributes,
-  rechargeReponseAll,
-  rechargeInstance,
+import {
+  type rechargeAttributes,
+  type rechargeReponseAll,
+  type rechargeInstance,
+  EStatusRecharge,
 } from '../../models/payments/RechargeModel'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
+import ClassUserService from '../../services/User/UserService'
+import CurrencyService from '../../services/Payments/CurrencyService'
 
 export const recharge = {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vId: string = String(pReq.query.id)
+      const vId: number = Number(pReq.query.id)
 
       const vResponse: rechargeInstance | null = await rechargeService.show(vId)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -27,11 +30,14 @@ export const recharge = {
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
+      if (pReq.auth.rolId === 3) {
+        vParam.userId = pReq.auth.id
+      }
       const vResponse: rechargeReponseAll | rechargeInstance[] = await rechargeService.all(vParam)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
@@ -49,18 +55,23 @@ export const recharge = {
         'bank',
         'capture',
         'reference',
-        'adminId',
-        'status',
+        // 'adminId',
+        // 'status',
       ])
-
+      vData.userId = pReq.auth.id
+      if (vData?.capture) {
+        vData.capture = await moveImages(vData.capture)
+      }
+      vData.status = EStatusRecharge.pending
       const vResponse: rechargeInstance | null = await rechargeService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   },
@@ -69,25 +80,40 @@ export const recharge = {
     try {
       const vData: rechargeAttributes = pReq.only([
         'id',
-        'amount',
-        'countryId',
-        'currencyId',
-        'bankId',
-        'bank',
-        'capture',
-        'reference',
-        'adminId',
-        'status',
+        'status'
       ])
-
+      vData.adminId = pReq.auth.id
+      if (!vData?.id) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      const oldRecharge: rechargeInstance | null = await rechargeService.show(Number(vData.id))
+      const oldRechargeJSON: rechargeInstance = JSON.parse(JSON.stringify(oldRecharge))
       const vResponse: rechargeInstance | null = await rechargeService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      console.log('vData.status :>> ', vData.status)
+      console.log('EStatusRecharge.approved :>> ', EStatusRecharge.approved)
+      console.log('oldRechargeJSON.status :>> ', oldRechargeJSON.status)
+      if (Number(vData.status) === EStatusRecharge.approved && oldRechargeJSON.status !== EStatusRecharge.approved) {
+        console.log('deberia recargar')
+        const currencyId = vResponse?.dataValues?.currencyId
+        console.log('currencyId :>> ', currencyId)
+        const amount: number = await CurrencyService.convert({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
+        if (oldRecharge?.dataValues.userId) {
+          await ClassUserService.sumBalance({
+            id: oldRecharge?.dataValues.userId,
+            balance: amount
+          })
+        }
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   },

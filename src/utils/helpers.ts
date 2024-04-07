@@ -147,3 +147,24 @@ export const withTimeout: any = (onSuccess: any, onTimeout: any, timeout: any): 
     onSuccess.apply(this, args)
   }
 }
+export const subtractTimeUnitFromCurrentDate: any = (unit: 'day' | 'week' | 'month'): string => {
+  const currentDate = new Date()
+
+  switch (unit) {
+  case 'day':
+    currentDate.setDate(currentDate.getDate() - 1)
+    break
+  case 'week':
+    currentDate.setDate(currentDate.getDate() - 7)
+    break
+  case 'month':
+    currentDate.setMonth(currentDate.getMonth() - 1)
+    break
+  default:
+    throw new Error('Invalid time unit. Please choose "day", "week", or "month".')
+  }
+
+  // const formattedDate = currentDate.toISOString().replace('T', ' ').slice(0, 23)
+  const formattedDate = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`
+  return formattedDate
+}

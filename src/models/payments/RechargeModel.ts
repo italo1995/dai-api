@@ -1,5 +1,6 @@
 import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface rechargeAttributes {
   id?: number
@@ -10,7 +11,8 @@ export interface rechargeAttributes {
   bank?: number
   capture?: string
   reference?: string
-  adminId?: number
+  adminId?: string
+  userId?: string
   status?: EStatusRecharge
   reason?: string
   createdAt?: Date
@@ -23,6 +25,7 @@ export interface rechargeReponseAll {
   totalPage: number
   data: rechargeInstance[]
   actualPage: number
+  totalAmount?: any
 }
 
 interface rechargeCreationAttributes extends Optional<rechargeAttributes, 'id'> {}
@@ -77,8 +80,12 @@ export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = 
     field: 'reference',
   },
   adminId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     field: 'admin_id',
+  },
+  userId: {
+    type: DataTypes.UUID,
+    field: 'user_id',
   },
   status: {
     type: DataTypes.INTEGER,
@@ -103,7 +110,8 @@ export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = 
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
-    allowNull: false,
+    allowNull: true,
+    defaultValue: null
   },
 }
 
@@ -120,6 +128,18 @@ export function fxRechargeFactory(sequelize: Sequelize) {
       timestamps: true,
     }
   )
-
+  recharge.associate = function (models: ModelRegistry) {
+    const { modelRecharge, modelBank, modelCurrency } = models
+    modelRecharge.hasOne(modelBank, {
+      sourceKey: 'bankId',
+      foreignKey: 'id',
+      as: 'usedBank',
+    })
+    modelRecharge.hasOne(modelCurrency, {
+      sourceKey: 'currencyId',
+      foreignKey: 'id',
+      as: 'currency',
+    })
+  }
   return recharge
 }

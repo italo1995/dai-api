@@ -43,8 +43,12 @@ module.exports = {
         field: 'reference',
       },
       adminId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         field: 'admin_id',
+      },
+      userId: {
+        type: DataTypes.UUID,
+        field: 'user_id',
       },
       status: {
         type: DataTypes.INTEGER,
@@ -69,7 +73,8 @@ module.exports = {
       deletedAt: {
         type: DataTypes.DATE,
         field: 'deletedAt',
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null
       },
     })
   },

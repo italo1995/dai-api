@@ -65,7 +65,7 @@ class UserService implements IUserService {
     }
   }
 
-  async show(pParam: { id: string; isDriver?: boolean }): Promise<IUserInstance | null> {
+  async show(pParam: { id: string; isDriver?: boolean, isStaff?: boolean }): Promise<IUserInstance | null> {
     try {
       const whereStatement: FindOptions = {}
       whereStatement.where = {
@@ -101,7 +101,20 @@ class UserService implements IUserService {
           },
         ]
       }
-
+      if (pParam?.isStaff) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          staffId: {
+            [Op.not]: null,
+          },
+        }
+        whereStatement.include = [
+          {
+            model: modelStaff,
+            as: 'staff',
+          },
+        ]
+      }
       // whereStatement.attributes = [
       //   'id',
       //   'name',
@@ -181,6 +194,52 @@ class UserService implements IUserService {
     }
   }
 
+  public async location(pParam: any): Promise<IResponseAllUser | IUserInstance[]> {
+    try {
+      let whereStatement: FindOptions = {}
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        modelUser.name
+      )
+      if(pParam?.cityId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          cityId: pParam.cityId
+        }
+      }
+      if(pParam?.regionId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          regionId: pParam.regionId
+        }
+      }
+      if(pParam?.countryId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          countryId: pParam.countryId
+        }
+      }
+      const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllUser = await fxReponseServices(
+          pParam,
+          whereStatement,
+          modelUser.name,
+          vResponse
+        )
+        return vResponsePaginate
+      }
+      return vResponse
+    } catch (error) {
+      console.log('error :>> ', error)
+      throw error
+    }
+  }
+
   async create(pData: IUserInput): Promise<IUserInstance> {
     try {
       const vResponse: IUserInstance = await modelUser.create(pData)
@@ -193,13 +252,50 @@ class UserService implements IUserService {
   async update(pData: IUserInput): Promise<IUserInstance | null> {
     try {
       if (pData?.id) {
-        const vCountry: IUserInstance | null = await modelUser.findOne({
+        const vUser: IUserInstance | null = await modelUser.findOne({
           where: {
             id: pData.id,
           },
         })
-        await vCountry?.update(pData, { where: { id: pData.id } })
-        return vCountry
+        await vUser?.update(pData)
+        return vUser
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async updateLocation(pData: { id: string, cityId?: number, regionId?: number, countryId?: number }): Promise<IUserInstance | null> {
+    try {
+      if (pData?.id) {
+        const vUser: IUserInstance | null = await modelUser.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        await vUser?.update(pData)
+        return vUser
+      }
+      return null
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async sumBalance(pData: { id: string, balance: number }): Promise<IUserInstance | null> {
+    try {
+      if (pData?.id && pData.balance) {
+        const vUser: IUserInstance | null = await modelUser.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        const balance = Number(vUser?.dataValues.balance) || 0
+        await vUser?.update({
+          balance: Number(balance) + pData.balance,
+        })
+        return vUser
       }
       return null
     } catch (error) {

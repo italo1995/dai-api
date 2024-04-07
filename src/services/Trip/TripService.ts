@@ -228,8 +228,6 @@ class TripService implements ITripService {
           data: vRes,
           actualPage: Number(pParam.pag),
         }
-        console.log('pParam :>> ', pParam)
-        console.log('vCount :>> ', vCount)
         if (pParam?.again && pParam.userId) {
           whereStatement.include = []
           delete whereStatement.limit
@@ -241,7 +239,6 @@ class TripService implements ITripService {
           ]
           whereStatement.group = ['driver_id']
           delete whereStatement.order
-          whereStatement.logging = true
           vResp.again = await modelTrip.unscoped().findAll(whereStatement)
         }
         return vResp

@@ -243,6 +243,15 @@ export class SocketService {
               isMoto: vVehicleType?.dataValues?.isMoto || false,
             }
             const vRangePrice = await RangePriceService.showPrice(vParamToRange)
+            if (vRangePrice?.cityId || vRangePrice?.regionId || vRangePrice?.countryId) {
+              const vUserLocationUpdate = {
+                id: vUser.id,
+                cityId: coords?.city || null,
+                regionId: coords?.region || null,
+                countryId: coords?.country || null,
+              }
+              await ClassUserService.updateLocation(vUserLocationUpdate)
+            }
             const vParamTripShow = {
               lat: coords?.lat || null,
               lon: coords?.lng || null,

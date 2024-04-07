@@ -40,6 +40,24 @@ export const staff = {
     }
   },
 
+  async showUser(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: any = pReq.input('id')
+      const vResponse: IUserInstance | null = await ClassUserService.show({
+        id: vId,
+        isStaff: true
+      })
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  },
+
   async allUser(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
@@ -84,6 +102,21 @@ export const staff = {
       const vData: IUserInput = pReq.only(['email', 'password', 'staffId', 'branchId', 'name'])
       await ClassUserService.validate(vData)
       const vResponse: IUserInstance | null = await ClassUserService.create(vData)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Creado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  },
+  async updateUser(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: IUserInput = pReq.only(['email', 'password', 'staffId', 'branchId', 'name'])
+      await ClassUserService.validate(vData)
+      const vResponse: IUserInstance | null = await ClassUserService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
