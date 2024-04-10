@@ -47,6 +47,10 @@ class SuspensionController {
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
+      if (pReq.auth.rolId === 3) {
+        vParam.driverId = pReq.auth.id
+      }
+      
       const vResponse: IResponseAllSuspension | ISuspensionInstance[] =
         await ClassSuspensionService.all(vParam)
       if (!vResponse) {
@@ -59,6 +63,7 @@ class SuspensionController {
       pNext(error)
     }
   }
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ISuspensionInput = pReq.only([
@@ -84,26 +89,26 @@ class SuspensionController {
       vData.init = new Date()
       vData.isCanceled = false
       switch (vData.timeFrame) {
-        case ETypeTime.indefinido:
-          vData.end = addYears(vData.init, 100)
-          break
+      case ETypeTime.indefinido:
+        vData.end = addYears(vData.init, 100)
+        break
 
-        case ETypeTime.hoy:
-          vData.end = addHours(vData.init, 24)
-          break
+      case ETypeTime.hoy:
+        vData.end = addHours(vData.init, 24)
+        break
 
-        case ETypeTime.horas:
-          if (!vData.hours) {
-            throw new Error('Debes proporcionar la cantidad de horas para la suspension')
-          }
-          vData.end = addHours(vData.init, vData.hours)
-          break
+      case ETypeTime.horas:
+        if (!vData.hours) {
+          throw new Error('Debes proporcionar la cantidad de horas para la suspension')
+        }
+        vData.end = addHours(vData.init, vData.hours)
+        break
 
-        case ETypeTime.fecha:
-          if (!vData.end) {
-            throw new Error('Debes proporcionar una fecha específica para cancelar la suspension')
-          }
-          break
+      case ETypeTime.fecha:
+        if (!vData.end) {
+          throw new Error('Debes proporcionar una fecha específica para cancelar la suspension')
+        }
+        break
       }
 
       const vResponse: ISuspensionInstance | null = await ClassSuspensionService.create(vData)

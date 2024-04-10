@@ -48,6 +48,12 @@ class SuspensionService implements ISuspensionService {
         pParam?.typeSearch || 'name',
         this.modelName
       )
+      if (pParam?.driverId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          driverId: pParam.driverId
+        }
+      }
 
       const vResponse: ISuspensionInstance[] = await modelSuspension.findAll(whereStatement)
       if (Number(pParam?.pag)) {

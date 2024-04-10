@@ -48,7 +48,7 @@ class UserController {
   async location(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
-      const vResponse: IResponseAllUser | IUserInstance[] = await ClassUser.all(vParam)
+      const vResponse: IResponseAllUser | IUserInstance[] = await ClassUser.location(vParam)
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }

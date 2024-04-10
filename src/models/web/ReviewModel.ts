@@ -1,5 +1,6 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface IReviewAttributes {
   id: number
@@ -102,7 +103,19 @@ export function fxReviewFactory(sequelize: Sequelize) {
     timestamps: true,
     paranoid: true,
   })
-
+  vReview.associate = function (models: ModelRegistry) {
+    const { modelReview, modelUser } = models
+    modelReview.hasOne(modelUser, {
+      sourceKey: 'driverId',
+      foreignKey: 'id',
+      as: 'driver',
+    })
+    modelReview.hasOne(modelUser, {
+      sourceKey: 'clientId',
+      foreignKey: 'id',
+      as: 'client',
+    })
+  }
   vReview.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues

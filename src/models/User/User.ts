@@ -35,9 +35,9 @@ export interface IUserAttributes {
   driverSuspendedTo: Date | null
   staffId?: number | null
   branchId?: number | null
-  cityId?: number
-  regionId?: number
-  countryId?: number
+  cityId?: number | null
+  regionId?: number | null
+  countryId?: number | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -316,6 +316,10 @@ export function fxUserFactory(sequelize: Sequelize) {
     modelUser.hasMany(modelTrip, {
       foreignKey: 'user_id',
       as: 'trip',
+    })
+    modelUser.hasMany(modelTrip, {
+      foreignKey: 'driver_id',
+      as: 'tripActive',
     })
     modelUser.hasOne(modelUserRating, {
       foreignKey: 'user_id',

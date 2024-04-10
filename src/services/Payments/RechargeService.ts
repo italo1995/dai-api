@@ -7,6 +7,7 @@ import type {
 } from '../../models/payments/RechargeModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices, fxFilterDate } from '../../utils/query'
 import { subtractTimeUnitFromCurrentDate } from '../../utils/helpers'
+import CurrencyService from './CurrencyService'
 
 interface IrechargeService {
   validate(data: any): any
@@ -75,11 +76,21 @@ class rechargeService implements IrechargeService {
           delete whereStatement.offset
           whereStatement.attributes = [
             [Sequelize.fn('sum', Sequelize.col('amount')), 'totalAmount'],
-            'userId',
+            'currencyId', 'userId'
           ]
-          whereStatement.group = ['user_id']
+          whereStatement.group = ['currencyId', 'userId']
           delete whereStatement.order
-          vResponsePaginate.totalAmount = await modelRecharge.unscoped().findAll(whereStatement)
+          const totalAmount: any = await modelRecharge.unscoped().findAll(whereStatement)
+          if (totalAmount) {
+            vResponsePaginate.totalAmount = totalAmount
+            let totalAgain = 0
+            for (const item of totalAmount) {
+              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.totalAmount) })
+            }
+            vResponsePaginate.totalAgain = totalAgain
+          } else {
+            vResponsePaginate.totalAmount = 0
+          }
         }
         return vResponsePaginate
       }

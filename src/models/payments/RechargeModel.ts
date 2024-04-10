@@ -26,6 +26,7 @@ export interface rechargeReponseAll {
   data: rechargeInstance[]
   actualPage: number
   totalAmount?: any
+  totalAgain?: any
 }
 
 interface rechargeCreationAttributes extends Optional<rechargeAttributes, 'id'> {}

@@ -57,6 +57,7 @@ class ReviewController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }

@@ -1,7 +1,7 @@
 import { Op, type FindOptions, ValidationError, ValidationErrorItem } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
-import sequelize, { modelDriverDetail, modelStaff, modelUser, modelUserRating } from '../../models'
-import { ETypeService } from '../../models/Trip/TripModel'
+import sequelize, { modelDriverDetail, modelStaff, modelTrip, modelUser, modelUserRating } from '../../models'
+import { EStatusTrip, ETypeService } from '../../models/Trip/TripModel'
 import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'
 import type { IResponseAllUser, IUserInput } from '../../types/User'
 
@@ -189,7 +189,6 @@ class UserService implements IUserService {
       }
       return vResponse
     } catch (error) {
-      console.log('error :>> ', error)
       throw error
     }
   }
@@ -223,6 +222,28 @@ class UserService implements IUserService {
           countryId: pParam.countryId
         }
       }
+      whereStatement.where = {
+        ...whereStatement.where,
+        lat: {[Op.not]: null },
+        lon: {[Op.not]: null },
+      }
+      whereStatement.include = [
+        {
+          model: modelDriverDetail,
+          as: 'detail',
+          required: false
+        },
+        {
+          model: modelTrip,
+          as: 'tripActive',
+          where: {
+            status: {
+              [Op.or]: [EStatusTrip.ACEPTADO, EStatusTrip.PENDIENTE, EStatusTrip.INPLACE],
+            }
+          },
+          required: false
+        },
+      ]
       const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllUser = await fxReponseServices(
@@ -266,7 +287,7 @@ class UserService implements IUserService {
     }
   }
 
-  async updateLocation(pData: { id: string, cityId?: number, regionId?: number, countryId?: number }): Promise<IUserInstance | null> {
+  async updateLocation(pData: { id: string, cityId?: number | null, regionId?: number | null, countryId?: number | null }): Promise<IUserInstance | null> {
     try {
       if (pData?.id) {
         const vUser: IUserInstance | null = await modelUser.findOne({

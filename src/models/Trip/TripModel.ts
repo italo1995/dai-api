@@ -18,6 +18,9 @@ export interface ITripAttributes {
   countryId?: number | null
   visibility?: number | null
   isPanic?: boolean
+  percentage?: number
+  isNear?: boolean
+  serviceDistance?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -78,9 +81,27 @@ export const vTripAttributes: SequelizeAttributes<ITripAttributes> = {
     defaultValue: null,
     allowNull: true,
   },
+  percentage: {
+    type: DataTypes.FLOAT,
+    field: 'percentage',
+    allowNull: true,
+    defaultValue: null,
+  },
+  isNear: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_near',
+    allowNull: true,
+    defaultValue: false,
+  },
   currencyId: {
     type: DataTypes.INTEGER,
     field: 'currency_id',
+  },
+  serviceDistance: {
+    type: DataTypes.STRING,
+    field: 'service_distance',
+    allowNull: true,
+    defaultValue: 0
   },
   isPayment: {
     type: DataTypes.INTEGER,

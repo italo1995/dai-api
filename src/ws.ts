@@ -246,9 +246,9 @@ export class SocketService {
             if (vRangePrice?.cityId || vRangePrice?.regionId || vRangePrice?.countryId) {
               const vUserLocationUpdate = {
                 id: vUser.id,
-                cityId: coords?.city || null,
-                regionId: coords?.region || null,
-                countryId: coords?.country || null,
+                cityId: Number(vRangePrice?.cityId) || null,
+                regionId: Number(vRangePrice?.regionId) || null,
+                countryId: Number(vRangePrice?.countryId) || null,
               }
               await ClassUserService.updateLocation(vUserLocationUpdate)
             }
@@ -422,21 +422,27 @@ export class SocketService {
           id: data.tripId,
           userId: auth?.id || user?.id,
         })
-        if (vTrip?.dataValues?.userId) {
-          const vClientId: string = vTrip?.dataValues?.userId
-          const vClient = await ClassUserService.show({ id: vClientId })
-          if (vClient?.dataValues.socketId) {
-            await SocketService.io.to(vClient?.dataValues.socketId).emit('driverIsNear', vTrip)
-          }
-          if (vClient?.dataValues.tokenPush) {
-            const notificationData = {
-              title: 'Voy llegando',
-              body: 'Esperame afuera',
+        if (vTrip?.dataValues?.isNear === false) {
+          ClassTripService.update({
+            id: data.tripId,
+            isNear: true
+          })
+          if (vTrip?.dataValues?.userId) {
+            const vClientId: string = vTrip?.dataValues?.userId
+            const vClient = await ClassUserService.show({ id: vClientId })
+            if (vClient?.dataValues.socketId) {
+              await SocketService.io.to(vClient?.dataValues.socketId).emit('driverIsNear', vTrip)
             }
-            await NotificationService.sendNotification(
-              [vClient.dataValues.tokenPush],
-              notificationData
-            )
+            if (vClient?.dataValues.tokenPush) {
+              const notificationData = {
+                title: 'Voy llegando',
+                body: 'Esperame afuera',
+              }
+              await NotificationService.sendNotification(
+                [vClient.dataValues.tokenPush],
+                notificationData
+              )
+            }
           }
         }
       } catch (error) {

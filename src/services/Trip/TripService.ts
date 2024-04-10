@@ -19,6 +19,7 @@ import { Op, Sequelize, type FindOptions } from 'sequelize'
 import type { UUID } from 'crypto'
 import sequelize, {
   modelCurrency,
+  modelDriverDetail,
   modelPaymentMethod,
   modelReview,
   modelTrip,
@@ -49,6 +50,7 @@ import type {
 import { ETypeUser } from '../../types/User'
 import { ETypeReview } from '../../models/web/ReviewModel'
 import type { ITripPanicInstance } from '../../models/Trip/TripPanicModel'
+import CurrencyService from '../Payments/CurrencyService'
 
 interface ITripService {
   validate(data: any): any
@@ -96,10 +98,34 @@ class TripService implements ITripService {
           }
         }
       }
+      if (pParam.clientId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          userId: pParam.clientId,
+        }
+      }
+      if (pParam.driverId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          driverId: pParam.driverId,
+        }
+      }
       if (pParam?.TripPending) {
         whereStatement.where = { ...whereStatement.where, status: EStatusTrip.PENDIENTE }
       }
+      if (pParam?.status) {
+        whereStatement.where = { ...whereStatement.where, status: pParam?.status }
+      }
+      if (pParam?.typeService) {
+        whereStatement.where = { ...whereStatement.where, typeService: pParam?.typeService }
+      }
       if (Number(pParam?.pag)) {
+        let whereDriver: any = {}
+        if (pParam?.driverName) {
+          whereDriver = {
+            name: pParam.driverName
+          }
+        }
         whereStatement.include = [
           {
             model: modelTripDelivery,
@@ -140,11 +166,6 @@ class TripService implements ITripService {
             ],
           },
           {
-            model: modelTripDelivery,
-            as: 'delivery',
-            required: false,
-          },
-          {
             model: modelUser,
             as: 'user',
             required: false,
@@ -172,7 +193,7 @@ class TripService implements ITripService {
           {
             model: modelUser,
             as: 'driver',
-            required: false,
+            required: whereDriver ? true : false,
             include: [
               {
                 model: modelUserRating,
@@ -193,6 +214,7 @@ class TripService implements ITripService {
                 },
               },
             ],
+            where: whereDriver
           },
           {
             model: modelTripSpecialRequest,
@@ -228,18 +250,50 @@ class TripService implements ITripService {
           data: vRes,
           actualPage: Number(pParam.pag),
         }
-        if (pParam?.again && pParam.userId) {
+        if (pParam?.again) {
           whereStatement.include = []
           delete whereStatement.limit
           delete whereStatement.offset
           'visibility' in whereStatement.where && delete whereStatement.where.visibility
           whereStatement.attributes = [
             [Sequelize.fn('sum', Sequelize.col('price')), 'again'],
-            'driverId',
+            'currencyId', 'driverId'
           ]
-          whereStatement.group = ['driver_id']
+          whereStatement.group = ['currencyId', 'driverId']
           delete whereStatement.order
-          vResp.again = await modelTrip.unscoped().findAll(whereStatement)
+          whereStatement.where = {
+            ...whereStatement.where,
+            status: EStatusTrip.FINALIZADO
+          }
+          const againFilter: any = await modelTrip.unscoped().findAll(whereStatement)
+          const whereStatementNotFilter: FindOptions = {}
+          whereStatementNotFilter.attributes = [
+            [Sequelize.fn('sum', Sequelize.col('price')), 'again'],
+            'currencyId', 'driverId'
+          ]
+          whereStatementNotFilter.group = ['currencyId', 'driverId']
+          const again: any = await modelTrip.unscoped().findAll(whereStatementNotFilter)
+          if (again) {
+            vResp.again = again
+            let totalAgain = 0
+            for (const item of again) {
+              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
+            }
+            vResp.totalAgain = totalAgain
+          } else {
+            vResp.again = 0
+          }
+          if (againFilter) {
+            vResp.againFilter = againFilter
+            let totalAgainFilter = 0
+            for (const item of againFilter) {
+              totalAgainFilter += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
+            }
+            vResp.totalAgainFilter = totalAgainFilter
+          } else {
+            vResp.totalAgainFilter = 0
+          }
+          
         }
         return vResp
       }
@@ -489,6 +543,11 @@ class TripService implements ITripService {
               where: {
                 type: 'driverId',
               },
+            },
+            {
+              model: modelDriverDetail,
+              as: 'detail',
+              required: false,
             },
           ],
         },

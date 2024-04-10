@@ -1,14 +1,14 @@
 components:
   schemas:
-    VehicleAddittional:
+    VehicleAdditional:
       type: object
       properties:
         id:
           type: number
-          description: the auto-increment id of VehicleAddittional
+          description: the auto-increment id of VehicleAdditional
         name:
           type: string
-          description: the name of the VehicleAddittional
+          description: the name of the VehicleAdditional
         icon:
           type: string
           description: name icon
@@ -38,30 +38,30 @@ components:
             type: string
             description: the addittional services in the vehicle
 tags:
-  - name: VehicleAddittional
-    description: VehicleAddittional endpoint
+  - name: VehicleAdditional
+    description: VehicleAdditional endpoint
 paths:
-  /api/vehicleAddittional/show:
+  /api/vehicleAdditional/show:
     get:
-      summary: Returns a VehicleAddittional element
+      summary: Returns a VehicleAdditional element
       tags:
-        - VehicleAddittional
+        - VehicleAdditional
       parameters:
-        - $ref: '#/components/schemas/VehicleAddittional/parameters/id'
+        - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
       responses:
         '200':
-          description: the VehicleAddittional element
+          description: the VehicleAdditional element
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VehicleAddittional'
-  /api/vehicleAddittional/all:
+                  $ref: '#/components/schemas/VehicleAdditional'
+  /api/vehicleAdditional/all:
     get:
-      summary: Returns a list of VehicleAddittional
+      summary: Returns a list of VehicleAdditional
       tags:
-        - VehicleAddittional
+        - VehicleAdditional
       parameters:
         - in: query
           name: pag
@@ -81,12 +81,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VehicleAddittional'
-  /api/vehicleAddittional/store:
+                  $ref: '#/components/schemas/VehicleAdditional'
+  /api/vehicleAdditional/store:
     post:
-      summary: Creates a new VehicleAddittional
+      summary: Creates a new VehicleAdditional
       tags:
-        - VehicleAddittional
+        - VehicleAdditional
       requestBody:
         required: true
         content:
@@ -122,16 +122,16 @@ paths:
                 isRegister: false
       responses:
         '201':
-          description: the VehicleAddittional created
+          description: the VehicleAdditional created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VehicleAddittional'
-  /api/vehicleAddittional/update:
+                $ref: '#/components/schemas/VehicleAdditional'
+  /api/vehicleAdditional/update:
     post:
-      summary: Updates a VehicleAddittional
+      summary: Updates a VehicleAdditional
       tags:
-        - VehicleAddittional
+        - VehicleAdditional
       requestBody:
         required: true
         content:
@@ -169,8 +169,8 @@ paths:
                 isRegister: false
       responses:
         '201':
-          description: the VehicleAddittional updated
+          description: the VehicleAdditional updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VehicleAddittional'
+                $ref: '#/components/schemas/VehicleAdditional'

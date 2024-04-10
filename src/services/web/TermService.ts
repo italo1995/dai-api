@@ -52,7 +52,7 @@ class TermTerm implements ITermTerm {
         const vResponsePaginate: IResponseAllTerm = await fxReponseServices(
           pParam,
           whereStatement,
-          'Term',
+          'Terms',
           vResponse
         )
         return vResponsePaginate

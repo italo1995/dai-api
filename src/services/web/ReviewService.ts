@@ -15,8 +15,8 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { IReviewInstance } from '../../models/web/ReviewModel'
-import { modelReview } from '../../models'
+import { type IReviewInstance } from '../../models/web/ReviewModel'
+import { modelReview, modelUser } from '../../models'
 import type { IReviewInput, IResponseAllReview } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -58,6 +58,18 @@ class ReviewService implements IReviewService {
           type: pParam.type,
         }
       }
+      whereStatement.include = [
+        {
+          model: modelUser,
+          as: 'client',
+          attributes: ['name', 'avatar'],
+        },
+        {
+          model: modelUser,
+          as: 'driver',
+          attributes: ['name', 'avatar'],
+        }
+      ]
       const vResponse: IReviewInstance[] = await modelReview.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllReview = await fxReponseServices(
@@ -80,6 +92,18 @@ class ReviewService implements IReviewService {
         where: {
           id: pId,
         },
+        include: [
+          {
+            model: modelUser,
+            as: 'client',
+            attributes: ['name', 'avatar'],
+          },
+          {
+            model: modelUser,
+            as: 'driver',
+            attributes: ['name', 'avatar'],
+          }
+        ]
       })
       return vResponse
     } catch (error) {

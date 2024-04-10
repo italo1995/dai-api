@@ -260,6 +260,8 @@ class TripController {
     try {
       const vParam: IParamAllTrip = {
         userId: pReq.input('userId', 'string'),
+        clientId: pReq.input('clientId', 'string'),
+        driverId: pReq.input('driverId', 'string'),
         isClient: pReq.input('isClient', 'json') || true,
         isDriver: pReq.input('isDriver', 'json') || true,
         search: pReq.query?.search?.toString() || null,
@@ -270,6 +272,9 @@ class TripController {
         initDate: pReq.input('initDate'),
         endDate: pReq.input('endDate'),
         again: true,
+        status: pReq.input('status', 'string'),
+        typeService: pReq.input('typeService', 'string'),
+        driverName: pReq.input('driverName', 'string'),
       }
       if (vParam.isClient === undefined && vParam.isDriver === undefined) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Se requiere isClient o isClient'))
@@ -296,6 +301,7 @@ class TripController {
         'price',
         'currencyId',
         'instructionsToDriver',
+        'serviceDistance'
       ])
       const vParamToRange = {
         city: pReq.input('city'),

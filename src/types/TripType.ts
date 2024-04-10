@@ -8,6 +8,8 @@ import type { ITripCancellationOptionInstance } from '../models/Trip/TripCancell
 
 export interface IParamAllTrip {
   userId?: string
+  clientId?: string
+  driverId?: string
   isClient?: boolean
   isDriver?: boolean
   TripPending?: boolean
@@ -19,6 +21,9 @@ export interface IParamAllTrip {
   initDate?: Date | null
   endDate?: Date | null
   again?: boolean
+  status?: EStatusTrip
+  typeService?: ETypeService
+  driverName?: string
 }
 
 export interface IParamShowTrip {
@@ -72,6 +77,7 @@ export interface ITripUpdate {
   price?: number
   currencyId?: number
   isPayment?: number
+  isNear?: boolean
   instructionsToDriver?: string
 }
 
