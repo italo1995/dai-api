@@ -16,10 +16,10 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions, Op } from 'sequelize'
-import { modelSuspension } from '../../models'
+import { modelSuspension, modelUser } from '../../models'
 import type { ISuspensionInstance } from '../../models/User/SuspensionModel'
 import type { ISuspensionInput, IResponseAllSuspension } from '../../types/User'
-import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
+import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices, fxFilterDate } from '../../utils/query'
 
 interface ISuspensionService {
   validate(data: any): any
@@ -31,7 +31,7 @@ interface ISuspensionService {
 }
 
 class SuspensionService implements ISuspensionService {
-  private modelName = 'Suspension'
+  private modelName = modelSuspension.name
   async validate(data: any) {
     const dataValidate = modelSuspension.build(data)
     await dataValidate.validate()
@@ -48,13 +48,27 @@ class SuspensionService implements ISuspensionService {
         pParam?.typeSearch || 'name',
         this.modelName
       )
+      pParam.type = 'suspension'
+      whereStatement.where = fxFilterDate(pParam, whereStatement)
       if (pParam?.driverId) {
         whereStatement.where = {
           ...whereStatement.where,
           driverId: pParam.driverId
         }
       }
-
+      if (pParam?.end) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          end:{ [Op.lt]: pParam.end}
+        }
+      }
+      whereStatement.include = [
+        {
+          model: modelUser,
+          as: 'admin',
+          required: false
+        }
+      ]
       const vResponse: ISuspensionInstance[] = await modelSuspension.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllSuspension = await fxReponseServices(
@@ -76,6 +90,27 @@ class SuspensionService implements ISuspensionService {
       const vResponse: ISuspensionInstance | null = await modelSuspension.findOne({
         where: {
           id: pId,
+        },
+        include: [
+          {
+            model: modelUser,
+            as: 'admin',
+            required: false
+          }
+        ]
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async showFilter({ driverId, end }: any): Promise<ISuspensionInstance | null> {
+    try {
+      const vResponse: ISuspensionInstance | null = await modelSuspension.findOne({
+        where: {
+          driverId: driverId,
+          end: end
         },
       })
       return vResponse
@@ -117,7 +152,7 @@ class SuspensionService implements ISuspensionService {
             id: pData.id,
           },
         })
-        await vReponse?.update(pData, { where: { id: pData.id } })
+        await vReponse?.update(pData)
         return vReponse
       }
       return null

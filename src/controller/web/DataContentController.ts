@@ -63,6 +63,13 @@ class DataContentController {
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
       }
+      const images = pReq.input('tempImages', 'json')
+      if (images && images.length) {
+        for (const item of images) {
+          const newNameImages = await moveImages(item)
+          vData.description = vData.description.replace(item, newNameImages)
+        }
+      }
       const vResponse: IDataContentInstance | null = await ClassDataContentService.create(vData)
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
@@ -85,6 +92,13 @@ class DataContentController {
       ])
       if (vData?.image && vData?.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
+      }
+      const images = pReq.input('tempImages', 'json')
+      if (images && images.length) {
+        for (const item of images) {
+          const newNameImages = await moveImages(item)
+          vData.description = vData.description.replace(item, newNameImages)
+        }
       }
       const vResponse: IDataContentInstance | null = await ClassDataContentService.update(vData)
       if (!vResponse) {

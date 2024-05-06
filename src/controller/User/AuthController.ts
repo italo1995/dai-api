@@ -32,6 +32,7 @@ import type { NextFunction, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import ClassAuthService from '../../services/User/AuthService'
 import {
+  ETypeUser,
   type IDriverDetailInput,
   type IUserCodeInput,
   type IUserInput,
@@ -50,6 +51,8 @@ import ClassDriverDetailService from '../../services/User/DriverDetailService'
 import ClassUserService from '../../services/User/UserService'
 import NotificationService from '../fcmPushController'
 import TripService from '../../services/Trip/TripService'
+import StaffViewService from '../../services/web/StaffViewService'
+import { SocketService } from '../../ws'
 
 class AuthController {
   async registerOrCreateUserForNumber(
@@ -62,11 +65,13 @@ class AuthController {
       const vHash: string = pReq.input('hash')
       const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber', 'json')
       vData.phoneNumber = vData?.phoneNumber.toString()
-      vData.isNewUser = true
       const vPhoneNumberExist: IUserInstance | null = await ClassAuthService.showUserNumber(
         vData.phoneNumber,
         vData.phoneCode
       )
+      if (vPhoneNumberExist?.dataValues?.deletedAt !== null) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Usuario bloqueado'))
+      }
       if (vUpdatePhoneNumber && vPhoneNumberExist) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'El numero ya existe'))
       }
@@ -90,6 +95,7 @@ class AuthController {
         }
       } else if (!vPhoneNumberExist) {
         vData.balance = 0
+        vData.isNewUser = true
         vUser = await ClassAuthService.create(vData)
       } else {
         vUser = vPhoneNumberExist
@@ -155,6 +161,7 @@ class AuthController {
         const vData: IUserInputUpdate = pReq.only([
           'avatar',
           'name',
+          'lastName',
           'email',
           'vehicleType',
           'dob',
@@ -184,6 +191,7 @@ class AuthController {
             return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
           }
         }
+        const vBeforeUserDB: IUserInstance | null = await ClassAuthService.show(vUserId)
         vData.isNewUser = false // Esto es para saber que el usuario completo el registro!
         vData.id = vUserId
         const vDetail: any = pReq.input('details', 'json')
@@ -243,6 +251,12 @@ class AuthController {
         if (!vUserDB) {
           return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
         }
+        if (vBeforeUserDB?.dataValues?.isNewUser) {
+          console.log('se emite el evento newDriver')
+          const admin = await ClassUserService.allUserAdmin()
+          const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
+          SocketService.io.to(socketIds).emit('newDriver', vUserDB)
+        }
         const vReponseUser = {
           ...vUserDB.dataValues,
           count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser),
@@ -299,17 +313,27 @@ class AuthController {
 
   async login(pReq: Request, pRes: Response, pNext: NextFunction): Promise<Response | undefined> {
     try {
-      const vData = pReq.only(['email', 'password'])
+      const vData = pReq.only(['email', 'password', 'socketId'])
       const vUser = await ClassAuthService.login(vData.email)
       if (!vUser || !bcrypt.compareSync(vData.password, vUser.password)) {
         return pRes.status(400).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
       } else {
+        await ClassAuthService.updateSocket({
+          ...vData,
+          id: vUser.id
+        })
         const userResponse = JSON.parse(JSON.stringify(vUser))
+        if (Number(userResponse.rolId) === 2 && userResponse.staffId) {
+          const view = await StaffViewService.all({
+            staffId: userResponse.staffId
+          })
+          userResponse.views = JSON.parse(JSON.stringify(view))
+        }
         delete userResponse.password
         const vToken = fxGenerateAccessToken(vUser)
         return pRes
           .status(200)
-          .send(fxSuccessResponse(200, { token: vToken, user: vUser }, 'logueado con exito'))
+          .send(fxSuccessResponse(200, { token: vToken, user: userResponse }, 'logueado con exito'))
       }
     } catch (error) {
       pNext(error)
@@ -323,8 +347,15 @@ class AuthController {
       if (!vUserDB) {
         return pRes.status(500).send(fxErrorResponse(500, { user: null }, 'Ocurrio un error'))
       }
+      const userResponse = JSON.parse(JSON.stringify(vUserDB))
+      if (Number(userResponse.rolId) === 2 && userResponse.staffId) {
+        const view = await StaffViewService.all({
+          staffId: userResponse.staffId
+        })
+        userResponse.views = JSON.parse(JSON.stringify(view))
+      }
       const vResponse = {
-        ...vUserDB.dataValues,
+        ...userResponse,
         count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser),
       }
       return pRes.status(200).send(fxSuccessResponse(200, { user: vResponse }))
@@ -387,9 +418,16 @@ class AuthController {
   ): Promise<Response | undefined> {
     try {
       const vUserId: string = pReq.auth.id
-      const vUserDB: boolean = await ClassAuthService.disconnect(vUserId)
+      const vUserDB: boolean | IUserInstance = await ClassAuthService.disconnect(vUserId)
       if (!vUserDB) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      if (vUserDB.dataValues.typeUser === ETypeUser.driver) {
+        const vUserDisconnect = await ClassAuthService.show(vUserDB.dataValues.id)
+        const admin = await ClassUserService.allUserAdmin()
+        const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
+        SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
+        console.log('Se emite userDisconnect')
       }
       return pRes.status(200).send(fxSuccessResponse(200, true))
     } catch (error: any) {

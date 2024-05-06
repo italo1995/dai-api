@@ -135,7 +135,7 @@ module.exports = {
         defaultValue: null,
       },
       dob: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
         field: 'dob',
         allowNull: true,
         defaultValue: null,

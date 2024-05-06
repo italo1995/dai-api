@@ -8,11 +8,13 @@
  */
 import type { NextFunction, Request, Response } from 'express'
 import ClassUser from '../../services/User/UserService'
-import type { IUserInput, IResponseAllUser } from '../../types/User'
+import { type IUserInput, type IResponseAllUser, ETypeUser } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import type { IUserInstance } from '../../models/User/User'
 import ClassVerifyService from '../../services/User/VerifyService'
 import { EStatusVerify } from '../../models/User/VerifyModel'
+import TripService from '../../services/Trip/TripService'
+import NotificationService from '../fcmPushController'
 
 class UserController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -26,7 +28,11 @@ class UserController {
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      const vReponseUser = {
+        ...vResponse.dataValues,
+        count: await TripService.countTrip(vResponse.dataValues.id, vResponse.dataValues.typeUser),
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vReponseUser, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -45,6 +51,18 @@ class UserController {
     }
   }
 
+  async operatorAll(_pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vResponse: IResponseAllUser | IUserInstance[] = await ClassUser.operatorAll()
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
   async location(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vParam: any = pReq.query
@@ -52,8 +70,23 @@ class UserController {
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
+      // let vResponseJSON = []
+      // if ('data' in vResponse) {
+      //   vResponseJSON = JSON.parse(JSON.stringify(vResponse.data))
+      // } else {
+      //   vResponseJSON = JSON.parse(JSON.stringify(vResponse))
+      // }
+      // for (const user of vResponseJSON) {
+      //   if (!user.driverRating) {
+      //     user.driverRating = {
+      //       quantity: 0,
+      //       ratings: 5,
+      //     }
+      //   }
+      // }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -96,6 +129,7 @@ class UserController {
       const vData: IUserInput = pReq.only([
         'id',
         'name',
+        'lastName',
         'email',
         'phoneCode',
         'phoneNumber',
@@ -105,6 +139,22 @@ class UserController {
         'verifiedDriver',
         'typeUser',
       ])
+      if (vData.typeUser === ETypeUser.driver && vData?.id) {
+        const vUserDB: IUserInstance | null = await ClassUser.show({
+          id: vData.id,
+          isDriver: true,
+        })
+        if (vData.verifiedDriver && !vUserDB?.dataValues?.verifiedDriver && vUserDB?.dataValues?.tokenPush) {
+          const notificationData = {
+            title: 'Usuario activado',
+            body: 'Ya puedes comenzar a usar PaYa, te esperamos',
+          }
+          await NotificationService.sendNotification(
+            [vUserDB.dataValues.tokenPush],
+            notificationData
+          ) 
+        }
+      }
       const vResponse: IUserInstance | null = await ClassUser.update(vData)
       if (!vResponse) {
         return pRes
@@ -117,9 +167,28 @@ class UserController {
     }
   }
 
+  async suspended(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vData: IUserInput = pReq.only([
+        'id',
+        'status',
+      ])
+      const vResponse: IUserInstance | null = await ClassUser.update(vData)
+      if (!vResponse) {
+        return pRes
+          .status(500)
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+    } catch (error) {
+      console.log('error :>> ', error)
+      pNext(error)
+    }
+  }
+
   async destroy(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vId: number = pReq.input('id', 'number')
+      const vId: number = pReq.input('id', 'string')
       const vResponse: boolean = await ClassUser.softDeleteRecord(vId)
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))

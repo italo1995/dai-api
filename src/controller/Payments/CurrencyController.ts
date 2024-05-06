@@ -98,6 +98,7 @@ class CurrencyController {
   async updateMany(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData = pReq.input('data', 'json')
+      console.log('vData :>> ', vData)
       const vUpdateData: ICurrencyInput[] = []
       for (const item of vData) {
         if (item.id) {
@@ -117,7 +118,7 @@ class CurrencyController {
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'correcto'))
     } catch (error) {
       console.log('error :>> ', error)
       pNext(error)

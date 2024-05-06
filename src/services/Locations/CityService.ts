@@ -51,6 +51,12 @@ class CityService implements ICityService {
         pParam?.typeSearch || 'name',
         'City'
       )
+      if (pParam?.regionId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          regionId: pParam.regionId
+        }
+      }
       const vRes = await modelCity.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10

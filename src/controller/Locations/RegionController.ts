@@ -70,7 +70,7 @@ class RegionController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IRegionInput = pReq.only(['name', 'flags', 'phoneCode', 'state', 'phone'])
+      const vData: IRegionInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone'])
 
       const vResponse: IRegionInstance | null = await ClassRegionService.create(vData)
       if (!vResponse) {

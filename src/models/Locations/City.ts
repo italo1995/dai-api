@@ -73,6 +73,7 @@ export function fxCityFactory(sequelize: Sequelize) {
     },
     freezeTableName: true,
     timestamps: true,
+    paranoid: true,
   })
 
   ICity.prototype.toJSON = function () {

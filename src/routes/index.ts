@@ -1,6 +1,8 @@
 import express from 'express'
 import AuthRoute from './User/AuthRoute'
 import CountryRoute from './Location/CountryRoute'
+import RegionRoute from './Location/RegionRoute'
+import CityRoute from './Location/CityRoute'
 import FileRoute from './FileRoute'
 import server from './server'
 import VehicleAdditional from './Vehicle/VehicleAdditionalRoute'
@@ -44,6 +46,8 @@ router.use('/auth', AuthRoute)
 router.use('/file', FileRoute)
 router.use('/server', server)
 router.use('/country', CountryRoute)
+router.use('/region', RegionRoute)
+router.use('/city', CityRoute)
 router.use('/vehicleAdditional', VehicleAdditional)
 router.use('/vehicleType', VehicleType)
 router.use('/banner', Banner)

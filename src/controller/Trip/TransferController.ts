@@ -24,26 +24,26 @@ class TransferController {
           extname
         )
         if (
-          fs.existsSync(path.resolve(__dirname, `../../../uploads/user/${avatarName}-user_u.png`))
+          fs.existsSync(path.resolve(__dirname, `../../../uploads/user/${avatarName}user_u64pxv2.png`))
         ) {
           return pRes
             .status(200)
-            .send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
+            .send(fxSuccessResponse(200, { img: `user/${avatarName}user_u64pxv2.png` }, 'Correcto'))
         }
         const base64Image: any = Buffer.from(image).toString('base64')
         const dataURI = 'data:image/svg+xml;base64,' + base64Image
         const base64ImageAvatar: any = Buffer.from(avatar).toString('base64')
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
-          output: path.resolve(__dirname, `../../../uploads/user/${avatarName}-user_u.png`),
-          html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
+          output: path.resolve(__dirname, `../../../uploads/user/${avatarName}user_u64pxv2.png`),
+          html: '<html><body style="width: 64px;height: 64px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 64px;height: 64px;"/><img src="{{{dataURIAvatar}}}" style="width: 42px;height: 42px;position: absolute;top: 4%;left: 17%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
           content: { imageSource: dataURI, dataURIAvatar },
           transparent: true,
           puppeteerArgs: { args: ['--no-sandbox'] },
         })
         return pRes
           .status(200)
-          .send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
+          .send(fxSuccessResponse(200, { img: `user/${avatarName}user_u64pxv2.png` }, 'Correcto'))
       } else {
         if (fs.existsSync(path.resolve(__dirname, '../../../uploads/user/marker_u.png'))) {
           return pRes
@@ -56,7 +56,7 @@ class TransferController {
         const dataURIAvatar = 'data:image/jpeg;base64,' + base64ImageAvatar
         await nodeHtmlToImage({
           output: path.resolve(__dirname, '../../../uploads/user/marker_u.png'),
-          html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;background:#fff;"></img></div></body></html>',
+          html: '<html><body style="width: 64px;height: 64px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 64px;height: 64px;"/><img src="{{{dataURIAvatar}}}" style="width: 42px;height: 42px;position: absolute;top: 4%;left: 17%;border-radius: 50%;object-fit: cover;background:#fff;"></img></div></body></html>',
           content: { imageSource: dataURI, dataURIAvatar },
           transparent: true,
           puppeteerArgs: { args: ['--no-sandbox'] },
@@ -90,11 +90,11 @@ class TransferController {
             extname
           )
           if (
-            fs.existsSync(path.resolve(__dirname, `../../../uploads/user/${avatarName}-user_u.png`))
+            fs.existsSync(path.resolve(__dirname, `../../../uploads/user/${avatarName}user_u64pxv2.png`))
           ) {
             return pRes
               .status(200)
-              .send(fxSuccessResponse(200, { img: `user/${avatarName}-user_u.png` }, 'Correcto'))
+              .send(fxSuccessResponse(200, { img: `user/${avatarName}user_u64pxv2.png` }, 'Correcto'))
           } else {
             return pRes
               .status(200)
@@ -128,22 +128,22 @@ class TransferController {
       // const base64ImageAvatar: any = Buffer.from(resizedImage).toString('base64')
       const dataURIAvatar = 'data:image/jpeg;base64,' + resizedImage
       await nodeHtmlToImage({
-        output: path.resolve(__dirname, '../../../uploads/user/pruebas4-user_u.png'),
-        html: '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><foreignObject width="100%" height="100%"><html xmlns="http://www.w3.org/1999/xhtml"><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html></foreignObject></svg>',
+        output: path.resolve(__dirname, '../../../uploads/user/pruebas4user_u64pxv2.png'),
+        html: '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><foreignObject width="100%" height="100%"><html xmlns="http://www.w3.org/1999/xhtml"><body style="width: 64px;height: 64px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 64px;height: 64px;"/><img src="{{{dataURIAvatar}}}" style="width: 42px;height: 42px;position: absolute;top: 4%;left: 17%;border-radius: 50%;object-fit: cover;"></img></div></body></html></foreignObject></svg>',
         content: { imageSource: dataURI, dataURIAvatar },
         transparent: true,
         puppeteerArgs: { args: ['--no-sandbox'] },
       })
       // await nodeHtmlToImage({
-      //   output: path.resolve(__dirname, '../../../uploads/user/pruebas2-user_u.png'),
-      //   html: '<html><body style="width: 80px;height: 80px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 80px;height: 80px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
+      //   output: path.resolve(__dirname, '../../../uploads/user/pruebas2user_u64pxv2.png'),
+      //   html: '<html><body style="width: 64px;height: 64px;background:transparent;"><div style="position:absolute;"><img src="{{{imageSource}}}" style="width: 64px;height: 64px;"/><img src="{{{dataURIAvatar}}}" style="width: 45px;height: 45px;position: absolute;top: 7%;left: 22%;border-radius: 50%;object-fit: cover;"></img></div></body></html>',
       //   content: { imageSource: dataURI, dataURIAvatar },
       //   transparent: true,
       //   puppeteerArgs: { args: ['--no-sandbox'] },
       // })
       return pRes
         .status(200)
-        .send(fxSuccessResponse(200, { img: 'user/prueba2-user_u.png' }, 'Correcto'))
+        .send(fxSuccessResponse(200, { img: 'user/prueba2user_u64pxv2.png' }, 'Correcto'))
     } catch (error) {
       console.log('error :>> ', error)
       pNext(error)

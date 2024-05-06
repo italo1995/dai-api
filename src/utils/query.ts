@@ -1,12 +1,22 @@
 import { Op, type FindOptions } from 'sequelize'
 import sequelize from '../models'
 
+enum orderQuery {
+  MASNUEVOS = 1,
+  NOMBRE = 2,
+  MASVIEJOS = 3
+}
 export const fxOrderNameId = (pParam: any, pWhereStatement: FindOptions) => {
-  if (Number(pParam?.orden) === 2) {
+  if (Number(pParam?.orden) === orderQuery.NOMBRE) {
     pWhereStatement.order =
       pWhereStatement.order instanceof Array
         ? [...pWhereStatement.order, ['name', 'ASC']]
         : [['name', 'ASC']]
+  } else if (Number(pParam?.orden) === orderQuery.MASVIEJOS) {
+    pWhereStatement.order =
+    pWhereStatement.order instanceof Array
+      ? [...pWhereStatement.order, ['id', 'ASC']]
+      : [['id', 'ASC']]
   } else {
     pWhereStatement.order =
       pWhereStatement.order instanceof Array
@@ -51,7 +61,7 @@ export const fxSearchILike = (
 ) => {
   const vModelAttributes: any = sequelize.models[pModelName].getAttributes()
   const vAttibutesPermisse = Object.keys(vModelAttributes).filter(
-    (key) => vModelAttributes[key].type.key === 'STRING'
+    (key) => vModelAttributes[key].type.key === 'STRING' || vModelAttributes[key].type.key === 'TEXT' 
   )
   if (pParam?.search) {
     if (pParam?.typeSearch && pParam.typeSearch.includes(',')) {
@@ -82,12 +92,14 @@ export const fxSearchILike = (
 
 export const fxFilterDate = (pParam: any, pWhereStatement: FindOptions) => {
   pWhereStatement.where = pWhereStatement.where || {}
+  const initFilter = pParam?.type === 'suspension' ? 'init' : 'createdAt'
+  const endFilter = pParam?.type === 'suspension' ? 'end' : 'createdAt'
   if (pParam?.initDate) {
     const [year, day, month] = pParam.initDate.split('/')
     const vDate = new Date(`${year}/${month}/${day}`)
     const where = {
-      createdAt: {
-        [Op.gte]: vDate.toISOString().split('T')[0],
+      [initFilter]: {
+        [Op.gt]: `${vDate.toISOString().split('T')[0]} 00:00:00.000 +00:00`,
       },
     }
     pWhereStatement.where = { ...pWhereStatement.where, ...where }
@@ -99,15 +111,15 @@ export const fxFilterDate = (pParam: any, pWhereStatement: FindOptions) => {
     let where = {}
     if (pWhereStatement?.where && 'createdAt' in pWhereStatement.where) {
       where = {
-        createdAt: {
+        [endFilter]: {
           ...pWhereStatement.where.createdAt,
-          [Op.lte]: vDate.toISOString().split('T')[0],
+          [Op.lt]: `${vDate.toISOString().split('T')[0]} 24:00:00.000 +00:00`,
         },
       }
     } else {
       where = {
-        createdAt: {
-          [Op.lte]: vDate.toISOString().split('T')[0],
+        [endFilter]: {
+          [Op.lt]: `${vDate.toISOString().split('T')[0]} 24:00:00.000 +00:00`,
         },
       }
     }

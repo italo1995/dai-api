@@ -90,12 +90,14 @@ export class SocketService {
     })
 
     socket.on('disconnect', async (_reason: any) => {
+      console.log('disconnect', socketId)
       try {
         const vUser = {
           id: auth?.id || user?.id,
           // statusDriver: 0,
           socketId: null,
         }
+        console.log('vUser disconnect :>> ', vUser)
         if (vUser?.id) {
           // const vUserDB = await ClassAuthService.show(auth?.id || user.id)
           // if (vUserDB?.dataValues.statusDriver === 1) {
@@ -103,6 +105,7 @@ export class SocketService {
           // }
           await ClassAuthService.updateSocket(vUser)
         } else {
+          await ClassAuthService.updateSocket(vUser)
           await ClassTripService.deletePanic({ socketId: socketId })
         }
       } catch (error) {
@@ -123,6 +126,7 @@ export class SocketService {
             id: auth?.id || user?.id || data.userId,
             socketId: socketId,
           }
+          console.log('reConnection', vUser)
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
           }
@@ -151,7 +155,15 @@ export class SocketService {
           // socketId: socketId
         }
         if (vUser?.id) {
-          await ClassAuthService.updateSocket(vUser)
+          const vUserDB = await ClassAuthService.updateSocket(vUser)
+          if (Number(vUser.statusDriver) === EStatusDriver.INACTIVE || Number(vUser.statusDriver) === EStatusDriver.BUSSY) {
+            const admin = await ClassUserService.allUserAdmin()
+            const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
+            if (vUserDB !== null && vUserDB?.dataValues?.id ) {
+              const vUserDisconnect = await ClassAuthService.show(vUserDB.dataValues.id)
+              SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
+            }
+          }
         }
       } catch (error) {
         const req: IDataError = {
@@ -172,6 +184,17 @@ export class SocketService {
           lon: coords?.lng || null,
           socketId: coords?.socketId || socketId,
         }
+        if (coords?.isDriver) {
+          const admin = await ClassUserService.allUserAdmin()
+          const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
+          if (socketIds.length) {
+            if (!coords?.userId || !coords?.id && vUser.id) {
+              coords.userId = vUser.id
+            }
+            coords.user = await ClassAuthService.show(coords.userId)
+            SocketService.io.to(socketIds).emit('coordsDriver', coords)
+          }
+        }
         if (coords?.tripId) {
           const vParamShowTrip: IParamShowTrip = {
             id: coords.tripId,
@@ -179,8 +202,9 @@ export class SocketService {
           }
           const trip = await ClassTripService.showId(vParamShowTrip)
           if (
-            auth?.dataValues.typeUser === ETypeUser.driver ||
-            auth?.typeUser === ETypeUser.driver
+            auth?.dataValues?.typeUser === ETypeUser.driver ||
+            auth?.typeUser === ETypeUser.driver ||
+            coords?.isDriver
           ) {
             const clientSocketId = JSON.parse(JSON.stringify(trip))?.user.socketId
             socket.to(clientSocketId).emit('driverPosition', {
@@ -200,7 +224,7 @@ export class SocketService {
                 client: null,
                 driver: null,
               }
-              if (auth?.dataValues.typeUser === ETypeUser.driver) {
+              if (auth?.dataValues.typeUser === ETypeUser.driver || coords?.isDriver) {
                 vRespTripCoords.driver = {
                   lat: coords?.lat,
                   lon: coords?.lng,
@@ -241,6 +265,8 @@ export class SocketService {
               country: coords?.country || null,
               isCar: vVehicleType?.dataValues?.isCar || false,
               isMoto: vVehicleType?.dataValues?.isMoto || false,
+              isTravel: false,
+              isDelivery: false
             }
             const vRangePrice = await RangePriceService.showPrice(vParamToRange)
             if (vRangePrice?.cityId || vRangePrice?.regionId || vRangePrice?.countryId) {
@@ -342,12 +368,10 @@ export class SocketService {
           cityId: vTrip?.dataValues.cityId || null,
           regionId: vTrip?.dataValues.regionId || null,
           countryId: vTrip?.dataValues.countryId || null,
-          isCar:
-            vTrip?.dataValues.typeService === ETypeService.CAR ||
-            vTrip?.dataValues.typeService === ETypeService.TRAVEL,
-          isMoto:
-            vTrip?.dataValues.typeService === ETypeService.MOTO ||
-            vTrip?.dataValues.typeService === ETypeService.DELIVERY,
+          isCar: vTrip?.dataValues.typeService === ETypeService.CAR,
+          isTravel: vTrip?.dataValues.typeService === ETypeService.TRAVEL,
+          isMoto: vTrip?.dataValues.typeService === ETypeService.MOTO,
+          isDelivery: vTrip?.dataValues.typeService === ETypeService.DELIVERY
         }
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
         const vParamNearbyDrivers = {
@@ -456,11 +480,11 @@ export class SocketService {
       }
     })
 
-    socket.on('completedService', async (data: { tripId: number }) => {
+    socket.on('completedService', async (data: { tripId: number, driverId: string }) => {
       try {
         const vTrip = await ClassTripService.show({
           id: data.tripId,
-          userId: auth?.id || user?.id,
+          userId: auth?.id || user?.id || data?.driverId || false,
         })
         if (vTrip?.dataValues.status !== EStatusTrip.FINALIZADO) {
           // TODO: aca debo sumarle al driver monto

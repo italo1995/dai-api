@@ -189,12 +189,16 @@ class TripController {
           cityId: vResponse?.dataValues.cityId || null,
           regionId: vResponse?.dataValues.regionId || null,
           countryId: vResponse?.dataValues.countryId || null,
-          isCar:
-            vResponse?.dataValues.typeService === ETypeService.CAR ||
-            vResponse?.dataValues.typeService === ETypeService.TRAVEL,
-          isMoto:
-            vResponse?.dataValues.typeService === ETypeService.MOTO ||
-            vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          // isCar:
+          //   vResponse?.dataValues.typeService === ETypeService.CAR ||
+          //   vResponse?.dataValues.typeService === ETypeService.TRAVEL,
+          // isMoto:
+          //   vResponse?.dataValues.typeService === ETypeService.MOTO ||
+          //   vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          isCar: vResponse?.dataValues.typeService === ETypeService.CAR,
+          isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO,
+          isDelivery: vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          isTravel: vResponse?.dataValues.typeService === ETypeService.TRAVEL,
         }
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
         const vParamNearbyDrivers = {
@@ -283,7 +287,16 @@ class TripController {
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, { data: null }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      const vResponseJSON = JSON.parse(JSON.stringify(vResponse))
+      if ('data' in vResponseJSON) {
+        for (const item of vResponseJSON.data) {
+          const vTripOffer = await TripOffertService.showAcept(item.id)
+          if (vTripOffer) {
+            item.duration = vTripOffer.dataValues.duration
+          }
+        }
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponseJSON, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -307,9 +320,13 @@ class TripController {
         city: pReq.input('city'),
         region: pReq.input('region'),
         country: pReq.input('country'),
-        isCar: vData.typeService === ETypeService.CAR || vData.typeService === ETypeService.TRAVEL,
-        isMoto:
-          vData.typeService === ETypeService.MOTO || vData.typeService === ETypeService.DELIVERY,
+        // isCar: vData.typeService === ETypeService.CAR || vData.typeService === ETypeService.TRAVEL,
+        // isMoto:
+        //   vData.typeService === ETypeService.MOTO || vData.typeService === ETypeService.DELIVERY,
+        isCar: vData.typeService === ETypeService.CAR,
+        isMoto: vData.typeService === ETypeService.MOTO,
+        isDelivery: vData.typeService === ETypeService.DELIVERY,
+        isTravel: vData.typeService === ETypeService.TRAVEL,
       }
       const vRangePrice = await RangePriceService.showPrice(vParamToRange)
       if (vRangePrice) {
@@ -424,6 +441,7 @@ class TripController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -497,12 +515,16 @@ class TripController {
           cityId: vResponse?.dataValues.cityId || null,
           regionId: vResponse?.dataValues.regionId || null,
           countryId: vResponse?.dataValues.countryId || null,
-          isCar:
-            vResponse?.dataValues.typeService === ETypeService.CAR ||
-            vResponse?.dataValues.typeService === ETypeService.TRAVEL,
-          isMoto:
-            vResponse?.dataValues.typeService === ETypeService.MOTO ||
-            vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          // isCar:
+          //   vResponse?.dataValues.typeService === ETypeService.CAR ||
+          //   vResponse?.dataValues.typeService === ETypeService.TRAVEL,
+          // isMoto:
+          //   vResponse?.dataValues.typeService === ETypeService.MOTO ||
+          //   vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          isCar: vResponse?.dataValues.typeService === ETypeService.CAR,
+          isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO,
+          isDelivery: vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          isTravel: vResponse?.dataValues.typeService === ETypeService.TRAVEL,
         }
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
         const vParamNearbyDrivers = {
@@ -539,12 +561,16 @@ class TripController {
           cityId: vResponse?.dataValues.cityId || null,
           regionId: vResponse?.dataValues.regionId || null,
           countryId: vResponse?.dataValues.countryId || null,
-          isCar:
-            vResponse?.dataValues.typeService === ETypeService.CAR ||
-            vResponse?.dataValues.typeService === ETypeService.TRAVEL,
-          isMoto:
-            vResponse?.dataValues.typeService === ETypeService.MOTO ||
-            vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          // isCar:
+          //   vResponse?.dataValues.typeService === ETypeService.CAR ||
+          //   vResponse?.dataValues.typeService === ETypeService.TRAVEL,
+          // isMoto:
+          //   vResponse?.dataValues.typeService === ETypeService.MOTO ||
+          //   vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          isCar: vResponse?.dataValues.typeService === ETypeService.CAR,
+          isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO,
+          isDelivery: vResponse?.dataValues.typeService === ETypeService.DELIVERY,
+          isTravel: vResponse?.dataValues.typeService === ETypeService.TRAVEL,
         }
         const vDistance = await RangePriceService.showPriceToId(vParamToRange)
         const vParamNearbyDrivers = {
@@ -636,6 +662,33 @@ class TripController {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, { data: vResponse }, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async cancelTrip(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: { id: number, status: EStatusTrip } = {
+        id: pReq.input('id', 'number'),
+        status: EStatusTrip.ANULADO
+      }
+      const vResponse: ITripInstance | null = await ClassTripService.update(vParam)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'No es posible anular luego de finalizar el viaje'))
+      }
+      const driverId = vResponse?.dataValues.driverId
+      const clientId = vResponse?.dataValues.userId
+      if (driverId) {
+        const dirver = await ClassUserService.show({ id: driverId })
+        await SocketService.io.to(dirver?.dataValues?.socketId).emit('cancelTripActive', vResponse)
+      }
+      if (clientId) {
+        const client = await ClassUserService.show({ id: clientId })
+        await SocketService.io.to(client?.dataValues?.socketId).emit('cancelTripActive', vResponse)
+      }
+
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
     }

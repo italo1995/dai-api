@@ -10,6 +10,7 @@ export interface ICurrencyAttributes {
   type: boolean
   auto?: string
   icon?: string
+  orden?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -57,6 +58,12 @@ export const vCurrencyAttributes: SequelizeAttributes<ICurrencyAttributes> = {
     defaultValue: null,
     allowNull: true,
   },
+  orden: {
+    type: DataTypes.NUMBER,
+    field: 'orden',
+    allowNull: true,
+    defaultValue: 0,
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -82,7 +89,7 @@ export function fxCurrencyFactory(sequelize: Sequelize) {
     {
       tableName: 'currencies',
       defaultScope: {
-        order: [['createdAt', 'DESC']],
+        order: [['orden', 'DESC']],
       },
       freezeTableName: true,
       timestamps: true,

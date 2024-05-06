@@ -4,18 +4,28 @@ import type { ModelRegistry } from '..'
 
 export interface IRangePriceAttributes {
   id: number
+  name?: string
   cityId?: number
   regionId?: number
   countryId?: number
   isMoto?: boolean
   isCar?: boolean
+  isDelivery?: boolean
+  isTravel?: boolean
   baseKilometer?: number
   basePrice?: number
   extraPrice?: number
+  extraKilometer?: number
   distanceToSearch?: number
   createdAt?: Date
-  updatedAt?: Date
+  updatedAt?: Date 
   deletedAt?: Date
+}
+export enum ETypeRangePrice {
+  CARROPAYA = 'Carro PaYá',
+  MOTOPAYA = 'Moto PaYá',
+  DELIVERY = 'Delivery PaYá',
+  CIUDADACIUDAD = 'Ciudad a ciudad PaYá',
 }
 interface IRangePriceCreationAttributes extends Optional<IRangePriceAttributes, 'id'> {}
 
@@ -60,29 +70,53 @@ export const vRangePriceModelAttributes: SequelizeAttributes<IRangePriceAttribut
     defaultValue: false,
     allowNull: true,
   },
+  isDelivery: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_delivery',
+    defaultValue: false,
+    allowNull: true,
+  },
+  isTravel: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_travel',
+    defaultValue: false,
+    allowNull: true,
+  },
   baseKilometer: {
     type: DataTypes.DOUBLE,
     field: 'base_kilometer',
-    defaultValue: true,
     allowNull: true,
+    defaultValue: true,
   },
   basePrice: {
     type: DataTypes.DOUBLE,
     field: 'base_price',
-    defaultValue: true,
     allowNull: true,
+    defaultValue: true,
   },
   extraPrice: {
     type: DataTypes.DOUBLE,
     field: 'extra_price',
-    defaultValue: true,
     allowNull: true,
+    defaultValue: null,
   },
   distanceToSearch: {
     type: DataTypes.INTEGER,
     field: 'distance_to_search',
-    defaultValue: true,
     allowNull: true,
+    defaultValue: null,
+  },
+  name: {
+    type: DataTypes.STRING,
+    field: 'name',
+    allowNull: true,
+    defaultValue: null,
+  },
+  extraKilometer: {
+    type: DataTypes.INTEGER,
+    field: 'extra_kilometer',
+    allowNull: true,
+    defaultValue: 1,
   },
   createdAt: {
     type: DataTypes.DATE,

@@ -1,14 +1,17 @@
-import { Op, type FindOptions, ValidationError, ValidationErrorItem } from 'sequelize'
+import { Op, type FindOptions, ValidationError, ValidationErrorItem, Sequelize } from 'sequelize'
 import type { IUserInstance } from '../../models/User/User'
-import sequelize, { modelDriverDetail, modelStaff, modelTrip, modelUser, modelUserRating } from '../../models'
+import sequelize, { modelDriverDetail, modelStaff, modelSuspension, modelTrip, modelUser, modelUserRating, modelVehicleType, modelVerify } from '../../models'
 import { EStatusTrip, ETypeService } from '../../models/Trip/TripModel'
 import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'
 import type { IResponseAllUser, IUserInput } from '../../types/User'
+import { EStatusVerify } from '../../models/User/VerifyModel'
 
 interface IUserService {
   NearbyDrivers(phoneNumber: string, phoneCode: string): Promise<IUserInstance[] | []>
   show(pParam: { id: string; isDriver?: boolean }): Promise<IUserInstance | null>
   all(pParam: any): Promise<IResponseAllUser | IUserInstance[]>
+  operatorAll(): Promise<IUserInstance[]>
+  allUserAdmin(): Promise<IUserInstance[]>
 }
 export interface NearbyDriversParamTypes {
   lat: string
@@ -23,7 +26,6 @@ class UserService implements IUserService {
       if (data[field]) {
         const existingUser = await modelUser.findOne({
           where: { [field]: data[field] },
-          logging: true,
         })
         if (existingUser) {
           const errorItems = [
@@ -48,7 +50,7 @@ class UserService implements IUserService {
 
   public async NearbyDrivers(pParam: any): Promise<IUserInstance[] | []> {
     try {
-      let query = `SELECT temp.*, vehicle_types.is_car, vehicle_types.is_moto FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, availability_to_travel, vehicle_type, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users) as temp left join vehicle_types on temp.vehicle_type = vehicle_types.id WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2' AND socket_id is not null`
+      let query = `SELECT temp.*, vehicle_types.is_car, vehicle_types.is_moto FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, availability_to_travel, vehicle_type, driver_suspended_to, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users) as temp left join vehicle_types on temp.vehicle_type = vehicle_types.id WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2' AND socket_id is not null`
       if (pParam.typeService === ETypeService.CAR) {
         query = query + ' AND vehicle_types.is_car = true and vehicle_types.is_moto = false'
       }
@@ -87,6 +89,25 @@ class UserService implements IUserService {
               type: 'driverId',
             },
           },
+          {
+            model: modelVerify,
+            as: 'verify',
+            required: false,
+            where: {
+              status: EStatusVerify.denied
+            }
+          },
+          {
+            model: modelVehicleType,
+            as: 'vehicleTypeData',
+            required: false,
+            attributes: ['name', 'isMoto', 'isCar']
+          },
+          {
+            model: modelSuspension,
+            as: 'suspension',
+            required: false,
+          },
         ]
       } else {
         whereStatement.include = [
@@ -115,18 +136,8 @@ class UserService implements IUserService {
           },
         ]
       }
-      // whereStatement.attributes = [
-      //   'id',
-      //   'name',
-      //   'socketId',
-      //   'tokenPush',
-      //   'avatar',
-      //   'phoneCode',
-      //   'phoneNumber',
-      //   'availabilityToTravel',
-      //   'createdAt',
-      // ]
-      const vResponse: IUserInstance | null = await modelUser.findOne(whereStatement)
+
+      const vResponse: IUserInstance | null = await modelUser.scope(['allAttributes', 'isDriverSuspended']).findOne(whereStatement)
       return vResponse
     } catch (error) {
       throw error
@@ -149,19 +160,88 @@ class UserService implements IUserService {
           ...whereStatement.where,
           rolId: 3,
         }
+        if ('status' in pParam && pParam.status !== null) {
+          whereStatement.where = {
+            ...whereStatement.where,
+            status: pParam.status,
+          }
+        }
       } else if (pParam.type === 'driver') {
         whereStatement.where = {
           ...whereStatement.where,
           rolId: 3,
-          verifiedDriver: true,
         }
         whereStatement.include = [
           {
             model: modelDriverDetail,
             as: 'detail',
+            required: true,
+          },
+          {
+            model: modelVerify,
+            as: 'verify',
             required: false,
+            where: {
+              status: EStatusVerify.denied
+            }
           },
         ]
+        if ('verifiedDriver' in pParam && pParam.verifiedDriver !== null) {
+          const vDate = new Date()
+          whereStatement.where = {
+            ...whereStatement.where,
+            verifiedDriver: pParam.verifiedDriver,
+            driverSuspendedTo: {
+              [Op.or]: {
+                [Op.lt]: `${vDate.toISOString().split('T')[0]} 00:00:00.000 +00:00`,
+                [Op.is]: null
+              }
+            },
+          }
+        }
+        if ('status' in pParam && pParam.status !== null) {
+          if (Number(pParam.status) === 3) {
+            whereStatement.include = [
+              ...whereStatement.include,
+              {
+                model: modelVerify,
+                as: 'verify',
+                required: true,
+                where: {
+                  status: EStatusVerify.denied
+                }
+              },
+            ]
+          } else {
+            whereStatement.where = {
+              ...whereStatement.where,
+              status: pParam.status,
+            }
+          }
+        }
+        if ('suspended' in pParam && pParam.suspended !== null) {
+          const vDate = new Date()
+          if (Number(pParam.suspended) === 1 || pParam.suspended) {
+            whereStatement.where = {
+              ...whereStatement.where,
+              driverSuspendedTo: {
+                [Op.gt]:  `${vDate.toISOString().split('T')[0]} 00:00:00.000 +00:00`
+              },
+            }
+          } else {
+            whereStatement.where = {
+              ...whereStatement.where,
+              driverSuspendedTo: {
+                [Op.lt]:  `${vDate.toISOString().split('T')[0]} 00:00:00.000 +00:00`
+              },
+            }
+          }
+        }
+        if (!pParam?.orden) {
+          whereStatement.order = [
+            ['verifiedDriver', 'asc']
+          ]
+        }
       }
       if (pParam?.isStaff) {
         whereStatement.where = {
@@ -177,7 +257,23 @@ class UserService implements IUserService {
           },
         ]
       }
-      const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
+      if (pParam?.phoneNumber) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          phoneNumber: {
+            [Op.iLike]: `%${pParam?.phoneNumber}%`
+          }
+        }
+      }
+      if (pParam?.code) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          phoneNumber: {
+            [Op.iLike]: `%${pParam?.code}%`
+          }
+        }
+      }
+      const vResponse: IUserInstance[] = await modelUser.scope(['allAttributes', 'isDriverSuspended']).findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllUser = await fxReponseServices(
           pParam,
@@ -187,6 +283,23 @@ class UserService implements IUserService {
         )
         return vResponsePaginate
       }
+      return vResponse
+    } catch (error) {
+      console.log('error :>> ', error)
+      throw error
+    }
+  }
+
+  public async operatorAll(): Promise<IUserInstance[]> {
+    try {
+      const vResponse: IUserInstance[] = await modelUser.findAll({
+        attributes: ['id', 'name'],
+        where: {
+          staffId: {
+            [Op.not]: null
+          }
+        }
+      })
       return vResponse
     } catch (error) {
       throw error
@@ -204,6 +317,11 @@ class UserService implements IUserService {
         pParam?.typeSearch || 'name',
         modelUser.name
       )
+      whereStatement.attributes = {
+        include: [
+          [Sequelize.literal('(SELECT COUNT(*) from trips as m where "m"."driver_id"="User"."id")'), 'countTrip'],
+        ]
+      }
       if(pParam?.cityId) {
         whereStatement.where = {
           ...whereStatement.where,
@@ -222,10 +340,19 @@ class UserService implements IUserService {
           countryId: pParam.countryId
         }
       }
+      // const vDate = new Date()
       whereStatement.where = {
         ...whereStatement.where,
         lat: {[Op.not]: null },
         lon: {[Op.not]: null },
+        verifiedDriver: true,
+        // socketId: {[Op.not]: null },
+        // driverSuspendedTo: {
+        //   [Op.or]: {
+        //     [Op.lt]: `${vDate.toISOString().split('T')[0]} 00:00:00.000 +00:00`,
+        //     [Op.is]: null
+        //   }
+        // },
       }
       whereStatement.include = [
         {
@@ -243,6 +370,21 @@ class UserService implements IUserService {
           },
           required: false
         },
+        {
+          model: modelUserRating,
+          as: 'driverRating',
+          required: false,
+          attributes: ['quantity', 'ratings'],
+          where: {
+            type: 'driverId',
+          },
+        },
+        {
+          model: modelVehicleType,
+          as: 'vehicleTypeData',
+          required: false,
+          attributes: ['name', 'isMoto', 'isCar'],
+        }
       ]
       const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
       if (Number(pParam?.pag)) {
@@ -287,7 +429,7 @@ class UserService implements IUserService {
     }
   }
 
-  async updateLocation(pData: { id: string, cityId?: number | null, regionId?: number | null, countryId?: number | null }): Promise<IUserInstance | null> {
+  async updateLocation(pData: { id: string, cityId?: number | null, regionId?: number | null, countryId?: number | null, lat?: number | null, lon?: number | null }): Promise<IUserInstance | null> {
     try {
       if (pData?.id) {
         const vUser: IUserInstance | null = await modelUser.findOne({
@@ -295,7 +437,14 @@ class UserService implements IUserService {
             id: pData.id,
           },
         })
-        await vUser?.update(pData)
+        const vDataUser = {
+          cityId: pData?.cityId || Number(vUser?.dataValues?.cityId) || null,
+          regionId: pData?.regionId || Number(vUser?.dataValues?.regionId) || null,
+          countryId: pData?.countryId || Number(vUser?.dataValues?.countryId) || null,
+          lat: pData?.lat || vUser?.dataValues?.lat || null,
+          lon: pData?.lon || vUser?.dataValues?.lon || null,
+        }
+        await vUser?.update(vDataUser)
         return vUser
       }
       return null
@@ -304,7 +453,7 @@ class UserService implements IUserService {
     }
   }
 
-  async sumBalance(pData: { id: string, balance: number }): Promise<IUserInstance | null> {
+  async sumBalance(pData: { id: string, balance?: number, discount?: number }): Promise<IUserInstance | null> {
     try {
       if (pData?.id && pData.balance) {
         const vUser: IUserInstance | null = await modelUser.findOne({
@@ -318,11 +467,25 @@ class UserService implements IUserService {
         })
         return vUser
       }
+      
+      if (pData?.id && pData.discount) {
+        const vUser: IUserInstance | null = await modelUser.findOne({
+          where: {
+            id: pData.id,
+          },
+        })
+        const balance = Number(vUser?.dataValues.balance) || 0
+        await vUser?.update({
+          balance: pData?.discount ? Number(balance) - pData.discount : balance,
+        })
+        return vUser
+      }
       return null
     } catch (error) {
       throw error
     }
   }
+
   async softDeleteRecord(pId: number) {
     try {
       const record = await modelUser.update(
@@ -335,6 +498,26 @@ class UserService implements IUserService {
         return false
       }
       return true
+    } catch (error) {
+      throw error
+    }
+  }
+
+  public async allUserAdmin(): Promise<IUserInstance[]> {
+    try {
+      const whereStatement: FindOptions = {
+        attributes: ['id', 'rolId', 'socketId'],
+        where: {
+          rolId: {
+            [Op.or]: [1, 2]
+          },
+          socketId: {
+            [Op.not]: null
+          }
+        }
+      }
+      const vResponse: IUserInstance[] = await modelUser.scope(['allAttributes', 'isDriverSuspended']).findAll(whereStatement)
+      return vResponse
     } catch (error) {
       throw error
     }

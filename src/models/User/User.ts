@@ -2,18 +2,19 @@ import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 import { v4 as uuidv4 } from 'uuid'
 import type { ETypeUser } from '../../types/User'
-import type { ModelRegistry } from '..'
+import { type ModelRegistry } from '..'
 
 export interface IUserAttributes {
   id: string
   avatar?: string | null
   name?: string | null
+  lastName?: string | null
   email?: string | null
   password: string
   phoneCode: string
   phoneNumber: string
   vehicleType?: number
-  dob?: Date
+  dob?: string
   status?: boolean
   statusDriver?: EStatusDriver
   isTaxi?: boolean
@@ -67,6 +68,10 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
   name: {
     type: DataTypes.STRING,
     field: 'name',
+  },
+  lastName: {
+    type: DataTypes.STRING,
+    field: 'last_name',
   },
   avatar: {
     type: DataTypes.STRING,
@@ -212,7 +217,7 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     defaultValue: null,
   },
   dob: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
     field: 'dob',
     allowNull: true,
     defaultValue: null,
@@ -289,17 +294,34 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
 
 // --> Factory....
 export function fxUserFactory(sequelize: Sequelize) {
-  const vUser = <ModelStatic<IUserInstance>>sequelize.define('User', vUserModelAttributes, {
+  const vUser = <ModelStatic<IUserInstance>>sequelize.define('User', {
+    ...vUserModelAttributes,
+    isDriverSuspended: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        // return this.getDataValue('driver_suspended_to') > new Date()
+        const driverSuspendedTo = this.getDataValue('driverSuspendedTo')
+        return driverSuspendedTo ? driverSuspendedTo > new Date() : false
+      },
+    },
+  },{
     tableName: 'users',
     defaultScope: {
       attributes: {
-        exclude: ['password', 'deletedAt'],
+        exclude: ['password'],
+        // include: [[sequelize.literal('CASE WHEN "driver_suspended_to" > NOW() THEN true ELSE false END'), 'isDriverSuspended']]
       },
-      order: [['createdAt', 'DESC']],
+      order: [['verifiedDriver', 'asc'], ['createdAt', 'DESC']],
     },
     scopes: {
       withPassword: {
-        attributes: ['id', 'email', 'rolId', 'password'],
+        attributes: ['id', 'email', 'rolId', 'password', 'name', 'lastName', 'staffId'],
+      },
+      allAttributes: {
+        attributes: ['id', 'name', 'lastName', 'avatar', 'email', 'phoneCode', 'phoneNumber', 'vehicleType', 'isTaxi', 'isVip', 'isAc', 'seats', 'availabilityToTravel', 'rolId', 'status', 'statusDriver', 'verifiedDriver', 'typeUser', 'isNewUser', 'token', 'tokenPush', 'socketId', 'dob', 'lat', 'lon', 'balance', 'driverSuspendedTo', 'staffId', 'branchId', 'cityId', 'regionId', 'countryId', 'createdAt', 'updatedAt'],
+      },
+      isDriverSuspended: {
+        attributes: [[sequelize.literal('CASE WHEN "driver_suspended_to" > NOW() THEN true ELSE false END'), 'isDriverSuspended']],
       },
     },
     freezeTableName: true,
@@ -308,7 +330,7 @@ export function fxUserFactory(sequelize: Sequelize) {
   })
 
   vUser.associate = function (models: ModelRegistry) {
-    const { modelUser, modelDriverDetail, modelTrip, modelUserRating, modelStaff } = models
+    const { modelUser, modelDriverDetail, modelTrip, modelUserRating, modelStaff, modelVehicleType, modelBranch, modelVerify, modelSuspension } = models
     modelUser.hasMany(modelDriverDetail, {
       foreignKey: 'user_id',
       as: 'detail',
@@ -333,6 +355,26 @@ export function fxUserFactory(sequelize: Sequelize) {
       sourceKey: 'staffId',
       foreignKey: 'id',
       as: 'staff',
+    })
+    modelUser.hasOne(modelBranch, {
+      sourceKey: 'branchId',
+      foreignKey: 'id',
+      as: 'branch',
+    })
+    modelUser.hasOne(modelVehicleType, {
+      sourceKey: 'vehicleType',
+      foreignKey: 'id',
+      as: 'vehicleTypeData',
+    })
+    modelUser.hasOne(modelVerify, {
+      sourceKey: 'id',
+      foreignKey: 'userId',
+      as: 'verify',
+    })
+    modelUser.hasOne(modelSuspension, {
+      sourceKey: 'id',
+      foreignKey: 'driverId',
+      as: 'suspension',
     })
   }
 

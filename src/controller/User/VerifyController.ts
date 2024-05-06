@@ -61,6 +61,9 @@ class VerifyController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IVerifyInput = pReq.only(['userId', 'appeal', 'reason', 'status'])
+      const driverId = pReq.input('driverId')
+      vData.userId = driverId || vData.userId
+      vData.status = EStatusVerify.denied
       const vResponse: IVerifyInstance | null = await ClassVerifyService.create(vData)
       if (!vResponse) {
         return pRes
@@ -76,22 +79,34 @@ class VerifyController {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IVerifyInput = pReq.only(['id', 'userId', 'appeal', 'reason', 'status'])
+      const vVerifyId = pReq.input('verifyId', 'number') || null
+      vData.id = vVerifyId || vData.id
+      console.log('vData :>> ', vData)
+
+      if (!vData?.id) {
+        const user = await modelUser.findOne({ where: { id: vData.userId } })
+        if (user) {
+          user.verifiedDriver = true
+          await user.save()
+        }
+        return pRes.status(200).send(fxSuccessResponse(200, true, 'Correcto'))
+      }
       const vResponse: IVerifyInstance | null = await ClassVerifyService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
-
-      if (vResponse.status === EStatusVerify.verified) {
+      if (Number(vResponse.status) === EStatusVerify.verified) {
         const user = await modelUser.findOne({ where: { id: vResponse.userId } })
         if (user) {
           user.verifiedDriver = true
           await user.save()
         }
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }

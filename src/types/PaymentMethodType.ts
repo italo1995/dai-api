@@ -32,12 +32,13 @@ export interface IBankInput {
   icon?: string
   phoneNumber?: string
   accountNumber?: string
-  currencyId?: string
+  currencyId?: number
   fullName: string
   dni: string
   accountType: EAccountType
   email?: string
   hasCapture?: boolean
+  isConvert?: boolean
 }
 
 export interface IResponseAllBank extends IResponseAll {

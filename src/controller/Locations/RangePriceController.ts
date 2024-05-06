@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassRangePriceService from '../../services/Locations/RangePriceService'
 import type { IResponseAll } from '../../types/generalType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { IRangePriceInstance } from '../../models/Locations/RangePriceModel'
+import { ETypeRangePrice, type IRangePriceInstance } from '../../models/Locations/RangePriceModel'
 import { ETypeService } from '../../models/Trip/TripModel'
 
 class RangePriceController {
@@ -46,8 +46,10 @@ class RangePriceController {
         city: pReq.input('city'),
         region: pReq.input('region'),
         country: pReq.input('country'),
-        isCar: typeService === ETypeService.CAR || typeService === ETypeService.TRAVEL,
-        isMoto: typeService === ETypeService.MOTO || typeService === ETypeService.DELIVERY,
+        isCar: typeService === ETypeService.CAR,
+        isMoto: typeService === ETypeService.MOTO,
+        isDelivery: typeService === ETypeService.DELIVERY,
+        isTravel: typeService === ETypeService.TRAVEL,
       }
 
       const vResponse: IRangePriceInstance | null = await ClassRangePriceService.showPrice(vParam)
@@ -64,6 +66,7 @@ class RangePriceController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -76,10 +79,32 @@ class RangePriceController {
         'countryId',
         'isMoto',
         'isCar',
+        'isTravel',
+        'isDelivery',
         'baseKilometer',
         'basePrice',
         'extraPrice',
+        'name',
+        'extraKilometer',
+        'distanceToSearch',
       ])
+      vData.isCar = false
+      vData.isMoto = false
+      vData.isTravel = false
+      vData.isDelivery = false
+      if (vData.name === ETypeRangePrice.CARROPAYA) {
+        vData.isCar = true
+      }
+      if (vData.name === ETypeRangePrice.MOTOPAYA) {
+        vData.isMoto = true
+        vData.isCar = false
+      }
+      if (vData.name === ETypeRangePrice.CIUDADACIUDAD) {
+        vData.isTravel = true
+      }
+      if (vData.name === ETypeRangePrice.DELIVERY) {
+        vData.isDelivery = true
+      }
       const vResponse: IRangePriceInstance | null = await ClassRangePriceService.create(vData)
       if (!vResponse) {
         return pRes
@@ -101,10 +126,32 @@ class RangePriceController {
         'countryId',
         'isMoto',
         'isCar',
+        'isTravel',
+        'isDelivery',
         'baseKilometer',
         'basePrice',
         'extraPrice',
+        'name',
+        'extraKilometer',
+        'distanceToSearch',
       ])
+      vData.isCar = false
+      vData.isMoto = false
+      vData.isTravel = false
+      vData.isDelivery = false
+
+      if (vData.name === ETypeRangePrice.CARROPAYA) {
+        vData.isCar = true
+      }
+      if (vData.name === ETypeRangePrice.MOTOPAYA) {
+        vData.isMoto = true
+      }
+      if (vData.name === ETypeRangePrice.CIUDADACIUDAD) {
+        vData.isTravel = true
+      }
+      if (vData.name === ETypeRangePrice.DELIVERY) {
+        vData.isDelivery = true
+      }
       const vResponse: IRangePriceInstance | null = await ClassRangePriceService.update(vData)
       if (!vResponse) {
         return pRes

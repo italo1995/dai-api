@@ -51,6 +51,12 @@ class RegionService implements IRegionService {
         pParam?.typeSearch || 'name',
         'Region'
       )
+      if (pParam?.countryId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          countryId: pParam.countryId
+        }
+      }
       const vRes = await modelRegion.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10

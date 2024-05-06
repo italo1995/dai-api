@@ -97,7 +97,6 @@ class DataContent implements IDataContent {
         where: {
           type: type,
         },
-        logging: true,
       })
       EDataType.security
       return vResponse

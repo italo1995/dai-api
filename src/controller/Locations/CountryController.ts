@@ -70,7 +70,7 @@ class CountryController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICountryInput = pReq.only(['name', 'flags', 'phoneCode', 'state', 'phone'])
+      const vData: ICountryInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone'])
 
       const vResponse: ICountryInstance | null = await ClassCountryService.create(vData)
       if (!vResponse) {

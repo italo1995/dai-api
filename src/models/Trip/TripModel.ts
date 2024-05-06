@@ -32,11 +32,13 @@ export enum ETypeService {
   TRAVEL = 'travel',
 }
 export enum EStatusTrip {
+  ALL = 'all',
   PENDIENTE = 'buscando driver',
   ACEPTADO = 'traslado en proceso',
   INPLACE = 'en el sitio',
   FINALIZADO = 'traslado exitoso',
   CANCELADO = 'cancelado',
+  ANULADO = 'anulado',
 }
 interface ITripCreationAttributes extends Optional<ITripAttributes, 'id'> {}
 

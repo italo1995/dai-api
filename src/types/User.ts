@@ -9,6 +9,7 @@ import type { IDriverReportInstance } from '../models/User/driverReportModel'
 export interface IUserInput {
   id?: string
   name: string
+  lastName?: string
   avatar?: string
   email?: string
   password?: string
@@ -49,6 +50,7 @@ export interface IUserInputUpdate {
   typeUser?: ETypeUser
   rolId: number
   isNewUser: boolean
+  dob: string
 }
 
 export interface IUserUpdateSocket {
@@ -146,6 +148,7 @@ export interface IResponseAllComment {
 export interface ISuspensionInput {
   id: number
   driverId: string
+  adminId?: string
   reason: string
   timeFrame: ETypeTime
   init: Date

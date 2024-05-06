@@ -20,6 +20,7 @@
   8 - showCode: Verifica que el codigo enviado por el usuario es real y fue creado ese dia.
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
+import { Op, Sequelize, ValidationError, ValidationErrorItem } from 'sequelize'
 import type {
   IUserInput,
   IUserCodeInput,
@@ -28,15 +29,14 @@ import type {
 } from '../../types/User'
 import { EStatusDriver, type IUserInstance } from '../../models/User/User'
 import type { IUserCodeInstance } from '../../models/User/UserCode'
-import { modelDriverDetail, modelUser, modelUserCode, modelUserRating } from '../../models'
-import { Op, ValidationError, ValidationErrorItem } from 'sequelize'
+import { modelDriverDetail, modelUser, modelUserCode, modelUserRating, modelVehicleType } from '../../models'
 
 interface IAuthService {
   showUserNumber(phoneNumber: string, phoneCode: string): Promise<IUserInstance | null>
   create(payload: IUserInput): Promise<IUserInstance>
   update(payload: IUserInputUpdate): Promise<IUserInstance | null>
   updateSocket(payload: IUserUpdateSocket): Promise<IUserInstance | null>
-  disconnect(pId: string): Promise<boolean>
+  disconnect(pId: string): Promise<boolean | IUserInstance>
   delete(pId: string): Promise<boolean>
 }
 
@@ -46,7 +46,6 @@ class AuthService implements IAuthService {
     for (const field of fieldsToCheck) {
       const existingUser = await modelUser.findOne({
         where: { [field]: data[field] },
-        logging: true,
       })
       if (existingUser) {
         const errorItems = [
@@ -70,9 +69,14 @@ class AuthService implements IAuthService {
 
   async show(pId: string): Promise<IUserInstance | null> {
     try {
-      const vResponse: IUserInstance | null = await modelUser.findOne({
+      const vResponse: IUserInstance | null = await modelUser.scope(['allAttributes', 'isDriverSuspended']).findOne({
         where: {
           id: pId,
+        },
+        attributes: {
+          include: [
+            [Sequelize.literal('(SELECT COUNT(*) from trips as m where "m"."driver_id"="User"."id")'), 'countTrip'],
+          ]
         },
         include: [
           {
@@ -98,6 +102,12 @@ class AuthService implements IAuthService {
               type: 'driverId',
             },
           },
+          {
+            model: modelVehicleType,
+            as: 'vehicleTypeData',
+            required: false,
+            attributes: ['name', 'isMoto', 'isCar'],
+          }
         ],
       })
       return vResponse
@@ -149,6 +159,7 @@ class AuthService implements IAuthService {
           },
         },
       ],
+      paranoid: false,
     })
     return vResponse
   }
@@ -158,7 +169,6 @@ class AuthService implements IAuthService {
       where: {
         phoneNumber: pPhoneNumber,
       },
-      logging: true,
     })
     return vResponse
   }
@@ -176,7 +186,7 @@ class AuthService implements IAuthService {
             id: pData.id,
           },
         })
-        await vUser?.update(pData, { where: { id: pData.id } })
+        await vUser?.update(pData)
         return vUser
       }
       return null
@@ -213,6 +223,16 @@ class AuthService implements IAuthService {
     return vResponse
   }
 
+  async deleteSocketCode(socketId: string) {
+    await modelUser?.update(
+      {
+        tokenPush: null,
+        socketId: null,
+      },
+      { where: { socketId: socketId } }
+    )
+  }
+
   async showUserCodeNumber(pPhoneNumber: string, pPhoneCode: string): Promise<string | null> {
     const vPhoneNumber: string = `${pPhoneCode}${pPhoneNumber}`
     const vDate = new Date()
@@ -223,7 +243,6 @@ class AuthService implements IAuthService {
           [Op.gte]: this.formatearFecha(vDate),
         },
       },
-      logging: true,
     })
     return vResponse?.dataValues?.code || null
   }
@@ -238,7 +257,6 @@ class AuthService implements IAuthService {
           [Op.gte]: this.formatearFecha(vDate),
         },
       },
-      logging: true,
     })
 
     await vResponse?.destroy()
@@ -251,7 +269,7 @@ class AuthService implements IAuthService {
 
   async login(pEmail: string): Promise<IUserInstance | null> {
     try {
-      const vUser = await modelUser.scope('withPassword').findOne({ where: { email: pEmail } })
+      const vUser: any = await modelUser.scope('withPassword').findOne({ where: { email: pEmail } })
       return vUser
       // if (!vUser || !bcrypt.compareSync(pPassword, vUser.password)) {
       //   throw new Error('Email or password is incorrect')
@@ -265,7 +283,7 @@ class AuthService implements IAuthService {
     }
   }
 
-  async disconnect(pId: string): Promise<boolean> {
+  async disconnect(pId: string): Promise<false | IUserInstance> {
     try {
       const vUser: IUserInstance | null = await modelUser.findOne({
         where: {
@@ -281,7 +299,7 @@ class AuthService implements IAuthService {
           },
           { where: { id: pId } }
         )
-        return true
+        return vUser
       }
       return false
     } catch (error) {
@@ -307,8 +325,7 @@ class AuthService implements IAuthService {
             name: null,
             statusDriver: EStatusDriver.INACTIVE,
             deletedAt: new Date(),
-          },
-          { where: { id: pId } }
+          }
         )
         return true
       }
@@ -322,7 +339,7 @@ class AuthService implements IAuthService {
     const dia = date.getDate().toString().padStart(2, '0')
     const mes = (date.getMonth() + 1).toString().padStart(2, '0')
     const año = date.getFullYear()
-    return `${año}/${mes}/${dia}`
+    return `${año}-${mes}-${dia}`
   }
 }
 const ClassAuthService = new AuthService()

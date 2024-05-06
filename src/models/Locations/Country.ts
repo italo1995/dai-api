@@ -75,6 +75,7 @@ export function fxCountryFactory(sequelize: Sequelize) {
       },
       freezeTableName: true,
       timestamps: true,
+      paranoid: true,
     }
   )
 

@@ -22,10 +22,11 @@ Para todos los caso si ocurre cualquier error, lo envia usando NextFunction al m
 import type { NextFunction, Request, Response } from 'express'
 import ClassSuspensionService from '../../services/User/SuspensionService'
 import type { IResponseAllSuspension, ISuspensionInput } from '../../types/User'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, fxSendMessageTextDinamic } from '../../utils/helpers'
 import { ETypeTime, type ISuspensionInstance } from '../../models/User/SuspensionModel'
 import { modelUser } from '../../models'
 import { addYears, addHours } from 'date-fns'
+import NotificationService from '../fcmPushController'
 
 class SuspensionController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -66,14 +67,18 @@ class SuspensionController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
+      const adminId = pReq.auth.id
       const vData: ISuspensionInput = pReq.only([
         'driverId',
         'reason',
+        'hours',
         'timeFrame',
         'init',
         'end',
         'isCanceled',
       ])
+      vData.adminId = adminId
+      const hours = pReq.input('hours', 'number')
       const existingSuspension = await ClassSuspensionService.findActiveSuspension(vData.driverId)
       if (existingSuspension) {
         return pRes
@@ -88,7 +93,7 @@ class SuspensionController {
       }
       vData.init = new Date()
       vData.isCanceled = false
-      switch (vData.timeFrame) {
+      switch (Number(vData.timeFrame)) {
       case ETypeTime.indefinido:
         vData.end = addYears(vData.init, 100)
         break
@@ -98,15 +103,20 @@ class SuspensionController {
         break
 
       case ETypeTime.horas:
-        if (!vData.hours) {
+        if (!hours) {
           throw new Error('Debes proporcionar la cantidad de horas para la suspension')
         }
-        vData.end = addHours(vData.init, vData.hours)
+        vData.end = addHours(vData.init, hours)
         break
 
       case ETypeTime.fecha:
         if (!vData.end) {
           throw new Error('Debes proporcionar una fecha específica para cancelar la suspension')
+        } else {
+          const vEnd: any = pReq.input('end')?.split('-')
+          const vEndDate = new Date(vEnd[0], vEnd[1] - 1, vEnd[2], 23, 59, 0)
+          vData.end = vEndDate
+          vData.init = pReq.input('init')
         }
         break
       }
@@ -121,6 +131,23 @@ class SuspensionController {
       if (user) {
         user.driverSuspendedTo = vResponse.end
         await user.save()
+      }
+      if (user?.dataValues.phoneCode && user?.dataValues.phoneNumber) {
+        fxSendMessageTextDinamic({
+          phoneCode: user?.dataValues.phoneCode,
+          phoneNumber: user?.dataValues.phoneNumber,
+          text: `Ha sido suspendido en PAYA hasta: ${vResponse.end.toLocaleString()}`
+        })
+      }
+      if (user?.dataValues.tokenPush) {
+        const notificationData = {
+          title: 'Usuario suspendido',
+          body: `Ha sido suspendido en PAYA hasta: ${vResponse.end.toLocaleString()}`,
+        }
+        await NotificationService.sendNotification(
+          [user.dataValues.tokenPush],
+          notificationData
+        )
       }
       const message = `La suspensión del conductor fue generada hasta ${vResponse.end.toLocaleString()}`
       return pRes
@@ -143,19 +170,56 @@ class SuspensionController {
         'id',
         'driverId',
         'reason',
-        'timeFrame',
         'init',
         'end',
         'isCanceled',
       ])
-      const vResponse: ISuspensionInstance | null = await ClassSuspensionService.update(vData)
-      if (!vResponse) {
-        return pRes
-          .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      const user = await modelUser.findOne({ where: { id: vData.driverId } })
+      if (user) {
+        user.driverSuspendedTo = null
+        await user.save()
+      } else {
+        return pRes.status(200).send(fxSuccessResponse(500, null, 'Correcto'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
+      if (user?.dataValues.phoneCode && user?.dataValues.phoneNumber) {
+        fxSendMessageTextDinamic({
+          phoneCode: user?.dataValues.phoneCode,
+          phoneNumber: user?.dataValues.phoneNumber,
+          text: `Tu usuario ${user.dataValues.name} ha sido activado en PAYA`
+        })
+      }
+      if (user?.dataValues.tokenPush) {
+        const notificationData = {
+          title: 'Usuario activado',
+          body: `Tu usuario ${user.dataValues.name} ha sido activado en PAYA`,
+        }
+        await NotificationService.sendNotification(
+          [user.dataValues.tokenPush],
+          notificationData
+        )
+      }
+      if (vData?.id) {
+        const vResponse: ISuspensionInstance | null = await ClassSuspensionService.update(vData)
+        if (!vResponse) {
+          return pRes
+            .status(500)
+            .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+        }
+        return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      } else {
+        const suspendedCreate: ISuspensionInstance | null = await ClassSuspensionService.showFilter({
+          driverId: vData.driverId,
+          end: pReq.input('driverSuspendedTo', 'string')
+        })
+        if (suspendedCreate) {
+          vData.id = suspendedCreate?.dataValues.id
+          vData.isCanceled = true
+          await ClassSuspensionService.update(vData)
+        }
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, null, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }

@@ -71,6 +71,7 @@ class BankController {
         'accountType',
         'email',
         'hasCapture',
+        'isConvert',
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)
@@ -100,7 +101,8 @@ class BankController {
         'dni',
         'accountType',
         'email',
-        'hasCapture'
+        'hasCapture',
+        'isConvert',
       ])
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)

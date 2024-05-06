@@ -78,6 +78,7 @@ class TripService implements ITripService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      console.log('whereStatement.order :>> ', whereStatement.order)
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
@@ -113,7 +114,7 @@ class TripService implements ITripService {
       if (pParam?.TripPending) {
         whereStatement.where = { ...whereStatement.where, status: EStatusTrip.PENDIENTE }
       }
-      if (pParam?.status) {
+      if (pParam?.status && pParam?.status !== EStatusTrip.ALL) {
         whereStatement.where = { ...whereStatement.where, status: pParam?.status }
       }
       if (pParam?.typeService) {
@@ -123,7 +124,9 @@ class TripService implements ITripService {
         let whereDriver: any = {}
         if (pParam?.driverName) {
           whereDriver = {
-            name: pParam.driverName
+            name: {
+              [Op.like]: `%${pParam.driverName}%`
+            }
           }
         }
         whereStatement.include = [
@@ -131,6 +134,14 @@ class TripService implements ITripService {
             model: modelTripDelivery,
             as: 'delivery',
             required: false,
+          },
+          {
+            model: modelReview,
+            as: 'review',
+            required: false,
+            where: {
+              type: ETypeReview.PASSENGER,
+            },
           },
           {
             model: modelTripRoute,
@@ -193,7 +204,7 @@ class TripService implements ITripService {
           {
             model: modelUser,
             as: 'driver',
-            required: whereDriver ? true : false,
+            required: pParam?.driverName ? true : false,
             include: [
               {
                 model: modelUserRating,
@@ -272,6 +283,15 @@ class TripService implements ITripService {
             'currencyId', 'driverId'
           ]
           whereStatementNotFilter.group = ['currencyId', 'driverId']
+          whereStatementNotFilter.where = {
+            status: EStatusTrip.FINALIZADO
+          }
+          if (pParam?.driverId) {
+            whereStatementNotFilter.where = {
+              status: EStatusTrip.FINALIZADO,
+              driverId: pParam.driverId
+            }
+          }
           const again: any = await modelTrip.unscoped().findAll(whereStatementNotFilter)
           if (again) {
             vResp.again = again
@@ -299,7 +319,6 @@ class TripService implements ITripService {
       }
       return vRes
     } catch (error) {
-      console.log('error :>> ', error)
       throw error
     }
   }
@@ -446,9 +465,13 @@ class TripService implements ITripService {
         whereStatement.where = {
           id: pParam.id,
         }
-      } else {
+      } else if (pParam.userId) {
         whereStatement.where = {
           driverId: pParam.userId,
+          id: pParam.id,
+        }
+      } else {
+        whereStatement.where = {
           id: pParam.id,
         }
       }
@@ -836,21 +859,28 @@ class TripService implements ITripService {
   async update(pData: ITripUpdate): Promise<ITripInstance | null> {
     try {
       const whereStatement: FindOptions = {}
-      if (pData.userId) {
+      if (pData?.userId) {
         whereStatement.where = {
           userId: pData.userId,
           id: pData.id,
         }
-      } else if (pData.driverId) {
+      } else if (pData?.driverId) {
         whereStatement.where = {
           driverId: {
             [Op.or]: [pData.driverId, null],
           },
           id: pData.id,
         }
+      } else if (pData?.id) {
+        whereStatement.where = {
+          id: pData.id,
+        }
       }
       if (pData?.id) {
         const vItem: ITripInstance | null = await modelTrip.findOne(whereStatement)
+        if (vItem?.dataValues.status === EStatusTrip.FINALIZADO && pData.status === EStatusTrip.ANULADO) {
+          return null
+        }
         if (!pData?.price) {
           pData.price = vItem?.price || 0
         }

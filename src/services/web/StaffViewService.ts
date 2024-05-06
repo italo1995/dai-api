@@ -1,5 +1,5 @@
 import { type FindOptions } from 'sequelize'
-import { modelStaffView } from '../../models'
+import { modelStaffView, modelView } from '../../models'
 import type {
   staffViewInstance,
   staffViewAttributes,
@@ -32,7 +32,18 @@ class staffViewService implements IstaffViewService {
         pParam?.typeSearch || 'name',
         'staffView'
       )
-
+      if (pParam?.staffId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          staffId: pParam.staffId
+        }
+        whereStatement.include = [
+          {
+            model: modelView,
+            as: 'view',
+          }
+        ]
+      }
       const vResponse: staffViewInstance[] = await modelStaffView.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: staffViewReponseAll = await fxReponseServices(

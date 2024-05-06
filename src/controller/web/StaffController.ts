@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express'
+import bcrypt from 'bcryptjs'
 import staffService from '../../services/web/StaffService'
 import type { staffAttributes, staffReponseAll, staffInstance } from '../../models/web/StaffModel'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
@@ -100,12 +101,16 @@ export const staff = {
   async createUser(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IUserInput = pReq.only(['email', 'password', 'staffId', 'branchId', 'name'])
+      if (typeof vData.password === 'string') {
+        vData.password = bcrypt.hashSync(vData.password, 10)
+      }
+      vData.rolId = 2
       await ClassUserService.validate(vData)
       const vResponse: IUserInstance | null = await ClassUserService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Creado con exito'))
     } catch (error) {
@@ -114,13 +119,13 @@ export const staff = {
   },
   async updateUser(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IUserInput = pReq.only(['email', 'password', 'staffId', 'branchId', 'name'])
-      await ClassUserService.validate(vData)
+      const vData: IUserInput = pReq.only(['id', 'email', 'password', 'staffId', 'branchId', 'name'])
+      // await ClassUserService.validate(vData)
       const vResponse: IUserInstance | null = await ClassUserService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Creado con exito'))
     } catch (error) {

@@ -42,7 +42,9 @@ class CurrencyService implements ICurrencyService {
     try {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
-      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      if (pParam.orden) {
+        whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      }
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
@@ -155,6 +157,19 @@ class CurrencyService implements ICurrencyService {
         return Number(vAmountConvertReponse.toFixed(4))
       }
       return data.amount
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async principal(): Promise<ICurrencyInstance | null> {
+    try {
+      const vResponse: ICurrencyInstance | null = await modelCurrency.findOne({
+        where: {
+          change: 1,
+        },
+      })
+      return vResponse
     } catch (error) {
       throw error
     }

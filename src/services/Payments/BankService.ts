@@ -16,7 +16,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import { modelBank } from '../../models'
+import { modelBank, modelCurrency } from '../../models'
 import type { IBankInstance } from '../../models/payments/BankModel'
 import type { IBankInput, IResponseAllBank } from '../../types/PaymentMethodType'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -54,7 +54,13 @@ class BankService implements IBankService {
           accountType: pParam.accountType,
         }
       }
-
+      whereStatement.include = [
+        {
+          model: modelCurrency,
+          as: 'currency',
+          required: false
+        }
+      ]
       const vResponse: IBankInstance[] = await modelBank.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllBank = await fxReponseServices(
@@ -77,6 +83,13 @@ class BankService implements IBankService {
         where: {
           id: pId,
         },
+        include: [
+          {
+            model: modelCurrency,
+            as: 'currency',
+            required: false
+          }
+        ]
       })
       return vResponse
     } catch (error) {

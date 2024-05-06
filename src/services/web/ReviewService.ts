@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import { type IReviewInstance } from '../../models/web/ReviewModel'
+import { ETypeReview, type IReviewInstance } from '../../models/web/ReviewModel'
 import { modelReview, modelUser } from '../../models'
 import type { IReviewInput, IResponseAllReview } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -46,13 +46,19 @@ class ReviewService implements IReviewService {
         pParam?.typeSearch || 'name',
         'Review'
       )
-      if (pParam?.userId) {
+      if (pParam?.clientId) {
         whereStatement.where = {
           ...whereStatement.where,
-          userId: pParam.userId,
+          clientId: pParam.clientId,
+          type: ETypeReview.DRIVER,
         }
-      }
-      if (pParam?.type) {
+      }else if (pParam?.driverId) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          driverId: pParam.driverId,
+          type: ETypeReview.PASSENGER,
+        }
+      }else if (pParam?.type) {
         whereStatement.where = {
           ...whereStatement.where,
           type: pParam.type,

@@ -1,5 +1,6 @@
 import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface staffViewAttributes {
   id?: number
@@ -62,6 +63,13 @@ export function fxStaffViewFactory(sequelize: Sequelize) {
       timestamps: true,
     }
   )
-
+  staffView.associate = function (models: ModelRegistry) {
+    const { modelStaffView, modelView } = models
+    modelStaffView.belongsTo(modelView, {
+      foreignKey: 'viewId',
+      targetKey: 'id',
+      as: 'view',
+    })
+  }
   return staffView
 }

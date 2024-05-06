@@ -70,7 +70,7 @@ class CityController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICityInput = pReq.only(['name', 'flags', 'phoneCode', 'state', 'phone'])
+      const vData: ICityInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone'])
 
       const vResponse: ICityInstance | null = await ClassCityService.create(vData)
       if (!vResponse) {

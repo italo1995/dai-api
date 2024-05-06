@@ -46,6 +46,12 @@ class RangePriceService implements IRangePriceService {
         pParam?.typeSearch || 'name',
         modelRangePrice.name
       )
+      if (Number(pParam?.country)) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          countryId: Number(pParam.country)
+        }
+      }
       const vRes = await modelRangePrice.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vLimit = Number(pParam?.limit) || 10
@@ -79,12 +85,16 @@ class RangePriceService implements IRangePriceService {
     country,
     isCar,
     isMoto,
+    isDelivery,
+    isTravel
   }: {
     city: string
     region: string
     country: string
     isCar: boolean
     isMoto: boolean
+    isDelivery: boolean
+    isTravel: boolean
   }): Promise<IRangePriceInstance | null> {
     const formattedCity = city
       .normalize('NFD')
@@ -127,10 +137,12 @@ class RangePriceService implements IRangePriceService {
           },
         },
       ]
-      if (isCar || isMoto) {
+      if (isCar || isMoto || isDelivery || isTravel) {
         whereStatement.where = {
           isCar,
           isMoto,
+          isDelivery,
+          isTravel
         }
       }
       const vFindAll: IRangePriceInstance[] | null = await modelRangePrice.findAll(whereStatement)
@@ -151,12 +163,16 @@ class RangePriceService implements IRangePriceService {
     countryId,
     isCar,
     isMoto,
+    isDelivery,
+    isTravel
   }: {
     cityId?: number | null
     regionId?: number | null
     countryId?: number | null
     isCar: boolean
     isMoto: boolean
+    isDelivery: boolean
+    isTravel: boolean
   }): Promise<IRangePriceInstance | null> {
     try {
       const whereStatement: FindOptions = {}
@@ -193,6 +209,8 @@ class RangePriceService implements IRangePriceService {
       whereStatement.where = {
         isCar,
         isMoto,
+        isDelivery,
+        isTravel,
         [Op.or]: {
           cityId: cityId,
           regionId: regionId,

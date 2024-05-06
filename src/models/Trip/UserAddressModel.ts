@@ -45,7 +45,7 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = 
     type: DataTypes.TEXT,
     field: 'reference',
     defaultValue: '',
-    allowNull: false,
+    allowNull: true,
   },
   lat: {
     type: DataTypes.DOUBLE,

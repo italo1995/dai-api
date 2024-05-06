@@ -35,7 +35,7 @@ module.exports = {
         allowNull: true,
       },
       currencyId: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         field: 'currency_id',
         defaultValue: null,
         allowNull: true,

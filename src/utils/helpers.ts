@@ -97,6 +97,31 @@ export const fxTwilioSendCode = async (
   return vCode.toString()
 }
 
+export const fxTwilioSendCodeRecharge = async (
+  pPhoneNumber: string,
+  pCode: string | null,
+  pHash: string | null
+): Promise<string> => {
+  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
+  const vAuthToken = AppConfig.TWILIO_AUTH_Token
+  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
+  const fxClient = twilio(vAccountSid, vAuthToken)
+  let vCode: string | null = pCode
+  if (!vCode) {
+    vCode = fxGenerateCode()
+  }
+  try {
+    await fxClient.messages.create({
+      body: `${pHash ? pHash : ''} Tu código de retiro es: ${vCode}`,
+      from: vTwilioPhoneNumber,
+      to: pPhoneNumber,
+    })
+  } catch (error) {
+    throw error
+  }
+  return vCode.toString()
+}
+
 export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Error> => {
   const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
   const vAuthToken = AppConfig.TWILIO_AUTH_Token
@@ -114,19 +139,36 @@ export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Err
   return true
 }
 
+export const fxSendMessageTextDinamic = async (data: { phoneCode: string, phoneNumber: string, text: string }): Promise<boolean | Error> => {
+  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
+  const vAuthToken = AppConfig.TWILIO_AUTH_Token
+  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
+  const fxClient = twilio(vAccountSid, vAuthToken)
+  try {
+    await fxClient.messages.create({
+      body: data.text,
+      from: vTwilioPhoneNumber,
+      to: `${data.phoneCode}${data.phoneNumber}`,
+    })
+  } catch (error) {
+    console.log('error :>> ', error)
+    throw error
+  }
+  return true
+}
+
 export const sortLatLonDriver = (
   lat: number | null,
   lon: number | null
 ): [number, number] | [null, null] => {
   if (lat && lon) {
-    const vRandomLat = Math.random()
     const max = 0.005
     const min = -0.005
-    const rango = max - min
-    const vRandomLon = Math.random()
+    const vRandomLon = Math.random() * (max - min) + min
+    const vRandomLat = Math.random() * (max - min) + min
 
-    const difLat = min + vRandomLat * rango
-    const difLon = min + vRandomLon * rango
+    const difLat = min + vRandomLat
+    const difLon = min + vRandomLon
     const newLat = lat + difLat
     const newLon = lon + difLon
     return [Number(newLat.toFixed(7)), Number(newLon.toFixed(7))]

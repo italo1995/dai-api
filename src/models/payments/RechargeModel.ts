@@ -15,6 +15,8 @@ export interface rechargeAttributes {
   userId?: string
   status?: EStatusRecharge
   reason?: string
+  type?: ETypeRecharge
+  code?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -27,6 +29,8 @@ export interface rechargeReponseAll {
   actualPage: number
   totalAmount?: any
   totalAgain?: any
+  totalAmountFilter?: any
+  totalAgainFilter?: any
 }
 
 interface rechargeCreationAttributes extends Optional<rechargeAttributes, 'id'> {}
@@ -36,9 +40,14 @@ export interface rechargeInstance
     rechargeAttributes {}
 
 export enum EStatusRecharge {
-  approved = 1,
-  pending = 2,
-  rejected = 3,
+  APPROVED = 1,
+  PENDING = 2,
+  DECLINE = 3,
+}
+
+export enum ETypeRecharge {
+  recharge = 1,
+  withDraw = 2,
 }
 
 export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = {
@@ -98,6 +107,18 @@ export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = 
     allowNull: true,
     defaultValue: null,
   },
+  type: {
+    type: DataTypes.INTEGER,
+    field: 'type',
+    allowNull: true,
+    defaultValue: 1,
+  },
+  code: {
+    type: DataTypes.STRING,
+    field: 'code',
+    allowNull: true,
+    defaultValue: null,
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -130,7 +151,7 @@ export function fxRechargeFactory(sequelize: Sequelize) {
     }
   )
   recharge.associate = function (models: ModelRegistry) {
-    const { modelRecharge, modelBank, modelCurrency } = models
+    const { modelRecharge, modelBank, modelCurrency, modelUser } = models
     modelRecharge.hasOne(modelBank, {
       sourceKey: 'bankId',
       foreignKey: 'id',
@@ -140,6 +161,16 @@ export function fxRechargeFactory(sequelize: Sequelize) {
       sourceKey: 'currencyId',
       foreignKey: 'id',
       as: 'currency',
+    })
+    modelRecharge.hasOne(modelUser, {
+      sourceKey: 'userId',
+      foreignKey: 'id',
+      as: 'user',
+    })
+    modelRecharge.hasOne(modelUser, {
+      sourceKey: 'adminId',
+      foreignKey: 'id',
+      as: 'admin',
     })
   }
   return recharge

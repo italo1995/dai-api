@@ -72,6 +72,7 @@ export function fxRegionFactory(sequelize: Sequelize) {
     },
     freezeTableName: true,
     timestamps: true,
+    paranoid: true,
   })
 
   vRegion.prototype.toJSON = function () {

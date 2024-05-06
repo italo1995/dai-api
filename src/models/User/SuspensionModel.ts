@@ -1,9 +1,11 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+import type { ModelRegistry } from '..'
 
 export interface ISuspensionAttributes {
   id: number
   driverId: string
+  adminId?: string
   reason: string
   timeFrame: ETypeTime
   init: Date
@@ -35,8 +37,12 @@ export const vSuspensionAttributes: SequelizeAttributes<ISuspensionAttributes> =
     autoIncrement: true,
   },
   driverId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     field: 'driver_id',
+  },
+  adminId: {
+    type: DataTypes.UUID,
+    field: 'admin_id',
   },
   reason: {
     type: DataTypes.TEXT,
@@ -98,7 +104,14 @@ export function fxSuspensionFactory(sequelize: Sequelize) {
       paranoid: true,
     }
   )
-
+  vSuspension.associate = function (models: ModelRegistry) {
+    const { modelUser, modelSuspension } = models
+    modelSuspension.hasOne(modelUser, {
+      foreignKey: 'id',
+      sourceKey: 'adminId',
+      as: 'admin',
+    })
+  }
   vSuspension.prototype.toJSON = function () {
     const vValues = { ...this.get() }
     return vValues
