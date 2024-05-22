@@ -3,11 +3,11 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 import { type ModelRegistry } from '..'
 
 export interface ICarDataAttributes {
-  id: string
+  id?: string
   name: string
   icon: string
   type: ETypeCarData
-  parentId?: string
+  parentId?: string | null
   isCar?: boolean
   isMoto?: boolean
   createdAt?: Date

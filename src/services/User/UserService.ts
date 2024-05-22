@@ -5,6 +5,9 @@ import { EStatusTrip, ETypeService } from '../../models/Trip/TripModel'
 import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'
 import type { IResponseAllUser, IUserInput } from '../../types/User'
 import { EStatusVerify } from '../../models/User/VerifyModel'
+import CompanyParameterService from '../web/CompanyParameterService'
+import CurrencyService from '../Payments/CurrencyService'
+import { SocketService } from '../../ws'
 
 interface IUserService {
   NearbyDrivers(phoneNumber: string, phoneCode: string): Promise<IUserInstance[] | []>
@@ -50,13 +53,21 @@ class UserService implements IUserService {
 
   public async NearbyDrivers(pParam: any): Promise<IUserInstance[] | []> {
     try {
-      let query = `SELECT temp.*, vehicle_types.is_car, vehicle_types.is_moto FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, availability_to_travel, vehicle_type, driver_suspended_to, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users) as temp left join vehicle_types on temp.vehicle_type = vehicle_types.id WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2' AND socket_id is not null`
+      const vPercentageParameter = await CompanyParameterService.showByName('percentage')
+      const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
+      const commission: number = pParam?.minAmount ? (pParam.minAmount * vPercentage) / 100 : 0
+      let minAmount = 0
+      if (pParam.currencyId && commission) {
+        minAmount = await CurrencyService.convert({ currencyId: Number(pParam.currencyId), amount: Number(commission) })
+      }
+      let query = `SELECT temp.*, vehicle_types.is_car, vehicle_types.is_moto FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, availability_to_travel, vehicle_type, balance, driver_suspended_to, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users where balance > ${minAmount}) as temp left join vehicle_types on temp.vehicle_type = vehicle_types.id WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2' AND socket_id is not null`
       if (pParam.typeService === ETypeService.CAR) {
         query = query + ' AND vehicle_types.is_car = true and vehicle_types.is_moto = false'
       }
       if (pParam.typeService === ETypeService.MOTO) {
         query = query + ' AND vehicle_types.is_car = false and vehicle_types.is_moto = true'
       }
+      console.log('query :>> ', query)
       const vResponse = await sequelize.query(query, {
         mapToModel: true,
         model: modelUser,
@@ -465,6 +476,10 @@ class UserService implements IUserService {
         await vUser?.update({
           balance: Number(balance) + pData.balance,
         })
+        SocketService.io.to(vUser?.dataValues.socketId).emit('recharge', {
+          balance: vUser?.balance,
+          type: 'recharge'
+        })
         return vUser
       }
       
@@ -477,6 +492,10 @@ class UserService implements IUserService {
         const balance = Number(vUser?.dataValues.balance) || 0
         await vUser?.update({
           balance: pData?.discount ? Number(balance) - pData.discount : balance,
+        })
+        SocketService.io.to(vUser?.dataValues.socketId).emit('recharge', {
+          balance: vUser?.balance,
+          type: 'withDraw'
         })
         return vUser
       }

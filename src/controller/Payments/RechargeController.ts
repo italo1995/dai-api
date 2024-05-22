@@ -102,6 +102,10 @@ export const recharge = {
             id: vData.userId,
             balance: amount
           })
+          // const vUser = await ClassUserService.show({ id: vData.userId })
+          // if (vUser?.dataValues.socketId) {
+          //   SocketService.io.to(vUser?.dataValues.socketId).emit('recharge', vData)
+          // }
         }
       } 
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))

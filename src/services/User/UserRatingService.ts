@@ -18,9 +18,9 @@ import { type FindOptions } from 'sequelize'
 import type { IUserRatingInstance } from '../../models/User/UserRatingModel'
 import { modelUserRating } from '../../models'
 import type { IResponseAllUserRating, IUserRatingInput } from '../../types/User'
-import ClassReviewService from '../web/ReviewService'
-import { type IResponseAllReview } from '../../types/webTypes'
-import { type IReviewInstance } from '../../models/web/ReviewModel'
+// import ClassReviewService from '../web/ReviewService'
+// import { type IResponseAllReview } from '../../types/webTypes'
+import { ETypeReview, type IReviewInstance } from '../../models/web/ReviewModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IUserRatingService {
@@ -29,7 +29,7 @@ interface IUserRatingService {
   show(pId: number): Promise<IUserRatingInstance | null>
   create(payload: IUserRatingInput): Promise<IUserRatingInstance>
   softDeleteRecord(pId: number): Promise<boolean>
-  updateRating(userId: string, type: string): Promise<IUserRatingInstance>
+  updateRating(data: IReviewInstance): Promise<IUserRatingInstance>
 }
 
 class UserRatingService implements IUserRatingService {
@@ -51,11 +51,12 @@ class UserRatingService implements IUserRatingService {
     }
   }
 
-  async showUser(pUserId: string): Promise<IUserRatingInstance | null> {
+  async showUser(pUserId: string, type: string): Promise<IUserRatingInstance | null> {
     try {
       const vResponse: IUserRatingInstance | null = await modelUserRating.findOne({
         where: {
           userId: pUserId,
+          type: type
         },
       })
       return vResponse
@@ -92,49 +93,45 @@ class UserRatingService implements IUserRatingService {
     }
   }
 
-  public async updateRating(userId: string, type: string): Promise<IUserRatingInstance> {
+  public async updateRating(data: IReviewInstance): Promise<IUserRatingInstance> {
     try {
-      const response: IResponseAllReview | IReviewInstance[] = await ClassReviewService.all({
-        [type + 'Id']: userId,
-      })
-
-      let sum = 0
-      let quantity = 0
-      if ('data' in response) {
-        response.data.forEach((review) => {
-          sum += review.qualification
-          quantity += 1
-        })
-      } else if (Array.isArray(response)) {
-        response.forEach((review) => {
-          sum += review.qualification
-          quantity += 1
-        })
-      }
-
-      const averageRating = sum / quantity
-
-      // Encuentra el registro de calificación del usuario
-      let userRating = await this.showUser(userId)
-
-      // Si el registro de calificación del usuario no existe, lo crea
+      const type = data.dataValues.type === ETypeReview.DRIVER ? 'clientId' : 'driverId'
+      const vUserId: any = type === 'clientId' ? data.dataValues.clientId : data.dataValues.driverId
+      let userRating = await this.showUser(vUserId, type)
       if (!userRating) {
+        console.log({
+          userId: vUserId,
+          type: type,
+          ratings: data.dataValues.qualification,
+          averageRating: data.dataValues.qualification,
+          quantity: 1,
+        })
         userRating = await this.create({
-          userId,
-          type: `${type}Id`,
-          ratings: averageRating,
-          averageRating: averageRating,
-          quantity: quantity,
+          userId: vUserId,
+          type: type,
+          ratings: data.dataValues.qualification,
+          averageRating: data.dataValues.qualification,
+          quantity: 1,
         })
       } else {
-        // Si el registro de calificación del usuario existe, se actualiza
+        const ratings = userRating?.dataValues.ratings
+        const quantity = userRating?.dataValues.quantity
+        const newRatings = ((ratings * quantity) + data.dataValues.qualification) / (quantity + 1)
+        console.log({
+          id: userRating.id,
+          userId: vUserId,
+          type: type,
+          ratings: newRatings,
+          averageRating: newRatings,
+          quantity: quantity + 1,
+        })
         userRating = await this.update({
           id: userRating.id,
-          userId: userId,
-          type: `${type}Id`,
-          ratings: averageRating,
-          averageRating: averageRating,
-          quantity: quantity,
+          userId: vUserId,
+          type: type,
+          ratings: newRatings,
+          averageRating: newRatings,
+          quantity: quantity + 1,
         })
         if (!userRating) {
           throw new Error('No se pudo actualizar la calificación del usuario')
@@ -143,7 +140,6 @@ class UserRatingService implements IUserRatingService {
 
       return userRating
     } catch (error) {
-      console.error(error)
       throw error
     }
   }

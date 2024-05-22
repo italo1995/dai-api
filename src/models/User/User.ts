@@ -289,6 +289,8 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
   deletedAt: {
     type: DataTypes.DATE,
     field: 'deletedAt',
+    allowNull: true,
+    defaultValue: null,
   },
 }
 

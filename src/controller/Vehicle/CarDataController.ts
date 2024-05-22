@@ -7,10 +7,12 @@
 - Creation: 16/03/2024  
  */
 import type { NextFunction, Request, Response } from 'express'
+import path from 'path'
+import fs from 'fs'
 import ClassCarDataService from '../../services/Vehicle/CarDataService'
 import type { ICarDataInput, IResponseAllCarData } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
-import type { ICarDataInstance } from '../../models//Vehicle/CarDataModel'
+import type { ICarDataAttributes, ICarDataInstance } from '../../models//Vehicle/CarDataModel'
 import VehicleTypeService from '../../services/Vehicle/VehicleTypeService'
 import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
 
@@ -105,6 +107,81 @@ class CarDataController {
     try {
       const vId: number = pReq.input('id', 'number')
       const vResponse: boolean = await ClassCarDataService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  async autoCreate(_pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vRutaJSON: any = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../carData.json'), 'utf-8'))
+      const data: ICarDataAttributes[] = []
+      for (const item of vRutaJSON.moto.models) {
+        if (item) {
+          data.push({
+            name: item,
+            icon: '',
+            type: 2,
+            parentId: null,
+            isCar: false,
+            isMoto: true
+          })
+        }
+      }
+      for (const item of vRutaJSON.car.models) {
+        if (item) {
+          data.push({
+            name: item,
+            icon: '',
+            type: 2,
+            parentId: null,
+            isCar: true,
+            isMoto: false
+          })
+        }
+      }
+      for (const item of vRutaJSON.moto.brands) {
+        if (item) {
+          data.push({
+            name: item,
+            icon: '',
+            type: 4,
+            parentId: null,
+            isCar: false,
+            isMoto: true
+          })
+        }
+      }
+      for (const item of vRutaJSON.car.brands) {
+        if (item) {
+          data.push({
+            name: item,
+            icon: '',
+            type: 4,
+            parentId: null,
+            isCar: true,
+            isMoto: false
+          })
+        }
+      }
+      for (const item of vRutaJSON.color) {
+        if (item) {
+          data.push({
+            name: item,
+            icon: '',
+            type: 3,
+            parentId: null,
+            isCar: true,
+            isMoto: true
+          })
+        }
+      }
+
+      const vResponse: ICarDataAttributes[] = await ClassCarDataService.createMany(data)
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }

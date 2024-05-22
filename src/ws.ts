@@ -284,6 +284,7 @@ export class SocketService {
               distance: vRangePrice?.distanceToSearch || 30,
               isCar: vVehicleType?.dataValues?.isCar || false,
               isMoto: vVehicleType?.dataValues?.isMoto || false,
+              userId: vUser?.id
             }
             const vTripOne: IResponseAllTrip | ITripInstance[] =
               await ClassTripService.NearbyTrips(vParamTripShow)
@@ -379,6 +380,8 @@ export class SocketService {
           lon: initRoute?.dataValues.lon,
           distance: vDistance?.distanceToSearch || 30,
           typeService: vTrip?.dataValues.typeService,
+          minAmount: Number(vTripOffer.dataValues.amount),
+          currencyId: vTripOffer.dataValues.currencyId
         }
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)

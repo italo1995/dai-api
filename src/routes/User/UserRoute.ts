@@ -11,6 +11,6 @@ router.route('/location').get(authMiddleware('operator'), controller.location)
 router.route('/update').post(authMiddleware('operator'), controller.update)
 router.route('/suspended').post(authMiddleware('operator'), controller.suspended)
 router.route('/store').post(authMiddleware('operator'), controller.create)
-router.route('/delete').post(authMiddleware('admin'), controller.destroy)
+router.route('/delete').post(authMiddleware('operator'), controller.destroy)
 
 export default router

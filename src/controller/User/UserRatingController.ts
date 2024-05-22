@@ -21,12 +21,12 @@ class UserRatingController {
     }
   }
 
-  async updateAverageRating(pReq: Request, pRes: Response) {
+  async updateAverageRating(_pReq: Request, pRes: Response) {
     try {
-      const userId = pReq.params.userId
-      const type = pReq.params.type // Asegúrate de que 'type' se pasa como un parámetro
-      await ClassUserRatingService.updateRating(userId, type)
-      return pRes.status(200).send({ message: 'Calificación del usuario actualizada con éxito' })
+      // const userId = pReq.params.userId
+      // const type = pReq.params.type // Asegúrate de que 'type' se pasa como un parámetro
+      // await ClassUserRatingService.updateRating(userId, type)
+      return pRes.status(500).send({ message: 'Endpoint deprecado' })
     } catch (error) {
       console.error(error)
       return pRes

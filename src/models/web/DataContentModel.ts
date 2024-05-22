@@ -23,6 +23,7 @@ export enum EDataType {
   FAQ = 2,
   security = 3,
   us = 4,
+  driver = 5,
 }
 
 export const vDataContentAttributes: SequelizeAttributes<IDataContentAttributes> = {

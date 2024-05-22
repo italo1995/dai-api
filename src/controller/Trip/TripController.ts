@@ -206,6 +206,8 @@ class TripController {
           lon: vInitRoute?.dataValues.lon,
           distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService,
+          minAmount: Number(vResponse?.dataValues?.price),
+          currencyId: vResponse.dataValues.currencyId
         }
         const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
         const vResponseTripActive = JSON.parse(JSON.stringify(vResponse))
@@ -394,10 +396,11 @@ class TripController {
         lon: vInitRoute.lon,
         distance: vRangePrice?.distanceToSearch || 30,
         typeService: vData.typeService,
+        minAmount: Number(vData?.price),
+        currencyId: vData.currencyId
       }
       const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
       const socketIds: any[] = vNearbyDrivers.map((vUser) => vUser.socketId)
-
       const tokenPushs: any[] = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
       const vParamTripShow = {
         id: Number(vTripReponse.id),
@@ -416,7 +419,9 @@ class TripController {
           await NotificationService.sendNotification(tokenPushs, notificationData)
         }
       }
-      SocketService.io.to(socketIds).emit('newTrip', vTripOne)
+      if (socketIds.length) {
+        SocketService.io.to(socketIds).emit('newTrip', vTripOne)
+      }
       if (vNearbyDrivers.length < 10) {
         const vNearbyDriversJSON: any[] = JSON.parse(JSON.stringify(vNearbyDrivers))
         const existingCoords: any = vNearbyDriversJSON.map((driver) => [driver.lat, driver.lon])
@@ -532,6 +537,8 @@ class TripController {
           lon: initRoute?.dataValues.lon,
           distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService,
+          minAmount: Number(vResponse?.dataValues?.price),
+          currencyId: vResponse.dataValues.currencyId
         }
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
@@ -578,9 +585,12 @@ class TripController {
           lon: initRoute?.dataValues.lon,
           distance: vDistance?.distanceToSearch || 30,
           typeService: vResponse?.dataValues.typeService,
+          minAmount: Number(vResponse?.dataValues?.price),
+          currencyId: vResponse.dataValues.currencyId
         }
         if (vParamNearbyDrivers?.lat && vParamNearbyDrivers?.lon) {
           const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
+          console.log('vNearbyDrivers update :>> ', vNearbyDrivers)
           const socketIds: any[] = vNearbyDrivers.map((vUser) => vUser.socketId)
           const tokenPushs: any[] = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
           if (socketIds.length) {

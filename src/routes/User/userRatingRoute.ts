@@ -8,6 +8,6 @@ router.route('/show').get(controller.show)
 router.route('/all').get(controller.all)
 router.route('/update/:userId/:type').post(controller.updateAverageRating)
 router.route('/store').post(controller.create)
-router.route('/delete').post(authMiddleware('admin'), controller.destroy)
+router.route('/delete').post(authMiddleware('operator'), controller.destroy)
 
 export default router

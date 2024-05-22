@@ -19,6 +19,13 @@ export enum EVehicleAdditionalRol {
   AMBOS = 3,
   ALL = 4,
 }
+
+export enum EVehicleAdditionalType {
+  MOTO = 1,
+  CAR = 2,
+  AMBOS = 3,
+  ALL = 4,
+}
 export interface IResponseAllVehicleAdditionalType extends IResponseAll {
   total: number
   totalPage: number

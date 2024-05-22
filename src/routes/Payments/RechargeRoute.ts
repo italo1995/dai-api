@@ -9,6 +9,6 @@ router.route('/all').get(recharge.all)
 router.route('/update').post(authMiddleware('operator'), recharge.update)
 router.route('/verify').post(authMiddleware('operator'), recharge.verify)
 router.route('/store').post(recharge.create)
-router.route('/delete').post(authMiddleware('admin'), recharge.destroy)
+router.route('/delete').post(authMiddleware('operator'), recharge.destroy)
 
 export default router

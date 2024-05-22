@@ -93,12 +93,17 @@ class DataContent implements IDataContent {
       if (pType === 'guide') {
         type = EDataType.guide
       }
+      if (pType === 'us') {
+        type = EDataType.us
+      }
+      if (pType === 'driver') {
+        type = EDataType.driver
+      }
       const vResponse: IDataContentInstance | null = await modelDataContent.findOne({
         where: {
           type: type,
         },
       })
-      EDataType.security
       return vResponse
     } catch (error) {
       throw error

@@ -6,9 +6,9 @@ const router = express.Router()
 
 router.route('/show').get(View.show)
 router.route('/all').get(View.all)
-router.route('/update').post(authMiddleware('admin'), View.update)
-router.route('/store').post(authMiddleware('admin'), View.create)
-router.route('/createMany').post(authMiddleware('admin'), View.createMany)
-router.route('/delete').post(authMiddleware('admin'), View.destroy)
+router.route('/update').post(authMiddleware('operator'), View.update)
+router.route('/store').post(authMiddleware('operator'), View.create)
+router.route('/createMany').post(authMiddleware('operator'), View.createMany)
+router.route('/delete').post(authMiddleware('operator'), View.destroy)
 
 export default router

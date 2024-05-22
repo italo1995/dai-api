@@ -101,20 +101,22 @@ class VehicleAdditionalService implements IVehicleAdditionalService {
         return []
       }
       const vAdditionalsValue = JSONParam.detail.filter((d: any) => d.fieldName === 'additionals')
-      if (vAdditionalsValue) {
+      if (vAdditionalsValue && vAdditionalsValue.length) {
         let stringIds = vAdditionalsValue[0].value
         stringIds = stringIds.replaceAll('{', '')
         stringIds = stringIds.replaceAll('}', '')
-        const ids = stringIds.split(',')
-        if (ids.length === 0) {
-          return []
+        if (stringIds) {
+          const ids = stringIds.split(',')
+          if (ids && ids.length === 0) {
+            return []
+          }
+          const vResponse: IVehicleAdditionalInstance[] = await modelVehicleAdditional.findAll({
+            where: {
+              id: ids,
+            },
+          })
+          return vResponse
         }
-        const vResponse: IVehicleAdditionalInstance[] = await modelVehicleAdditional.findAll({
-          where: {
-            id: ids,
-          },
-        })
-        return vResponse
       }
       return []
     } catch (error) {

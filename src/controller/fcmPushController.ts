@@ -19,27 +19,37 @@ class NotificationService {
     this.messaging = admin.messaging()
   }
 
-  public async sendNotification(token: string[], data: NotificationData): Promise<void> {
+  public async sendNotification(tokens: string[], data: NotificationData): Promise<void> {
+    console.log('sendNotification', tokens, data)
     try {
-      if (token[0]) {
-        const notification = {
-          token: token[0],
-          notification: {
-            title: data.title,
-            body: data.body,
-          },
-          data: {
-            // data: data?.data || '',
-            click_action: 'FCM_PLUGIN_ACTIVITY',
-          },
-          android: {
-            notification: {
-              sound: 'default', // O especifica el nombre de un archivo de sonido personalizado
-            },
-          },
+      for (const token of tokens) {
+        try {
+          if (token) {
+            const notification = {
+              token: token,
+              notification: {
+                title: data.title,
+                body: data.body,
+              },
+              data: {
+                // data: data?.data || '',
+                click_action: 'FCM_PLUGIN_ACTIVITY',
+              },
+              android: {
+                notification: {
+                  sound: 'default', // O especifica el nombre de un archivo de sonido personalizado
+                },
+              },
+            }
+            await this.messaging.send(notification)
+          }
+        } catch (error: any) {
+          if (error.errorInfo.code === 'messaging/registration-token-not-registered') {
+            console.error(`El token ${token} no está registrado:`, error)
+          } else {
+            console.error('Error al enviar la notificación:', error)
+          }
         }
-
-        await this.messaging.send(notification)
       }
     } catch (error) {
       console.error('Error al enviar la notificación:', error)

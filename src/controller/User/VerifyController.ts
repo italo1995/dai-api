@@ -25,6 +25,7 @@ import type { IResponseAllVerify, IVerifyInput } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import { EStatusVerify, type IVerifyInstance } from '../../models/User/VerifyModel'
 import { modelUser } from '../../models'
+import NotificationService from '../fcmPushController'
 
 class VerifyController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -88,6 +89,18 @@ class VerifyController {
         if (user) {
           user.verifiedDriver = true
           await user.save()
+          if (user?.dataValues.tokenPush) {
+            console.log('tiene token push')
+            const notificationData = {
+              title: 'Usuario activado',
+              body: 'Ya puedes comenzar a usar PaYa, te esperamos',
+            }
+            await NotificationService.sendNotification(
+              [user.dataValues.tokenPush],
+              notificationData
+            )
+            console.log('deberia notificar')
+          }
         }
         return pRes.status(200).send(fxSuccessResponse(200, true, 'Correcto'))
       }
@@ -98,10 +111,23 @@ class VerifyController {
           .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       if (Number(vResponse.status) === EStatusVerify.verified) {
+        console.log('paso por aca')
         const user = await modelUser.findOne({ where: { id: vResponse.userId } })
         if (user) {
           user.verifiedDriver = true
           await user.save()
+        }
+        if (user?.dataValues.tokenPush) {
+          console.log('tiene token push')
+          const notificationData = {
+            title: 'Usuario activado',
+            body: 'Ya puedes comenzar a usar PaYa, te esperamos',
+          }
+          await NotificationService.sendNotification(
+            [user.dataValues.tokenPush],
+            notificationData
+          )
+          console.log('deberia notificar')
         }
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))

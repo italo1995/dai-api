@@ -26,6 +26,7 @@ import {
   type IVehicleAdditionalInput,
   type IResponseAllVehicleAdditionalType,
   EVehicleAdditionalRol,
+  EVehicleAdditionalType,
 } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
@@ -50,6 +51,13 @@ class VehicleAdditionalController {
         vReponseParse.rol = EVehicleAdditionalRol.PASAJERO
       } else if (vResponse?.isRegister) {
         vReponseParse.rol = EVehicleAdditionalRol.CONDUCTOR
+      }
+      if (vResponse?.isMoto && vResponse?.isCar) {
+        vReponseParse.type = EVehicleAdditionalRol.AMBOS
+      } else if (vResponse?.isCar) {
+        vReponseParse.type = EVehicleAdditionalType.CAR
+      } else if (vResponse?.isRegister) {
+        vReponseParse.type = EVehicleAdditionalType.MOTO
       }
       return pRes.status(200).send(fxSuccessResponse(200, vReponseParse, 'Correcto'))
     } catch (error) {
@@ -94,8 +102,6 @@ class VehicleAdditionalController {
         vData.icon = await moveImages(vData.icon)
       }
       const vRol = pReq.input('rol', 'number')
-      console.log('vRol :>> ', vRol)
-      console.log('vData :>> ', vData)
       if (vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
         vData.isClient = true
       } else {
@@ -105,6 +111,17 @@ class VehicleAdditionalController {
         vData.isRegister = true
       } else {
         vData.isRegister = false
+      }
+      const vType = pReq.input('type', 'number')
+      if (vType === EVehicleAdditionalType.CAR || vType === EVehicleAdditionalType.AMBOS) {
+        vData.isCar = true
+      } else {
+        vData.isCar = false
+      }
+      if (vType === EVehicleAdditionalType.MOTO || vType === EVehicleAdditionalType.AMBOS) {
+        vData.isMoto = true
+      } else {
+        vData.isMoto = false
       }
       const vResponse: IVehicleAdditionalInstance | null =
         await ClassVehicleAdditionalService.create(vData)
@@ -131,8 +148,7 @@ class VehicleAdditionalController {
         'isRegister',
       ])
       const vRol = pReq.input('rol', 'number')
-      console.log('vRol :>> ', vRol)
-      console.log('vData :>> ', vData)
+      const vType = pReq.input('type', 'number')
       if (vRol === EVehicleAdditionalRol.PASAJERO || vRol === EVehicleAdditionalRol.AMBOS) {
         vData.isClient = true
       } else {
@@ -142,6 +158,16 @@ class VehicleAdditionalController {
         vData.isRegister = true
       } else {
         vData.isRegister = false
+      }
+      if (vType === EVehicleAdditionalType.CAR || vType === EVehicleAdditionalType.AMBOS) {
+        vData.isCar = true
+      } else {
+        vData.isCar = false
+      }
+      if (vType === EVehicleAdditionalType.MOTO || vType === EVehicleAdditionalType.AMBOS) {
+        vData.isMoto = true
+      } else {
+        vData.isMoto = false
       }
       if (vData?.icon && vData?.icon.includes('temp')) {
         vData.icon = await moveImages(vData.icon)

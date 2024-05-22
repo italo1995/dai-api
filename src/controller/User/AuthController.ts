@@ -69,7 +69,7 @@ class AuthController {
         vData.phoneNumber,
         vData.phoneCode
       )
-      if (vPhoneNumberExist?.dataValues?.deletedAt !== null) {
+      if (vPhoneNumberExist?.dataValues?.deletedAt && vPhoneNumberExist?.dataValues?.deletedAt !== null) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Usuario bloqueado'))
       }
       if (vUpdatePhoneNumber && vPhoneNumberExist) {
@@ -109,6 +109,7 @@ class AuthController {
       const vResponse: any = fxSuccessResponse(200, { user: vUser }, 'Usuario registrado con exito')
       return pRes.status(200).send(vResponse)
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -219,7 +220,7 @@ class AuthController {
               ) {
                 vData.availabilityToTravel = field?.value
               }
-              if (element.type === 'image') {
+              if (element.type === 'image' && field?.value && field.value !== '0' && field.value !== 'null') {
                 const vRouteAvatarImages = await moveImages(field.value)
                 element.value = vRouteAvatarImages
               } else {

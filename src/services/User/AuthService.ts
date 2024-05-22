@@ -309,27 +309,57 @@ class AuthService implements IAuthService {
 
   async delete(pId: string): Promise<boolean> {
     try {
-      const vUser: IUserInstance | null = await modelUser.findOne({
-        where: {
-          id: pId,
+      const record = await modelUser.update(
+        {
+          tokenPush: null,
+          socketId: null,
+          phoneNumber: pId,
+          avatar: null,
+          email: null,
+          name: null,
+          statusDriver: EStatusDriver.INACTIVE,
+          deletedAt: new Date(),
         },
-      })
-      if (vUser) {
-        await vUser?.update(
-          {
-            tokenPush: null,
-            socketId: null,
-            phoneNumber: pId,
-            avatar: null,
-            email: null,
-            name: null,
-            statusDriver: EStatusDriver.INACTIVE,
-            deletedAt: new Date(),
-          }
-        )
-        return true
+        {
+          where: { id: pId },
+        }
+      )
+      if (!record) {
+        return false
       }
-      return false
+      return true
+      // const vUser: IUserInstance | null = await modelUser.findOne({
+      //   where: {
+      //     id: pId,
+      //   },
+      // })
+      // console.log('vUser :>> ',           {
+      //   tokenPush: null,
+      //   socketId: null,
+      //   phoneNumber: pId,
+      //   avatar: null,
+      //   email: null,
+      //   name: null,
+      //   statusDriver: EStatusDriver.INACTIVE,
+      //   deletedAt: new Date(),
+      // })
+      // if (vUser) {
+      //   await vUser?.update(
+      // {
+      //   tokenPush: null,
+      //   socketId: null,
+      //   phoneNumber: pId,
+      //   avatar: null,
+      //   email: null,
+      //   name: null,
+      //   statusDriver: EStatusDriver.INACTIVE,
+      //   deletedAt: new Date(),
+      // }
+      //   )
+      //   console.log('vUser :>> ', JSON.stringify(vUser))
+      //   return true
+      // }
+      // return false
     } catch (error) {
       throw error
     }

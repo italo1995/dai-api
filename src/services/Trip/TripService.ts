@@ -51,6 +51,8 @@ import { ETypeUser } from '../../types/User'
 import { ETypeReview } from '../../models/web/ReviewModel'
 import type { ITripPanicInstance } from '../../models/Trip/TripPanicModel'
 import CurrencyService from '../Payments/CurrencyService'
+import ClassUserService from '../User/UserService'
+import CompanyParameterService from '../web/CompanyParameterService'
 
 interface ITripService {
   validate(data: any): any
@@ -105,10 +107,10 @@ class TripService implements ITripService {
           userId: pParam.clientId,
         }
       }
-      if (pParam.driverId) {
+      if (pParam?.driverId) {
         whereStatement.where = {
           ...whereStatement.where,
-          driverId: pParam.driverId,
+          driverId: pParam?.driverId,
         }
       }
       if (pParam?.TripPending) {
@@ -124,8 +126,13 @@ class TripService implements ITripService {
         let whereDriver: any = {}
         if (pParam?.driverName) {
           whereDriver = {
-            name: {
-              [Op.like]: `%${pParam.driverName}%`
+            [Op.or]: {
+              name: {
+                [Op.iLike]: `%${pParam.driverName}%`
+              },
+              lastName: {
+                [Op.iLike]: `%${pParam.driverName}%`
+              },
             }
           }
         }
@@ -286,10 +293,10 @@ class TripService implements ITripService {
           whereStatementNotFilter.where = {
             status: EStatusTrip.FINALIZADO
           }
-          if (pParam?.driverId) {
+          if (pParam?.driverId || (pParam.isDriver && pParam.userId)) {
             whereStatementNotFilter.where = {
               status: EStatusTrip.FINALIZADO,
-              driverId: pParam.driverId
+              driverId: pParam?.driverId || pParam.userId
             }
           }
           const again: any = await modelTrip.unscoped().findAll(whereStatementNotFilter)
@@ -441,12 +448,28 @@ class TripService implements ITripService {
       }
       const vTrip: any[] = await modelTrip.findAll(whereStatement)
       const vTripJson: any[] = JSON.parse(JSON.stringify(vTrip))
-      const vResponse = vTripJson.map((trip) => {
-        const distance =
-          vTripRoute.find((route) => route.trip_id === trip.id)?.dataValues?.distance || null
-        trip.distance = distance
-        return trip
+      const vUser = await ClassUserService.show({
+        id: pParam.userId,
+        isDriver: true
       })
+      const vResponse: ITripInstance[] = []
+      for (const trip of vTripJson) {
+        const distance =
+        vTripRoute.find((route) => route.trip_id === trip.id)?.dataValues?.distance || null
+        trip.distance = distance
+        const vPercentageParameter = await CompanyParameterService.showByName('percentage')
+        const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
+        const commission: number = trip?.price ? (trip.price * vPercentage) / 100 : 0
+        let minAmount = 0
+        if (trip.currencyId && commission) {
+          minAmount = await CurrencyService.convert({ currencyId: Number(trip.currencyId), amount: Number(commission) })
+        }
+        if (vUser === null || (!vUser?.dataValues?.balance && vUser?.dataValues?.balance !== 0)) {
+          vResponse.push(trip)
+        } else if (vUser?.dataValues?.balance > minAmount) {
+          vResponse.push(trip)
+        }
+      }
       return vResponse
     } catch (error) {
       throw error

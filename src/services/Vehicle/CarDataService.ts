@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import { ETypeCarData, type ICarDataInstance } from '../../models/Vehicle/CarDataModel'
+import { ETypeCarData, type ICarDataAttributes, type ICarDataInstance } from '../../models/Vehicle/CarDataModel'
 import { modelCarData } from '../../models'
 import type { ICarDataInput, IResponseAllCarData } from '../../types/VehicleTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -27,6 +27,7 @@ interface ICarData {
   create(payload: ICarDataInput): Promise<ICarDataInstance>
   update(payload: ICarDataInput): Promise<ICarDataInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
+  createMany(pData: ICarDataAttributes[]): Promise<ICarDataInstance[]>
 }
 
 class CarData implements ICarData {
@@ -127,6 +128,7 @@ class CarData implements ICarData {
       throw error
     }
   }
+
   async softDeleteRecord(pId: number) {
     try {
       const record = await modelCarData.update(
@@ -139,6 +141,15 @@ class CarData implements ICarData {
         return false
       }
       return true
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  async createMany(pData: ICarDataAttributes[]): Promise<ICarDataInstance[]> {
+    try {
+      const vResponse: ICarDataInstance[] = await modelCarData.bulkCreate(pData)
+      return vResponse
     } catch (error) {
       throw error
     }

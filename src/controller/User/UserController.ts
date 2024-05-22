@@ -131,8 +131,6 @@ class UserController {
         'name',
         'lastName',
         'email',
-        'phoneCode',
-        'phoneNumber',
         'rolId',
         'status',
         'statusDriver',

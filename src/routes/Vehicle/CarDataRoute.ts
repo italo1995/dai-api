@@ -7,8 +7,9 @@ const router = express.Router()
 router.route('/show').get(controller.show)
 router.route('/all').get(controller.all)
 router.route('/brand/:brandId/models').get(controller.getModelsByBrand) //filtra todos los modelos de la marca
-router.route('/update').post(authMiddleware('admin'), controller.update)
-router.route('/store').post(authMiddleware('admin'), controller.create)
-router.route('/delete').post(authMiddleware('admin'), controller.destroy)
+router.route('/update').post(authMiddleware('operator'), controller.update)
+router.route('/store').post(authMiddleware('operator'), controller.create)
+router.route('/delete').post(authMiddleware('operator'), controller.destroy)
+router.route('/autoCreate').get(controller.autoCreate)
 
 export default router

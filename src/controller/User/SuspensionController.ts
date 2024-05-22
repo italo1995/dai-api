@@ -22,7 +22,7 @@ Para todos los caso si ocurre cualquier error, lo envia usando NextFunction al m
 import type { NextFunction, Request, Response } from 'express'
 import ClassSuspensionService from '../../services/User/SuspensionService'
 import type { IResponseAllSuspension, ISuspensionInput } from '../../types/User'
-import { fxSuccessResponse, fxErrorResponse, fxSendMessageTextDinamic } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import { ETypeTime, type ISuspensionInstance } from '../../models/User/SuspensionModel'
 import { modelUser } from '../../models'
 import { addYears, addHours } from 'date-fns'
@@ -132,13 +132,13 @@ class SuspensionController {
         user.driverSuspendedTo = vResponse.end
         await user.save()
       }
-      if (user?.dataValues.phoneCode && user?.dataValues.phoneNumber) {
-        fxSendMessageTextDinamic({
-          phoneCode: user?.dataValues.phoneCode,
-          phoneNumber: user?.dataValues.phoneNumber,
-          text: `Ha sido suspendido en PAYA hasta: ${vResponse.end.toLocaleString()}`
-        })
-      }
+      // if (user?.dataValues.phoneCode && user?.dataValues.phoneNumber) {
+      //   fxSendMessageTextDinamic({
+      //     phoneCode: user?.dataValues.phoneCode,
+      //     phoneNumber: user?.dataValues.phoneNumber,
+      //     text: `Ha sido suspendido en PAYA hasta: ${vResponse.end.toLocaleString()}`
+      //   })
+      // }
       if (user?.dataValues.tokenPush) {
         const notificationData = {
           title: 'Usuario suspendido',
@@ -181,13 +181,13 @@ class SuspensionController {
       } else {
         return pRes.status(200).send(fxSuccessResponse(500, null, 'Correcto'))
       }
-      if (user?.dataValues.phoneCode && user?.dataValues.phoneNumber) {
-        fxSendMessageTextDinamic({
-          phoneCode: user?.dataValues.phoneCode,
-          phoneNumber: user?.dataValues.phoneNumber,
-          text: `Tu usuario ${user.dataValues.name} ha sido activado en PAYA`
-        })
-      }
+      // if (user?.dataValues.phoneCode && user?.dataValues.phoneNumber) {
+      //   fxSendMessageTextDinamic({
+      //     phoneCode: user?.dataValues.phoneCode,
+      //     phoneNumber: user?.dataValues.phoneNumber,
+      //     text: `Tu usuario ${user.dataValues.name} ha sido activado en PAYA`
+      //   })
+      // }
       if (user?.dataValues.tokenPush) {
         const notificationData = {
           title: 'Usuario activado',

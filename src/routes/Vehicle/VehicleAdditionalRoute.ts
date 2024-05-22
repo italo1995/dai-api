@@ -6,9 +6,9 @@ const router = express.Router()
 
 router.route('/show').get(controller.show)
 router.route('/all').get(controller.all)
-// router.route('/update').post(authMiddleware('admin'), controller.update)
+// router.route('/update').post(authMiddleware('operator'), controller.update)
 router.route('/update').post(controller.update)
-// router.route('/store').post(authMiddleware('admin'), controller.create)
+// router.route('/store').post(authMiddleware('operator'), controller.create)
 router.route('/store').post(controller.create)
 router.route('/delete').post(controller.destroy)
 

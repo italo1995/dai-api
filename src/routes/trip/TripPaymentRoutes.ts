@@ -9,5 +9,5 @@ router.route('/all').get(controller.all)
 router.route('/update').post(controller.update)
 router.route('/store').post(controller.create)
 router.route('/delete').post(controller.destroy)
-//authMiddleware('admin'),
+//authMiddleware('operator'),
 export default router

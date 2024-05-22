@@ -88,15 +88,10 @@ class ReviewController {
       vData.tripId = trip?.dataValues.id
       vData.clientId = trip.dataValues?.userId
       vData.driverId = trip.dataValues?.driverId || ''
-      let type, userId
-
+      console.log('vParamTrip :>> ', vParamTrip)
       if (vParamTrip.isClient) {
-        type = 'client'
-        userId = vData.clientId
         vData.type = ETypeReview.PASSENGER
       } else if (vParamTrip.isDriver) {
-        type = 'driver'
-        userId = vData.driverId
         vData.type = ETypeReview.DRIVER
       } else {
         return pRes
@@ -104,21 +99,19 @@ class ReviewController {
           .send(
             fxErrorResponse(
               400,
-              { user: null, token: null },
+              null,
               'Review must have either clientId or driverId'
             )
           )
       }
+      console.log('vData :>> ', vData)
       const vResponse: IReviewInstance | null = await ClassReviewService.create(vData)
       if (!vResponse) {
         return pRes
           .status(500)
-          .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+          .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
-
-      // Actualizar la calificación del usuario
-      await ClassUserRatingService.updateRating(userId, type)
-
+      await ClassUserRatingService.updateRating(vResponse)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)

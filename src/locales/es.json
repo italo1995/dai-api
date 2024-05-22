@@ -14,5 +14,7 @@
 	"isEmail": "isEmail",
 	"notUnique": "no puede repetirse",
 	"phoneNumber": "El numero de telefono",
-	"isNear": "isNear"
+	"isNear": "isNear",
+	"ratings": "ratings",
+	"max": "max"
 }

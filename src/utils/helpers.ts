@@ -48,7 +48,7 @@ export const fxGenerateCode = () => {
 }
 
 export const moveImages = async (pName: string): Promise<string> => {
-  if (pName.includes('storage')) {
+  if (pName && pName.includes('storage')) {
     return pName
   }
   if (pName && fs.existsSync(`uploads/${pName}`)) {
@@ -152,7 +152,7 @@ export const fxSendMessageTextDinamic = async (data: { phoneCode: string, phoneN
     })
   } catch (error) {
     console.log('error :>> ', error)
-    throw error
+    // throw error
   }
   return true
 }
