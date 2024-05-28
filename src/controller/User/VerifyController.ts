@@ -71,6 +71,21 @@ class VerifyController {
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
+      const user = await modelUser.findOne({ where: { id: vData.userId } })
+      if (user) {
+        user.verifiedDriver = true
+        await user.save()
+        if (user?.dataValues.tokenPush) {
+          const notificationData = {
+            title: 'Tu usuario fue rechazado',
+            body: `Razón: ${vData.reason}`,
+          }
+          await NotificationService.sendNotification(
+            [user.dataValues.tokenPush],
+            notificationData
+          )
+        }
+      }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
@@ -82,8 +97,6 @@ class VerifyController {
       const vData: IVerifyInput = pReq.only(['id', 'userId', 'appeal', 'reason', 'status'])
       const vVerifyId = pReq.input('verifyId', 'number') || null
       vData.id = vVerifyId || vData.id
-      console.log('vData :>> ', vData)
-
       if (!vData?.id) {
         const user = await modelUser.findOne({ where: { id: vData.userId } })
         if (user) {
@@ -99,7 +112,6 @@ class VerifyController {
               [user.dataValues.tokenPush],
               notificationData
             )
-            console.log('deberia notificar')
           }
         }
         return pRes.status(200).send(fxSuccessResponse(200, true, 'Correcto'))

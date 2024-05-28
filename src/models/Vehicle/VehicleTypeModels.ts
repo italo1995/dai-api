@@ -6,6 +6,7 @@ export interface IVehicleTypeAtributes {
   name: string
   isMoto?: boolean
   isCar?: boolean
+  orden?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -37,6 +38,12 @@ export const vVehicleTypeModelAttributes: SequelizeAttributes<IVehicleTypeAtribu
     field: 'is_car',
     defaultValue: true,
     allowNull: true,
+  },
+  orden: {
+    type: DataTypes.INTEGER,
+    field: 'orden',
+    allowNull: true,
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,

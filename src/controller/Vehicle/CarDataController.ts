@@ -45,6 +45,7 @@ class CarDataController {
           vParam.isMoto = vVehicleType.dataValues.isMoto
         }
       }
+      vParam.orden = 2
       const vResponse: IResponseAllCarData | ICarDataInstance[] =
         await ClassCarDataService.all(vParam)
       if (!vResponse) {

@@ -40,6 +40,9 @@ class VehicleTypeService implements IVehicleTypeService {
       let whereStatement: FindOptions = {}
       whereStatement = fxPaginate(pParam, whereStatement)
       whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      if (!pParam?.orden) {
+        whereStatement.order = [['orden', 'ASC']]
+      }
       whereStatement.where = fxSearchILike(
         pParam,
         whereStatement,
