@@ -1,0 +1,16 @@
+/api/triproute/show
+/api/triproute/recent
+/api/user/destroy
+/api/vehicletypes/all
+/api/trippayment/update
+/api/triproute/all
+/api/suspension/cancelsuspended
+/api/triproute/update
+/api/vehicletypes/store
+/api/triproute/store
+/api/paymentmwethod/store
+/api/vehicletypes/show
+/api/vehicletypes/update
+/api/trippayment/all
+/api/trippayment/store
+/api/trippayment/show
