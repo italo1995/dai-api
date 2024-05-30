@@ -35,7 +35,7 @@ tags:
   - name: VehicleTypes
     description: VehicleTypes endpoint
 paths:
-  /api/vehicleTypes/show:
+  /api/vehicleType/show:
     get:
       summary: Returns a VehicleType element
       tags:
@@ -51,7 +51,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/VehicleTypes'
-  /api/vehicleTypes/all:
+  /api/vehicleType/all:
     get:
       summary: Returns a list of VehicleTypes
       tags:
@@ -76,7 +76,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/VehicleTypes'
-  /api/vehicleTypes/store:
+  /api/vehicleType/store:
     post:
       summary: Creates a new VehicleType
       tags:
@@ -113,7 +113,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleTypes'
-  /api/vehicleTypes/update:
+  /api/vehicleType/update:
     post:
       summary: Updates a VehicleType
       tags:

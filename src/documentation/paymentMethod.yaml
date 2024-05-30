@@ -108,7 +108,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/paymentMethod'
-  /api/paymentMwethod/store:
+  /api/paymentMethod/store:
     post:
       security:
         - BearerAuth: []
