@@ -49,7 +49,7 @@
 /api/new/update
 /api/paymentMethod/show
 /api/paymentMethod/all
-/api/paymentMwethod/store
+/api/paymentMethod/store
 /api/paymentMethod/update
 /api/review/show
 /api/review/all
@@ -63,7 +63,6 @@
 /api/suspension/all
 /api/suspension/store
 /api/suspension/update
-/api/suspension/cancelsuspended
 /api/term/show
 /api/term/all
 /api/term/store
@@ -89,7 +88,7 @@
 /api/user/all
 /api/user/store
 /api/user/update
-/api/user/destroy
+/api/user/delete
 /api/userAddress/show
 /api/userAddress/all
 /api/userAddress/store
@@ -103,10 +102,10 @@
 /api/vehicleAdditional/all
 /api/vehicleAdditional/store
 /api/vehicleAdditional/update
-/api/vehicleTypes/show
-/api/vehicleTypes/all
-/api/vehicleTypes/store
-/api/vehicleTypes/update
+/api/vehicleType/show
+/api/vehicleType/all
+/api/vehicleType/store
+/api/vehicleType/update
 /api/verify/show
 /api/verify/all
 /api/verify/store

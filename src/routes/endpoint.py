@@ -22,7 +22,10 @@ def find_router_routes(directory):
                             route = route_raw_two.lstrip('/')
                             router_routes.append(route)
                             base_filename_raw = os.path.splitext(filename)[0]
-                            base_filename = base_filename_raw.replace("Route", "")
+                            if "Routes" in base_filename_raw:
+                                base_filename = base_filename_raw.replace("Routes", "")
+                            else:
+                                base_filename = base_filename_raw.replace("Route", "")
                             formatted_filename = f"/api/{base_filename}/{route}"
                             rutas.append(formatted_filename)
                             global archivos
@@ -58,7 +61,7 @@ def find_missing_endpoints(formatted_file, yaml_file, output_file):
     with open(yaml_file, 'r') as file_yaml:
         endpoints_yaml = set(file_yaml.read().lower().splitlines())    
         
-    missing_endpoints = endpoints_yaml - endpoints_formatted
+    missing_endpoints = endpoints_formatted - endpoints_yaml
     
     with open(output_file, 'w') as output:
         for endpoint in missing_endpoints:
