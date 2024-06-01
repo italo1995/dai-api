@@ -323,21 +323,21 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                 
             
         
-        output_directory = "../documentation/pruebas/"    
+        output_directory = "../documentation"    
         output_path = os.path.join(output_directory, f"{service_name}.yaml")
         with open(output_path, "w", encoding="utf-8") as yaml_file:
             yaml.dump(yaml_data, yaml_file)
 
+    
     for model_property, service_property in property_mapping.items():
         yaml_service_data['properties'][service_property] = {
             'type': 'string',
             'description': f'the {service_name} of the {model_property}'
         }
-    yaml_data['components']['schemas'][service_name]['required'] = yaml_service_data
 
 if __name__ == "__main__":
-    target_directory = "../routes/Payments"
-    model_directory = "../models/payments"
+    target_directory = "../routes"
+    model_directory = "../models"
     router_routes, services, needs_auth = find_router_routes(target_directory)
     extracted_properties, property_all_by_services = find_property_models(model_directory)
     

@@ -2,7 +2,7 @@ import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 import type { ModelRegistry } from '..'
 
-export interface rechargeAttributes {
+export interface IRechargeAttributes {
   id?: number
   amount?: any
   countryId?: number
@@ -33,11 +33,11 @@ export interface rechargeReponseAll {
   totalAgainFilter?: any
 }
 
-interface rechargeCreationAttributes extends Optional<rechargeAttributes, 'id'> {}
+interface rechargeCreationAttributes extends Optional<IRechargeAttributes, 'id'> {}
 
 export interface rechargeInstance
-  extends Model<rechargeAttributes, rechargeCreationAttributes>,
-    rechargeAttributes {}
+  extends Model<IRechargeAttributes, rechargeCreationAttributes>,
+    IRechargeAttributes {}
 
 export enum EStatusRecharge {
   APPROVED = 1,
@@ -50,7 +50,7 @@ export enum ETypeRecharge {
   withDraw = 2,
 }
 
-export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = {
+export const rechargeModelAttributes: SequelizeAttributes<IRechargeAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     field: 'id',

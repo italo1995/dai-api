@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import ViewService from '../../services/web/ViewService'
-import type { ViewAttributes, ViewReponseAll, ViewInstance } from '../../models/web/ViewModel'
+import type { IViewAttributes, ViewReponseAll, ViewInstance } from '../../models/web/ViewModel'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 
 export const View = {
@@ -37,7 +37,7 @@ export const View = {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ViewAttributes = pReq.only([])
+      const vData: IViewAttributes = pReq.only([])
 
       const vResponse: ViewInstance | null = await ViewService.create(vData)
       if (!vResponse) {
@@ -67,7 +67,7 @@ export const View = {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ViewAttributes = pReq.only(['id'])
+      const vData: IViewAttributes = pReq.only(['id'])
 
       const vResponse: ViewInstance | null = await ViewService.update(vData)
       if (!vResponse) {

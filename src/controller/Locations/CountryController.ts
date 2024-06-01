@@ -32,7 +32,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassCountryService from '../../services/Locations/CountryService'
 import type { ICountryInput, ICountryUpdate } from '../../types/LocationType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { ICountryInstance } from '../../models/Locations/Country'
+import type { ICountryInstance } from '../../models/Locations/CountryModel'
 import type { IResponseAll } from '../../types/generalType'
 
 class CountryController {

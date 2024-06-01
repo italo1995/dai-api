@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import imageThumbnail from 'image-thumbnail'
 import twilio from 'twilio'
 import AppConfig from '../config/AppConfig'
-import type { IUserAttributes, IUserInstance } from '../models/User/User'
+import type { IUserAttributes, IUserInstance } from '../models/User/UserModel'
 
 export const fxSuccessResponse = (
   code: number | null = null,

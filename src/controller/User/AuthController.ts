@@ -46,7 +46,7 @@ import {
   moveImages,
   fxSendMessage,
 } from '../../utils/helpers'
-import type { IUserInstance } from '../../models/User/User'
+import type { IUserInstance } from '../../models/User/UserModel'
 import ClassDriverDetailService from '../../services/User/DriverDetailService'
 import ClassUserService from '../../services/User/UserService'
 import NotificationService from '../fcmPushController'

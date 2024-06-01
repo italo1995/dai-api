@@ -16,7 +16,7 @@
   4 - update: actualiza datos del usuario
 */
 import { Op, type FindOptions } from 'sequelize'
-import type { IDriverDetailInstance } from '../../models/User/DriverDetail'
+import type { IDriverDetailInstance } from '../../models/User/DriverDetailModel'
 import { modelDriverDetail } from '../../models'
 import type { IDriverDetailInput } from '../../types/User'
 import type { IResponseAll } from '../../types/generalType'

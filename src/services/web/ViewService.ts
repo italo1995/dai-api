@@ -1,14 +1,14 @@
 import { type FindOptions } from 'sequelize'
 import { modelView } from '../../models'
-import type { ViewInstance, ViewAttributes, ViewReponseAll } from '../../models/web/ViewModel'
+import type { ViewInstance, IViewAttributes, ViewReponseAll } from '../../models/web/ViewModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IViewService {
   validate(data: any): any
   show(pId: string): Promise<ViewInstance | null>
-  create(payload: ViewAttributes): Promise<ViewInstance>
+  create(payload: IViewAttributes): Promise<ViewInstance>
   createMany(): Promise<ViewInstance[]>
-  update(payload: ViewAttributes): Promise<ViewInstance | null>
+  update(payload: IViewAttributes): Promise<ViewInstance | null>
   softDeleteRecord(pId: string): Promise<boolean>
 }
 
@@ -59,7 +59,7 @@ class ViewService implements IViewService {
     }
   }
 
-  async create(pData: ViewAttributes): Promise<ViewInstance> {
+  async create(pData: IViewAttributes): Promise<ViewInstance> {
     try {
       const vResponse: ViewInstance = await modelView.create(pData)
       return vResponse
@@ -163,7 +163,7 @@ class ViewService implements IViewService {
     }
   }
 
-  async update(pData: ViewAttributes): Promise<ViewInstance | null> {
+  async update(pData: IViewAttributes): Promise<ViewInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: ViewInstance | null = await modelView.findOne({

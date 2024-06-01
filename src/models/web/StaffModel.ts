@@ -2,7 +2,7 @@ import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 import type { ModelRegistry } from '..'
 
-export interface staffAttributes {
+export interface IStaffAttributes {
   id?: number
   name?: string
   createdAt?: Date
@@ -17,13 +17,13 @@ export interface staffReponseAll {
   actualPage: number
 }
 
-interface staffCreationAttributes extends Optional<staffAttributes, 'id'> {}
+interface staffCreationAttributes extends Optional<IStaffAttributes, 'id'> {}
 
 export interface staffInstance
-  extends Model<staffAttributes, staffCreationAttributes>,
-    staffAttributes {}
+  extends Model<IStaffAttributes, staffCreationAttributes>,
+    IStaffAttributes {}
 
-export const staffModelAttributes: SequelizeAttributes<staffAttributes> = {
+export const staffModelAttributes: SequelizeAttributes<IStaffAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     field: 'id',

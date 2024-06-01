@@ -1,0 +1,283 @@
+components:
+  schemas:
+    RangePrice:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the RangePrice id
+            type: string
+      properties:
+        baseKilometer:
+          description: the baseKilometer of the rangePrice
+          type: number
+        basePrice:
+          description: the basePrice of the rangePrice
+          type: number
+        cityId:
+          description: the cityId of the rangePrice
+          type: number | null
+        countryId:
+          description: the countryId of the rangePrice
+          type: number | null
+        distanceToSearch:
+          description: the distanceToSearch of the rangePrice
+          type: number
+        extraKilometer:
+          description: the extraKilometer of the rangePrice
+          type: number
+        extraPrice:
+          description: the extraPrice of the rangePrice
+          type: number
+        id:
+          description: the id of the rangePrice
+          type: number
+        isCar:
+          description: the isCar of the rangePrice
+          type: boolean
+        isDelivery:
+          description: the isDelivery of the rangePrice
+          type: boolean
+        isMoto:
+          description: the isMoto of the rangePrice
+          type: boolean
+        isTravel:
+          description: the isTravel of the rangePrice
+          type: boolean
+        name:
+          description: the name of the rangePrice
+          type: string
+        regionId:
+          description: the regionId of the rangePrice
+          type: number | null
+      required:
+      - id
+      type: object
+paths:
+  /api/rangePrice/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of rangePrice
+      tags:
+      - RangePrice
+  /api/rangePrice/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '201':
+          description: The RangePrice deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a rangePrice
+      tags:
+      - RangePrice
+  /api/rangePrice/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RangePrice'
+                type: Array
+          description: The list of rangePrice
+      summary: Returns a rangePrice element
+      tags:
+      - RangePrice
+  /api/rangePrice/showPrice:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for showPrice
+      tags:
+      - RangePrice
+  /api/rangePrice/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  baseKilometer:
+                    description: The baseKilometer of the rangePrice
+                    type: number
+                  basePrice:
+                    description: The basePrice of the rangePrice
+                    type: number
+                  distanceToSearch:
+                    description: The distanceToSearch of the rangePrice
+                    type: number
+                  extraKilometer:
+                    description: The extraKilometer of the rangePrice
+                    type: number
+                  extraPrice:
+                    description: The extraPrice of the rangePrice
+                    type: number
+                  isCar:
+                    description: The isCar of the rangePrice
+                    type: boolean
+                  isDelivery:
+                    description: The isDelivery of the rangePrice
+                    type: boolean
+                  isMoto:
+                    description: The isMoto of the rangePrice
+                    type: boolean
+                  isTravel:
+                    description: The isTravel of the rangePrice
+                    type: boolean
+                  name:
+                    description: The name of the rangePrice
+                    type: string
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RangePrice'
+          description: The rangePrice created
+      security:
+      - BearerAuth: []
+      summary: Creates a new rangePrice
+      tags:
+      - RangePrice
+  /api/rangePrice/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  baseKilometer:
+                    description: The baseKilometer of the rangePrice
+                    type: number
+                  basePrice:
+                    description: The basePrice of the rangePrice
+                    type: number
+                  cityId:
+                    description: The cityId of the rangePrice
+                    type: number | null
+                  countryId:
+                    description: The countryId of the rangePrice
+                    type: number | null
+                  distanceToSearch:
+                    description: The distanceToSearch of the rangePrice
+                    type: number
+                  extraKilometer:
+                    description: The extraKilometer of the rangePrice
+                    type: number
+                  extraPrice:
+                    description: The extraPrice of the rangePrice
+                    type: number
+                  id:
+                    description: The id of the rangePrice
+                    type: number
+                  isCar:
+                    description: The isCar of the rangePrice
+                    type: boolean
+                  isDelivery:
+                    description: The isDelivery of the rangePrice
+                    type: boolean
+                  isMoto:
+                    description: The isMoto of the rangePrice
+                    type: boolean
+                  isTravel:
+                    description: The isTravel of the rangePrice
+                    type: boolean
+                  name:
+                    description: The name of the rangePrice
+                    type: string
+                  regionId:
+                    description: The regionId of the rangePrice
+                    type: number | null
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RangePrice'
+          description: The rangePrice updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - RangePrice
+tags:
+- RangePrice

@@ -1,152 +1,194 @@
 components:
   schemas:
     Term:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of Term
-        name:
-          type: string
-          description: the name of the Term
-        description:
-          type: string
-          description: the description of the Term
-        orden:
-          type: number
-          description: the order of the Term
-      required:
-        - name
-        - description
-      example:
-        id: 1
-        name: termino 1
-        description: Esto es un termino y condicion
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            type: string
             description: the Term id
-tags:
-  - name: Term
-    description: Term endpoint
+            type: string
+      properties:
+        description:
+          description: the description of the term
+          type: string
+        id:
+          description: the id of the term
+          type: number
+        name:
+          description: the name of the term
+          type: string
+        orden:
+          description: the orden of the term
+          type: number
+      required:
+      - id
+      - name
+      - description
+      type: object
 paths:
-  /api/term/show:
-    get:
-      summary: Returns a Term element
-      tags:
-        - Term
-      parameters:
-        - $ref: '#/components/schemas/Term/parameters/id'
-      responses:
-        '200':
-          description: the term element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Term'
   /api/term/all:
     get:
-      summary: Returns a list of Term
-      tags:
-        - Term
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of term
+      tags:
+      - Term
+  /api/term/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Term/parameters/id'
+      responses:
+        '201':
+          description: The Term deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a term
+      tags:
+      - Term
+  /api/term/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Term/parameters/id'
       responses:
         '200':
-          description: the list of Term
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/Term'
+                type: Array
+          description: The list of term
+      summary: Returns a term element
+      tags:
+      - Term
   /api/term/store:
     post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new Term
-      tags:
-        - Term
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the Term
-                description:
-                  type: string
-                  description: the link of the Term
-                orden:
-                  type: number
-                  description: the orden of the Term
-              required:
+              parameters:
+                property:
+                  description:
+                    description: The description of the term
+                    type: string
+                  name:
+                    description: The name of the term
+                    type: string
+                  orden:
+                    description: The orden of the term
+                    type: number
+                required:
+                - phoneCode
                 - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
                 - image
-                - description
-              example:
-                name: Esto es un termino
-                description: Aca va el contenido que podria ser un html <h1>Soy un titulo</h1>
-                orden: 1
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
       responses:
         '201':
-          description: the Term created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Term'
+          description: The term created
+      security:
+      - BearerAuth: []
+      summary: Creates a new term
+      tags:
+      - Term
   /api/term/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates a Term
-      tags:
-        - Term
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the Term
-                description:
-                  type: string
-                  description: the description of the Term
-                orden:
-                  type: number
-                  description: the orden of the Term
-              required:
+              parameters:
+                property:
+                  description:
+                    description: The description of the term
+                    type: string
+                  id:
+                    description: The id of the term
+                    type: number
+                  name:
+                    description: The name of the term
+                    type: string
+                  orden:
+                    description: The orden of the term
+                    type: number
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
                 - id
-              example:
-                id: 1
-                name: Esto es un termino
-                description: Aca va el contenido que podria ser un html <h1>Soy un titulo</h1>
-                orden: 1
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
       responses:
         '201':
-          description: the Term updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Term'
+          description: The term updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Term
+tags:
+- Term

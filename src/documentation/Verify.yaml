@@ -1,156 +1,200 @@
 components:
   schemas:
     Verify:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of the verify
-        userId:
-          type: string
-          description: the user's id
-        appeal:
-          type: string
-          description: a field for appeals
-        reason:
-          type: string
-          description: the reason for not verifying
-        status:
-          type: enum
-          description: de verifying status (verified = 1, verifying = 2, denied = 3)
-      required:
-        - userId
-        - status
-      example:
-        id: 1
-        userId: 123
-        status: verified
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
+            description: the Verify id
             type: string
-            description: the verify id
-tags:
-  - name: Verify
-    description: Verify endpoint
+      properties:
+        appeal:
+          description: the appeal of the verify
+          type: string
+        id:
+          description: the id of the verify
+          type: number
+        reason:
+          description: the reason of the verify
+          type: string
+        status:
+          description: the status of the verify
+          type: EStatusVerify
+        userId:
+          description: the userId of the verify
+          type: string
+      required:
+      - id
+      - userId
+      - status
+      type: object
 paths:
-  /api/verify/show:
-    get:
-      summary: Returns a verify element
-      tags:
-        - Verify
-      parameters:
-        - $ref: '#/components/schemas/Verify/parameters/id'
-      responses:
-        '200':
-          description: the verify element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Verify'
   /api/verify/all:
     get:
-      summary: Returns a list of verifies
-      tags:
-        - Verify
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of verify
+      tags:
+      - Verify
+  /api/verify/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
+      responses:
+        '201':
+          description: The Verify deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a verify
+      tags:
+      - Verify
+  /api/verify/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
       responses:
         '200':
-          description: the list of Verify
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/Verify'
+                type: Array
+          description: The list of verify
+      summary: Returns a verify element
+      tags:
+      - Verify
   /api/verify/store:
     post:
-      summary: Creates a new Verify
-      tags:
-        - Verify
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: the user's id
-                appeal:
-                  type: string
-                  description: a field for appeals
-                reason:
-                  type: string
-                  description: the reason for not verifying
-                status:
-                  type: enum
-                  description: de verifying status (verified = 1, verifying = 2, denied = 3)
-              required:
+              parameters:
+                property:
+                  appeal:
+                    description: The appeal of the verify
+                    type: string
+                  reason:
+                    description: The reason of the verify
+                    type: string
+                  status:
+                    description: The status of the verify
+                    type: EStatusVerify
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
                 - userId
                 - status
-              example:
-                id: 1
-                userId: 123
-                status: verified
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
       responses:
         '201':
-          description: the Verify created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Verify'
+          description: The verify created
+      security:
+      - BearerAuth: []
+      summary: Creates a new verify
+      tags:
+      - Verify
   /api/verify/update:
     post:
-      summary: Updates a verify and verifies a driver setting verifiedDriver to true
-      tags:
-        - Verify
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: the user's id
-                appeal:
-                  type: string
-                  description: a field for appeals
-                reason:
-                  type: string
-                  description: the reason for not verifying
-                status:
-                  type: enum
-                  description: de verifying status (verified = 1, verifying = 2, denied = 3)
-              required:
+              parameters:
+                property:
+                  appeal:
+                    description: The appeal of the verify
+                    type: string
+                  id:
+                    description: The id of the verify
+                    type: number
+                  reason:
+                    description: The reason of the verify
+                    type: string
+                  status:
+                    description: The status of the verify
+                    type: EStatusVerify
+                  userId:
+                    description: The userId of the verify
+                    type: string
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
                 - userId
                 - status
-              example:
-                id: 1
-                userId: 123
-                status: verified
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
       responses:
         '201':
-          description: the verify updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Verify'
+          description: The verify updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Verify
+tags:
+- Verify

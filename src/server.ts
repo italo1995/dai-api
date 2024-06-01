@@ -13,7 +13,7 @@ import AppConfig from './config/AppConfig'
 import routes from './routes'
 import { ValidationError } from 'sequelize'
 import { modelErrorReporting, modelUser } from './models'
-import type { IUserInstance } from './models/User/User'
+import type { IUserInstance } from './models/User/UserModel'
 export class Server {
   private app: Express
   private upload = multer()

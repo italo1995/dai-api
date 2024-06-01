@@ -1,0 +1,17 @@
+components:
+  schemas:
+    Auth:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Auth id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- Auth

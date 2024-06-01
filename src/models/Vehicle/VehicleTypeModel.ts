@@ -1,0 +1,80 @@
+import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
+import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
+
+export interface IVehicleTypeAttributes {
+  id: number
+  name: string
+  isMoto?: boolean
+  isCar?: boolean
+  orden?: number
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+interface IVehicleTypeCreationAtributes extends Optional<IVehicleTypeAttributes, 'id'> {}
+
+export interface IVehicleTypeInstance
+  extends Model<IVehicleTypeAttributes, IVehicleTypeCreationAtributes>,
+    IVehicleTypeAttributes {}
+
+export const vVehicleTypeModelAttributes: SequelizeAttributes<IVehicleTypeAttributes> = {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    field: 'name',
+  },
+  isMoto: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_moto',
+    defaultValue: true,
+    allowNull: true,
+  },
+  isCar: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_car',
+    defaultValue: true,
+    allowNull: true,
+  },
+  orden: {
+    type: DataTypes.INTEGER,
+    field: 'orden',
+    allowNull: true,
+    defaultValue: 0,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    field: 'createdAt',
+    allowNull: false,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    field: 'updatedAt',
+    allowNull: false,
+  },
+}
+
+export function fxVehicleTypeFactory(sequelize: Sequelize) {
+  const vVehicleType = <ModelStatic<IVehicleTypeInstance>>sequelize.define(
+    'VehicleType',
+    vVehicleTypeModelAttributes,
+    {
+      tableName: 'vehicle_types',
+      defaultScope: {
+        order: [['createdAt', 'DESC']],
+      },
+      freezeTableName: true,
+      timestamps: true,
+      paranoid: true,
+    }
+  )
+
+  vVehicleType.prototype.toJSON = function () {
+    const vValues = { ...this.get() }
+    return vValues
+  }
+  return vVehicleType
+}

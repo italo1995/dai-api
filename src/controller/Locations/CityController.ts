@@ -32,7 +32,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassCityService from '../../services/Locations/CityService'
 import type { ICityInput, ICityUpdate } from '../../types/LocationType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { ICityInstance } from '../../models/Locations/City'
+import type { ICityInstance } from '../../models/Locations/CityModel'
 import type { IResponseAll } from '../../types/generalType'
 
 class CityController {

@@ -1,7 +1,7 @@
 import { type Sequelize, type Model, type Optional, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
-export interface ViewAttributes {
+export interface IViewAttributes {
   id?: number
   icon?: string
   title?: string
@@ -19,13 +19,13 @@ export interface ViewReponseAll {
   actualPage: number
 }
 
-interface ViewCreationAttributes extends Optional<ViewAttributes, 'id'> {}
+interface ViewCreationAttributes extends Optional<IViewAttributes, 'id'> {}
 
 export interface ViewInstance
-  extends Model<ViewAttributes, ViewCreationAttributes>,
-    ViewAttributes {}
+  extends Model<IViewAttributes, ViewCreationAttributes>,
+    IViewAttributes {}
 
-export const ViewModelAttributes: SequelizeAttributes<ViewAttributes> = {
+export const ViewModelAttributes: SequelizeAttributes<IViewAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     field: 'id',

@@ -32,7 +32,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassRegionService from '../../services/Locations/RegionService'
 import type { IRegionInput, IRegionUpdate } from '../../types/LocationType'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { IRegionInstance } from '../../models/Locations/Region'
+import type { IRegionInstance } from '../../models/Locations/RegionModel'
 import type { IResponseAll } from '../../types/generalType'
 
 class RegionController {

@@ -53,7 +53,7 @@ import VehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalSe
 import { ETypeUser } from '../../types/User'
 import ClassTripCancellationOptionService from '../../services/Trip/TripCancellationOptionService'
 import ClassAuthService from '../../services/User/AuthService'
-import { EStatusDriver } from '../../models/User/User'
+import { EStatusDriver } from '../../models/User/UserModel'
 import RangePriceService from '../../services/Locations/RangePriceService'
 class TripController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

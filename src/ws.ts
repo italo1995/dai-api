@@ -4,7 +4,7 @@ import ClassAuthService from './services/User/AuthService'
 import jwt from 'jsonwebtoken'
 import AppConfig from './config/AppConfig'
 import { modelUser } from './models'
-import { EStatusDriver, type IUserInstance } from './models/User/User'
+import { EStatusDriver, type IUserInstance } from './models/User/UserModel'
 import ClassTripService from './services/Trip/TripService'
 import { EStatusTrip, ETypeService, type ITripInstance } from './models/Trip/TripModel'
 import type {

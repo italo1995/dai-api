@@ -16,7 +16,7 @@
   4 - update: actualiza datos del usuario
 */
 import { Op, type FindOptions } from 'sequelize'
-import type { ITypeFileUserInstance } from '../../models/User/TypeFileUser'
+import type { ITypeFileUserInstance } from '../../models/User/TypeFileUserModel'
 import { modelTypeFileUser } from '../../models'
 import type { ITypeFileUserInput } from '../../types/User'
 import type { IResponseAll } from '../../types/generalType'

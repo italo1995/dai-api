@@ -24,7 +24,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassVehicleTypeService from '../../services/Vehicle/VehicleTypeService'
 import type { IVehicleTypeInput, IResponseAllVehicleTypeType } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
+import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModel'
 
 class VehicleTypeController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

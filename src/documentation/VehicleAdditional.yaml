@@ -1,0 +1,220 @@
+components:
+  schemas:
+    VehicleAdditional:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the VehicleAdditional id
+            type: string
+      properties:
+        icon:
+          description: the icon of the vehicleAdditional
+          type: string
+        id:
+          description: the id of the vehicleAdditional
+          type: number
+        isCar:
+          description: the isCar of the vehicleAdditional
+          type: boolean
+        isClient:
+          description: the isClient of the vehicleAdditional
+          type: boolean
+        isMoto:
+          description: the isMoto of the vehicleAdditional
+          type: boolean
+        isRegister:
+          description: the isRegister of the vehicleAdditional
+          type: boolean
+        name:
+          description: the name of the vehicleAdditional
+          type: string
+      required:
+      - id
+      - name
+      type: object
+paths:
+  /api/vehicleAdditional/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of vehicleAdditional
+      tags:
+      - VehicleAdditional
+  /api/vehicleAdditional/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '201':
+          description: The VehicleAdditional deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a vehicleAdditional
+      tags:
+      - VehicleAdditional
+  /api/vehicleAdditional/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VehicleAdditional'
+                type: Array
+          description: The list of vehicleAdditional
+      summary: Returns a vehicleAdditional element
+      tags:
+      - VehicleAdditional
+  /api/vehicleAdditional/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  icon:
+                    description: The icon of the vehicleAdditional
+                    type: string
+                  isCar:
+                    description: The isCar of the vehicleAdditional
+                    type: boolean
+                  isClient:
+                    description: The isClient of the vehicleAdditional
+                    type: boolean
+                  isMoto:
+                    description: The isMoto of the vehicleAdditional
+                    type: boolean
+                  isRegister:
+                    description: The isRegister of the vehicleAdditional
+                    type: boolean
+                  name:
+                    description: The name of the vehicleAdditional
+                    type: string
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleAdditional'
+          description: The vehicleAdditional created
+      security:
+      - BearerAuth: []
+      summary: Creates a new vehicleAdditional
+      tags:
+      - VehicleAdditional
+  /api/vehicleAdditional/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  icon:
+                    description: The icon of the vehicleAdditional
+                    type: string
+                  id:
+                    description: The id of the vehicleAdditional
+                    type: number
+                  isCar:
+                    description: The isCar of the vehicleAdditional
+                    type: boolean
+                  isClient:
+                    description: The isClient of the vehicleAdditional
+                    type: boolean
+                  isMoto:
+                    description: The isMoto of the vehicleAdditional
+                    type: boolean
+                  isRegister:
+                    description: The isRegister of the vehicleAdditional
+                    type: boolean
+                  name:
+                    description: The name of the vehicleAdditional
+                    type: string
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleAdditional'
+          description: The vehicleAdditional updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - VehicleAdditional
+tags:
+- VehicleAdditional

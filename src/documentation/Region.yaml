@@ -1,0 +1,210 @@
+components:
+  schemas:
+    Region:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Region id
+            type: string
+      properties:
+        countryId:
+          description: the countryId of the region
+          type: number | null
+        flag:
+          description: the flag of the region
+          type: string
+        id:
+          description: the id of the region
+          type: number
+        name:
+          description: the name of the region
+          type: string
+        phone:
+          description: the phone of the region
+          type: string
+        state:
+          description: the state of the region
+          type: boolean
+      required:
+      - id
+      - name
+      - countryId
+      - state
+      type: object
+paths:
+  /api/region/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of region
+      tags:
+      - Region
+  /api/region/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Region/parameters/id'
+      responses:
+        '201':
+          description: The Region deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a region
+      tags:
+      - Region
+  /api/region/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Region/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Region'
+                type: Array
+          description: The list of region
+      summary: Returns a region element
+      tags:
+      - Region
+  /api/region/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  flag:
+                    description: The flag of the region
+                    type: string
+                  name:
+                    description: The name of the region
+                    type: string
+                  phone:
+                    description: The phone of the region
+                    type: string
+                  state:
+                    description: The state of the region
+                    type: boolean
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+          description: The region created
+      security:
+      - BearerAuth: []
+      summary: Creates a new region
+      tags:
+      - Region
+  /api/region/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  countryId:
+                    description: The countryId of the region
+                    type: number | null
+                  flag:
+                    description: The flag of the region
+                    type: string
+                  id:
+                    description: The id of the region
+                    type: number
+                  name:
+                    description: The name of the region
+                    type: string
+                  phone:
+                    description: The phone of the region
+                    type: string
+                  state:
+                    description: The state of the region
+                    type: boolean
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+          description: The region updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Region
+tags:
+- Region

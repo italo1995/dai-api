@@ -1,4 +1,4 @@
-import type { EStatusDriver, IUserInstance } from '../models/User/User'
+import type { EStatusDriver, IUserInstance } from '../models/User/UserModel'
 import type { IUserRatingInstance } from '../models/User/UserRatingModel'
 import type { EtransactionType, EStatusType } from '../models/User/UserTransactionModel'
 import type { ICommentInstance } from '../models/User/CommentModel'

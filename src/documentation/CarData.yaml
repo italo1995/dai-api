@@ -1,188 +1,238 @@
 components:
   schemas:
     CarData:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of CarData
-        name:
-          type: string
-          description: the name of the CarData
-        icon:
-          type: string
-          description: the name of the icon
-        type:
-          type: enum
-          description: the type of data (year = 1, model = 2, color = 3, brand = 4)
-        parentId:
-          type: string
-          description: the id that relates the branch and the model of the CarData
-        isMoto:
-          type: boolean
-          description: de vehicle is a is a Moto
-        isCar:
-          type: boolean
-          description: the vehicle is a car
-      required:
-        - name
-        - icon
-        - type
-      example:
-        id: 1
-        name: color
-        type: 3
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            type: string
             description: the CarData id
-tags:
-  - name: CarData
-    description: CarData endpoint
+            type: string
+      properties:
+        icon:
+          description: the icon of the carData
+          type: string
+        id:
+          description: the id of the carData
+          type: number
+        isCar:
+          description: the isCar of the carData
+          type: boolean
+        isMoto:
+          description: the isMoto of the carData
+          type: boolean
+        name:
+          description: the name of the carData
+          type: string
+        parentId:
+          description: the parentId of the carData
+          type: string | null
+        type:
+          description: the type of the carData
+          type: ETypeReview
+      required:
+      - name
+      - icon
+      - type
+      type: object
 paths:
-  /api/carData/show:
-    get:
-      summary: Returns a CarData element
-      tags:
-        - CarData
-      parameters:
-        - $ref: '#/components/schemas/CarData/parameters/id'
-      responses:
-        '200':
-          description: the CarData element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CarData'
   /api/carData/all:
     get:
-      summary: Returns a list of CarData
-      tags:
-        - CarData
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
-        - in: query
-          name: type
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of carData
+      tags:
+      - CarData
+  /api/carData/autoCreate:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/CarData/parameters/id'
       responses:
         '200':
-          description: the list of CarData
+          description: Success
+      summary: Endpoint for autoCreate
+      tags:
+      - CarData
+  /api/carData/brand/:brandId/models:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/CarData/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for brand/:brandId/models
+      tags:
+      - CarData
+  /api/carData/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/CarData/parameters/id'
+      responses:
+        '201':
+          description: The CarData deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a carData
+      tags:
+      - CarData
+  /api/carData/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/CarData/parameters/id'
+      responses:
+        '200':
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/CarData'
+                type: Array
+          description: The list of carData
+      summary: Returns a carData element
+      tags:
+      - CarData
   /api/carData/store:
     post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new CarData
-      tags:
-        - CarData
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the CarData
-                icon:
-                  type: string
-                  description: the name of the icon
-                type:
-                  type: enum
-                  description: the type of data (year = 1, model = 2, color = 3, brand = 4)
-                parentId:
-                  type: string
-                  description: the id that relates the branch and the model of the CarData
-                isMoto:
-                  type: boolean
-                  description: de vehicle is a is a Moto
-                isCar:
-                  type: boolean
-                  description: the vehicle is a car
-              required:
+              parameters:
+                property:
+                  icon:
+                    description: The icon of the carData
+                    type: string
+                  isCar:
+                    description: The isCar of the carData
+                    type: boolean
+                  isMoto:
+                    description: The isMoto of the carData
+                    type: boolean
+                  name:
+                    description: The name of the carData
+                    type: string
+                  type:
+                    description: The type of the carData
+                    type: ETypeReview
+                required:
+                - phoneCode
                 - name
+                - regionId
+                - countryId
                 - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
                 - type
-              example:
-                id: 1
-                name: color
-                icon: /images/icons/color.png
-                type: 3
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
       responses:
         '201':
-          description: the CarData created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CarData'
+          description: The carData created
+      security:
+      - BearerAuth: []
+      summary: Creates a new carData
+      tags:
+      - CarData
   /api/carData/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates a CarData
-      tags:
-        - CarData
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the CarData
-                icon:
-                  type: string
-                  description: the name of the icon
-                type:
-                  type: enum
-                  description: the type of data (year = 1, model = 2, color = 3, brand = 4)
-                parentId:
-                  type: string
-                  description: the id that relates the branch and the model of the CarData
-                isMoto:
-                  type: boolean
-                  description: de vehicle is a is a Moto
-                isCar:
-                  type: boolean
-                  description: the vehicle is a car
-              required:
+              parameters:
+                property:
+                  icon:
+                    description: The icon of the carData
+                    type: string
+                  id:
+                    description: The id of the carData
+                    type: number
+                  isCar:
+                    description: The isCar of the carData
+                    type: boolean
+                  isMoto:
+                    description: The isMoto of the carData
+                    type: boolean
+                  name:
+                    description: The name of the carData
+                    type: string
+                  parentId:
+                    description: The parentId of the carData
+                    type: string | null
+                  type:
+                    description: The type of the carData
+                    type: ETypeReview
+                required:
+                - phoneCode
                 - name
+                - regionId
+                - countryId
                 - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
                 - type
-              example:
-                id: 1
-                name: color
-                icon: /images/icon/color.png
-                type: 3
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
       responses:
         '201':
-          description: the CarData updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CarData'
+          description: The carData updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - CarData
+tags:
+- CarData

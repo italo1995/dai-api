@@ -1,0 +1,213 @@
+components:
+  schemas:
+    New:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the New id
+            type: string
+      properties:
+        description:
+          description: the description of the new
+          type: string
+        id:
+          description: the id of the new
+          type: number
+        image:
+          description: the image of the new
+          type: string
+        isFeatured:
+          description: the isFeatured of the new
+          type: boolean
+        name:
+          description: the name of the new
+          type: string
+        state:
+          description: the state of the new
+          type: boolean
+      required:
+      - id
+      - name
+      - image
+      - description
+      type: object
+paths:
+  /api/new/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of new
+      tags:
+      - New
+  /api/new/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '201':
+          description: The New deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a new
+      tags:
+      - New
+  /api/new/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/New'
+                type: Array
+          description: The list of new
+      summary: Returns a new element
+      tags:
+      - New
+  /api/new/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  description:
+                    description: The description of the new
+                    type: string
+                  image:
+                    description: The image of the new
+                    type: string
+                  isFeatured:
+                    description: The isFeatured of the new
+                    type: boolean
+                  name:
+                    description: The name of the new
+                    type: string
+                  state:
+                    description: The state of the new
+                    type: boolean
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/New'
+          description: The new created
+      security:
+      - BearerAuth: []
+      summary: Creates a new new
+      tags:
+      - New
+  /api/new/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  description:
+                    description: The description of the new
+                    type: string
+                  id:
+                    description: The id of the new
+                    type: number
+                  image:
+                    description: The image of the new
+                    type: string
+                  isFeatured:
+                    description: The isFeatured of the new
+                    type: boolean
+                  name:
+                    description: The name of the new
+                    type: string
+                  state:
+                    description: The state of the new
+                    type: boolean
+                required:
+                - phoneCode
+                - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/New'
+          description: The new updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - New
+tags:
+- New

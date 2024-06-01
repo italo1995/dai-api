@@ -2,7 +2,7 @@ import { Op, Sequelize, type FindOptions } from 'sequelize'
 import { modelBank, modelBranch, modelCurrency, modelRecharge, modelUser } from '../../models'
 import {
   type rechargeInstance,
-  type rechargeAttributes,
+  type IRechargeAttributes,
   type rechargeReponseAll,
   ETypeRecharge,
 } from '../../models/payments/RechargeModel'
@@ -14,8 +14,8 @@ import { EPaymentType } from '../../models/payments/BankModel'
 interface IrechargeService {
   validate(data: any): any
   show(pId: number): Promise<rechargeInstance | null>
-  create(payload: rechargeAttributes): Promise<rechargeInstance>
-  update(payload: rechargeAttributes): Promise<rechargeInstance | null>
+  create(payload: IRechargeAttributes): Promise<rechargeInstance>
+  update(payload: IRechargeAttributes): Promise<rechargeInstance | null>
   softDeleteRecord(pId: string): Promise<boolean>
 }
 
@@ -209,7 +209,7 @@ class rechargeService implements IrechargeService {
     }
   }
 
-  async create(pData: rechargeAttributes): Promise<rechargeInstance> {
+  async create(pData: IRechargeAttributes): Promise<rechargeInstance> {
     try {
       const vResponse: rechargeInstance = await modelRecharge.create(pData)
       return vResponse
@@ -218,7 +218,7 @@ class rechargeService implements IrechargeService {
     }
   }
 
-  async update(pData: rechargeAttributes): Promise<rechargeInstance | null> {
+  async update(pData: IRechargeAttributes): Promise<rechargeInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: rechargeInstance | null = await modelRecharge.findOne({

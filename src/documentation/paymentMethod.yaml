@@ -21,13 +21,13 @@ components:
           type: string
         email:
           description: the email of the paymentMethod
-          type: string
+          type: string | null
         fullName:
           description: the fullName of the paymentMethod
           type: string
         id:
           description: the id of the paymentMethod
-          type: string
+          type: number
         image:
           description: the image of the paymentMethod
           type: string
@@ -107,7 +107,7 @@ paths:
                     type: string
                   email:
                     description: The email of the paymentMethod
-                    type: string
+                    type: string | null
                   fullName:
                     description: The fullName of the paymentMethod
                     type: string
@@ -124,11 +124,32 @@ paths:
                     description: The tax of the paymentMethod
                     type: number
                 required:
-                - currencyId
-                - image
+                - phoneCode
                 - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
                 - dni
                 - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
               type: object
         required: true
       responses:
@@ -162,13 +183,13 @@ paths:
                     type: string
                   email:
                     description: The email of the paymentMethod
-                    type: string
+                    type: string | null
                   fullName:
                     description: The fullName of the paymentMethod
                     type: string
                   id:
                     description: The id of the paymentMethod
-                    type: string
+                    type: number
                   image:
                     description: The image of the paymentMethod
                     type: string
@@ -182,11 +203,32 @@ paths:
                     description: The tax of the paymentMethod
                     type: number
                 required:
-                - currencyId
-                - image
+                - phoneCode
                 - name
+                - regionId
+                - countryId
+                - icon
+                - phoneNumber
+                - currencyId
+                - lat
+                - lon
+                - image
                 - dni
                 - accountType
+                - id
+                - amount
+                - reference
+                - userId
+                - status
+                - reason
+                - type
+                - comment
+                - driverId
+                - parentId
+                - isClient
+                - state
+                - clientId
+                - tripId
         required: true
       responses:
         '201':
