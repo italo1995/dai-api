@@ -1,0 +1,96 @@
+components:
+  schemas:
+    New:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the New id
+            type: string
+      properties:
+        description:
+          description: the description of the New
+          type: string
+        id:
+          description: the id of the New
+          type: string
+        image:
+          description: the image of the New
+          type: string
+        isFeatured?:
+          description: the isFeatured? of the New
+          type: string
+        name:
+          description: the name of the New
+          type: string
+        state?:
+          description: the state? of the New
+          type: string
+      required:
+      - id
+      - name
+      - image
+      - description
+      type: object
+paths:
+  /api/New/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - New
+  /api/New/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for delete
+      tags:
+      - New
+  /api/New/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - New
+  /api/New/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for store
+      tags:
+      - New
+  /api/New/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/New/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for update
+      tags:
+      - New
+tags:
+- description: New endpoint
+  name: New

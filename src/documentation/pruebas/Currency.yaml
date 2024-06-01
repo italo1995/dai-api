@@ -1,0 +1,202 @@
+components:
+  schemas:
+    Currency:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Currency id
+            type: string
+      properties:
+        auto:
+          description: the auto of the currency
+          type: string
+        change:
+          description: the change of the currency
+          type: number
+        icon:
+          description: the icon of the currency
+          type: string
+        id:
+          description: the id of the currency
+          type: string
+        name:
+          description: the name of the currency
+          type: string
+        orden:
+          description: the orden of the currency
+          type: number
+        symbol:
+          description: the symbol of the currency
+          type: string
+        type:
+          description: the type of the currency
+          type: boolean
+      required:
+      - id
+      - name
+      - symbol
+      - change
+      - type
+      type: object
+paths:
+  /api/currency/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of currency
+      tags:
+      - Currency
+  /api/currency/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Currency/parameters/id'
+      responses:
+        '201':
+          description: The Currency deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a currency
+      tags:
+      - Currency
+  /api/currency/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Currency/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Currency'
+                type: Array
+          description: The list of currency
+      summary: Returns a currency element
+      tags:
+      - Currency
+  /api/currency/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  auto:
+                    description: The auto of the currency
+                    type: string
+                  change:
+                    description: The change of the currency
+                    type: number
+                  icon:
+                    description: The icon of the currency
+                    type: string
+                  name:
+                    description: The name of the currency
+                    type: string
+                  orden:
+                    description: The orden of the currency
+                    type: number
+                  symbol:
+                    description: The symbol of the currency
+                    type: string
+                  type:
+                    description: The type of the currency
+                    type: boolean
+                required:
+                - currencyId
+                - image
+                - name
+                - dni
+                - accountType
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currency'
+          description: The currency created
+      security:
+      - BearerAuth: []
+      summary: Creates a new currency
+      tags:
+      - Currency
+  /api/currency/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  auto:
+                    description: The auto of the currency
+                    type: string
+                  change:
+                    description: The change of the currency
+                    type: number
+                  icon:
+                    description: The icon of the currency
+                    type: string
+                  id:
+                    description: The id of the currency
+                    type: string
+                  name:
+                    description: The name of the currency
+                    type: string
+                  orden:
+                    description: The orden of the currency
+                    type: number
+                  symbol:
+                    description: The symbol of the currency
+                    type: string
+                  type:
+                    description: The type of the currency
+                    type: boolean
+                required:
+                - currencyId
+                - image
+                - name
+                - dni
+                - accountType
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currency'
+          description: The currency updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Currency
+  /api/currency/updateMany:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Currency/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for updateMany
+      tags:
+      - Currency
+tags:
+- Currency

@@ -1,0 +1,86 @@
+components:
+  schemas:
+    View:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the View id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/View/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/View/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - View
+  /api/View/createMany:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/View/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for createMany
+      tags:
+      - View
+  /api/View/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/View/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for delete
+      tags:
+      - View
+  /api/View/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/View/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - View
+  /api/View/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/View/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for store
+      tags:
+      - View
+  /api/View/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/View/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for update
+      tags:
+      - View
+tags:
+- description: View endpoint
+  name: View

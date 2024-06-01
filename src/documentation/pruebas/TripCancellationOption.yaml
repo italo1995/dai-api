@@ -1,0 +1,86 @@
+components:
+  schemas:
+    TripCancellationOption:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the TripCancellationOption id
+            type: string
+      properties:
+        cancellationOptionId?:
+          description: the cancellationOptionId? of the TripCancellationOption
+          type: string
+        comment?:
+          description: the comment? of the TripCancellationOption
+          type: string
+        id:
+          description: the id of the TripCancellationOption
+          type: string
+        tripId:
+          description: the tripId of the TripCancellationOption
+          type: string
+        userId:
+          description: the userId of the TripCancellationOption
+          type: string
+      required:
+      - id
+      - tripId
+      - userId
+      type: object
+paths:
+  /api/TripCancellationOption/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - TripCancellationOption
+  /api/TripCancellationOption/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for delete
+      tags:
+      - TripCancellationOption
+  /api/TripCancellationOption/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - TripCancellationOption
+  /api/TripCancellationOption/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - TripCancellationOption
+  /api/TripCancellationOption/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - TripCancellationOption
+tags:
+- description: TripCancellationOption endpoint
+  name: TripCancellationOption

@@ -1,0 +1,89 @@
+components:
+  schemas:
+    CompanyParameter:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the CompanyParameter id
+            type: string
+      properties:
+        id:
+          description: the id of the CompanyParameter
+          type: string
+        name:
+          description: the name of the CompanyParameter
+          type: string
+        type?:
+          description: the type? of the CompanyParameter
+          type: string
+        value:
+          description: the value of the CompanyParameter
+          type: string
+      required:
+      - id
+      - name
+      - value
+      type: object
+paths:
+  /api/CompanyParameter/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/CompanyParameter/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - CompanyParameter
+  /api/CompanyParameter/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/CompanyParameter/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for delete
+      tags:
+      - CompanyParameter
+  /api/CompanyParameter/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/CompanyParameter/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - CompanyParameter
+  /api/CompanyParameter/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/CompanyParameter/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for store
+      tags:
+      - CompanyParameter
+  /api/CompanyParameter/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/CompanyParameter/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for update
+      tags:
+      - CompanyParameter
+tags:
+- description: CompanyParameter endpoint
+  name: CompanyParameter

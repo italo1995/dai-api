@@ -1,0 +1,68 @@
+components:
+  schemas:
+    VehicleAdditional:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the VehicleAdditional id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/VehicleAdditional/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - VehicleAdditional
+  /api/VehicleAdditional/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for delete
+      tags:
+      - VehicleAdditional
+  /api/VehicleAdditional/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - VehicleAdditional
+  /api/VehicleAdditional/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - VehicleAdditional
+  /api/VehicleAdditional/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/VehicleAdditional/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - VehicleAdditional
+tags:
+- description: VehicleAdditional endpoint
+  name: VehicleAdditional

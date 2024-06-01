@@ -1,0 +1,17 @@
+components:
+  schemas:
+    Recharge:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Recharge id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- Recharge

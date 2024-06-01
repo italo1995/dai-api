@@ -1,0 +1,125 @@
+components:
+  schemas:
+    TripRoute:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the TripRoute id
+            type: string
+      properties:
+        // currencyId:
+          description: the // currencyId of the TripRoute
+          type: string
+        address:
+          description: the address of the TripRoute
+          type: string
+        id:
+          description: the id of the TripRoute
+          type: string
+        isEnd:
+          description: the isEnd of the TripRoute
+          type: string
+        isInit:
+          description: the isInit of the TripRoute
+          type: string
+        lat:
+          description: the lat of the TripRoute
+          type: string
+        lon:
+          description: the lon of the TripRoute
+          type: string
+        orden?:
+          description: the orden? of the TripRoute
+          type: string
+        reference:
+          description: the reference of the TripRoute
+          type: string
+        referencePointImage:
+          description: the referencePointImage of the TripRoute
+          type: string
+        tripId:
+          description: the tripId of the TripRoute
+          type: string
+        userAddressId:
+          description: the userAddressId of the TripRoute
+          type: string
+      required:
+      - id
+      - tripId
+      - isInit
+      - isEnd
+      - address
+      - reference
+      - referencePointImage
+      - lat
+      - lon
+      - // currencyId
+      - userAddressId
+      type: object
+paths:
+  /api/TripRoute/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripRoute/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - TripRoute
+  /api/TripRoute/recent:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripRoute/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for recent
+      tags:
+      - TripRoute
+  /api/TripRoute/recent/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripRoute/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for recent/delete
+      tags:
+      - TripRoute
+  /api/TripRoute/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripRoute/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - TripRoute
+  /api/TripRoute/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripRoute/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - TripRoute
+  /api/TripRoute/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripRoute/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - TripRoute
+tags:
+- description: TripRoute endpoint
+  name: TripRoute

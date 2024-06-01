@@ -1,0 +1,86 @@
+components:
+  schemas:
+    Verify:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Verify id
+            type: string
+      properties:
+        appeal?:
+          description: the appeal? of the Verify
+          type: string
+        id:
+          description: the id of the Verify
+          type: string
+        reason?:
+          description: the reason? of the Verify
+          type: string
+        status:
+          description: the status of the Verify
+          type: string
+        userId:
+          description: the userId of the Verify
+          type: string
+      required:
+      - id
+      - userId
+      - status
+      type: object
+paths:
+  /api/Verify/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - Verify
+  /api/Verify/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for delete
+      tags:
+      - Verify
+  /api/Verify/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - Verify
+  /api/Verify/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - Verify
+  /api/Verify/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Verify/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - Verify
+tags:
+- description: Verify endpoint
+  name: Verify

@@ -19,6 +19,7 @@ property_mapping ={}
 properties_by_service = {}
 property_all_by_service = {}
 total_route = {}
+types = []
 metodos = []
 needs_auth = {}
 yaml_service_data ={
@@ -80,7 +81,7 @@ def find_property_models(directory):
                                 properties_by_service[model_name].append(property_name)
                             if property_name not in ["createdAt", "updatedAt", "deletedAt", "createdAt?", "updatedAt?", "deletedAt?"] and property_name not in property_all_by_service[model_name]:
                                 property_all_by_service[model_name].append(property_all)
-                                
+                            #print(property_all_by_service)    
                         elif "}" in line:
                             inside_interface = False
                             
@@ -91,12 +92,10 @@ def filter_properties_for_service(service_name, properties_all):
     global propz
     for property_all_one in properties_all:
         prop = property_all_one.split(":")[0].strip()
-        
         if prop[-1] != '?':
             propzi = prop.split("?")[0].strip()
             if propzi not in propz:
                 propz.append(propzi)
-            print(propz)
             properties_for_service.append(property_all_one)
         else:
             global propis
@@ -109,6 +108,16 @@ def filter_properties_for_service(service_name, properties_all):
 def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
     global filtered_properties
     for service_name, routes in service_routes_dict.items():
+        property_types = {}
+        for key, tup in property_all_by_service.items():
+            for prop in tup:
+                if isinstance(prop, str):
+                    parts = prop.split(":")
+                    if len(parts) >= 2:
+                        prop_names = parts[0].strip()
+                        prop_name = prop_names.replace("?", "")
+                        prop_type = parts[1].strip()
+                        property_types[prop_name] = prop_type
         global property_new
         formatted_service_name = service_name[0].lower() + service_name[1:]
         filtered_properties = filter_properties_for_service(service_name, property_all_by_service)
@@ -140,14 +149,15 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
             if prop[-1] != '?':
                 yaml_data['components']['schemas'][service_name]['required'].append(prop)
                 yaml_data['components']['schemas'][service_name]['properties'][prop] = {
-                    'type': 'string',
+                    
+                    'type': property_types.get(prop, []),
                     'description': f'the {prop} of the {formatted_service_name}'
                 }
                 required_properties.add(prop)
             else:
                 propi = prop.strip('?')
                 yaml_data['components']['schemas'][service_name]['properties'][propi] = {
-                    'type': 'string',
+                    'type': property_types.get(propi, []),
                     'description': f'the {propi} of the {formatted_service_name}'
                 }  
                     
@@ -201,26 +211,34 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                     }
                     
                 elif route == 'store':  
-                    properties_for_service = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
-                    properties_for_service = [prop for prop in properties_for_service if "id:" not in prop.lower()]
+                    properties_for_services = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
+                    properties_for_service = [prop for prop in properties_for_services if "id:" not in prop.lower()]
                     required_properties_for_service = []
                     for prop in propis:
                         if prop in propz and prop not in required_properties_for_service:
                             required_properties_for_service.append(prop) 
-                    #print(required_properties_for_service)
                     if needs_auth.get(route, True):
                         yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
                     yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Creates a new {formatted_service_name}"
                     yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                    properties_schema = {}
+                    for prop in properties_for_service:
+                        prop_names, prop_type = prop.split(":")
+                        prop_name = prop_names.strip()
+                        properties_schema[prop_name] = {
+                            'type': property_types.get(prop_name, []),
+                            'description': f'The {prop_name} of the {formatted_service_name}'
+                            }
                     yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
                         'required': True,
                         'content': {
                             'application/json': {
                                 'schema': {
                                     'type': 'object',
-                                    'parameters': properties_for_service,
-                                    'required': required_properties_for_service
-                                        
+                                    'parameters': {
+                                        'property': properties_schema,
+                                        'required': required_properties_for_service
+                                    }       
                                     
                                 }
                             }
@@ -243,18 +261,31 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                     required_properties_for_service = []
                     for prop in propis:
                         if prop in propz and prop not in required_properties_for_service:
+                            required_properties_for_service.append(prop)
+                    for prop in propis:
+                        if prop in propz and prop not in required_properties_for_service:
                             required_properties_for_service.append(prop) 
                     if needs_auth.get(route, True):
                         yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
                     yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Update a {route}"
                     yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                    properties_schema = {}
+                    for prop in properties_for_service:
+                        prop_names, prop_type = prop.split(":")
+                        prop_name = prop_names.strip()
+                        properties_schema[prop_name] = {
+                            'type': property_types.get(prop_name, []),
+                            'description': f'The {prop_name} of the {formatted_service_name}'
+                            }
                     yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
                         'required': True,
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    'properties': properties_for_service,
-                                    'required': required_properties_for_service
+                                    'parameters': {
+                                        'property': properties_schema,
+                                        'required': required_properties_for_service
+                                    }
                                 }
                             }
                         }
@@ -308,7 +339,7 @@ if __name__ == "__main__":
     target_directory = "../routes/Payments"
     model_directory = "../models/payments"
     router_routes, services, needs_auth = find_router_routes(target_directory)
-    extracted_properties, property_all_by_service = find_property_models(model_directory)
+    extracted_properties, property_all_by_services = find_property_models(model_directory)
     
     
     for service_name in service_routes_dict.items():

@@ -1,0 +1,106 @@
+components:
+  schemas:
+    DataContent:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the DataContent id
+            type: string
+      properties:
+        description:
+          description: the description of the DataContent
+          type: string
+        id:
+          description: the id of the DataContent
+          type: string
+        image?:
+          description: the image? of the DataContent
+          type: string
+        name:
+          description: the name of the DataContent
+          type: string
+        orden?:
+          description: the orden? of the DataContent
+          type: string
+        type:
+          description: the type of the DataContent
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - type
+      type: object
+paths:
+  /api/DataContent/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - DataContent
+  /api/DataContent/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for delete
+      tags:
+      - DataContent
+  /api/DataContent/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - DataContent
+  /api/DataContent/showType:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for showType
+      tags:
+      - DataContent
+  /api/DataContent/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for store
+      tags:
+      - DataContent
+  /api/DataContent/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for update
+      tags:
+      - DataContent
+tags:
+- description: DataContent endpoint
+  name: DataContent

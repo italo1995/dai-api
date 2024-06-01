@@ -1,0 +1,121 @@
+components:
+  schemas:
+    RangePrice:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the RangePrice id
+            type: string
+      properties:
+        baseKilometer?:
+          description: the baseKilometer? of the RangePrice
+          type: string
+        basePrice?:
+          description: the basePrice? of the RangePrice
+          type: string
+        cityId?:
+          description: the cityId? of the RangePrice
+          type: string
+        countryId?:
+          description: the countryId? of the RangePrice
+          type: string
+        distanceToSearch?:
+          description: the distanceToSearch? of the RangePrice
+          type: string
+        extraKilometer?:
+          description: the extraKilometer? of the RangePrice
+          type: string
+        extraPrice?:
+          description: the extraPrice? of the RangePrice
+          type: string
+        id:
+          description: the id of the RangePrice
+          type: string
+        isCar?:
+          description: the isCar? of the RangePrice
+          type: string
+        isDelivery?:
+          description: the isDelivery? of the RangePrice
+          type: string
+        isMoto?:
+          description: the isMoto? of the RangePrice
+          type: string
+        isTravel?:
+          description: the isTravel? of the RangePrice
+          type: string
+        name?:
+          description: the name? of the RangePrice
+          type: string
+        regionId?:
+          description: the regionId? of the RangePrice
+          type: string
+      required:
+      - id
+      type: object
+paths:
+  /api/RangePrice/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - RangePrice
+  /api/RangePrice/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for delete
+      tags:
+      - RangePrice
+  /api/RangePrice/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - RangePrice
+  /api/RangePrice/showPrice:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for showPrice
+      tags:
+      - RangePrice
+  /api/RangePrice/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - RangePrice
+  /api/RangePrice/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/RangePrice/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - RangePrice
+tags:
+- description: RangePrice endpoint
+  name: RangePrice

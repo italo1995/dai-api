@@ -1,0 +1,68 @@
+components:
+  schemas:
+    userRating:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the userRating id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/userRating/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/userRating/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - userRating
+  /api/userRating/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/userRating/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for delete
+      tags:
+      - userRating
+  /api/userRating/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/userRating/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - userRating
+  /api/userRating/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/userRating/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - userRating
+  /api/userRating/update/:userId/:type:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/userRating/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update/:userId/:type
+      tags:
+      - userRating
+tags:
+- description: userRating endpoint
+  name: userRating

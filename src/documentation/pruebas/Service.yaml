@@ -1,0 +1,93 @@
+components:
+  schemas:
+    Service:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Service id
+            type: string
+      properties:
+        description:
+          description: the description of the Service
+          type: string
+        id:
+          description: the id of the Service
+          type: string
+        image:
+          description: the image of the Service
+          type: string
+        name:
+          description: the name of the Service
+          type: string
+        state?:
+          description: the state? of the Service
+          type: string
+      required:
+      - id
+      - name
+      - image
+      - description
+      type: object
+paths:
+  /api/Service/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Service/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - Service
+  /api/Service/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Service/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for delete
+      tags:
+      - Service
+  /api/Service/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Service/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - Service
+  /api/Service/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Service/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for store
+      tags:
+      - Service
+  /api/Service/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Service/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for update
+      tags:
+      - Service
+tags:
+- description: Service endpoint
+  name: Service

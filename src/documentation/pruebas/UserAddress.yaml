@@ -1,0 +1,68 @@
+components:
+  schemas:
+    UserAddress:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the UserAddress id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/UserAddress/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/UserAddress/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - UserAddress
+  /api/UserAddress/destroy:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/UserAddress/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for destroy
+      tags:
+      - UserAddress
+  /api/UserAddress/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/UserAddress/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - UserAddress
+  /api/UserAddress/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/UserAddress/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - UserAddress
+  /api/UserAddress/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/UserAddress/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - UserAddress
+tags:
+- description: UserAddress endpoint
+  name: UserAddress

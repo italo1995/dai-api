@@ -1,0 +1,68 @@
+components:
+  schemas:
+    server:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the server id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/server/:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/server/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: 'Endpoint for '
+      tags:
+      - server
+  /api/server/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/server/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - server
+  /api/server/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/server/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - server
+  /api/server/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/server/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - server
+  /api/server/update:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/server/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - server
+tags:
+- description: server endpoint
+  name: server

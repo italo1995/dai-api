@@ -1,0 +1,93 @@
+components:
+  schemas:
+    TripPayment:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the TripPayment id
+            type: string
+      properties:
+        amount:
+          description: the amount of the TripPayment
+          type: string
+        currencyId?:
+          description: the currencyId? of the TripPayment
+          type: string
+        id:
+          description: the id of the TripPayment
+          type: string
+        isAprobed?:
+          description: the isAprobed? of the TripPayment
+          type: string
+        paymentMethodId?:
+          description: the paymentMethodId? of the TripPayment
+          type: string
+        tripId:
+          description: the tripId of the TripPayment
+          type: string
+        type:
+          description: the type of the TripPayment
+          type: string
+      required:
+      - id
+      - tripId
+      - type
+      - amount
+      type: object
+paths:
+  /api/TripPayment/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for all
+      tags:
+      - TripPayment
+  /api/TripPayment/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for delete
+      tags:
+      - TripPayment
+  /api/TripPayment/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show
+      tags:
+      - TripPayment
+  /api/TripPayment/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for store
+      tags:
+      - TripPayment
+  /api/TripPayment/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update
+      tags:
+      - TripPayment
+tags:
+- description: TripPayment endpoint
+  name: TripPayment
