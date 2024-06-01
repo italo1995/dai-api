@@ -1,7 +1,7 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
-export interface IHelpInformationAttributes {
+export interface IHelpinformationAttributes {
   id: string
   name: string
   description: string
@@ -12,13 +12,13 @@ export interface IHelpInformationAttributes {
 }
 
 
-interface IHelpInformationCreationAttributes extends Optional<IHelpInformationAttributes, 'id'> {}
+interface IHelpInformationCreationAttributes extends Optional<IHelpinformationAttributes, 'id'> {}
 
 export interface IHelpInformationInstance
-  extends Model<IHelpInformationAttributes, IHelpInformationCreationAttributes>,
-    IHelpInformationAttributes {}
+  extends Model<IHelpinformationAttributes, IHelpInformationCreationAttributes>,
+    IHelpinformationAttributes {}
 
-export const vHelpInformationAttributes: SequelizeAttributes<IHelpInformationAttributes> = {
+export const vHelpInformationAttributes: SequelizeAttributes<IHelpinformationAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     field: 'id',

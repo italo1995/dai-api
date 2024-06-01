@@ -1,19 +1,34 @@
 components:
   schemas:
-    HelpInformation:
+    Helpinformation:
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            description: the HelpInformation id
+            description: the Helpinformation id
             type: string
-      properties: {}
-      required: []
+      properties:
+        description:
+          description: the description of the helpinformation
+          type: string
+        id:
+          description: the id of the helpinformation
+          type: number
+        name:
+          description: the name of the helpinformation
+          type: string
+        orden:
+          description: the orden of the helpinformation
+          type: number
+      required:
+      - id
+      - name
+      - description
       type: object
 paths:
-  /api/helpInformation/all:
+  /api/helpinformation/all:
     get:
       parameters:
       - description: The page number to fetch
@@ -26,46 +41,58 @@ paths:
         name: search
         schema:
           type: string
-      summary: Returns a list of helpInformation
+      summary: Returns a list of helpinformation
       tags:
-      - HelpInformation
-  /api/helpInformation/delete:
+      - Helpinformation
+  /api/helpinformation/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/HelpInformation/parameters/id'
+      - $ref: '#/components/schemas/Helpinformation/parameters/id'
       responses:
         '201':
-          description: The HelpInformation deleted
+          description: The Helpinformation deleted
       security:
       - BearerAuth: []
-      summary: Delete a helpInformation
+      summary: Delete a helpinformation
       tags:
-      - HelpInformation
-  /api/helpInformation/show:
+      - Helpinformation
+  /api/helpinformation/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/HelpInformation/parameters/id'
+      - $ref: '#/components/schemas/Helpinformation/parameters/id'
       responses:
         '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/HelpInformation'
+                  $ref: '#/components/schemas/Helpinformation'
                 type: Array
-          description: The list of helpInformation
-      summary: Returns a helpInformation element
+          description: The list of helpinformation
+      summary: Returns a helpinformation element
       tags:
-      - HelpInformation
-  /api/helpInformation/store:
+      - Helpinformation
+  /api/helpinformation/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
               parameters:
-                property: {}
-                required: []
+                property:
+                  description:
+                    description: The description of the helpinformation
+                    type: string
+                  name:
+                    description: The name of the helpinformation
+                    type: string
+                  orden:
+                    description: The orden of the helpinformation
+                    type: number
+                required:
+                - id
+                - name
+                - description
               type: object
         required: true
       responses:
@@ -73,34 +100,49 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HelpInformation'
-          description: The helpInformation created
+                $ref: '#/components/schemas/Helpinformation'
+          description: The helpinformation created
       security:
       - BearerAuth: []
-      summary: Creates a new helpInformation
+      summary: Creates a new helpinformation
       tags:
-      - HelpInformation
-  /api/helpInformation/update:
+      - Helpinformation
+  /api/helpinformation/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
               parameters:
-                property: {}
-                required: []
+                property:
+                  description:
+                    description: The description of the helpinformation
+                    type: string
+                  id:
+                    description: The id of the helpinformation
+                    type: number
+                  name:
+                    description: The name of the helpinformation
+                    type: string
+                  orden:
+                    description: The orden of the helpinformation
+                    type: number
+                required:
+                - id
+                - name
+                - description
         required: true
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HelpInformation'
-          description: The helpInformation updated
+                $ref: '#/components/schemas/Helpinformation'
+          description: The helpinformation updated
       security:
       - BearerAuth: []
       summary: Update a update
       tags:
-      - HelpInformation
+      - Helpinformation
 tags:
-- HelpInformation
+- Helpinformation

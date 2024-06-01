@@ -4,7 +4,7 @@ import type { ETypeReview, IReviewInstance } from '../models/web/ReviewModel'
 import type { INewInstance } from '../models/web/NewsModel'
 import type { IResponseAll } from './generalType'
 import type { ITermInstance } from '../models/web/TermModel'
-import type { IHelpInformationInstance } from '../models/web/HelpInfomationModel'
+import type { IHelpInformationInstance } from '../models/web/HelpinfomationModel'
 import type { EDataType, IDataContentInstance } from '../models/web/DataContentModel'
 
 export interface INewInput {

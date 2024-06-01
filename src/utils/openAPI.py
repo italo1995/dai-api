@@ -65,7 +65,6 @@ def find_property_models(directory):
             if model.endswith("Model.ts"):
                 filepath = os.path.join(root, model)
                 with open(filepath, "r", encoding = "utf-8") as file:
-                    #print(file)
                     content = file.read()
                     inside_interface = False
                     for line in content.splitlines():

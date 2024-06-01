@@ -10,7 +10,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassHelpInformationService from '../../services/web/HelpInformationService'
 import type { IHelpInformationInput, IResponseAllHelpInformation } from '../../types/webTypes'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { IHelpInformationInstance } from '../../models/web/HelpInfomationModel'
+import type { IHelpInformationInstance } from '../../models/web/HelpinfomationModel'
 
 class HelpInformationController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
