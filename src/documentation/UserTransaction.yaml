@@ -103,7 +103,6 @@ paths:
                 - name
                 - regionId
                 - countryId
-                - icon
                 - phoneNumber
                 - currencyId
                 - lat
@@ -118,13 +117,7 @@ paths:
                 - status
                 - reason
                 - type
-                - comment
                 - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
               type: object
         required: true
       responses:
@@ -170,7 +163,6 @@ paths:
                 - name
                 - regionId
                 - countryId
-                - icon
                 - phoneNumber
                 - currencyId
                 - lat
@@ -185,13 +177,7 @@ paths:
                 - status
                 - reason
                 - type
-                - comment
                 - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
         required: true
       responses:
         '201':

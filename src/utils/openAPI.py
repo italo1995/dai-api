@@ -27,7 +27,6 @@ yaml_service_data ={
     'properties' : {}
 }
 
-
 def find_router_routes(directory):
     router_routes = []
     for root, _, files in os.walk(directory):
@@ -35,6 +34,7 @@ def find_router_routes(directory):
             if filename.endswith(".ts"):
                 filepath = os.path.join(root, filename)
                 with open(filepath, "r", encoding="utf-8") as file:
+                    print(file)
                     content = file.readlines()
                     for line in content:
                         if "router.route(" in line:
@@ -54,7 +54,6 @@ def find_router_routes(directory):
                                 needs_auth.setdefault(route, True)
                             else:
                                 needs_auth.setdefault(route, False)
-                            
                             global archivos
             archivos += 1
     return router_routes, services, needs_auth
@@ -65,6 +64,7 @@ def find_property_models(directory):
             if model.endswith("Model.ts"):
                 filepath = os.path.join(root, model)
                 with open(filepath, "r", encoding = "utf-8") as file:
+                    print(file)
                     content = file.read()
                     inside_interface = False
                     for line in content.splitlines():
@@ -81,10 +81,8 @@ def find_property_models(directory):
                                 properties_by_service[model_name].append(property_name)
                             if property_name not in ["createdAt", "updatedAt", "deletedAt", "createdAt?", "updatedAt?", "deletedAt?"] and property_name not in property_all_by_service[model_name]:
                                 property_all_by_service[model_name].append(property_all)
-                            #print(property_all_by_service)    
                         elif "}" in line:
                             inside_interface = False
-                            
     return properties_by_service, property_all_by_service
 
 def filter_properties_for_service(service_name, properties_all):
@@ -107,6 +105,7 @@ def filter_properties_for_service(service_name, properties_all):
 
 def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
     global filtered_properties
+
     for service_name, routes in service_routes_dict.items():
         property_types = {}
         for key, tup in property_all_by_service.items():
@@ -160,7 +159,6 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                     'type': property_types.get(propi, []),
                     'description': f'the {propi} of the {formatted_service_name}'
                 }  
-                    
             for route, method in routes:
                 formatted_route = f"/api/{formatted_service_name}/{route}"
                 yaml_data['paths'].setdefault(formatted_route, {}).setdefault(method.lower(), {})
@@ -183,9 +181,6 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                             'description': 'The keyword to filter by name'
                         }
                     ]
-                    
-                    
-                    
                 elif route == 'show':
                     if needs_auth.get(route, True):
                         yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
@@ -209,7 +204,6 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                         }
                             
                     }
-                    
                 elif route == 'store':  
                     properties_for_services = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
                     properties_for_service = [prop for prop in properties_for_services if "id:" not in prop.lower()]
@@ -290,7 +284,6 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                             }
                         }
                     }
-                    
                     yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
                         '201': {
                             'description': f'The {formatted_service_name} updated',
@@ -310,8 +303,6 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                     yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
                     yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
                     yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'201': {'description': f'The {service_name} deleted'}}
-                    
-                    
                 else:
                     if needs_auth.get(route, True):
                         yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
@@ -319,21 +310,19 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                     yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
                     yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
                     yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'200': {'description': 'Success'}}
-                
-                
-            
+    
         
         output_directory = "../documentation"    
         output_path = os.path.join(output_directory, f"{service_name}.yaml")
         with open(output_path, "w", encoding="utf-8") as yaml_file:
             yaml.dump(yaml_data, yaml_file)
 
-    
     for model_property, service_property in property_mapping.items():
         yaml_service_data['properties'][service_property] = {
             'type': 'string',
             'description': f'the {service_name} of the {model_property}'
         }
+    yaml_data['components']['schemas'][service_name]['required'] = yaml_service_data
 
 if __name__ == "__main__":
     target_directory = "../routes"
@@ -341,10 +330,6 @@ if __name__ == "__main__":
     router_routes, services, needs_auth = find_router_routes(target_directory)
     extracted_properties, property_all_by_services = find_property_models(model_directory)
     
-    
     for service_name in service_routes_dict.items():
         create_yaml_file(service_routes_dict, extracted_properties, needs_auth)
-    
-    #print(f"Se han generado archivos YAML para {archivos} servicios.")
-    #print(needs_auth)
-    
+        create_yaml_file(service_routes_dict, extracted_properties, needs_auth)
