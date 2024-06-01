@@ -1,0 +1,17 @@
+components:
+  schemas:
+    VehicleType:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the VehicleType id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- VehicleType

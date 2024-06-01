@@ -1,0 +1,17 @@
+components:
+  schemas:
+    View:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the View id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- View

@@ -1,152 +1,17 @@
 components:
   schemas:
     HelpInformation:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of HelpInformation
-        name:
-          type: string
-          description: the name of the HelpInformation
-        description:
-          type: string
-          description: the description of the HelpInformation
-        orden:
-          type: number
-          description: the order of the HelpInformation
-      required:
-        - name
-        - description
-      example:
-        id: 1
-        name: informacion para el usuario
-        description: Esto es informacion de ayuda
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            type: string
             description: the HelpInformation id
-tags:
-  - name: HelpInformation
-    description: HelpInformation endpoint
-paths:
-  /api/helpInformation/show:
-    get:
-      summary: Returns a HelpInformation element
-      tags:
-        - HelpInformation
-      parameters:
-        - $ref: '#/components/schemas/HelpInformation/parameters/id'
-      responses:
-        '200':
-          description: the HelpInformation element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Helpinformation'
-  /api/helpInformation/all:
-    get:
-      summary: Returns a list of HelpInformation
-      tags:
-        - HelpInformation
-      parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
             type: string
-          description: the keyword to filter by name
-      responses:
-        '200':
-          description: the list of HelpInformation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/HelpInformation'
-  /api/helpInformation/store:
-    post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new HelpInformation
-      tags:
-        - HelpInformation
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the HelpInformation
-                description:
-                  type: string
-                  description: the link of the HelpInformation
-                orden:
-                  type: number
-                  description: the orden of the HelpInformation
-              required:
-                - name
-                - image
-                - description
-              example:
-                name: Esto es una informacion de ayuda
-                description: Aca va el contenido que podria ser un html <h1>Soy un titulo</h1>
-                orden: 1
-      responses:
-        '201':
-          description: the HelpInformation created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HelpInformation'
-  /api/helpInformation/update:
-    post:
-      security:
-        - BearerAuth: []
-      summary: Updates a HelpInformation
-      tags:
-        - HelpInformation
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the HelpInformation
-                description:
-                  type: string
-                  description: the description of the HelpInformation
-                orden:
-                  type: number
-                  description: the orden of the HelpInformation
-              required:
-                - id
-              example:
-                id: 1
-                name: Esto es una informacion de ayuda
-                description: Aca va el contenido que podria ser un html <h1>Soy un titulo</h1>
-                orden: 1
-      responses:
-        '201':
-          description: the HelpInformation updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HelpInformation'
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- HelpInformation

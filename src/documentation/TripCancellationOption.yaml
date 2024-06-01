@@ -1,0 +1,176 @@
+components:
+  schemas:
+    TripCancellationOption:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the TripCancellationOption id
+            type: string
+      properties:
+        cancellationOptionId:
+          description: the cancellationOptionId of the tripCancellationOption
+          type: number
+        comment:
+          description: the comment of the tripCancellationOption
+          type: string
+        id:
+          description: the id of the tripCancellationOption
+          type: string
+        tripId:
+          description: the tripId of the tripCancellationOption
+          type: number
+        userId:
+          description: the userId of the tripCancellationOption
+          type: string
+      required:
+      - id
+      - tripId
+      - userId
+      type: object
+paths:
+  /api/tripCancellationOption/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of tripCancellationOption
+      tags:
+      - TripCancellationOption
+  /api/tripCancellationOption/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '201':
+          description: The TripCancellationOption deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a tripCancellationOption
+      tags:
+      - TripCancellationOption
+  /api/tripCancellationOption/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripCancellationOption/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TripCancellationOption'
+                type: Array
+          description: The list of tripCancellationOption
+      summary: Returns a tripCancellationOption element
+      tags:
+      - TripCancellationOption
+  /api/tripCancellationOption/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  comment:
+                    description: The comment of the tripCancellationOption
+                    type: string
+                required:
+                - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripCancellationOption'
+          description: The tripCancellationOption created
+      security:
+      - BearerAuth: []
+      summary: Creates a new tripCancellationOption
+      tags:
+      - TripCancellationOption
+  /api/tripCancellationOption/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  cancellationOptionId:
+                    description: The cancellationOptionId of the tripCancellationOption
+                    type: number
+                  comment:
+                    description: The comment of the tripCancellationOption
+                    type: string
+                  id:
+                    description: The id of the tripCancellationOption
+                    type: string
+                  tripId:
+                    description: The tripId of the tripCancellationOption
+                    type: number
+                  userId:
+                    description: The userId of the tripCancellationOption
+                    type: string
+                required:
+                - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripCancellationOption'
+          description: The tripCancellationOption updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - TripCancellationOption
+tags:
+- TripCancellationOption

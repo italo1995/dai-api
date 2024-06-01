@@ -1,0 +1,17 @@
+components:
+  schemas:
+    File:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the File id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- File

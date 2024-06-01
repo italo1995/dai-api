@@ -124,11 +124,23 @@ paths:
                     description: The tax of the paymentMethod
                     type: number
                 required:
-                - currencyId
-                - image
                 - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
                 - dni
                 - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
               type: object
         required: true
       responses:
@@ -182,11 +194,23 @@ paths:
                     description: The tax of the paymentMethod
                     type: number
                 required:
-                - currencyId
-                - image
                 - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
                 - dni
                 - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
         required: true
       responses:
         '201':

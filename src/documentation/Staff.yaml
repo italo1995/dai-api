@@ -1,0 +1,17 @@
+components:
+  schemas:
+    Staff:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Staff id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths: {}
+tags:
+- Staff

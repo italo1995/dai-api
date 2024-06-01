@@ -1,268 +1,341 @@
 components:
   schemas:
     Trip:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of Trip
-        typeService:
-          type: string
-          description: the type of trip
-        userId:
-          type: string
-          description: the id of the user
-        driverId:
-          type: string
-          description: the Id of the driver
-        date:
-          type: date
-          description: the date of the trip
-        status:
-          type: string
-          description: the status of the trip
-        price:
-          type: number
-          description: the pprice of the trip
-        currencyId:
-          type: number
-          description: the currency of the payment
-        isPayment:
-          type: number
-          description: the amount of the payment
-      required:
-        - typeService
-        - userId
-        - isPayment
-      example:
-        id: 1
-        typeService: MOTO | CAR | DELIVERY | TRAVEL
-        date: date
-        price: 10
-        currencyId: 1
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
+            description: the Trip id
             type: string
-            description: the trip id
-  securitySchemes:
-    BearerAuth: # puedes usar el nombre que quieras
-      type: apiKey
-      name: Authorization
-      in: header
-      x-auth-id: Bearer abcde12345
-tags:
-  - name: Trip
-    description: Trip endpoint
+      properties:
+        cityId:
+          description: the cityId of the trip
+          type: number | null
+        countryId:
+          description: the countryId of the trip
+          type: number | null
+        currencyId:
+          description: the currencyId of the trip
+          type: number
+        date:
+          description: the date of the trip
+          type: string
+        driverId:
+          description: the driverId of the trip
+          type: string
+        id:
+          description: the id of the trip
+          type: string
+        instructionsToDriver:
+          description: the instructionsToDriver of the trip
+          type: string
+        isNear:
+          description: the isNear of the trip
+          type: boolean
+        isPanic:
+          description: the isPanic of the trip
+          type: boolean
+        isPayment:
+          description: the isPayment of the trip
+          type: number
+        percentage:
+          description: the percentage of the trip
+          type: number
+        price:
+          description: the price of the trip
+          type: number
+        regionId:
+          description: the regionId of the trip
+          type: number | null
+        serviceDistance:
+          description: the serviceDistance of the trip
+          type: string
+        status:
+          description: the status of the trip
+          type: EStatusVerify
+        typeService:
+          description: the typeService of the trip
+          type: ETypeService
+        userId:
+          description: the userId of the trip
+          type: string
+        visibility:
+          description: the visibility of the trip
+          type: number | null
+      required:
+      - id
+      - typeService
+      - userId
+      - isPayment
+      type: object
 paths:
-  /api/trip/show:
-    get:
-      security:
-        - BearerAuth: []
-      summary: Returns a trip element
-      tags:
-        - Trip
-      parameters:
-        - $ref: '#/components/schemas/Trip/parameters/id'
-      responses:
-        '200':
-          description: the trip element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Trip'
   /api/trip/all:
     get:
-      security:
-        - BearerAuth: []
-      summary: Returns a list of trips
-      tags:
-        - Trip
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of trip
+      tags:
+      - Trip
+  /api/trip/allAdmin:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
       responses:
         '200':
-          description: the list of trips
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for allAdmin
+      tags:
+      - Trip
+  /api/trip/cancelTrip:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for cancelTrip
+      tags:
+      - Trip
+  /api/trip/hidde:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for hidde
+      tags:
+      - Trip
+  /api/trip/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
+      responses:
+        '200':
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/Trip'
+                type: Array
+          description: The list of trip
+      summary: Returns a trip element
+      tags:
+      - Trip
+  /api/trip/showActive:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for showActive
+      tags:
+      - Trip
+  /api/trip/showPanic:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for showPanic
+      tags:
+      - Trip
+  /api/trip/showTripActive:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Trip/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for showTripActive
+      tags:
+      - Trip
   /api/trip/store:
     post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  date:
+                    description: The date of the trip
+                    type: string
+                  instructionsToDriver:
+                    description: The instructionsToDriver of the trip
+                    type: string
+                  isNear:
+                    description: The isNear of the trip
+                    type: boolean
+                  isPanic:
+                    description: The isPanic of the trip
+                    type: boolean
+                  isPayment:
+                    description: The isPayment of the trip
+                    type: number
+                  percentage:
+                    description: The percentage of the trip
+                    type: number
+                  price:
+                    description: The price of the trip
+                    type: number
+                  serviceDistance:
+                    description: The serviceDistance of the trip
+                    type: string
+                  status:
+                    description: The status of the trip
+                    type: EStatusVerify
+                  typeService:
+                    description: The typeService of the trip
+                    type: ETypeService
+                  visibility:
+                    description: The visibility of the trip
+                    type: number | null
+                required:
+                - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: The trip created
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Creates a new trip
       tags:
-        - Trip
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: automatic
-                driverId:
-                  type: string
-                  description: the Id of the driver
-                date:
-                  type: date
-                  description: the date of the trip
-                status:
-                  type: string
-                  description: the status of the trip
-                price:
-                  type: number
-                  description: the pprice of the trip
-                currencyId:
-                  type: number
-                  description: the currency of the payment
-                isPayment:
-                  type: number
-                  description: the amount of the payment
-              required:
-                - typeService
-                - isPayment
-              example:
-                typeService: 'MOTO'
-                date: date
-                price: 10
-                fee: { currencyId: 1, price: 10 }
-                delivery: { toSearch: 'una caja' }
-                travel:
-                  {
-                    dateToInitTravel: '12/02/204',
-                    howMuchPeopleToTravel: 7,
-                    packageToCarry: 'una caja',
-                    approxWeightOfPackage: 100,
-                  }
-                initRoute:
-                  {
-                    isInit: true,
-                    address: 'san cristobal, tachira',
-                    reference: 'por la plaza',
-                    referencePointImage: 'temp/imagen.png',
-                    lat: '7.5923456',
-                    lon: '-72.4729856',
-                    userAddressId: null,
-                  }
-                endRoute:
-                  {
-                    isEnd: true,
-                    address: 'san cristobal, tachira',
-                    reference: 'por la plaza',
-                    referencePointImage: 'temp/imagen.png | null',
-                    lat: '7.5923456',
-                    lon: '-72.4729856',
-                    userAddressId: null,
-                  }
-                paymentMethod:
-                  { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodId: 1 }
-      responses:
-        '201':
-          description: the trip created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Trip'
+      - Trip
   /api/trip/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates a trip
-      tags:
-        - Trip
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                typeService:
-                  type: string
-                  description: the type of trip
-                userId:
-                  type: string
-                  description: the id of the user
-                driverId:
-                  type: string
-                  description: the Id of the driver
-                date:
-                  type: date
-                  description: the date of the trip
-                status:
-                  type: string
-                  description: the status of the trip
-                price:
-                  type: number
-                  description: the pprice of the trip
-                currencyId:
-                  type: number
-                  description: the currency of the payment
-                isPayment:
-                  type: number
-                  description: the amount of the payment
-              required:
+              parameters:
+                property:
+                  cityId:
+                    description: The cityId of the trip
+                    type: number | null
+                  countryId:
+                    description: The countryId of the trip
+                    type: number | null
+                  currencyId:
+                    description: The currencyId of the trip
+                    type: number
+                  date:
+                    description: The date of the trip
+                    type: string
+                  driverId:
+                    description: The driverId of the trip
+                    type: string
+                  id:
+                    description: The id of the trip
+                    type: string
+                  instructionsToDriver:
+                    description: The instructionsToDriver of the trip
+                    type: string
+                  isNear:
+                    description: The isNear of the trip
+                    type: boolean
+                  isPanic:
+                    description: The isPanic of the trip
+                    type: boolean
+                  isPayment:
+                    description: The isPayment of the trip
+                    type: number
+                  percentage:
+                    description: The percentage of the trip
+                    type: number
+                  price:
+                    description: The price of the trip
+                    type: number
+                  regionId:
+                    description: The regionId of the trip
+                    type: number | null
+                  serviceDistance:
+                    description: The serviceDistance of the trip
+                    type: string
+                  status:
+                    description: The status of the trip
+                    type: EStatusVerify
+                  typeService:
+                    description: The typeService of the trip
+                    type: ETypeService
+                  userId:
+                    description: The userId of the trip
+                    type: string
+                  visibility:
+                    description: The visibility of the trip
+                    type: number | null
+                required:
+                - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
                 - id
-              example:
-                id: 1
-                typeService: 'MOTO'
-                date: date
-                price: 10
-                fee: { currencyId: 1, price: 10 }
-                delivery: { toSearch: 'una caja' }
-                travel:
-                  {
-                    dateToInitTravel: '12/02/204',
-                    howMuchPeopleToTravel: 7,
-                    packageToCarry: 'una caja',
-                    approxWeightOfPackage: 100,
-                  }
-                initRoute:
-                  {
-                    isInit: true,
-                    address: 'san cristobal, tachira',
-                    reference: 'por la plaza',
-                    referencePointImage: 'temp/imagen.png',
-                    lat: '7.5923456',
-                    lon: '-72.4729856',
-                    userAddressId: null,
-                  }
-                endRoute:
-                  {
-                    isEnd: true,
-                    address: 'san cristobal, tachira',
-                    reference: 'por la plaza',
-                    referencePointImage: 'temp/imagen.png | null',
-                    lat: '7.5923456',
-                    lon: '-72.4729856',
-                    userAddressId: null,
-                  }
-                paymentMethod:
-                  { type: 'efectivo | stripe', amount: 10, currencyId: 1, paymentMethodId: 1 }
+                - parentId
+                - clientId
+                - tripId
+        required: true
       responses:
         '201':
-          description: the trip updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Trip'
+          description: The trip updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Trip
+tags:
+- Trip

@@ -1,153 +1,195 @@
 components:
   schemas:
     TripPayment:
-      type: object
-      properties:
-        id:
-          type: string
-          description: the auto-increment id of TripPayment
-        tripId:
-          type: number
-          description: The id of the trip
-        type:
-          type: string
-          description: the type of the trip
-        amount:
-          type: number
-          description: The amount of the trip
-        currencyId:
-          type: number
-          description: the currency of the payment
-        paymentMethodId:
-          type: number
-          description: the id of the payment method
-        isAprobed:
-          type: boolean
-          description: the state of the payment
-      required:
-        - tripId
-        - type
-        - amount
-      example:
-        id: 3
-        tripId: 25
-        tipe: VIP
-        amount: 16
-        currencyId: 3
-        paymentMethodId: 2
-        isAprobed: true
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
+            description: the TripPayment id
             type: string
-            description: the tripPayment id
-  securitySchemes:
-    BearerAuth: # puedes usar el nombre que quieras
-      type: apiKey
-      name: Authorization
-      in: header
-      x-auth-id: Bearer abcde12345
-tags:
-  - name: TripPayment
-    description: the payment of the trip
+      properties:
+        amount:
+          description: the amount of the tripPayment
+          type: number
+        currencyId:
+          description: the currencyId of the tripPayment
+          type: number
+        id:
+          description: the id of the tripPayment
+          type: string
+        isAprobed:
+          description: the isAprobed of the tripPayment
+          type: boolean
+        paymentMethodId:
+          description: the paymentMethodId of the tripPayment
+          type: number
+        tripId:
+          description: the tripId of the tripPayment
+          type: number
+        type:
+          description: the type of the tripPayment
+          type: ETypeReview
+      required:
+      - id
+      - tripId
+      - type
+      - amount
+      type: object
 paths:
-  /api/tripPayment/show:
-    get:
-      security:
-        - BearerAuth: []
-      summary: Returns a TripPayment element
-      tags:
-        - TripPayment
-      parameters:
-        - $ref: '#/components/schemas/tripPayment/parameters/id'
-      responses:
-        '200':
-          description: a TripPayment element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/tripPayment'
   /api/tripPayment/all:
     get:
-      security:
-        - BearerAuth: []
-      summary: Returns a list of tripPayments
-      tags:
-        - TripPayment
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of tripPayment
+      tags:
+      - TripPayment
+  /api/tripPayment/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
+      responses:
+        '201':
+          description: The TripPayment deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a tripPayment
+      tags:
+      - TripPayment
+  /api/tripPayment/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/TripPayment/parameters/id'
       responses:
         '200':
-          description: the list of TripPayments
           content:
             application/json:
               schema:
-                type: array
                 items:
-                  $ref: '#/components/schemas/tripPayment'
+                  $ref: '#/components/schemas/TripPayment'
+                type: Array
+          description: The list of tripPayment
+      summary: Returns a tripPayment element
+      tags:
+      - TripPayment
   /api/tripPayment/store:
     post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new TripPayment
-      tags:
-        - TripPayment
       requestBody:
-        required: true
         content:
           application/json:
             schema:
+              parameters:
+                property:
+                  amount:
+                    description: The amount of the tripPayment
+                    type: number
+                  isAprobed:
+                    description: The isAprobed of the tripPayment
+                    type: boolean
+                  type:
+                    description: The type of the tripPayment
+                    type: ETypeReview
+                required:
+                - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
               type: object
-              properties:
-                $ref: '#/components/schemas/tripPayment'
-              required:
-                $ref: '#/components/schemas/required'
-              example:
-                $ref: '#/components/schemas/TripPayment/example'
+        required: true
       responses:
         '201':
-          description: the TripPayment created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/tripPayment'
+                $ref: '#/components/schemas/TripPayment'
+          description: The tripPayment created
+      security:
+      - BearerAuth: []
+      summary: Creates a new tripPayment
+      tags:
+      - TripPayment
   /api/tripPayment/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates a TripPayment
-      tags:
-        - TripPayment
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                $ref: '#/components/schemas/tripPayment'
-              required:
-                $ref: '#/components/schemas/required'
-              example:
-                $ref: '#/components/schemas/tripPayment/example'
+              parameters:
+                property:
+                  amount:
+                    description: The amount of the tripPayment
+                    type: number
+                  currencyId:
+                    description: The currencyId of the tripPayment
+                    type: number
+                  id:
+                    description: The id of the tripPayment
+                    type: string
+                  isAprobed:
+                    description: The isAprobed of the tripPayment
+                    type: boolean
+                  paymentMethodId:
+                    description: The paymentMethodId of the tripPayment
+                    type: number
+                  tripId:
+                    description: The tripId of the tripPayment
+                    type: number
+                  type:
+                    description: The type of the tripPayment
+                    type: ETypeReview
+                required:
+                - name
+                - icon
+                - currencyId
+                - lat
+                - lon
+                - image
+                - dni
+                - accountType
+                - type
+                - comment
+                - status
+                - driverId
+                - reason
+                - id
+                - parentId
+                - clientId
+                - tripId
+        required: true
       responses:
         '201':
-          description: the TripPayment updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/tripPayment'
+                $ref: '#/components/schemas/TripPayment'
+          description: The tripPayment updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - TripPayment
+tags:
+- TripPayment
