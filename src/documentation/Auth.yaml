@@ -12,6 +12,114 @@ components:
       properties: {}
       required: []
       type: object
-paths: {}
+paths:
+  /api/auth/NearbyDrivers:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for NearbyDrivers
+      tags:
+      - Auth
+  /api/auth/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '201':
+          description: The Auth deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a auth
+      tags:
+      - Auth
+  /api/auth/disconnect:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for disconnect
+      tags:
+      - Auth
+  /api/auth/login:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for login
+      tags:
+      - Auth
+  /api/auth/me:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for me
+      tags:
+      - Auth
+  /api/auth/phone:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for phone
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for register
+      tags:
+      - Auth
+  /api/auth/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property: {}
+                required: []
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+          description: The auth updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Auth
+  /api/auth/verifiedUserCode:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Auth/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for verifiedUserCode
+      tags:
+      - Auth
 tags:
 - Auth

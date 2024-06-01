@@ -11,6 +11,7 @@ property_new = []
 required_properties = set()
 property_all = []
 propz = []
+propis = []
 router_routes = []
 base_filename = []
 total_route = []
@@ -34,7 +35,7 @@ def find_router_routes(directory):
             if filename.endswith(".ts"):
                 filepath = os.path.join(root, filename)
                 with open(filepath, "r", encoding="utf-8") as file:
-                    print(file)
+                    #print(file)
                     content = file.readlines()
                     for line in content:
                         if "router.route(" in line:
@@ -64,7 +65,7 @@ def find_property_models(directory):
             if model.endswith("Model.ts"):
                 filepath = os.path.join(root, model)
                 with open(filepath, "r", encoding = "utf-8") as file:
-                    print(file)
+                    #print(file)
                     content = file.read()
                     inside_interface = False
                     for line in content.splitlines():
@@ -88,6 +89,7 @@ def find_property_models(directory):
 def filter_properties_for_service(service_name, properties_all):
     properties_for_service = []
     global propz
+    global propis
     for property_all_one in properties_all:
         prop = property_all_one.split(":")[0].strip()
         if prop[-1] != '?':
@@ -96,7 +98,6 @@ def filter_properties_for_service(service_name, properties_all):
                 propz.append(propzi)
             properties_for_service.append(property_all_one)
         else:
-            global propis
             propi = prop.strip('?')
             aux = property_all_one.replace("?", "")
             properties_for_service.append(aux)
@@ -105,7 +106,6 @@ def filter_properties_for_service(service_name, properties_all):
 
 def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
     global filtered_properties
-
     for service_name, routes in service_routes_dict.items():
         property_types = {}
         for key, tup in property_all_by_service.items():
@@ -143,186 +143,341 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                 ],
         'paths': {}
         }
-        for property_all_one in property_all_by_service.get(service_name, []):
-            prop = property_all_one.split(":")[0].strip()
-            if prop[-1] != '?':
-                yaml_data['components']['schemas'][service_name]['required'].append(prop)
-                yaml_data['components']['schemas'][service_name]['properties'][prop] = {
-                    
-                    'type': property_types.get(prop, []),
-                    'description': f'the {prop} of the {formatted_service_name}'
-                }
-                required_properties.add(prop)
-            else:
-                propi = prop.strip('?')
-                yaml_data['components']['schemas'][service_name]['properties'][propi] = {
-                    'type': property_types.get(propi, []),
-                    'description': f'the {propi} of the {formatted_service_name}'
-                }  
-            for route, method in routes:
-                formatted_route = f"/api/{formatted_service_name}/{route}"
-                yaml_data['paths'].setdefault(formatted_route, {}).setdefault(method.lower(), {})
-                if route == 'all' :
-                    if needs_auth.get(route, True):
-                        yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
-                    yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Returns a list of {formatted_service_name}"
-                    yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
-                    yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [
-                        {
-                            'in': 'query',
-                            'name': 'pag',
-                            'schema': {'type': 'number'},
-                            'description': 'The page number to fetch'
-                        },
-                        {
-                            'in': 'query',
-                            'name': 'search',
-                            'schema': {'type': 'string'},
-                            'description': 'The keyword to filter by name'
-                        }
-                    ]
-                elif route == 'show':
-                    if needs_auth.get(route, True):
-                        yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
-                    yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Returns a {formatted_service_name} element"
-                    yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
-                    yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
-                    yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
-                        '200': {
-                            'description': f'The list of {formatted_service_name}',
-                            'content':{ 
-                                'application/json': {
-                                    'schema': {
-                                        'type': 'Array', 
-                                        'items': {
-                                            '$ref': 
-                                                f'#/components/schemas/{service_name}'}
-                                            
-                                    }    
-                                }        
-                            }
-                        }
-                            
+        if service_name in property_all_by_service:
+            #property_all_by_service = filter_properties_for_service(service_name, property_all_by_service.get(service_name, []))
+            
+            for property_all_one in property_all_by_service.get(service_name, []):
+                prop = property_all_one.split(":")[0].strip()
+                if prop[-1] != '?':
+                    yaml_data['components']['schemas'][service_name]['required'].append(prop)
+                    yaml_data['components']['schemas'][service_name]['properties'][prop] = {
+                        
+                        'type': property_types.get(prop, []),
+                        'description': f'the {prop} of the {formatted_service_name}'
                     }
-                elif route == 'store':  
-                    properties_for_services = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
-                    properties_for_service = [prop for prop in properties_for_services if "id:" not in prop.lower()]
-                    required_properties_for_service = []
-                    for prop in propis:
-                        if prop in propz and prop not in required_properties_for_service:
-                            required_properties_for_service.append(prop) 
-                    if needs_auth.get(route, True):
-                        yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
-                    yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Creates a new {formatted_service_name}"
-                    yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
-                    properties_schema = {}
-                    for prop in properties_for_service:
-                        prop_names, prop_type = prop.split(":")
-                        prop_name = prop_names.strip()
-                        properties_schema[prop_name] = {
-                            'type': property_types.get(prop_name, []),
-                            'description': f'The {prop_name} of the {formatted_service_name}'
-                            }
-                    yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
-                        'required': True,
-                        'content': {
-                            'application/json': {
-                                'schema': {
-                                    'type': 'object',
-                                    'parameters': {
-                                        'property': properties_schema,
-                                        'required': required_properties_for_service
-                                    }       
-                                    
-                                }
-                            }
-                        }
-                    }
-                    yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
-                        '201': {
-                            'description': f'The {formatted_service_name} created',
-                            'content': {
-                                'application/json': {
-                                    'schema': {
-                                        '$ref': f'#/components/schemas/{service_name}'
-                                    }
-                                }
-                            }
-                        }
-                    }
-                elif route == 'update':
-                    properties_for_service = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
-                    required_properties_for_service = []
-                    for prop in propis:
-                        if prop in propz and prop not in required_properties_for_service:
-                            required_properties_for_service.append(prop)
-                    for prop in propis:
-                        if prop in propz and prop not in required_properties_for_service:
-                            required_properties_for_service.append(prop) 
-                    if needs_auth.get(route, True):
-                        yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
-                    yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Update a {route}"
-                    yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
-                    properties_schema = {}
-                    for prop in properties_for_service:
-                        prop_names, prop_type = prop.split(":")
-                        prop_name = prop_names.strip()
-                        properties_schema[prop_name] = {
-                            'type': property_types.get(prop_name, []),
-                            'description': f'The {prop_name} of the {formatted_service_name}'
-                            }
-                    yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
-                        'required': True,
-                        'content': {
-                            'application/json': {
-                                'schema': {
-                                    'parameters': {
-                                        'property': properties_schema,
-                                        'required': required_properties_for_service
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
-                        '201': {
-                            'description': f'The {formatted_service_name} updated',
-                            'content': {
-                                'application/json': {
-                                    'schema': {
-                                        '$ref': f'#/components/schemas/{service_name}'
-                                    }
-                                }
-                            }
-                        }
-                    }
-                elif route == 'delete':
-                    if needs_auth.get(route, True):
-                        yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
-                    yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Delete a {formatted_service_name}"
-                    yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
-                    yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
-                    yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'201': {'description': f'The {service_name} deleted'}}
+                    required_properties.add(prop)
                 else:
-                    if needs_auth.get(route, True):
-                        yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
-                    yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Endpoint for {route}"
-                    yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
-                    yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
-                    yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'200': {'description': 'Success'}}
-    
+                    propi = prop.strip('?')
+                    yaml_data['components']['schemas'][service_name]['properties'][propi] = {
+                        'type': property_types.get(propi, []),
+                        'description': f'the {propi} of the {formatted_service_name}'
+                    }  
+                for route, method in routes:
+                    formatted_route = f"/api/{formatted_service_name}/{route}"
+                    yaml_data['paths'].setdefault(formatted_route, {}).setdefault(method.lower(), {})
+                    if route == 'all' :
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Returns a list of {formatted_service_name}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [
+                            {
+                                'in': 'query',
+                                'name': 'pag',
+                                'schema': {'type': 'number'},
+                                'description': 'The page number to fetch'
+                            },
+                            {
+                                'in': 'query',
+                                'name': 'search',
+                                'schema': {'type': 'string'},
+                                'description': 'The keyword to filter by name'
+                            }
+                        ]
+                    elif route == 'show':
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Returns a {formatted_service_name} element"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '200': {
+                                'description': f'The list of {formatted_service_name}',
+                                'content':{ 
+                                    'application/json': {
+                                        'schema': {
+                                            'type': 'Array', 
+                                            'items': {
+                                                '$ref': 
+                                                    f'#/components/schemas/{service_name}'}
+                                                
+                                        }    
+                                    }        
+                                }
+                            }
+                                
+                        }
+                    elif route == 'store':  
+                        properties_for_services = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
+                        properties_for_service = [prop for prop in properties_for_services if "id:" not in prop.lower()]
+                        required_properties_for_services = []
+                        for prop in property_all_by_service.get(service_name, []):
+                            prop = prop.split(":")[0].strip()
+                            if prop[-1] != '?':
+                                propt = prop.replace("?", "")
+                                required_properties_for_services.append(propt)
+                                print(required_properties_for_services)
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Creates a new {formatted_service_name}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        properties_schema = {}
+                        for prop in properties_for_service:
+                            prop_names, prop_type = prop.split(":")
+                            prop_name = prop_names.strip()
+                            properties_schema[prop_name] = {
+                                'type': property_types.get(prop_name, []),
+                                'description': f'The {prop_name} of the {formatted_service_name}'
+                                }
+                        yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
+                            'required': True,
+                            'content': {
+                                'application/json': {
+                                    'schema': {
+                                        'type': 'object',
+                                        'parameters': {
+                                            'property': properties_schema,
+                                            'required': required_properties_for_services
+                                        }       
+                                        
+                                    }
+                                }
+                            }
+                        }
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '201': {
+                                'description': f'The {formatted_service_name} created',
+                                'content': {
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref': f'#/components/schemas/{service_name}'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    
+                    elif route == 'update':
+                        properties_for_service = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
+                        required_properties_for_services = []
+                        for prop in property_all_by_service.get(service_name, []):
+                            prop = prop.split(":")[0].strip()
+                            if prop[-1] != '?':
+                                propt = prop.replace("?", "")
+                                required_properties_for_services.append(propt)
+                                print(required_properties_for_services)
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Update a {route}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        properties_schema = {}
+                        for prop in properties_for_service:
+                            prop_names, prop_type = prop.split(":")
+                            prop_name = prop_names.strip()
+                            properties_schema[prop_name] = {
+                                'type': property_types.get(prop_name, []),
+                                'description': f'The {prop_name} of the {formatted_service_name}'
+                                }
+                        yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
+                            'required': True,
+                            'content': {
+                                'application/json': {
+                                    'schema': {
+                                        'parameters': {
+                                            'property': properties_schema,
+                                            'required': required_properties_for_services
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '201': {
+                                'description': f'The {formatted_service_name} updated',
+                                'content': {
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref': f'#/components/schemas/{service_name}'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    elif route == 'delete':
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Delete a {formatted_service_name}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'201': {'description': f'The {service_name} deleted'}}
+                    else:
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Endpoint for {route}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'200': {'description': 'Success'}}
+        else:
+            for route, method in routes:
+                    formatted_route = f"/api/{formatted_service_name}/{route}"
+                    yaml_data['paths'].setdefault(formatted_route, {}).setdefault(method.lower(), {})
+                    if route == 'all' :
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Returns a list of {formatted_service_name}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [
+                            {
+                                'in': 'query',
+                                'name': 'pag',
+                                'schema': {'type': 'number'},
+                                'description': 'The page number to fetch'
+                            },
+                            {
+                                'in': 'query',
+                                'name': 'search',
+                                'schema': {'type': 'string'},
+                                'description': 'The keyword to filter by name'
+                            }
+                        ]
+                    elif route == 'show':
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Returns a {formatted_service_name} element"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '200': {
+                                'description': f'The list of {formatted_service_name}',
+                                'content':{ 
+                                    'application/json': {
+                                        'schema': {
+                                            'type': 'Array', 
+                                            'items': {
+                                                '$ref': 
+                                                    f'#/components/schemas/{service_name}'}
+                                                
+                                        }    
+                                    }        
+                                }
+                            }
+                                
+                        }
+                    elif route == 'store':  
+                        properties_for_services = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
+                        properties_for_service = [prop for prop in properties_for_services if "id:" not in prop.lower()]
+                        required_properties_for_services = []
+                        for prop in property_all_by_service.get(service_name, []):
+                            prop = prop.split(":")[0].strip()
+                            if prop[-1] != '?':
+                                propt = prop.replace("?", "")
+                                required_properties_for_services.append(propt)
+                                print(required_properties_for_services)
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Creates a new {formatted_service_name}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        properties_schema = {}
+                        for prop in properties_for_service:
+                            prop_names, prop_type = prop.split(":")
+                            prop_name = prop_names.strip()
+                            properties_schema[prop_name] = {
+                                'type': property_types.get(prop_name, []),
+                                'description': f'The {prop_name} of the {formatted_service_name}'
+                                }
+                        yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
+                            'required': True,
+                            'content': {
+                                'application/json': {
+                                    'schema': {
+                                        'type': 'object',
+                                        'parameters': {
+                                            'property': properties_schema,
+                                            'required': required_properties_for_services
+                                        }       
+                                        
+                                    }
+                                }
+                            }
+                        }
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '201': {
+                                'description': f'The {formatted_service_name} created',
+                                'content': {
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref': f'#/components/schemas/{service_name}'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    
+                    elif route == 'update':
+                        properties_for_service = filter_properties_for_service(service_name, property_all_by_service.get(service_name, [])) 
+                        required_properties_for_services = []
+                        for prop in property_all_by_service.get(service_name, []):
+                            prop = prop.split(":")[0].strip()
+                            if prop[-1] != '?':
+                                propt = prop.replace("?", "")
+                                required_properties_for_services.append(propt)
+                                print(required_properties_for_services)
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Update a {route}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        properties_schema = {}
+                        for prop in properties_for_service:
+                            prop_names, prop_type = prop.split(":")
+                            prop_name = prop_names.strip()
+                            properties_schema[prop_name] = {
+                                'type': property_types.get(prop_name, []),
+                                'description': f'The {prop_name} of the {formatted_service_name}'
+                                }
+                        yaml_data['paths'][formatted_route][method.lower()]['requestBody'] = {
+                            'required': True,
+                            'content': {
+                                'application/json': {
+                                    'schema': {
+                                        'parameters': {
+                                            'property': properties_schema,
+                                            'required': required_properties_for_services
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '201': {
+                                'description': f'The {formatted_service_name} updated',
+                                'content': {
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref': f'#/components/schemas/{service_name}'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    elif route == 'delete':
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Delete a {formatted_service_name}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'201': {'description': f'The {service_name} deleted'}}
+                    else:
+                        if needs_auth.get(route, True):
+                            yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
+                        yaml_data['paths'][formatted_route][method.lower()]['summary'] = f"Endpoint for {route}"
+                        yaml_data['paths'][formatted_route][method.lower()]['tags'] = [service_name]
+                        yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] = {'200': {'description': 'Success'}}
         
         output_directory = "../documentation"    
         output_path = os.path.join(output_directory, f"{service_name}.yaml")
         with open(output_path, "w", encoding="utf-8") as yaml_file:
             yaml.dump(yaml_data, yaml_file)
-
-    for model_property, service_property in property_mapping.items():
-        yaml_service_data['properties'][service_property] = {
-            'type': 'string',
-            'description': f'the {service_name} of the {model_property}'
-        }
-    yaml_data['components']['schemas'][service_name]['required'] = yaml_service_data
 
 if __name__ == "__main__":
     target_directory = "../routes"
@@ -331,5 +486,4 @@ if __name__ == "__main__":
     extracted_properties, property_all_by_services = find_property_models(model_directory)
     
     for service_name in service_routes_dict.items():
-        create_yaml_file(service_routes_dict, extracted_properties, needs_auth)
         create_yaml_file(service_routes_dict, extracted_properties, needs_auth)

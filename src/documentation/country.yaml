@@ -102,32 +102,9 @@ paths:
                     description: The state of the country
                     type: boolean
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
+                - name
                 - state
-                - clientId
-                - tripId
               type: object
         required: true
       responses:
@@ -169,32 +146,9 @@ paths:
                     description: The state of the country
                     type: boolean
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
+                - name
                 - state
-                - clientId
-                - tripId
         required: true
       responses:
         '201':

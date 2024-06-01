@@ -100,32 +100,10 @@ paths:
                     description: The type of the tripPayment
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
                 - tripId
+                - type
+                - amount
               type: object
         required: true
       responses:
@@ -170,32 +148,10 @@ paths:
                     description: The type of the tripPayment
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
                 - tripId
+                - type
+                - amount
         required: true
       responses:
         '201':

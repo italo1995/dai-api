@@ -137,32 +137,11 @@ paths:
                     description: The phoneNumber of the bank
                     type: string
                 required:
-                - phoneCode
+                - id
                 - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
+                - fullName
                 - dni
                 - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
               type: object
         required: true
       responses:
@@ -222,32 +201,11 @@ paths:
                     description: The phoneNumber of the bank
                     type: string
                 required:
-                - phoneCode
+                - id
                 - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
+                - fullName
                 - dni
                 - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
         required: true
       responses:
         '201':

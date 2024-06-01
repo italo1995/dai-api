@@ -12,6 +12,18 @@ components:
       properties: {}
       required: []
       type: object
-paths: {}
+paths:
+  /api/admin/approve:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Admin/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for approve
+      tags:
+      - Admin
 tags:
 - Admin

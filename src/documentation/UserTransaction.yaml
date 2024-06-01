@@ -99,25 +99,12 @@ paths:
                     description: The transactionType of the userTransaction
                     type: EtransactionType
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
                 - userId
+                - operatorId
+                - amount
+                - transactionType
                 - status
-                - reason
-                - type
-                - driverId
               type: object
         required: true
       responses:
@@ -159,25 +146,12 @@ paths:
                     description: The userId of the userTransaction
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
                 - userId
+                - operatorId
+                - amount
+                - transactionType
                 - status
-                - reason
-                - type
-                - driverId
         required: true
       responses:
         '201':

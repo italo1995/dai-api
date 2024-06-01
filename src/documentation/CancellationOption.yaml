@@ -97,32 +97,10 @@ paths:
                     description: The type of the cancellationOption
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
+                - name
                 - isClient
-                - state
-                - clientId
-                - tripId
+                - isDriver
               type: object
         required: true
       responses:
@@ -161,32 +139,10 @@ paths:
                     description: The type of the cancellationOption
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
+                - name
                 - isClient
-                - state
-                - clientId
-                - tripId
+                - isDriver
         required: true
       responses:
         '201':

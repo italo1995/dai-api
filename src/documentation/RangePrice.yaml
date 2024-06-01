@@ -149,32 +149,7 @@ paths:
                     description: The name of the rangePrice
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
               type: object
         required: true
       responses:
@@ -240,32 +215,7 @@ paths:
                     description: The regionId of the rangePrice
                     type: number | null
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
         required: true
       responses:
         '201':

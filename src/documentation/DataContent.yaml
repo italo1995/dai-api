@@ -113,29 +113,10 @@ paths:
                     description: The type of the dataContent
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
+                - name
+                - description
                 - type
-                - driverId
-                - parentId
-                - isClient
-                - state
               type: object
         required: true
       responses:
@@ -177,29 +158,10 @@ paths:
                     description: The type of the dataContent
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
+                - name
+                - description
                 - type
-                - driverId
-                - parentId
-                - isClient
-                - state
         required: true
       responses:
         '201':

@@ -125,27 +125,9 @@ paths:
                     description: The type of the carData
                     type: ETypeReview
                 required:
-                - phoneCode
                 - name
-                - regionId
-                - countryId
                 - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
                 - type
-                - driverId
-                - parentId
               type: object
         required: true
       responses:
@@ -190,27 +172,9 @@ paths:
                     description: The type of the carData
                     type: ETypeReview
                 required:
-                - phoneCode
                 - name
-                - regionId
-                - countryId
                 - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
                 - type
-                - driverId
-                - parentId
         required: true
       responses:
         '201':

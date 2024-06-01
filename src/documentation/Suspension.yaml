@@ -129,32 +129,12 @@ paths:
                     description: The timeFrame of the suspension
                     type: ETypeTime
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
                 - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                - reason
+                - timeFrame
+                - init
+                - end
               type: object
         required: true
       responses:
@@ -205,32 +185,12 @@ paths:
                     description: The timeFrame of the suspension
                     type: ETypeTime
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
                 - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                - reason
+                - timeFrame
+                - init
+                - end
         required: true
       responses:
         '201':

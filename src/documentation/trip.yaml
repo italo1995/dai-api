@@ -213,32 +213,10 @@ paths:
                     description: The visibility of the trip
                     type: number | null
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
+                - typeService
                 - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                - isPayment
               type: object
         required: true
       responses:
@@ -316,32 +294,10 @@ paths:
                     description: The visibility of the trip
                     type: number | null
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
+                - typeService
                 - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                - isPayment
         required: true
       responses:
         '201':

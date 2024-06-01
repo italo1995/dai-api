@@ -74,33 +74,7 @@ paths:
                   name:
                     description: The name of the staff
                     type: string
-                required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                required: []
               type: object
         required: true
       responses:
@@ -129,33 +103,7 @@ paths:
                   name:
                     description: The name of the staff
                     type: string
-                required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                required: []
         required: true
       responses:
         '201':

@@ -105,32 +105,9 @@ paths:
                     description: The type of the review
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
+                - qualification
                 - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
               type: object
         required: true
       responses:
@@ -178,32 +155,9 @@ paths:
                     description: The type of the review
                     type: ETypeReview
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
+                - qualification
                 - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
         required: true
       responses:
         '201':

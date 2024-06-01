@@ -149,32 +149,17 @@ paths:
                     description: The referencePointImage of the tripRoute
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
+                - id
+                - tripId
+                - isInit
+                - isEnd
+                - address
+                - reference
+                - referencePointImage
                 - lat
                 - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                - // currencyId
+                - userAddressId
               type: object
         required: true
       responses:
@@ -234,32 +219,17 @@ paths:
                     description: The userAddressId of the tripRoute
                     type: number
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
+                - id
+                - tripId
+                - isInit
+                - isEnd
+                - address
+                - reference
+                - referencePointImage
                 - lat
                 - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
+                - // currencyId
+                - userAddressId
         required: true
       responses:
         '201':

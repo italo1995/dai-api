@@ -116,32 +116,11 @@ paths:
                     description: The status of the tripOffert
                     type: EStatusVerify
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
                 - tripId
+                - clientId
+                - driverId
+                - amount
               type: object
         required: true
       responses:
@@ -195,32 +174,11 @@ paths:
                     description: The tripId of the tripOffert
                     type: number
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
                 - tripId
+                - clientId
+                - driverId
+                - amount
         required: true
       responses:
         '201':

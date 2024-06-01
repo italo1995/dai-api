@@ -87,32 +87,9 @@ paths:
                     description: The comment of the tripCancellationOption
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
                 - tripId
+                - userId
               type: object
         required: true
       responses:
@@ -151,32 +128,9 @@ paths:
                     description: The userId of the tripCancellationOption
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
                 - tripId
+                - userId
         required: true
       responses:
         '201':

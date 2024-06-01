@@ -95,28 +95,8 @@ paths:
                     description: The orden of the vehicleType
                     type: number
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - driverId
-                - parentId
-                - isClient
+                - name
               type: object
         required: true
       responses:
@@ -155,28 +135,8 @@ paths:
                     description: The orden of the vehicleType
                     type: number
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - driverId
-                - parentId
-                - isClient
+                - name
         required: true
       responses:
         '201':

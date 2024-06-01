@@ -12,6 +12,26 @@ components:
       properties: {}
       required: []
       type: object
-paths: {}
+paths:
+  /api/file/show/:folder/:fileName:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/File/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for show/:folder/:fileName
+      tags:
+      - File
+  /api/file/upload:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/File/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for upload
+      tags:
+      - File
 tags:
 - File

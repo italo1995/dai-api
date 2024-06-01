@@ -115,32 +115,13 @@ paths:
                     description: The reference of the userAddress
                     type: string
                 required:
-                - phoneCode
+                - id
+                - userId
                 - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
+                - address
+                - reference
                 - lat
                 - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
               type: object
         required: true
       responses:
@@ -188,32 +169,13 @@ paths:
                     description: The userId of the userAddress
                     type: string
                 required:
-                - phoneCode
+                - id
+                - userId
                 - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
+                - address
+                - reference
                 - lat
                 - lon
-                - image
-                - dni
-                - accountType
-                - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - comment
-                - driverId
-                - parentId
-                - isClient
-                - state
-                - clientId
-                - tripId
         required: true
       responses:
         '201':

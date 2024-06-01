@@ -90,29 +90,9 @@ paths:
                     description: The value of the companyParameter
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - driverId
-                - parentId
-                - isClient
-                - state
+                - name
+                - value
               type: object
         required: true
       responses:
@@ -148,29 +128,9 @@ paths:
                     description: The value of the companyParameter
                     type: string
                 required:
-                - phoneCode
-                - name
-                - regionId
-                - countryId
-                - icon
-                - phoneNumber
-                - currencyId
-                - lat
-                - lon
-                - image
-                - dni
-                - accountType
                 - id
-                - amount
-                - reference
-                - userId
-                - status
-                - reason
-                - type
-                - driverId
-                - parentId
-                - isClient
-                - state
+                - name
+                - value
         required: true
       responses:
         '201':
