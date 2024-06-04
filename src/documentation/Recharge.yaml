@@ -68,6 +68,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Recharge'
+                type: Array
+          description: The list of recharge
       summary: Returns a list of recharge
       tags:
       - Recharge
@@ -95,7 +104,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Recharge'
                 type: Array
-          description: The list of recharge
+          description: The element of recharge
       summary: Returns a recharge element
       tags:
       - Recharge

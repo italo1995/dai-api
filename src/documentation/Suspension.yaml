@@ -59,6 +59,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Suspension'
+                type: Array
+          description: The list of suspension
       summary: Returns a list of suspension
       tags:
       - Suspension
@@ -98,7 +107,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Suspension'
                 type: Array
-          description: The list of suspension
+          description: The element of suspension
       summary: Returns a suspension element
       tags:
       - Suspension

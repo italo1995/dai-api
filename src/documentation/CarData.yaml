@@ -50,6 +50,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CarData'
+                type: Array
+          description: The list of carData
       summary: Returns a list of carData
       tags:
       - CarData
@@ -97,7 +106,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/CarData'
                 type: Array
-          description: The list of carData
+          description: The element of carData
       summary: Returns a carData element
       tags:
       - CarData

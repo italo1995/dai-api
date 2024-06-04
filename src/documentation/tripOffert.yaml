@@ -61,6 +61,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TripOffert'
+                type: Array
+          description: The list of tripOffert
       summary: Returns a list of tripOffert
       tags:
       - TripOffert
@@ -88,7 +97,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/TripOffert'
                 type: Array
-          description: The list of tripOffert
+          description: The element of tripOffert
       summary: Returns a tripOffert element
       tags:
       - TripOffert

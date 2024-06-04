@@ -69,6 +69,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RangePrice'
+                type: Array
+          description: The list of rangePrice
       summary: Returns a list of rangePrice
       tags:
       - RangePrice
@@ -96,7 +105,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/RangePrice'
                 type: Array
-          description: The list of rangePrice
+          description: The element of rangePrice
       summary: Returns a rangePrice element
       tags:
       - RangePrice

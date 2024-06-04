@@ -60,6 +60,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Branch'
+                type: Array
+          description: The list of branch
       summary: Returns a list of branch
       tags:
       - Branch
@@ -87,7 +96,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Branch'
                 type: Array
-          description: The list of branch
+          description: The element of branch
       summary: Returns a branch element
       tags:
       - Branch

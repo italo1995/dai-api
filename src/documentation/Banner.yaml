@@ -47,6 +47,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Banner'
+                type: Array
+          description: The list of banner
       summary: Returns a list of banner
       tags:
       - Banner
@@ -74,7 +83,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Banner'
                 type: Array
-          description: The list of banner
+          description: The element of banner
       summary: Returns a banner element
       tags:
       - Banner

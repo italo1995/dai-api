@@ -44,6 +44,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TripCancellationOption'
+                type: Array
+          description: The list of tripCancellationOption
       summary: Returns a list of tripCancellationOption
       tags:
       - TripCancellationOption
@@ -71,7 +80,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/TripCancellationOption'
                 type: Array
-          description: The list of tripCancellationOption
+          description: The element of tripCancellationOption
       summary: Returns a tripCancellationOption element
       tags:
       - TripCancellationOption

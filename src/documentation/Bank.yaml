@@ -67,6 +67,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Bank'
+                type: Array
+          description: The list of bank
       summary: Returns a list of bank
       tags:
       - Bank
@@ -94,7 +103,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Bank'
                 type: Array
-          description: The list of bank
+          description: The element of bank
       summary: Returns a bank element
       tags:
       - Bank

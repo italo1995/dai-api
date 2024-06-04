@@ -32,6 +32,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Staff'
+                type: Array
+          description: The list of staff
       summary: Returns a list of staff
       tags:
       - Staff
@@ -59,7 +68,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Staff'
                 type: Array
-          description: The list of staff
+          description: The element of staff
       summary: Returns a staff element
       tags:
       - Staff

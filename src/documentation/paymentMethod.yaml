@@ -60,6 +60,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PaymentMethod'
+                type: Array
+          description: The list of paymentMethod
       summary: Returns a list of paymentMethod
       tags:
       - PaymentMethod
@@ -87,7 +96,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/PaymentMethod'
                 type: Array
-          description: The list of paymentMethod
+          description: The element of paymentMethod
       summary: Returns a paymentMethod element
       tags:
       - PaymentMethod

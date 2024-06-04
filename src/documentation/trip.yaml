@@ -84,6 +84,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Trip'
+                type: Array
+          description: The list of trip
       summary: Returns a list of trip
       tags:
       - Trip
@@ -133,7 +142,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Trip'
                 type: Array
-          description: The list of trip
+          description: The element of trip
       summary: Returns a trip element
       tags:
       - Trip

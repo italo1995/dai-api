@@ -49,6 +49,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VehicleAdditional'
+                type: Array
+          description: The list of vehicleAdditional
       summary: Returns a list of vehicleAdditional
       tags:
       - VehicleAdditional
@@ -76,7 +85,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/VehicleAdditional'
                 type: Array
-          description: The list of vehicleAdditional
+          description: The element of vehicleAdditional
       summary: Returns a vehicleAdditional element
       tags:
       - VehicleAdditional

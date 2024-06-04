@@ -55,6 +55,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Currency'
+                type: Array
+          description: The list of currency
       summary: Returns a list of currency
       tags:
       - Currency
@@ -82,7 +91,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Currency'
                 type: Array
-          description: The list of currency
+          description: The element of currency
       summary: Returns a currency element
       tags:
       - Currency

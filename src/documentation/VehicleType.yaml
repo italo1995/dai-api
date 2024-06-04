@@ -43,6 +43,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VehicleType'
+                type: Array
+          description: The list of vehicleType
       summary: Returns a list of vehicleType
       tags:
       - VehicleType
@@ -70,7 +79,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/VehicleType'
                 type: Array
-          description: The list of vehicleType
+          description: The element of vehicleType
       summary: Returns a vehicleType element
       tags:
       - VehicleType

@@ -53,6 +53,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Review'
+                type: Array
+          description: The list of review
       summary: Returns a list of review
       tags:
       - Review
@@ -80,7 +89,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Review'
                 type: Array
-          description: The list of review
+          description: The element of review
       summary: Returns a review element
       tags:
       - Review
