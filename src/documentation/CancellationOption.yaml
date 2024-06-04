@@ -45,6 +45,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CancellationOption'
+                type: Array
+          description: The list of cancellationOption
       summary: Returns a list of cancellationOption
       tags:
       - CancellationOption
@@ -72,7 +81,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/CancellationOption'
                 type: Array
-          description: The list of cancellationOption
+          description: The element of cancellationOption
       summary: Returns a cancellationOption element
       tags:
       - CancellationOption

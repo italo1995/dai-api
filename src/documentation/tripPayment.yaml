@@ -51,6 +51,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TripPayment'
+                type: Array
+          description: The list of tripPayment
       summary: Returns a list of tripPayment
       tags:
       - TripPayment
@@ -78,7 +87,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/TripPayment'
                 type: Array
-          description: The list of tripPayment
+          description: The element of tripPayment
       summary: Returns a tripPayment element
       tags:
       - TripPayment

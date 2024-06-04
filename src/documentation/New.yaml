@@ -48,6 +48,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/New'
+                type: Array
+          description: The list of new
       summary: Returns a list of new
       tags:
       - New
@@ -75,7 +84,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/New'
                 type: Array
-          description: The list of new
+          description: The element of new
       summary: Returns a new element
       tags:
       - New

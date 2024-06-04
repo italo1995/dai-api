@@ -133,6 +133,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: Array
+          description: The list of user
       summary: Returns a list of user
       tags:
       - User
@@ -184,7 +193,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
                 type: Array
-          description: The list of user
+          description: The element of user
       summary: Returns a user element
       tags:
       - User

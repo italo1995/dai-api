@@ -45,6 +45,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Service'
+                type: Array
+          description: The list of service
       summary: Returns a list of service
       tags:
       - Service
@@ -72,7 +81,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Service'
                 type: Array
-          description: The list of service
+          description: The element of service
       summary: Returns a service element
       tags:
       - Service

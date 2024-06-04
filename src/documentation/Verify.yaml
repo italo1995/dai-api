@@ -44,6 +44,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Verify'
+                type: Array
+          description: The list of verify
       summary: Returns a list of verify
       tags:
       - Verify
@@ -71,7 +80,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Verify'
                 type: Array
-          description: The list of verify
+          description: The element of verify
       summary: Returns a verify element
       tags:
       - Verify

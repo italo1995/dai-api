@@ -50,6 +50,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Comment'
+                type: Array
+          description: The list of comment
       summary: Returns a list of comment
       tags:
       - Comment
@@ -77,7 +86,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Comment'
                 type: Array
-          description: The list of comment
+          description: The element of comment
       summary: Returns a comment element
       tags:
       - Comment

@@ -48,6 +48,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DataContent'
+                type: Array
+          description: The list of dataContent
       summary: Returns a list of dataContent
       tags:
       - DataContent
@@ -75,7 +84,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/DataContent'
                 type: Array
-          description: The list of dataContent
+          description: The element of dataContent
       summary: Returns a dataContent element
       tags:
       - DataContent

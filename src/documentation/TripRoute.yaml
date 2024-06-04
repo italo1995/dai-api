@@ -73,6 +73,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TripRoute'
+                type: Array
+          description: The list of tripRoute
       summary: Returns a list of tripRoute
       tags:
       - TripRoute
@@ -112,7 +121,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/TripRoute'
                 type: Array
-          description: The list of tripRoute
+          description: The element of tripRoute
       summary: Returns a tripRoute element
       tags:
       - TripRoute

@@ -48,6 +48,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Region'
+                type: Array
+          description: The list of region
       summary: Returns a list of region
       tags:
       - Region
@@ -75,7 +84,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Region'
                 type: Array
-          description: The list of region
+          description: The element of region
       summary: Returns a region element
       tags:
       - Region

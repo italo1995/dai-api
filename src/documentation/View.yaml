@@ -41,6 +41,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/View'
+                type: Array
+          description: The list of view
       summary: Returns a list of view
       tags:
       - View
@@ -80,7 +89,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/View'
                 type: Array
-          description: The list of view
+          description: The element of view
       summary: Returns a view element
       tags:
       - View

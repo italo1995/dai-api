@@ -47,6 +47,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Country'
+                type: Array
+          description: The list of country
       summary: Returns a list of country
       tags:
       - Country
@@ -74,7 +83,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Country'
                 type: Array
-          description: The list of country
+          description: The element of country
       summary: Returns a country element
       tags:
       - Country

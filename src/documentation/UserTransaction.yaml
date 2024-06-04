@@ -50,6 +50,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserTransaction'
+                type: Array
+          description: The list of userTransaction
       summary: Returns a list of userTransaction
       tags:
       - UserTransaction
@@ -77,7 +86,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserTransaction'
                 type: Array
-          description: The list of userTransaction
+          description: The element of userTransaction
       summary: Returns a userTransaction element
       tags:
       - UserTransaction

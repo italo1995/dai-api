@@ -48,6 +48,15 @@ paths:
         name: search
         schema:
           type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/City'
+                type: Array
+          description: The list of city
       summary: Returns a list of city
       tags:
       - City
@@ -75,7 +84,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/City'
                 type: Array
-          description: The list of city
+          description: The element of city
       summary: Returns a city element
       tags:
       - City
