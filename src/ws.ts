@@ -345,6 +345,18 @@ export class SocketService {
 
         const vTripUpdate = await ClassTripService.update(vUpdateTrip)
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
+        if (vDriver?.dataValues.tokenPush && vTripOffer?.dataValues.clientId) {
+          const vClient: IUserInstance | null = await ClassAuthService.show(vTripOffer.dataValues.clientId)
+          const text = vTrip?.dataValues.typeService === ETypeService.DELIVERY ? 'te ha seleccionado como repartidor' : 'te ha seleccionado como repartidor'
+          const notificationData = {
+            title: `${vClient?.dataValues.name} ${text}`,
+            body: 'Dirígete al destino. ¡Eso es PaYá!',
+          }
+          await NotificationService.sendNotification(
+            [vDriver.dataValues.tokenPush],
+            notificationData
+          )
+        }
         try {
           socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit(
             'acceptTripOffer',

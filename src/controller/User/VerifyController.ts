@@ -73,12 +73,12 @@ class VerifyController {
       }
       const user = await modelUser.findOne({ where: { id: vData.userId } })
       if (user) {
-        user.verifiedDriver = true
+        user.verifiedDriver = false
         await user.save()
         if (user?.dataValues.tokenPush) {
           const notificationData = {
-            title: 'Tu usuario fue rechazado',
-            body: `Razón: ${vData.reason}`,
+            title: 'Tu solicitud  ha sido rechazada',
+            body: `${vData.reason}. Verifica tu información e inténtalo de nuevo.`,
           }
           await NotificationService.sendNotification(
             [user.dataValues.tokenPush],
@@ -98,20 +98,22 @@ class VerifyController {
       const vVerifyId = pReq.input('verifyId', 'number') || null
       vData.id = vVerifyId || vData.id
       if (!vData?.id) {
-        const user = await modelUser.findOne({ where: { id: vData.userId } })
-        if (user) {
-          user.verifiedDriver = true
-          await user.save()
-          if (user?.dataValues.tokenPush) {
-            console.log('tiene token push')
-            const notificationData = {
-              title: 'Usuario activado',
-              body: 'Ya puedes comenzar a usar PaYa, te esperamos',
+        if (vData.status === EStatusVerify.verified) {
+          const user = await modelUser.findOne({ where: { id: vData.userId } })
+          if (user) {
+            user.verifiedDriver = true
+            await user.save()
+            if (user?.dataValues.tokenPush) {
+              console.log('tiene token push')
+              const notificationData = {
+                title: 'Tu verificación ha sido exitosa',
+                body: ' Iniciemos juntos este viaje. ¡Eso es PaYá!',
+              }
+              await NotificationService.sendNotification(
+                [user.dataValues.tokenPush],
+                notificationData
+              )
             }
-            await NotificationService.sendNotification(
-              [user.dataValues.tokenPush],
-              notificationData
-            )
           }
         }
         return pRes.status(200).send(fxSuccessResponse(200, true, 'Correcto'))

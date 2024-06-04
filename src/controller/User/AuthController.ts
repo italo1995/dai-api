@@ -253,10 +253,37 @@ class AuthController {
           return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
         }
         if (vBeforeUserDB?.dataValues?.isNewUser) {
-          console.log('se emite el evento newDriver')
           const admin = await ClassUserService.allUserAdmin()
           const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
+          const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush)
+          if (vData?.typeUser === ETypeUser.driver) {
+            if (pushIds.length) {
+              const notificationData = {
+                title: 'Hay un nuevo candidato para conductor.',
+                body: ' Por favor recuerda verificarlo. ¡Eso es PaYá!.',
+              }
+              await NotificationService.sendNotification(
+                pushIds,
+                notificationData
+              )
+            }
+          }
           SocketService.io.to(socketIds).emit('newDriver', vUserDB)
+        } else {
+          const admin = await ClassUserService.allUserAdmin()
+          const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush)
+          if (vData?.typeUser === ETypeUser.driver) {
+            if (pushIds.length) {
+              const notificationData = {
+                title: `${vUserDB.dataValues.name} editó su información`,
+                body: 'Por favor recuerda verificarlo. ¡Eso es PaYá!.',
+              }
+              await NotificationService.sendNotification(
+                pushIds,
+                notificationData
+              )
+            }
+          }
         }
         const vReponseUser = {
           ...vUserDB.dataValues,
