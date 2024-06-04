@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import rechargeService from '../../services/Payments/RechargeService'
 import {
-  type rechargeAttributes,
+  type IRechargeAttributes,
   type rechargeReponseAll,
   type rechargeInstance,
   EStatusRecharge,
@@ -49,7 +49,7 @@ export const recharge = {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const user = pReq.auth
-      const vData: rechargeAttributes = pReq.only([
+      const vData: IRechargeAttributes = pReq.only([
         'amount',
         'countryId',
         'currencyId',
@@ -118,7 +118,7 @@ export const recharge = {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: rechargeAttributes = pReq.only([
+      const vData: IRechargeAttributes = pReq.only([
         'id',
         'status'
       ])
@@ -160,7 +160,7 @@ export const recharge = {
 
   async verify(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: rechargeAttributes = pReq.only([
+      const vData: IRechargeAttributes = pReq.only([
         'id',
         'code'
       ])

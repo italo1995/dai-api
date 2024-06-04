@@ -3,5 +3,6 @@ node_modules
 ssl
 build
 dist
+src/routes/pyt3/*
 # uploads/temp/*
 # uploads/storage/*

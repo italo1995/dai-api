@@ -1,0 +1,136 @@
+components:
+  schemas:
+    UserRating:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the UserRating id
+            type: string
+      properties:
+        averageRating:
+          description: the averageRating of the userRating
+          type: number
+        id:
+          description: the id of the userRating
+          type: number
+        quantity:
+          description: the quantity of the userRating
+          type: number
+        ratings:
+          description: the ratings of the userRating
+          type: number
+        type:
+          description: the type of the userRating
+          type: ETypeReview
+        userId:
+          description: the userId of the userRating
+          type: string
+      required:
+      - id
+      - userId
+      - type
+      - ratings
+      - averageRating
+      - quantity
+      type: object
+paths:
+  /api/userRating/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of userRating
+      tags:
+      - UserRating
+  /api/userRating/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/UserRating/parameters/id'
+      responses:
+        '201':
+          description: The UserRating deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a userRating
+      tags:
+      - UserRating
+  /api/userRating/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/UserRating/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserRating'
+                type: Array
+          description: The list of userRating
+      summary: Returns a userRating element
+      tags:
+      - UserRating
+  /api/userRating/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  averageRating:
+                    description: The averageRating of the userRating
+                    type: number
+                  quantity:
+                    description: The quantity of the userRating
+                    type: number
+                  ratings:
+                    description: The ratings of the userRating
+                    type: number
+                  type:
+                    description: The type of the userRating
+                    type: ETypeReview
+                required:
+                - id
+                - userId
+                - type
+                - ratings
+                - averageRating
+                - quantity
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRating'
+          description: The userRating created
+      security:
+      - BearerAuth: []
+      summary: Creates a new userRating
+      tags:
+      - UserRating
+  /api/userRating/update/:userId/:type:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/UserRating/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for update/:userId/:type
+      tags:
+      - UserRating
+tags:
+- UserRating

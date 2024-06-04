@@ -1,5 +1,5 @@
 import { Op, type FindOptions, ValidationError, ValidationErrorItem, Sequelize } from 'sequelize'
-import type { IUserInstance } from '../../models/User/User'
+import type { IUserInstance } from '../../models/User/UserModel'
 import sequelize, { modelDriverDetail, modelStaff, modelSuspension, modelTrip, modelUser, modelUserRating, modelVehicleType, modelVerify } from '../../models'
 import { EStatusTrip, ETypeService } from '../../models/Trip/TripModel'
 import { fxOrderNameId, fxPaginate, fxReponseServices, fxSearchILike } from '../../utils/query'

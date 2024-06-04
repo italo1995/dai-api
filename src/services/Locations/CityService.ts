@@ -22,7 +22,7 @@
 */
 import { type FindOptions } from 'sequelize'
 import type { ICityInput, ICityUpdate } from '../../types/LocationType'
-import type { ICityInstance } from '../../models/Locations/City'
+import type { ICityInstance } from '../../models/Locations/CityModel'
 import { modelCity } from '../../models'
 import type { IResponseAll } from '../../types/generalType'
 import { fxOrderNameId, fxPaginate, fxSearchILike } from '../../utils/query'

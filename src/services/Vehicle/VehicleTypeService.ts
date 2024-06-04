@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
+import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModel'
 import { modelVehicleType } from '../../models'
 import type { IVehicleTypeInput, IResponseAllVehicleTypeType } from '../../types/VehicleTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'

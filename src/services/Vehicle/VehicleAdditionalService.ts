@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { Op, type FindOptions } from 'sequelize'
-import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
+import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModel'
 import { modelVehicleAdditional } from '../../models'
 import type { IVehicleAdditionalInput } from '../../types/VehicleTypes.js'
 import type { IResponseAllVehicleAdditionalType } from '../../types/VehicleTypes'

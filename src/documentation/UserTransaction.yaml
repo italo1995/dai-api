@@ -1,184 +1,169 @@
 components:
   schemas:
     UserTransaction:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of Term
-        userId:
-          type: string
-          description: the id of the user
-        operatorId:
-          type: string
-          description: the id of the operator that approved de transaction
-        amount:
-          type: number
-          description: the amount to payment
-        transactionType:
-          type: enum
-          description: the type of the transaction(deposit = 1, expense = 2)
-        status:
-          type: enum
-          description: the status of the transaction(pending = 1, approved = 2, denied = 3)
-      required:
-        - userId
-        - operatorId
-        - amount
-        - transactionType
-        - status
-      example:
-        id: 1
-        operatorId: 1
-        amount: 3
-        transactionType: 2
-        status: 2
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            type: string
             description: the UserTransaction id
-tags:
-  - name: UserTransaction
-    description: UserTransaction endpoint
+            type: string
+      properties:
+        amount:
+          description: the amount of the userTransaction
+          type: number
+        id:
+          description: the id of the userTransaction
+          type: number
+        operatorId:
+          description: the operatorId of the userTransaction
+          type: string
+        status:
+          description: the status of the userTransaction
+          type: EStatusVerify
+        transactionType:
+          description: the transactionType of the userTransaction
+          type: EtransactionType
+        userId:
+          description: the userId of the userTransaction
+          type: string
+      required:
+      - id
+      - userId
+      - operatorId
+      - amount
+      - transactionType
+      - status
+      type: object
 paths:
-  /api/userTransaction/show:
-    get:
-      summary: Returns a UserTransaction element
-      tags:
-        - UserTransaction
-      parameters:
-        - $ref: '#/components/schemas/UserTransaction/parameters/id'
-      responses:
-        '200':
-          description: the UserTransaction element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserTransaction'
   /api/userTransaction/all:
     get:
-      summary: Returns a list of UserTransaction
-      tags:
-        - UserTransaction
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of userTransaction
+      tags:
+      - UserTransaction
+  /api/userTransaction/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/UserTransaction/parameters/id'
+      responses:
+        '201':
+          description: The UserTransaction deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a userTransaction
+      tags:
+      - UserTransaction
+  /api/userTransaction/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/UserTransaction/parameters/id'
       responses:
         '200':
-          description: the list of UserTransactions
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/UserTransaction'
+                type: Array
+          description: The list of userTransaction
+      summary: Returns a userTransaction element
+      tags:
+      - UserTransaction
   /api/userTransaction/store:
     post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new userTransaction and modifies the user.balance
-      tags:
-        - UserTransaction
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: the id of the user
-                operatorId:
-                  type: string
-                  description: the id of the operator that approved de transaction
-                amount:
-                  type: number
-                  description: the amount to payment
-                transactionType:
-                  type: enum
-                  description: the type of the transaction(deposit = 1, expense = 2)
-                status:
-                  type: enum
-                  description: the status of the transaction(pending = 1, approved = 2, denied = 3)
-              required:
+              parameters:
+                property:
+                  amount:
+                    description: The amount of the userTransaction
+                    type: number
+                  status:
+                    description: The status of the userTransaction
+                    type: EStatusVerify
+                  transactionType:
+                    description: The transactionType of the userTransaction
+                    type: EtransactionType
+                required:
+                - id
                 - userId
                 - operatorId
                 - amount
                 - transactionType
                 - status
-              example:
-                id: 1
-                operatorId: 1
-                amount: 3
-                transactionType: 2
-                status: 2
+              type: object
+        required: true
       responses:
         '201':
-          description: the UserTransaction created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserTransaction'
+          description: The userTransaction created
+      security:
+      - BearerAuth: []
+      summary: Creates a new userTransaction
+      tags:
+      - UserTransaction
   /api/userTransaction/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates an UserTransaction
-      tags:
-        - UserTransaction
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: the id of the user
-                operatorId:
-                  type: string
-                  description: the id of the operator that approved de transaction
-                amount:
-                  type: number
-                  description: the amount to payment
-                transactionType:
-                  type: enum
-                  description: the type of the transaction(deposit = 1, expense = 2)
-                status:
-                  type: enum
-                  description: the status of the transaction(pending = 1, approved = 2, denied = 3)
-              required:
+              parameters:
+                property:
+                  amount:
+                    description: The amount of the userTransaction
+                    type: number
+                  id:
+                    description: The id of the userTransaction
+                    type: number
+                  operatorId:
+                    description: The operatorId of the userTransaction
+                    type: string
+                  status:
+                    description: The status of the userTransaction
+                    type: EStatusVerify
+                  transactionType:
+                    description: The transactionType of the userTransaction
+                    type: EtransactionType
+                  userId:
+                    description: The userId of the userTransaction
+                    type: string
+                required:
+                - id
                 - userId
                 - operatorId
                 - amount
                 - transactionType
                 - status
-            example:
-              id: 1
-              operatorId: 1
-              amount: 3
-              transactionType: 2
-              status: 2
+        required: true
       responses:
         '201':
-          description: the UserTransaction updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserTransaction'
+          description: The userTransaction updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - UserTransaction
+tags:
+- UserTransaction

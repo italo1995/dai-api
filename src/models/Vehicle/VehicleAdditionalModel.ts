@@ -1,7 +1,7 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
-export interface IVehicleAdditionalAtributes {
+export interface IVehicleAdditionalAttributes {
   id: number
   name: string
   icon?: string
@@ -13,13 +13,13 @@ export interface IVehicleAdditionalAtributes {
   updatedAt?: Date
   deletedAt?: Date
 }
-interface IVehicleAdditionalcreationAtributes extends Optional<IVehicleAdditionalAtributes, 'id'> {}
+interface IVehicleAdditionalcreationAtributes extends Optional<IVehicleAdditionalAttributes, 'id'> {}
 
 export interface IVehicleAdditionalInstance
-  extends Model<IVehicleAdditionalAtributes, IVehicleAdditionalcreationAtributes>,
-    IVehicleAdditionalAtributes {}
+  extends Model<IVehicleAdditionalAttributes, IVehicleAdditionalcreationAtributes>,
+    IVehicleAdditionalAttributes {}
 
-export const vVehicleadditionalModelAttributes: SequelizeAttributes<IVehicleAdditionalAtributes> = {
+export const vVehicleadditionalModelAttributes: SequelizeAttributes<IVehicleAdditionalAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

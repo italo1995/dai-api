@@ -1,0 +1,169 @@
+components:
+  schemas:
+    Staff:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Staff id
+            type: string
+      properties:
+        id:
+          description: the id of the staff
+          type: number
+        name:
+          description: the name of the staff
+          type: string
+      required: []
+      type: object
+paths:
+  /api/staff/all:
+    get:
+      parameters:
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of staff
+      tags:
+      - Staff
+  /api/staff/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '201':
+          description: The Staff deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a staff
+      tags:
+      - Staff
+  /api/staff/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Staff'
+                type: Array
+          description: The list of staff
+      summary: Returns a staff element
+      tags:
+      - Staff
+  /api/staff/store:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  name:
+                    description: The name of the staff
+                    type: string
+                required: []
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+          description: The staff created
+      security:
+      - BearerAuth: []
+      summary: Creates a new staff
+      tags:
+      - Staff
+  /api/staff/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              parameters:
+                property:
+                  id:
+                    description: The id of the staff
+                    type: number
+                  name:
+                    description: The name of the staff
+                    type: string
+                required: []
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+          description: The staff updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Staff
+  /api/staff/user/all:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for user/all
+      tags:
+      - Staff
+  /api/staff/user/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for user/show
+      tags:
+      - Staff
+  /api/staff/user/store:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for user/store
+      tags:
+      - Staff
+  /api/staff/user/update:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for user/update
+      tags:
+      - Staff
+tags:
+- Staff

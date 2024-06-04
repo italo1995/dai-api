@@ -2,7 +2,7 @@ import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 import { v4 as uuidv4 } from 'uuid'
 
-export interface IUserTransactionAtributes {
+export interface IUserTransactionAttributes {
   id: string
   userId: string
   operatorId: string
@@ -13,11 +13,11 @@ export interface IUserTransactionAtributes {
   updatedAt?: Date
   deletedAt?: Date
 }
-interface IUserTransactionCreationAttributes extends Optional<IUserTransactionAtributes, 'id'> {}
+interface IUserTransactionCreationAttributes extends Optional<IUserTransactionAttributes, 'id'> {}
 
 export interface IUserTransactionInstance
-  extends Model<IUserTransactionAtributes, IUserTransactionCreationAttributes>,
-    IUserTransactionAtributes {}
+  extends Model<IUserTransactionAttributes, IUserTransactionCreationAttributes>,
+    IUserTransactionAttributes {}
 
 export enum EtransactionType {
   deposit = 1,
@@ -30,7 +30,7 @@ export enum EStatusType {
   denied = 3,
 }
 
-export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtributes> = {
+export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAttributes> = {
   id: {
     type: DataTypes.UUID,
     primaryKey: true,

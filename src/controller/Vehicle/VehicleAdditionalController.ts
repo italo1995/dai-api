@@ -29,7 +29,7 @@ import {
   EVehicleAdditionalType,
 } from '../../types/VehicleTypes'
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
-import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModels'
+import type { IVehicleAdditionalInstance } from '../../models/Vehicle/VehicleAdditionalModel'
 
 class VehicleAdditionalController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

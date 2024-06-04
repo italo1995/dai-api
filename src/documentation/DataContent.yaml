@@ -1,175 +1,179 @@
 components:
   schemas:
     DataContent:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of DataContent
-        name:
-          type: string
-          description: the name of the DataContent
-        image:
-          type: string
-          description: the name of the image
-        description:
-          type: string
-          description: the description of the DataContent
-        orden:
-          type: number
-          description: the order uf DataContent
-        type:
-          type: enum
-          description: the type of data (guide = 1, FAQ = 2, security = 3)
-      required:
-        - name
-        - description
-        - type
-      example:
-        id: 1
-        name: security
-        description: descripcion de seguridad
-        type: 3
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            type: string
             description: the DataContent id
-tags:
-  - name: DataContent
-    description: DataContent endpoint
+            type: string
+      properties:
+        description:
+          description: the description of the dataContent
+          type: string
+        id:
+          description: the id of the dataContent
+          type: number
+        image:
+          description: the image of the dataContent
+          type: string
+        name:
+          description: the name of the dataContent
+          type: string
+        orden:
+          description: the orden of the dataContent
+          type: number
+        type:
+          description: the type of the dataContent
+          type: ETypeReview
+      required:
+      - id
+      - name
+      - description
+      - type
+      type: object
 paths:
-  /api/dataContent/show:
-    get:
-      summary: Returns a DataContent element
-      tags:
-        - DataContent
-      parameters:
-        - $ref: '#/components/schemas/DataContent/parameters/id'
-      responses:
-        '200':
-          description: the DataContent element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DataContent'
   /api/dataContent/all:
     get:
-      summary: Returns a list of DataContent
-      tags:
-        - DataContent
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of dataContent
+      tags:
+      - DataContent
+  /api/dataContent/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '201':
+          description: The DataContent deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a dataContent
+      tags:
+      - DataContent
+  /api/dataContent/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
       responses:
         '200':
-          description: the list of DataContent
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/DataContent'
+                type: Array
+          description: The list of dataContent
+      summary: Returns a dataContent element
+      tags:
+      - DataContent
+  /api/dataContent/showType:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/DataContent/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for showType
+      tags:
+      - DataContent
   /api/dataContent/store:
     post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new DataContent
-      tags:
-        - DataContent
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the DataContent
-                image:
-                  type: string
-                  description: the name of the image
-                description:
-                  type: string
-                  description: the description of the DataContent
-                orden:
-                  type: number
-                  description: the order uf DataContent
-                type:
-                  type: enum
-                  description: the type of data (guide = 1, FAQ = 2, security = 3)
-              required:
+              parameters:
+                property:
+                  description:
+                    description: The description of the dataContent
+                    type: string
+                  image:
+                    description: The image of the dataContent
+                    type: string
+                  name:
+                    description: The name of the dataContent
+                    type: string
+                  orden:
+                    description: The orden of the dataContent
+                    type: number
+                  type:
+                    description: The type of the dataContent
+                    type: ETypeReview
+                required:
+                - id
                 - name
                 - description
                 - type
-              example:
-                id: 1
-                name: security
-                description: descripcion de seguridad
-                type: 3
+              type: object
+        required: true
       responses:
         '201':
-          description: the DataContent created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DataContent'
+          description: The dataContent created
+      security:
+      - BearerAuth: []
+      summary: Creates a new dataContent
+      tags:
+      - DataContent
   /api/dataContent/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates a DataContent
-      tags:
-        - DataContent
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the DataContent
-                image:
-                  type: string
-                  description: the name of the image
-                description:
-                  type: string
-                  description: the description of the DataContent
-                orden:
-                  type: number
-                  description: the order uf DataContent
-                type:
-                  type: enum
-                  description: the type of data (guide = 1, FAQ = 2, security = 3)
-              required:
+              parameters:
+                property:
+                  description:
+                    description: The description of the dataContent
+                    type: string
+                  id:
+                    description: The id of the dataContent
+                    type: number
+                  image:
+                    description: The image of the dataContent
+                    type: string
+                  name:
+                    description: The name of the dataContent
+                    type: string
+                  orden:
+                    description: The orden of the dataContent
+                    type: number
+                  type:
+                    description: The type of the dataContent
+                    type: ETypeReview
+                required:
+                - id
                 - name
                 - description
                 - type
-              example:
-                id: 1
-                name: security
-                description: descripcion de seguridad
-                type: 3
+        required: true
       responses:
         '201':
-          description: the DataContent updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DataContent'
+          description: The dataContent updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - DataContent
+tags:
+- DataContent

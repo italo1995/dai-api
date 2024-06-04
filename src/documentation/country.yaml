@@ -1,156 +1,166 @@
 components:
   schemas:
     Country:
-      type: object
-      properties:
-        id:
-          type: number
-          description: the auto-increment id of country
-        name:
-          type: string
-          description: the name of the country
-        flag:
-          type: string
-          description: the file name of the flag for country
-      required:
-        - name
-      example:
-        id: 1
-        name: Venezuela
-        flag: fileFlagVenezuela.png
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
+            description: the Country id
             type: string
-            description: the Countries id
-tags:
-  - name: Countries
-    description: Countries endpoint
+      properties:
+        flag:
+          description: the flag of the country
+          type: string
+        id:
+          description: the id of the country
+          type: number
+        name:
+          description: the name of the country
+          type: string
+        phone:
+          description: the phone of the country
+          type: string
+        phoneCode:
+          description: the phoneCode of the country
+          type: string
+        state:
+          description: the state of the country
+          type: boolean
+      required:
+      - id
+      - name
+      - state
+      type: object
 paths:
-  /api/country/show:
-    get:
-      summary: Returns a country solicited by ID
-      tags:
-        - Countries
-      parameters:
-        - $ref: '#/components/schemas/Country/parameters/id'
-      responses:
-        '200':
-          description: the list of Country
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Country'
   /api/country/all:
     get:
-      summary: Returns a list of Countries
-      tags:
-        - Countries
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of country
+      tags:
+      - Country
+  /api/country/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Country/parameters/id'
+      responses:
+        '201':
+          description: The Country deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a country
+      tags:
+      - Country
+  /api/country/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Country/parameters/id'
       responses:
         '200':
-          description: the list of ountries
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/Country'
+                type: Array
+          description: The list of country
+      summary: Returns a country element
+      tags:
+      - Country
   /api/country/store:
     post:
-      summary: Creates a new Country
-      tags:
-        - Countries
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: the name of the country
-                flags:
-                  type: string
-                  description: the file name of the flag for country
-                phoneCode:
-                  type: string
-                  description: the phone code of the country
-                state:
-                  type: string
-                  description: the state of the country
-              required:
+              parameters:
+                property:
+                  flag:
+                    description: The flag of the country
+                    type: string
+                  name:
+                    description: The name of the country
+                    type: string
+                  phone:
+                    description: The phone of the country
+                    type: string
+                  phoneCode:
+                    description: The phoneCode of the country
+                    type: string
+                  state:
+                    description: The state of the country
+                    type: boolean
+                required:
+                - id
                 - name
-                - flags
-                - phoneCode
                 - state
-              example:
-                name: Venezuela
-                flags: fileFlagVenezuela.png
-                phoneCode: '+58'
-                state: true
+              type: object
+        required: true
       responses:
         '201':
-          description: the country created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Country'
+          description: The country created
+      security:
+      - BearerAuth: []
+      summary: Creates a new country
+      tags:
+      - Country
   /api/country/update:
     post:
-      summary: Updates a Country
-      tags:
-        - Countries
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                id:
-                  type: number
-                  description: country id to edit
-                name:
-                  type: string
-                  description: the name of the country
-                flags:
-                  type: string
-                  description: the file name of the flag for country
-                phoneCode:
-                  type: string
-                  description: the phone code of the country
-                state:
-                  type: string
-                  description: the state of the country
-              required:
+              parameters:
+                property:
+                  flag:
+                    description: The flag of the country
+                    type: string
+                  id:
+                    description: The id of the country
+                    type: number
+                  name:
+                    description: The name of the country
+                    type: string
+                  phone:
+                    description: The phone of the country
+                    type: string
+                  phoneCode:
+                    description: The phoneCode of the country
+                    type: string
+                  state:
+                    description: The state of the country
+                    type: boolean
+                required:
                 - id
-              example:
-                id: 1
-                name: Venezuela
-                flags: fileFlagVenezuela.png
-                phoneCode: '+58'
-                state: true
+                - name
+                - state
+        required: true
       responses:
         '201':
-          description: the country updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Country'
+          description: The country updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Country
+tags:
+- Country

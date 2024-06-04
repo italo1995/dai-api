@@ -27,8 +27,8 @@ import type {
   IUserInputUpdate,
   IUserUpdateSocket,
 } from '../../types/User'
-import { EStatusDriver, type IUserInstance } from '../../models/User/User'
-import type { IUserCodeInstance } from '../../models/User/UserCode'
+import { EStatusDriver, type IUserInstance } from '../../models/User/UserModel'
+import type { IUserCodeInstance } from '../../models/User/UserCodeModel'
 import { modelDriverDetail, modelUser, modelUserCode, modelUserRating, modelVehicleType } from '../../models'
 
 interface IAuthService {

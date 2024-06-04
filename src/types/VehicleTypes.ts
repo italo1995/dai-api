@@ -1,5 +1,5 @@
-import type { IVehicleAdditionalInstance } from '../models/Vehicle/VehicleAdditionalModels'
-import type { IVehicleTypeInstance } from '../models/Vehicle/VehicleTypeModels'
+import type { IVehicleAdditionalInstance } from '../models/Vehicle/VehicleAdditionalModel'
+import type { IVehicleTypeInstance } from '../models/Vehicle/VehicleTypeModel'
 import type { IResponseAll } from './generalType'
 import type { ETypeCarData, ICarDataInstance } from '../models/Vehicle/CarDataModel'
 

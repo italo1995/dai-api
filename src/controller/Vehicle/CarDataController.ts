@@ -14,7 +14,7 @@ import type { ICarDataInput, IResponseAllCarData } from '../../types/VehicleType
 import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { ICarDataAttributes, ICarDataInstance } from '../../models//Vehicle/CarDataModel'
 import VehicleTypeService from '../../services/Vehicle/VehicleTypeService'
-import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModels'
+import type { IVehicleTypeInstance } from '../../models/Vehicle/VehicleTypeModel'
 
 class CarDataController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {

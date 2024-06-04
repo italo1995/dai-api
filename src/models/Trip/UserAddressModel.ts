@@ -1,7 +1,7 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
 
-export interface IUserAddresses {
+export interface IUserAddressAttributes {
   id: string
   userId: number
   name: string
@@ -14,13 +14,13 @@ export interface IUserAddresses {
   updatedAt?: Date
   deletedAt?: Date
 }
-interface IUserAddressCreationAttributes extends Optional<IUserAddresses, 'id'> {}
+interface IUserAddressCreationAttributes extends Optional<IUserAddressAttributes, 'id'> {}
 
 export interface IUserAddressInstance
-  extends Model<IUserAddresses, IUserAddressCreationAttributes>,
-    IUserAddresses {}
+  extends Model<IUserAddressAttributes, IUserAddressCreationAttributes>,
+    IUserAddressAttributes {}
 
-export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddresses> = {
+export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddressAttributes> = {
   id: {
     type: DataTypes.INTEGER,
     field: 'id',

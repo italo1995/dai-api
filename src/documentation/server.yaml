@@ -1,0 +1,27 @@
+components:
+  schemas:
+    server:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the server id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/server/:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/server/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: 'Endpoint for '
+      tags:
+      - server
+tags:
+- server

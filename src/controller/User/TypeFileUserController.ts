@@ -24,7 +24,7 @@ import type { NextFunction, Request, Response } from 'express'
 import ClassTypeFileUserService from '../../services/User/TypeFileUserService'
 import type { ITypeFileUserInput } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
-import type { ITypeFileUserInstance } from '../../models/User/TypeFileUser'
+import type { ITypeFileUserInstance } from '../../models/User/TypeFileUserModel'
 import type { IResponseAll } from '../../types/generalType'
 
 class TypeFileUserController {

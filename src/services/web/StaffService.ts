@@ -1,13 +1,13 @@
 import { type FindOptions } from 'sequelize'
 import { modelStaff, modelView } from '../../models'
-import type { staffInstance, staffAttributes, staffReponseAll } from '../../models/web/StaffModel'
+import type { staffInstance, IStaffAttributes, staffReponseAll } from '../../models/web/StaffModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
 interface IstaffService {
   validate(data: any): any
   show(pId: string): Promise<staffInstance | null>
-  create(payload: staffAttributes): Promise<staffInstance>
-  update(payload: staffAttributes): Promise<staffInstance | null>
+  create(payload: IStaffAttributes): Promise<staffInstance>
+  update(payload: IStaffAttributes): Promise<staffInstance | null>
   softDeleteRecord(pId: string): Promise<boolean>
 }
 
@@ -71,7 +71,7 @@ class staffService implements IstaffService {
     }
   }
 
-  async create(pData: staffAttributes): Promise<staffInstance> {
+  async create(pData: IStaffAttributes): Promise<staffInstance> {
     try {
       const vResponse: staffInstance = await modelStaff.create(pData)
       return vResponse
@@ -80,7 +80,7 @@ class staffService implements IstaffService {
     }
   }
 
-  async update(pData: staffAttributes): Promise<staffInstance | null> {
+  async update(pData: IStaffAttributes): Promise<staffInstance | null> {
     try {
       if (pData?.id) {
         const vCountry: staffInstance | null = await modelStaff.findOne({

@@ -1,187 +1,166 @@
 components:
   schemas:
-    comment:
-      type: object
-      properties:
-        id:
-          type: string
-          description: the auto-increment id of Comment
-        userId:
-          type: string
-          description: the id of the user
-        name:
-          type: string
-          description: the name of the comment
-        description:
-          type: string
-          description: the description of the Comment
-        parentId:
-          type: string
-          description: The id that relates to the children
-        serviceId:
-          type: string
-          description: The id that relates to the services
-      required:
-        - userId
-        - name
-        - description
-        - parentId
-        - serviceId
-      example:
-        id: 1
-        userId: 1234
-        name: titulo del comentario
-        description: comentario escrito por usuario
-        parentId: 4567
-        serviceId: 7890
+    Comment:
       parameters:
         id:
           in: query
           name: id
           required: true
           schema:
-            type: string
             description: the Comment id
-tags:
-  - name: Comment
-    description: Comment endpoint
+            type: string
+      properties:
+        description:
+          description: the description of the comment
+          type: string
+        id:
+          description: the id of the comment
+          type: number
+        name:
+          description: the name of the comment
+          type: string
+        parentId:
+          description: the parentId of the comment
+          type: string | null
+        serviceId:
+          description: the serviceId of the comment
+          type: string
+        userId:
+          description: the userId of the comment
+          type: string
+      required:
+      - id
+      - userId
+      - name
+      - description
+      - parentId
+      - serviceId
+      type: object
 paths:
-  /api/comment/show:
-    get:
-      summary: Returns a Comment element
-      tags:
-        - Comment
-      parameters:
-        - $ref: '#/components/schemas/Comment/parameters/id'
-      responses:
-        '200':
-          description: the Comment element
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Comment'
   /api/comment/all:
     get:
-      summary: Returns a list of Comment
-      tags:
-        - Comment
       parameters:
-        - in: query
-          name: pag
-          schema:
-            type: number
-          description: the page number to fetch
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: the keyword to filter by name
+      - description: The page number to fetch
+        in: query
+        name: pag
+        schema:
+          type: number
+      - description: The keyword to filter by name
+        in: query
+        name: search
+        schema:
+          type: string
+      summary: Returns a list of comment
+      tags:
+      - Comment
+  /api/comment/delete:
+    post:
+      parameters:
+      - $ref: '#/components/schemas/Comment/parameters/id'
+      responses:
+        '201':
+          description: The Comment deleted
+      security:
+      - BearerAuth: []
+      summary: Delete a comment
+      tags:
+      - Comment
+  /api/comment/show:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Comment/parameters/id'
       responses:
         '200':
-          description: the list of Comment
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: '#/components/schemas/Comment'
+                type: Array
+          description: The list of comment
+      summary: Returns a comment element
+      tags:
+      - Comment
   /api/comment/store:
     post:
-      security:
-        - BearerAuth: []
-      summary: Creates a new Comment
-      tags:
-        - Comment
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: the id of the user
-                name:
-                  type: string
-                  description: the name of the comment
-                description:
-                  type: string
-                  description: the description of the Comment
-                parentId:
-                  type: string
-                  description: The id that relates to the children
-                serviceId:
-                  type: string
-                  description: The id that relates to the services
-              required:
+              parameters:
+                property:
+                  description:
+                    description: The description of the comment
+                    type: string
+                  name:
+                    description: The name of the comment
+                    type: string
+                required:
+                - id
                 - userId
                 - name
                 - description
                 - parentId
                 - serviceId
-              example:
-                id: 1
-                userId: 1234
-                name: titulo del comentario
-                description: comentario escrito por usuario
-                parentId: 4567
-                serviceId: 7890
+              type: object
+        required: true
       responses:
         '201':
-          description: the Comment created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Comment'
+          description: The comment created
+      security:
+      - BearerAuth: []
+      summary: Creates a new comment
+      tags:
+      - Comment
   /api/comment/update:
     post:
-      security:
-        - BearerAuth: []
-      summary: Updates a Comment
-      tags:
-        - Comment
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  description: the id of the user
-                name:
-                  type: string
-                  description: the name of the comment
-                description:
-                  type: string
-                  description: the description of the Comment
-                parentId:
-                  type: string
-                  description: The id that relates to the children
-                serviceId:
-                  type: string
-                  description: The id that relates to the services
-              required:
+              parameters:
+                property:
+                  description:
+                    description: The description of the comment
+                    type: string
+                  id:
+                    description: The id of the comment
+                    type: number
+                  name:
+                    description: The name of the comment
+                    type: string
+                  parentId:
+                    description: The parentId of the comment
+                    type: string | null
+                  serviceId:
+                    description: The serviceId of the comment
+                    type: string
+                  userId:
+                    description: The userId of the comment
+                    type: string
+                required:
+                - id
                 - userId
                 - name
                 - description
                 - parentId
                 - serviceId
-              example:
-                id: 1
-                userId: 1234
-                name: titulo del comentario
-                description: comentario escrito por usuario
-                parentId: 4567
-                serviceId: 7890
+        required: true
       responses:
         '201':
-          description: the Comment updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Comment'
+          description: The comment updated
+      security:
+      - BearerAuth: []
+      summary: Update a update
+      tags:
+      - Comment
+tags:
+- Comment

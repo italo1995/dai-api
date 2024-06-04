@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import staffService from '../../services/web/StaffService'
-import type { staffAttributes, staffReponseAll, staffInstance } from '../../models/web/StaffModel'
+import type { IStaffAttributes, staffReponseAll, staffInstance } from '../../models/web/StaffModel'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import StaffViewService from '../../services/web/StaffViewService'
 import type { staffViewAttributes } from '../../models/web/StaffViewModel'
 import ClassUserService from '../../services/User/UserService'
 import type { IResponseAllUser, IUserInput } from '../../types/User'
-import type { IUserInstance } from '../../models/User/User'
+import type { IUserInstance } from '../../models/User/UserModel'
 
 export const staff = {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -77,7 +77,7 @@ export const staff = {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: staffAttributes = pReq.only(['name'])
+      const vData: IStaffAttributes = pReq.only(['name'])
       const vModule: staffViewAttributes[] = pReq.input('modules', 'json')
       const vResponse: staffInstance | null = await staffService.create(vData)
       if (!vResponse) {
@@ -134,7 +134,7 @@ export const staff = {
   },
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: staffAttributes = pReq.only(['id', 'name'])
+      const vData: IStaffAttributes = pReq.only(['id', 'name'])
 
       const vResponse: staffInstance | null = await staffService.update(vData)
       if (!vResponse) {

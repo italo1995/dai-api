@@ -1,0 +1,6 @@
+/api/recharge/store
+/api/recharge/delete
+/api/recharge/verify
+/api/recharge/all
+/api/recharge/update
+/api/recharge/show

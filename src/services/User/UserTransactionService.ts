@@ -23,7 +23,7 @@ import {
 import { modelUserTransaction, modelUser } from '../../models'
 import type { IUserTransactionInput, IResponseAllUserTransaction } from '../../types/User'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
-import type { IUserInstance } from '../../models/User/User'
+import type { IUserInstance } from '../../models/User/UserModel'
 
 interface IUserTransaction {
   validate(data: any): any

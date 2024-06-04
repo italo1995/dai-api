@@ -1,0 +1,49 @@
+components:
+  schemas:
+    Transfer:
+      parameters:
+        id:
+          in: query
+          name: id
+          required: true
+          schema:
+            description: the Transfer id
+            type: string
+      properties: {}
+      required: []
+      type: object
+paths:
+  /api/transfer/marker/prueba:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Transfer/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for marker/prueba
+      tags:
+      - Transfer
+  /api/transfer/marker/show/:name?:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Transfer/parameters/id'
+      responses:
+        '200':
+          description: Success
+      security:
+      - BearerAuth: []
+      summary: Endpoint for marker/show/:name?
+      tags:
+      - Transfer
+  /api/transfer/marker/showClient/:name?:
+    get:
+      parameters:
+      - $ref: '#/components/schemas/Transfer/parameters/id'
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for marker/showClient/:name?
+      tags:
+      - Transfer
+tags:
+- Transfer
