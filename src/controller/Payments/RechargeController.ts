@@ -53,6 +53,7 @@ export const recharge = {
         'amount',
         'countryId',
         'currencyId',
+        'paymentMethodId',
         'bankId',
         'bank',
         'capture',

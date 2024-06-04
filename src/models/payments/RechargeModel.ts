@@ -8,6 +8,7 @@ export interface rechargeAttributes {
   countryId?: number
   currencyId?: number
   bankId?: number
+  paymentMethodId?: number
   bank?: number
   capture?: string
   reference?: string
@@ -97,6 +98,10 @@ export const rechargeModelAttributes: SequelizeAttributes<rechargeAttributes> = 
     type: DataTypes.UUID,
     field: 'user_id',
   },
+  paymentMethodId: {
+    type: DataTypes.INTEGER,
+    field: 'payment_method_id',
+  },
   status: {
     type: DataTypes.INTEGER,
     field: 'status',
@@ -151,11 +156,16 @@ export function fxRechargeFactory(sequelize: Sequelize) {
     }
   )
   recharge.associate = function (models: ModelRegistry) {
-    const { modelRecharge, modelBank, modelCurrency, modelUser } = models
+    const { modelRecharge, modelBank, modelCurrency, modelUser, modelPaymentMethod } = models
     modelRecharge.hasOne(modelBank, {
       sourceKey: 'bankId',
       foreignKey: 'id',
       as: 'usedBank',
+    })
+    modelRecharge.hasOne(modelPaymentMethod, {
+      sourceKey: 'paymentMethodId',
+      foreignKey: 'id',
+      as: 'paymentMethod',
     })
     modelRecharge.hasOne(modelCurrency, {
       sourceKey: 'currencyId',

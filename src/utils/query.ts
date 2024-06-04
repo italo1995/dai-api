@@ -15,13 +15,13 @@ export const fxOrderNameId = (pParam: any, pWhereStatement: FindOptions) => {
   } else if (Number(pParam?.orden) === orderQuery.MASVIEJOS) {
     pWhereStatement.order =
     pWhereStatement.order instanceof Array
-      ? [...pWhereStatement.order, ['id', 'ASC']]
-      : [['id', 'ASC']]
+      ? [...pWhereStatement.order, ['createdAt', 'ASC']]
+      : [['createdAt', 'ASC']]
   } else {
     pWhereStatement.order =
       pWhereStatement.order instanceof Array
-        ? [...pWhereStatement.order, ['id', 'DESC']]
-        : [['id', 'DESC']]
+        ? [...pWhereStatement.order, ['createdAt', 'DESC']]
+        : [['createdAt', 'DESC']]
   }
   return pWhereStatement.order
 }

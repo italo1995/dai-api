@@ -1,5 +1,5 @@
 import { Op, Sequelize, type FindOptions } from 'sequelize'
-import { modelBank, modelBranch, modelCurrency, modelRecharge, modelUser } from '../../models'
+import { modelBank, modelBranch, modelCurrency, modelPaymentMethod, modelRecharge, modelUser } from '../../models'
 import {
   type rechargeInstance,
   type rechargeAttributes,
@@ -57,6 +57,11 @@ class rechargeService implements IrechargeService {
         {
           model: modelBank,
           as: 'usedBank',
+          required: false
+        },
+        {
+          model: modelPaymentMethod,
+          as: 'paymentMethod',
           required: false
         },
         {
