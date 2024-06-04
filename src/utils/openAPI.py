@@ -164,6 +164,7 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                 for route, method in routes:
                     formatted_route = f"/api/{formatted_service_name}/{route}"
                     yaml_data['paths'].setdefault(formatted_route, {}).setdefault(method.lower(), {})
+                    
                     if route == 'all' :
                         if needs_auth.get(route, True):
                             yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
@@ -183,6 +184,23 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                                 'description': 'The keyword to filter by name'
                             }
                         ]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '200': {
+                                'description': f'The list of {formatted_service_name}',
+                                'content':{ 
+                                    'application/json': {
+                                        'schema': {
+                                            'type': 'Array', 
+                                            'items': {
+                                                '$ref': 
+                                                    f'#/components/schemas/{service_name}'}
+                                                
+                                        }    
+                                    }        
+                                }
+                            }
+                                
+                        }
                     elif route == 'show':
                         if needs_auth.get(route, True):
                             yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
@@ -191,7 +209,7 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                         yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
                         yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
                             '200': {
-                                'description': f'The list of {formatted_service_name}',
+                                'description': f'The element of {formatted_service_name}',
                                 'content':{ 
                                     'application/json': {
                                         'schema': {
@@ -339,6 +357,23 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                                 'description': 'The keyword to filter by name'
                             }
                         ]
+                        yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
+                            '200': {
+                                'description': f'The list of {formatted_service_name}',
+                                'content':{ 
+                                    'application/json': {
+                                        'schema': {
+                                            'type': 'Array', 
+                                            'items': {
+                                                '$ref': 
+                                                    f'#/components/schemas/{service_name}'}
+                                                
+                                        }    
+                                    }        
+                                }
+                            }
+                                
+                        }
                     elif route == 'show':
                         if needs_auth.get(route, True):
                             yaml_data['paths'][formatted_route][method.lower()]['security'] = [{'BearerAuth': []}]
@@ -347,7 +382,7 @@ def create_yaml_file(service_routes_dict, extracted_properties, needs_auth):
                         yaml_data['paths'][formatted_route][method.lower()]['parameters'] = [{'$ref': f'#/components/schemas/{service_name}/parameters/id'}]
                         yaml_data['paths'][formatted_route][method.lower()]['responses'] ={
                             '200': {
-                                'description': f'The list of {formatted_service_name}',
+                                'description': f'The element of {formatted_service_name}',
                                 'content':{ 
                                     'application/json': {
                                         'schema': {
