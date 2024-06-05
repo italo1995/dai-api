@@ -250,6 +250,7 @@ class UserService implements IUserService {
         }
         if (!pParam?.orden) {
           whereStatement.order = [
+            ...whereStatement.order,
             ['verifiedDriver', 'asc']
           ]
         }

@@ -26,6 +26,7 @@ import TripPaymentService from './services/Trip/TripPaymentService'
 import { ETypeUser } from './types/User'
 import CompanyParameterService from './services/web/CompanyParameterService'
 import DriverReportService from './services/User/DriverReportService'
+import CurrencyService from './services/Payments/CurrencyService'
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
   url: string
@@ -345,6 +346,18 @@ export class SocketService {
 
         const vTripUpdate = await ClassTripService.update(vUpdateTrip)
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
+        if (vDriver?.dataValues.tokenPush && vTripOffer?.dataValues.clientId) {
+          const vClient: IUserInstance | null = await ClassAuthService.show(vTripOffer.dataValues.clientId)
+          const text = vTrip?.dataValues.typeService === ETypeService.DELIVERY ? 'te ha seleccionado como repartidor' : 'te ha seleccionado como repartidor'
+          const notificationData = {
+            title: `${vClient?.dataValues.name} ${text}`,
+            body: 'Dirígete al destino. ¡Eso es PaYá!',
+          }
+          await NotificationService.sendNotification(
+            [vDriver.dataValues.tokenPush],
+            notificationData
+          )
+        }
         try {
           socket.to(vDriver?.dataValues?.socketId || vDriverSocketId?.driver?.socketId).emit(
             'acceptTripOffer',
@@ -494,7 +507,8 @@ export class SocketService {
           const vPercentageParameter = await CompanyParameterService.showByName('percentage')
           const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
           const vTripPrice = Number(vTrip?.dataValues.price)
-          const commission: number = (vTripPrice * vPercentage) / 100
+          const vTripConvert = await CurrencyService.convert({ currencyId: Number(vTrip?.dataValues.currencyId), amount: Number(vTripPrice) })
+          const commission: number = (vTripConvert * vPercentage) / 100
           if (vTrip?.dataValues?.driverId) {
             await DriverReportService.updatedOrCreate({
               userId: vTrip?.dataValues.driverId,

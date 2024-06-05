@@ -10,6 +10,8 @@ import {
 import { fxSuccessResponse, fxErrorResponse, moveImages, fxTwilioSendCodeRecharge } from '../../utils/helpers'
 import ClassUserService from '../../services/User/UserService'
 import CurrencyService from '../../services/Payments/CurrencyService'
+import NotificationService from '../fcmPushController'
+import { ETypeUser } from '../../types/User'
 
 export const recharge = {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -53,6 +55,7 @@ export const recharge = {
         'amount',
         'countryId',
         'currencyId',
+        'paymentMethodId',
         'bankId',
         'bank',
         'capture',
@@ -80,6 +83,18 @@ export const recharge = {
           const code = await fxTwilioSendCodeRecharge(vPhoneNumberSend, null, null)
           vData.code = code
           vData.status = EStatusRecharge.PENDING
+          const admin = await ClassUserService.allUserAdmin()
+          const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush)
+          if (pushIds.length) {
+            const notificationData = {
+              title: 'Tienes recargas pendientes por aprobar.',
+              body: 'Por favor, recuerda revisarlas. ¡Eso es PaYá!',
+            }
+            await NotificationService.sendNotification(
+              pushIds,
+              notificationData
+            )
+          }
         } else {
           vData.status = EStatusRecharge.APPROVED
         }
@@ -140,6 +155,21 @@ export const recharge = {
           .status(500)
           .send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
+      if (Number(vData.status) === EStatusRecharge.DECLINE && oldRecharge?.dataValues.userId) {
+        const vClient = await ClassUserService.show({
+          id: oldRecharge?.dataValues.userId
+        })
+        if (vClient?.dataValues.tokenPush && vClient.dataValues.typeUser === ETypeUser.driver) {
+          const notificationData = {
+            title: '¡Tu recarga no fue aprobada!',
+            body: 'Verifica e inténtalo de nuevo. ¡Eso es PaYá!.',
+          }
+          await NotificationService.sendNotification(
+            [vClient.dataValues.tokenPush],
+            notificationData
+          )
+        }
+      }
       if (Number(vData.status) === EStatusRecharge.APPROVED && oldRechargeJSON.status === EStatusRecharge.PENDING) {
         const currencyId = vResponse?.dataValues?.currencyId
         const amount: number = await CurrencyService.convert({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
@@ -148,11 +178,23 @@ export const recharge = {
             id: oldRecharge?.dataValues.userId,
             balance: amount
           })
+          const vClient = await ClassUserService.show({
+            id: oldRecharge?.dataValues.userId
+          })
+          if (vClient?.dataValues.tokenPush && vClient.dataValues.typeUser === ETypeUser.driver) {
+            const notificationData = {
+              title: '¡Tu recarga fue aprobada!',
+              body: 'Ya puedes iniciar tus viajes. ¡Eso es PaYá!.',
+            }
+            await NotificationService.sendNotification(
+              [vClient.dataValues.tokenPush],
+              notificationData
+            )
+          }
         }
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
-      console.log('error :>> ', error)
       pNext(error)
     }
   },

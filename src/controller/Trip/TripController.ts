@@ -520,12 +520,6 @@ class TripController {
           cityId: vResponse?.dataValues.cityId || null,
           regionId: vResponse?.dataValues.regionId || null,
           countryId: vResponse?.dataValues.countryId || null,
-          // isCar:
-          //   vResponse?.dataValues.typeService === ETypeService.CAR ||
-          //   vResponse?.dataValues.typeService === ETypeService.TRAVEL,
-          // isMoto:
-          //   vResponse?.dataValues.typeService === ETypeService.MOTO ||
-          //   vResponse?.dataValues.typeService === ETypeService.DELIVERY,
           isCar: vResponse?.dataValues.typeService === ETypeService.CAR,
           isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO,
           isDelivery: vResponse?.dataValues.typeService === ETypeService.DELIVERY,
@@ -551,12 +545,32 @@ class TripController {
         if (pReq.auth.typeUser === ETypeUser.passenger && vResponse?.dataValues.driverId) {
           const vDriver = await ClassUserService.show({ id: vResponse.dataValues.driverId })
           if (vDriver?.dataValues.socketId) {
+            if (vDriver?.dataValues.tokenPush) {
+              const notificationData = {
+                title: 'Tu pasajero ha cancelado el servicio',
+                body: '¡Gracias por tu disposición!. Es momento de tomar otro viaje',
+              }
+              await NotificationService.sendNotification(
+                [vDriver.dataValues.tokenPush],
+                notificationData
+              )
+            }
             SocketService.io.to(vDriver.dataValues.socketId).emit('cancelTripActive', vResponse)
           }
         }
         if (pReq.auth.typeUser === ETypeUser.driver && vResponse?.dataValues.userId) {
           const vClient = await ClassUserService.show({ id: vResponse.dataValues.userId })
           if (vClient?.dataValues.socketId) {
+            if (vClient?.dataValues.tokenPush) {
+              const notificationData = {
+                title: 'Tu conductor ha cancelado el servicio',
+                body: 'Si tienes alguna duda, contacta a un operador',
+              }
+              await NotificationService.sendNotification(
+                [vClient.dataValues.tokenPush],
+                notificationData
+              )
+            }
             SocketService.io.to(vClient.dataValues.socketId).emit('cancelTripActive', vResponse)
           }
         }
@@ -568,12 +582,6 @@ class TripController {
           cityId: vResponse?.dataValues.cityId || null,
           regionId: vResponse?.dataValues.regionId || null,
           countryId: vResponse?.dataValues.countryId || null,
-          // isCar:
-          //   vResponse?.dataValues.typeService === ETypeService.CAR ||
-          //   vResponse?.dataValues.typeService === ETypeService.TRAVEL,
-          // isMoto:
-          //   vResponse?.dataValues.typeService === ETypeService.MOTO ||
-          //   vResponse?.dataValues.typeService === ETypeService.DELIVERY,
           isCar: vResponse?.dataValues.typeService === ETypeService.CAR,
           isMoto: vResponse?.dataValues.typeService === ETypeService.MOTO,
           isDelivery: vResponse?.dataValues.typeService === ETypeService.DELIVERY,
@@ -691,10 +699,30 @@ class TripController {
       const clientId = vResponse?.dataValues.userId
       if (driverId) {
         const dirver = await ClassUserService.show({ id: driverId })
+        if (dirver?.dataValues.tokenPush) {
+          const notificationData = {
+            title: 'Tu servicio ha sido anulado',
+            body: ' Por nuestro administrador, contactanos para aclarar dudas.',
+          }
+          await NotificationService.sendNotification(
+            [dirver.dataValues.tokenPush],
+            notificationData
+          )
+        }
         await SocketService.io.to(dirver?.dataValues?.socketId).emit('cancelTripActive', vResponse)
       }
       if (clientId) {
         const client = await ClassUserService.show({ id: clientId })
+        if (client?.dataValues.tokenPush) {
+          const notificationData = {
+            title: 'Tu servicio ha sido anulado',
+            body: ' Por nuestro administrador, contactanos para aclarar dudas.',
+          }
+          await NotificationService.sendNotification(
+            [client.dataValues.tokenPush],
+            notificationData
+          )
+        }
         await SocketService.io.to(client?.dataValues?.socketId).emit('cancelTripActive', vResponse)
       }
 

@@ -150,8 +150,8 @@ class TripOffertController {
           distance: vData.distance,
         }
         const notificationData = {
-          title: 'Tienes una oferta',
-          body: 'tu viaje tiene una oferta',
+          title: '¡Tienes una oferta!',
+          body: 'Confirma  para iniciar tu viaje. ¡Eso es PaYá!',
           data: JSON.stringify(VnotificationDataDriver),
         }
         await NotificationService.sendNotification([tokenPush], notificationData)

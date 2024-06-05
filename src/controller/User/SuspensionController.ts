@@ -141,8 +141,8 @@ class SuspensionController {
       // }
       if (user?.dataValues.tokenPush) {
         const notificationData = {
-          title: 'Usuario suspendido',
-          body: `Ha sido suspendido en PAYA hasta: ${vResponse.end.toLocaleString()}`,
+          title: '¡Tu cuenta ha sido suspendida!',
+          body: `${vData.reason}, hasta: ${vResponse.end.toLocaleString()}, Contacta a un operador para aclarar tus dudas.`,
         }
         await NotificationService.sendNotification(
           [user.dataValues.tokenPush],
@@ -190,8 +190,8 @@ class SuspensionController {
       // }
       if (user?.dataValues.tokenPush) {
         const notificationData = {
-          title: 'Usuario activado',
-          body: `Tu usuario ${user.dataValues.name} ha sido activado en PAYA`,
+          title: '¡Tu cuenta ha sido habilitada!',
+          body: 'Ya puedes trabajar con nosotros nuevamente ¡Eso es PaYá!',
         }
         await NotificationService.sendNotification(
           [user.dataValues.tokenPush],
