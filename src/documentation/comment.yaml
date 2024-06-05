@@ -26,7 +26,7 @@ components:
           description: the serviceId of the comment
           type: string
         userId:
-          description: the userId of the comment
+          description: the userId of the client
           type: string
       required:
       - id

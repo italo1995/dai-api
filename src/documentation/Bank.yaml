@@ -11,25 +11,25 @@ components:
             type: string
       properties:
         accountNumber:
-          description: the accountNumber of the bank
+          description: the accountNumber of the client
           type: string
         accountType:
-          description: the accountType of the bank
+          description: the accountType of the client
           type: string
         currencyId:
-          description: the currencyId of the bank
+          description: the currencyId of the account
           type: number
         dni:
-          description: the dni of the bank
+          description: the dni of the client
           type: string
         email:
-          description: the email of the bank
+          description: the email of the client
           type: string | null
         fullName:
-          description: the fullName of the bank
+          description: the fullName of the client
           type: string
         hasCapture:
-          description: the hasCapture of the bank
+          description: if the transaction has a capture
           type: boolean
         icon:
           description: the icon of the bank
@@ -38,13 +38,13 @@ components:
           description: the id of the bank
           type: number
         isConvert:
-          description: the isConvert of the bank
+          description: if the currency is converted
           type: boolean
         name:
           description: the name of the bank
           type: string
         phoneNumber:
-          description: the phoneNumber of the bank
+          description: the phoneNumber of the client
           type: string
       required:
       - id

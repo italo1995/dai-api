@@ -17,19 +17,19 @@ components:
           description: the id of the carData
           type: number
         isCar:
-          description: the isCar of the carData
+          description: is a car
           type: boolean
         isMoto:
-          description: the isMoto of the carData
+          description: is a moto
           type: boolean
         name:
-          description: the name of the carData
+          description: the name of the vehicle
           type: string
         parentId:
           description: the parentId of the carData
           type: string | null
         type:
-          description: the type of the carData
+          description: the type of the car
           type: ETypeReview
       required:
       - name
