@@ -29,24 +29,24 @@ components:
           description: the state of the banner
           type: boolean
       required:
-      - id
-      - name
-      - image
+        - id
+        - name
+        - image
       type: object
 paths:
   /api/banner/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -58,23 +58,23 @@ paths:
           description: The list of banner
       summary: Returns a list of banner
       tags:
-      - Banner
+        - Banner
   /api/banner/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Banner/parameters/id'
+        - $ref: '#/components/schemas/Banner/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Banner deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a banner
       tags:
-      - Banner
+        - Banner
   /api/banner/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Banner/parameters/id'
+        - $ref: '#/components/schemas/Banner/parameters/id'
       responses:
         '200':
           content:
@@ -86,90 +86,88 @@ paths:
           description: The element of banner
       summary: Returns a banner element
       tags:
-      - Banner
+        - Banner
   /api/banner/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  image:
-                    description: The image of the banner
-                    type: string
-                  link:
-                    description: The link of the banner
-                    type: string
-                  name:
-                    description: The name of the banner
-                    type: string
-                  orden:
-                    description: The orden of the banner
-                    type: number
-                  state:
-                    description: The state of the banner
-                    type: boolean
-                required:
-                - id
+              type: object
+              properties:
+                image:
+                  description: The image of the banner
+                  type: string
+                link:
+                  description: The link of the banner
+                  type: string
+                name:
+                  description: The name of the banner
+                  type: string
+                orden:
+                  description: The orden of the banner
+                  type: number
+                state:
+                  description: The state of the banner
+                  type: boolean
+              required:
                 - name
                 - image
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Banner'
           description: The banner created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new banner
       tags:
-      - Banner
+        - Banner
   /api/banner/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  id:
-                    description: The id of the banner
-                    type: number
-                  image:
-                    description: The image of the banner
-                    type: string
-                  link:
-                    description: The link of the banner
-                    type: string
-                  name:
-                    description: The name of the banner
-                    type: string
-                  orden:
-                    description: The orden of the banner
-                    type: number
-                  state:
-                    description: The state of the banner
-                    type: boolean
-                required:
+              type: object
+              properties:
+                id:
+                  description: The id of the banner
+                  type: number
+                image:
+                  description: The image of the banner
+                  type: string
+                link:
+                  description: The link of the banner
+                  type: string
+                name:
+                  description: The name of the banner
+                  type: string
+                orden:
+                  description: The orden of the banner
+                  type: number
+                state:
+                  description: The state of the banner
+                  type: boolean
+              required:
                 - id
                 - name
                 - image
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Banner'
           description: The banner updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Banner
       tags:
-      - Banner
+        - Banner
 tags:
-- Banner
+  - Banner

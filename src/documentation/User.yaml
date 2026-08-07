@@ -15,28 +15,35 @@ components:
           type: boolean
         avatar:
           description: the avatar of the user
-          type: string | null
+          type: string
+          nullable: true
         balance:
           description: the balance of the user
-          type: number | null
+          type: number
+          nullable: true
         branchId:
           description: the branchId of the user
-          type: number | null
+          type: number
+          nullable: true
         cityId:
           description: the cityId of the user
-          type: number | null
+          type: number
+          nullable: true
         countryId:
           description: the countryId of the user
-          type: number | null
+          type: number
+          nullable: true
         dob:
           description: the dob of the user
           type: string
         driverSuspendedTo:
           description: the driverSuspendedTo of the user
-          type: Date | null
+          type: string
+          nullable: true
         email:
           description: the email of the user
-          type: string | null
+          type: string
+          nullable: true
         id:
           description: the id of the user
           type: number
@@ -54,13 +61,16 @@ components:
           type: boolean
         lastName:
           description: the lastName of the user
-          type: string | null
+          type: string
+          nullable: true
         lat:
           description: the lat of the user
-          type: number | null
+          type: number
+          nullable: true
         lon:
           description: the lon of the user
-          type: number | null
+          type: number
+          nullable: true
         name:
           description: the name of the user
           type: string
@@ -75,7 +85,8 @@ components:
           type: string
         regionId:
           description: the regionId of the user
-          type: number | null
+          type: number
+          nullable: true
         rolId:
           description: the rolId of the user
           type: number
@@ -84,10 +95,12 @@ components:
           type: number
         socketId:
           description: the socketId of the user
-          type: string | null
+          type: string
+          nullable: true
         staffId:
           description: the staffId of the user
-          type: number | null
+          type: number
+          nullable: true
         status:
           description: the status of the user
           type: EStatusVerify
@@ -102,7 +115,8 @@ components:
           type: Date
         tokenPush:
           description: the tokenPush of the user
-          type: string | null
+          type: string
+          nullable: true
         typeUser:
           description: the typeUser of the user
           type: ETypeUser
@@ -113,26 +127,26 @@ components:
           description: the verifiedDriver of the user
           type: boolean
       required:
-      - id
-      - password
-      - phoneCode
-      - phoneNumber
-      - driverSuspendedTo
+        - id
+        - password
+        - phoneCode
+        - phoneNumber
+        - driverSuspendedTo
       type: object
 paths:
   /api/user/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -144,47 +158,47 @@ paths:
           description: The list of user
       summary: Returns a list of user
       tags:
-      - User
+        - User
   /api/user/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/User/parameters/id'
+        - $ref: '#/components/schemas/User/parameters/id'
       responses:
-        '201':
+        '200':
           description: The User deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a user
       tags:
-      - User
+        - User
   /api/user/location:
     get:
       parameters:
-      - $ref: '#/components/schemas/User/parameters/id'
+        - $ref: '#/components/schemas/User/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for location
       tags:
-      - User
+        - User
   /api/user/operatorAll:
     get:
       parameters:
-      - $ref: '#/components/schemas/User/parameters/id'
+        - $ref: '#/components/schemas/User/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for operatorAll
       tags:
-      - User
+        - User
   /api/user/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/User/parameters/id'
+        - $ref: '#/components/schemas/User/parameters/id'
       responses:
         '200':
           content:
@@ -196,236 +210,256 @@ paths:
           description: The element of user
       summary: Returns a user element
       tags:
-      - User
+        - User
   /api/user/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  availabilityToTravel:
-                    description: The availabilityToTravel of the user
-                    type: boolean
-                  avatar:
-                    description: The avatar of the user
-                    type: string | null
-                  balance:
-                    description: The balance of the user
-                    type: number | null
-                  dob:
-                    description: The dob of the user
-                    type: string
-                  driverSuspendedTo:
-                    description: The driverSuspendedTo of the user
-                    type: Date | null
-                  email:
-                    description: The email of the user
-                    type: string | null
-                  isAc:
-                    description: The isAc of the user
-                    type: boolean
-                  isNewUser:
-                    description: The isNewUser of the user
-                    type: boolean
-                  isTaxi:
-                    description: The isTaxi of the user
-                    type: boolean
-                  isVip:
-                    description: The isVip of the user
-                    type: boolean
-                  lastName:
-                    description: The lastName of the user
-                    type: string | null
-                  lat:
-                    description: The lat of the user
-                    type: number | null
-                  lon:
-                    description: The lon of the user
-                    type: number | null
-                  name:
-                    description: The name of the user
-                    type: string
-                  password:
-                    description: The password of the user
-                    type: string
-                  phoneCode:
-                    description: The phoneCode of the user
-                    type: string
-                  phoneNumber:
-                    description: The phoneNumber of the user
-                    type: string
-                  seats:
-                    description: The seats of the user
-                    type: number
-                  status:
-                    description: The status of the user
-                    type: EStatusVerify
-                  statusDriver:
-                    description: The statusDriver of the user
-                    type: EStatusDriver
-                  token:
-                    description: The token of the user
-                    type: string
-                  tokenExpire:
-                    description: The tokenExpire of the user
-                    type: Date
-                  tokenPush:
-                    description: The tokenPush of the user
-                    type: string | null
-                  typeUser:
-                    description: The typeUser of the user
-                    type: ETypeUser
-                  vehicleType:
-                    description: The vehicleType of the user
-                    type: number
-                  verifiedDriver:
-                    description: The verifiedDriver of the user
-                    type: boolean
-                required:
-                - id
+              type: object
+              properties:
+                availabilityToTravel:
+                  description: The availabilityToTravel of the user
+                  type: boolean
+                avatar:
+                  description: The avatar of the user
+                  type: string
+                  nullable: true
+                balance:
+                  description: The balance of the user
+                  type: number
+                  nullable: true
+                dob:
+                  description: The dob of the user
+                  type: string
+                driverSuspendedTo:
+                  description: The driverSuspendedTo of the user
+                  type: string
+                  nullable: true
+                email:
+                  description: The email of the user
+                  type: string
+                  nullable: true
+                isAc:
+                  description: The isAc of the user
+                  type: boolean
+                isNewUser:
+                  description: The isNewUser of the user
+                  type: boolean
+                isTaxi:
+                  description: The isTaxi of the user
+                  type: boolean
+                isVip:
+                  description: The isVip of the user
+                  type: boolean
+                lastName:
+                  description: The lastName of the user
+                  type: string
+                  nullable: true
+                lat:
+                  description: The lat of the user
+                  type: number
+                  nullable: true
+                lon:
+                  description: The lon of the user
+                  type: number
+                  nullable: true
+                name:
+                  description: The name of the user
+                  type: string
+                password:
+                  description: The password of the user
+                  type: string
+                phoneCode:
+                  description: The phoneCode of the user
+                  type: string
+                phoneNumber:
+                  description: The phoneNumber of the user
+                  type: string
+                seats:
+                  description: The seats of the user
+                  type: number
+                status:
+                  description: The status of the user
+                  type: EStatusVerify
+                statusDriver:
+                  description: The statusDriver of the user
+                  type: EStatusDriver
+                token:
+                  description: The token of the user
+                  type: string
+                tokenExpire:
+                  description: The tokenExpire of the user
+                  type: Date
+                tokenPush:
+                  description: The tokenPush of the user
+                  type: string
+                  nullable: true
+                typeUser:
+                  description: The typeUser of the user
+                  type: ETypeUser
+                vehicleType:
+                  description: The vehicleType of the user
+                  type: number
+                verifiedDriver:
+                  description: The verifiedDriver of the user
+                  type: boolean
+              required:
                 - password
                 - phoneCode
                 - phoneNumber
                 - driverSuspendedTo
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
           description: The user created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new user
       tags:
-      - User
+        - User
   /api/user/suspended:
     post:
       parameters:
-      - $ref: '#/components/schemas/User/parameters/id'
+        - $ref: '#/components/schemas/User/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for suspended
       tags:
-      - User
+        - User
   /api/user/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  availabilityToTravel:
-                    description: The availabilityToTravel of the user
-                    type: boolean
-                  avatar:
-                    description: The avatar of the user
-                    type: string | null
-                  balance:
-                    description: The balance of the user
-                    type: number | null
-                  branchId:
-                    description: The branchId of the user
-                    type: number | null
-                  cityId:
-                    description: The cityId of the user
-                    type: number | null
-                  countryId:
-                    description: The countryId of the user
-                    type: number | null
-                  dob:
-                    description: The dob of the user
-                    type: string
-                  driverSuspendedTo:
-                    description: The driverSuspendedTo of the user
-                    type: Date | null
-                  email:
-                    description: The email of the user
-                    type: string | null
-                  id:
-                    description: The id of the user
-                    type: number
-                  isAc:
-                    description: The isAc of the user
-                    type: boolean
-                  isNewUser:
-                    description: The isNewUser of the user
-                    type: boolean
-                  isTaxi:
-                    description: The isTaxi of the user
-                    type: boolean
-                  isVip:
-                    description: The isVip of the user
-                    type: boolean
-                  lastName:
-                    description: The lastName of the user
-                    type: string | null
-                  lat:
-                    description: The lat of the user
-                    type: number | null
-                  lon:
-                    description: The lon of the user
-                    type: number | null
-                  name:
-                    description: The name of the user
-                    type: string
-                  password:
-                    description: The password of the user
-                    type: string
-                  phoneCode:
-                    description: The phoneCode of the user
-                    type: string
-                  phoneNumber:
-                    description: The phoneNumber of the user
-                    type: string
-                  regionId:
-                    description: The regionId of the user
-                    type: number | null
-                  rolId:
-                    description: The rolId of the user
-                    type: number
-                  seats:
-                    description: The seats of the user
-                    type: number
-                  socketId:
-                    description: The socketId of the user
-                    type: string | null
-                  staffId:
-                    description: The staffId of the user
-                    type: number | null
-                  status:
-                    description: The status of the user
-                    type: EStatusVerify
-                  statusDriver:
-                    description: The statusDriver of the user
-                    type: EStatusDriver
-                  token:
-                    description: The token of the user
-                    type: string
-                  tokenExpire:
-                    description: The tokenExpire of the user
-                    type: Date
-                  tokenPush:
-                    description: The tokenPush of the user
-                    type: string | null
-                  typeUser:
-                    description: The typeUser of the user
-                    type: ETypeUser
-                  vehicleType:
-                    description: The vehicleType of the user
-                    type: number
-                  verifiedDriver:
-                    description: The verifiedDriver of the user
-                    type: boolean
-                required:
+              type: object
+              properties:
+                availabilityToTravel:
+                  description: The availabilityToTravel of the user
+                  type: boolean
+                avatar:
+                  description: The avatar of the user
+                  type: string
+                  nullable: true
+                balance:
+                  description: The balance of the user
+                  type: number
+                  nullable: true
+                branchId:
+                  description: The branchId of the user
+                  type: number
+                  nullable: true
+                cityId:
+                  description: The cityId of the user
+                  type: number
+                  nullable: true
+                countryId:
+                  description: The countryId of the user
+                  type: number
+                  nullable: true
+                dob:
+                  description: The dob of the user
+                  type: string
+                driverSuspendedTo:
+                  description: The driverSuspendedTo of the user
+                  type: string
+                  nullable: true
+                email:
+                  description: The email of the user
+                  type: string
+                  nullable: true
+                id:
+                  description: The id of the user
+                  type: number
+                isAc:
+                  description: The isAc of the user
+                  type: boolean
+                isNewUser:
+                  description: The isNewUser of the user
+                  type: boolean
+                isTaxi:
+                  description: The isTaxi of the user
+                  type: boolean
+                isVip:
+                  description: The isVip of the user
+                  type: boolean
+                lastName:
+                  description: The lastName of the user
+                  type: string
+                  nullable: true
+                lat:
+                  description: The lat of the user
+                  type: number
+                  nullable: true
+                lon:
+                  description: The lon of the user
+                  type: number
+                  nullable: true
+                name:
+                  description: The name of the user
+                  type: string
+                password:
+                  description: The password of the user
+                  type: string
+                phoneCode:
+                  description: The phoneCode of the user
+                  type: string
+                phoneNumber:
+                  description: The phoneNumber of the user
+                  type: string
+                regionId:
+                  description: The regionId of the user
+                  type: number
+                  nullable: true
+                rolId:
+                  description: The rolId of the user
+                  type: number
+                seats:
+                  description: The seats of the user
+                  type: number
+                socketId:
+                  description: The socketId of the user
+                  type: string
+                  nullable: true
+                staffId:
+                  description: The staffId of the user
+                  type: number
+                  nullable: true
+                status:
+                  description: The status of the user
+                  type: EStatusVerify
+                statusDriver:
+                  description: The statusDriver of the user
+                  type: EStatusDriver
+                token:
+                  description: The token of the user
+                  type: string
+                tokenExpire:
+                  description: The tokenExpire of the user
+                  type: Date
+                tokenPush:
+                  description: The tokenPush of the user
+                  type: string
+                  nullable: true
+                typeUser:
+                  description: The typeUser of the user
+                  type: ETypeUser
+                vehicleType:
+                  description: The vehicleType of the user
+                  type: number
+                verifiedDriver:
+                  description: The verifiedDriver of the user
+                  type: boolean
+              required:
                 - id
                 - password
                 - phoneCode
@@ -433,16 +467,16 @@ paths:
                 - driverSuspendedTo
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
           description: The user updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a User
       tags:
-      - User
+        - User
 tags:
-- User
+  - User

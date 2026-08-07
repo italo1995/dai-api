@@ -29,27 +29,27 @@ components:
           description: the userId of the userRating
           type: string
       required:
-      - id
-      - userId
-      - type
-      - ratings
-      - averageRating
-      - quantity
+        - id
+        - userId
+        - type
+        - ratings
+        - averageRating
+        - quantity
       type: object
 paths:
   /api/userRating/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -61,23 +61,23 @@ paths:
           description: The list of userRating
       summary: Returns a list of userRating
       tags:
-      - UserRating
+        - UserRating
   /api/userRating/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/UserRating/parameters/id'
+        - $ref: '#/components/schemas/UserRating/parameters/id'
       responses:
-        '201':
+        '200':
           description: The UserRating deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a userRating
       tags:
-      - UserRating
+        - UserRating
   /api/userRating/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/UserRating/parameters/id'
+        - $ref: '#/components/schemas/UserRating/parameters/id'
       responses:
         '200':
           content:
@@ -89,57 +89,54 @@ paths:
           description: The element of userRating
       summary: Returns a userRating element
       tags:
-      - UserRating
+        - UserRating
   /api/userRating/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  averageRating:
-                    description: The averageRating of the userRating
-                    type: number
-                  quantity:
-                    description: The quantity of the userRating
-                    type: number
-                  ratings:
-                    description: The ratings of the userRating
-                    type: number
-                  type:
-                    description: The type of the userRating
-                    type: ETypeReview
-                required:
-                - id
-                - userId
+              type: object
+              properties:
+                averageRating:
+                  description: The averageRating of the userRating
+                  type: number
+                quantity:
+                  description: The quantity of the userRating
+                  type: number
+                ratings:
+                  description: The ratings of the userRating
+                  type: number
+                type:
+                  description: The type of the userRating
+                  type: ETypeReview
+              required:
                 - type
                 - ratings
                 - averageRating
                 - quantity
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserRating'
           description: The userRating created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new userRating
       tags:
-      - UserRating
+        - UserRating
   /api/userRating/update/:userId/:type:
     post:
       parameters:
-      - $ref: '#/components/schemas/UserRating/parameters/id'
+        - $ref: '#/components/schemas/UserRating/parameters/id'
       responses:
         '200':
           description: Success
       summary: Endpoint for update/:userId/:type
       tags:
-      - UserRating
+        - UserRating
 tags:
-- UserRating
+  - UserRating

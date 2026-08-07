@@ -24,30 +24,31 @@ components:
           type: string
         regionId:
           description: the regionId of the city
-          type: number | null
+          type: number
+          nullable: true
         state:
           description: the state of the city
           type: boolean
       required:
-      - id
-      - name
-      - regionId
-      - state
+        - id
+        - name
+        - regionId
+        - state
       type: object
 paths:
   /api/city/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -59,23 +60,23 @@ paths:
           description: The list of city
       summary: Returns a list of city
       tags:
-      - City
+        - City
   /api/city/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/City/parameters/id'
+        - $ref: '#/components/schemas/City/parameters/id'
       responses:
-        '201':
+        '200':
           description: The City deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a city
       tags:
-      - City
+        - City
   /api/city/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/City/parameters/id'
+        - $ref: '#/components/schemas/City/parameters/id'
       responses:
         '200':
           content:
@@ -87,89 +88,87 @@ paths:
           description: The element of city
       summary: Returns a city element
       tags:
-      - City
+        - City
   /api/city/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  flag:
-                    description: The flag of the city
-                    type: string
-                  name:
-                    description: The name of the city
-                    type: string
-                  phone:
-                    description: The phone of the city
-                    type: string
-                  state:
-                    description: The state of the city
-                    type: boolean
-                required:
-                - id
-                - name
-                - regionId
-                - state
               type: object
+              properties:
+                flag:
+                  description: The flag of the city
+                  type: string
+                name:
+                  description: The name of the city
+                  type: string
+                phone:
+                  description: The phone of the city
+                  type: string
+                state:
+                  description: The state of the city
+                  type: boolean
+              required:
+                - name
+                - state
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/City'
           description: The city created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new city
       tags:
-      - City
+        - City
   /api/city/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  flag:
-                    description: The flag of the city
-                    type: string
-                  id:
-                    description: The id of the city
-                    type: number
-                  name:
-                    description: The name of the city
-                    type: string
-                  phone:
-                    description: The phone of the city
-                    type: string
-                  regionId:
-                    description: The regionId of the city
-                    type: number | null
-                  state:
-                    description: The state of the city
-                    type: boolean
-                required:
+              type: object
+              properties:
+                flag:
+                  description: The flag of the city
+                  type: string
+                id:
+                  description: The id of the city
+                  type: number
+                name:
+                  description: The name of the city
+                  type: string
+                phone:
+                  description: The phone of the city
+                  type: string
+                regionId:
+                  description: The regionId of the city
+                  type: number
+                  nullable: true
+                state:
+                  description: The state of the city
+                  type: boolean
+              required:
                 - id
                 - name
                 - regionId
                 - state
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/City'
           description: The city updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a City
       tags:
-      - City
+        - City
 tags:
-- City
+  - City

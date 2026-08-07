@@ -1,49 +1,91 @@
-components:
-  schemas:
-    Transfer:
+paths:
+  /api/transfer/marker/show/{name}:
+    get:
+      summary: Genera/devuelve el ícono de marcador de mapa del usuario autenticado
+      description: >
+        El parámetro de path {name} existe en la ruta pero el controlador no lo usa (usa el
+        usuario del token). Genera (o reutiliza si ya existe en caché) un PNG combinando el
+        pin base con el avatar del usuario autenticado, o un marcador genérico si no tiene avatar.
+      tags:
+        - Transfer
+      security:
+        - BearerAuth: []
       parameters:
-        id:
-          in: query
-          name: id
+        - in: path
+          name: name
+          required: false
+          schema:
+            type: string
+          description: No se usa actualmente en el controlador
+      responses:
+        '200':
+          description: Ruta relativa (bajo uploads/) del ícono generado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      img:
+                        type: string
+                        example: user/xxxxuser_u64pxv2.png
+  /api/transfer/marker/showClient/{name}:
+    get:
+      summary: Genera/devuelve el ícono de marcador de mapa del cliente de un viaje
+      description: >
+        El parámetro de path {name} existe en la ruta pero el controlador no lo usa. Requiere
+        tripId por query; busca el viaje, su cliente, y genera/reutiliza el ícono con su avatar.
+      tags:
+        - Transfer
+      parameters:
+        - in: path
+          name: name
+          required: false
+          schema:
+            type: string
+          description: No se usa actualmente en el controlador
+        - in: query
+          name: tripId
           required: true
           schema:
-            description: the Transfer id
-            type: string
-      properties: {}
-      required: []
-      type: object
-paths:
+            type: number
+      responses:
+        '200':
+          description: Ruta relativa (bajo uploads/) del ícono generado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      img:
+                        type: string
+        '400':
+          description: Falta tripId, o el viaje no existe
   /api/transfer/marker/prueba:
     get:
-      parameters:
-      - $ref: '#/components/schemas/Transfer/parameters/id'
+      summary: '[Debug, no usar] Genera una imagen de prueba con un archivo hardcodeado'
+      description: >
+        Endpoint de prueba dejado en el código: lee un archivo hardcodeado en uploads/
+        (1712685080145-bc49c68f-99e7-4899-86ad-1f94c6a36b51.jpeg) que probablemente no existe
+        en un entorno nuevo, lo que haría fallar el endpoint con un error de archivo no
+        encontrado. No depende de ningún parámetro. Candidato a eliminar de las rutas.
+      tags:
+        - Transfer
       responses:
         '200':
-          description: Success
-      summary: Endpoint for marker/prueba
-      tags:
-      - Transfer
-  /api/transfer/marker/show/:name?:
-    get:
-      parameters:
-      - $ref: '#/components/schemas/Transfer/parameters/id'
-      responses:
-        '200':
-          description: Success
-      security:
-      - BearerAuth: []
-      summary: Endpoint for marker/show/:name?
-      tags:
-      - Transfer
-  /api/transfer/marker/showClient/:name?:
-    get:
-      parameters:
-      - $ref: '#/components/schemas/Transfer/parameters/id'
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for marker/showClient/:name?
-      tags:
-      - Transfer
+          description: Success (si el archivo hardcodeado existe en el servidor)
+        '500':
+          description: Archivo hardcodeado no encontrado en uploads/
 tags:
-- Transfer
+  - Transfer

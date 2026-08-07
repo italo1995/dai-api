@@ -26,23 +26,23 @@ components:
           description: the orden of the vehicleType
           type: number
       required:
-      - id
-      - name
+        - id
+        - name
       type: object
 paths:
   /api/vehicleType/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -54,23 +54,23 @@ paths:
           description: The list of vehicleType
       summary: Returns a list of vehicleType
       tags:
-      - VehicleType
+        - VehicleType
   /api/vehicleType/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/VehicleType/parameters/id'
+        - $ref: '#/components/schemas/VehicleType/parameters/id'
       responses:
-        '201':
+        '200':
           description: The VehicleType deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a vehicleType
       tags:
-      - VehicleType
+        - VehicleType
   /api/vehicleType/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/VehicleType/parameters/id'
+        - $ref: '#/components/schemas/VehicleType/parameters/id'
       responses:
         '200':
           content:
@@ -82,82 +82,80 @@ paths:
           description: The element of vehicleType
       summary: Returns a vehicleType element
       tags:
-      - VehicleType
+        - VehicleType
   /api/vehicleType/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  isCar:
-                    description: The isCar of the vehicleType
-                    type: boolean
-                  isMoto:
-                    description: The isMoto of the vehicleType
-                    type: boolean
-                  name:
-                    description: The name of the vehicleType
-                    type: string
-                  orden:
-                    description: The orden of the vehicleType
-                    type: number
-                required:
-                - id
-                - name
               type: object
+              properties:
+                isCar:
+                  description: The isCar of the vehicleType
+                  type: boolean
+                isMoto:
+                  description: The isMoto of the vehicleType
+                  type: boolean
+                name:
+                  description: The name of the vehicleType
+                  type: string
+                orden:
+                  description: The orden of the vehicleType
+                  type: number
+              required:
+                - name
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleType'
           description: The vehicleType created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new vehicleType
       tags:
-      - VehicleType
+        - VehicleType
   /api/vehicleType/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  id:
-                    description: The id of the vehicleType
-                    type: number
-                  isCar:
-                    description: The isCar of the vehicleType
-                    type: boolean
-                  isMoto:
-                    description: The isMoto of the vehicleType
-                    type: boolean
-                  name:
-                    description: The name of the vehicleType
-                    type: string
-                  orden:
-                    description: The orden of the vehicleType
-                    type: number
-                required:
+              type: object
+              properties:
+                id:
+                  description: The id of the vehicleType
+                  type: number
+                isCar:
+                  description: The isCar of the vehicleType
+                  type: boolean
+                isMoto:
+                  description: The isMoto of the vehicleType
+                  type: boolean
+                name:
+                  description: The name of the vehicleType
+                  type: string
+                orden:
+                  description: The orden of the vehicleType
+                  type: number
+              required:
                 - id
                 - name
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleType'
           description: The vehicleType updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a VehicleType
       tags:
-      - VehicleType
+        - VehicleType
 tags:
-- VehicleType
+  - VehicleType

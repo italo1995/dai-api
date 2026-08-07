@@ -21,10 +21,12 @@ components:
           type: number
         lat:
           description: the lat of the userAddress
-          type: number | null
+          type: number
+          nullable: true
         lon:
           description: the lon of the userAddress
-          type: number | null
+          type: number
+          nullable: true
         name:
           description: the name of the userAddress
           type: string
@@ -35,28 +37,28 @@ components:
           description: the userId of the userAddress
           type: string
       required:
-      - id
-      - userId
-      - name
-      - address
-      - reference
-      - lat
-      - lon
+        - id
+        - userId
+        - name
+        - address
+        - reference
+        - lat
+        - lon
       type: object
 paths:
   /api/userAddress/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -68,23 +70,23 @@ paths:
           description: The list of userAddress
       summary: Returns a list of userAddress
       tags:
-      - UserAddress
+        - UserAddress
   /api/userAddress/destroy:
     post:
       parameters:
-      - $ref: '#/components/schemas/UserAddress/parameters/id'
+        - $ref: '#/components/schemas/UserAddress/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for destroy
       tags:
-      - UserAddress
+        - UserAddress
   /api/userAddress/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/UserAddress/parameters/id'
+        - $ref: '#/components/schemas/UserAddress/parameters/id'
       responses:
         '200':
           content:
@@ -96,88 +98,89 @@ paths:
           description: The element of userAddress
       summary: Returns a userAddress element
       tags:
-      - UserAddress
+        - UserAddress
   /api/userAddress/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  address:
-                    description: The address of the userAddress
-                    type: string
-                  file:
-                    description: The file of the userAddress
-                    type: string
-                  lat:
-                    description: The lat of the userAddress
-                    type: number | null
-                  lon:
-                    description: The lon of the userAddress
-                    type: number | null
-                  name:
-                    description: The name of the userAddress
-                    type: string
-                  reference:
-                    description: The reference of the userAddress
-                    type: string
-                required:
-                - id
-                - userId
+              type: object
+              properties:
+                address:
+                  description: The address of the userAddress
+                  type: string
+                file:
+                  description: The file of the userAddress
+                  type: string
+                lat:
+                  description: The lat of the userAddress
+                  type: number
+                  nullable: true
+                lon:
+                  description: The lon of the userAddress
+                  type: number
+                  nullable: true
+                name:
+                  description: The name of the userAddress
+                  type: string
+                reference:
+                  description: The reference of the userAddress
+                  type: string
+              required:
                 - name
                 - address
                 - reference
                 - lat
                 - lon
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserAddress'
           description: The userAddress created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new userAddress
       tags:
-      - UserAddress
+        - UserAddress
   /api/userAddress/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  address:
-                    description: The address of the userAddress
-                    type: string
-                  file:
-                    description: The file of the userAddress
-                    type: string
-                  id:
-                    description: The id of the userAddress
-                    type: number
-                  lat:
-                    description: The lat of the userAddress
-                    type: number | null
-                  lon:
-                    description: The lon of the userAddress
-                    type: number | null
-                  name:
-                    description: The name of the userAddress
-                    type: string
-                  reference:
-                    description: The reference of the userAddress
-                    type: string
-                  userId:
-                    description: The userId of the userAddress
-                    type: string
-                required:
+              type: object
+              properties:
+                address:
+                  description: The address of the userAddress
+                  type: string
+                file:
+                  description: The file of the userAddress
+                  type: string
+                id:
+                  description: The id of the userAddress
+                  type: number
+                lat:
+                  description: The lat of the userAddress
+                  type: number
+                  nullable: true
+                lon:
+                  description: The lon of the userAddress
+                  type: number
+                  nullable: true
+                name:
+                  description: The name of the userAddress
+                  type: string
+                reference:
+                  description: The reference of the userAddress
+                  type: string
+                userId:
+                  description: The userId of the userAddress
+                  type: string
+              required:
                 - id
                 - userId
                 - name
@@ -187,16 +190,16 @@ paths:
                 - lon
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserAddress'
           description: The userAddress updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a UserAddress
       tags:
-      - UserAddress
+        - UserAddress
 tags:
-- UserAddress
+  - UserAddress

@@ -44,6 +44,21 @@ class AuthService implements IAuthService {
   async validate(data: any) {
     const fieldsToCheck = ['email', 'phoneNumber']
     for (const field of fieldsToCheck) {
+      if (data[field] === null || data[field] === undefined) {
+        const errorItems = [
+          new ValidationErrorItem(
+            `${field} is required`,
+            'notnull violation', // type
+            field, // path
+            data[field], // value
+            modelUser.build(data),
+            'is_null', // validatorKey
+            'validate',
+            []
+          ),
+        ]
+        throw new ValidationError('Validation error', errorItems)
+      }
       const existingUser = await modelUser.findOne({
         where: { [field]: data[field] },
       })

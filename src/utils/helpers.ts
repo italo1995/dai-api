@@ -72,28 +72,45 @@ export const moveImages = async (pName: string): Promise<string> => {
   }
 }
 
+// Punto unico de envio de SMS. Si TWILIO_ENABLED es false, no llama a Twilio: imprime el
+// mensaje en la terminal y retorna como si se hubiese enviado. Util para desarrollar sin
+// credenciales de Twilio configuradas.
+const fxSendSms = async (pTo: string, pBody: string): Promise<void> => {
+  console.log('fxSendSms')
+  try {
+    if (!AppConfig.TWILIO_ENABLED) {
+      console.log('----- TWILIO_ENABLED=false: SMS simulado, no se envio -----')
+      console.log(`Para: ${pTo}`)
+      console.log(`Mensaje: ${pBody}`)
+      console.log('-------------------------------------------------------------')
+      return
+    }
+    const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
+    const vAuthToken = AppConfig.TWILIO_AUTH_Token
+    const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
+    const fxClient = twilio(vAccountSid, vAuthToken)
+    await fxClient.messages.create({
+      body: pBody,
+      from: vTwilioPhoneNumber,
+      to: pTo,
+    })
+  } catch (error) {
+    console.log('fxSendSms error :>> ', error)
+  }
+}
+
 export const fxTwilioSendCode = async (
   pPhoneNumber: string,
   pCode: string | null,
   pHash: string | null
 ): Promise<string> => {
-  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
-  const vAuthToken = AppConfig.TWILIO_AUTH_Token
-  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
-  const fxClient = twilio(vAccountSid, vAuthToken)
   let vCode: string | null = pCode
   if (!vCode) {
     vCode = fxGenerateCode()
   }
-  try {
-    await fxClient.messages.create({
-      body: `${pHash ? pHash : ''} Tu código de verificación PAYA es: ${vCode}`,
-      from: vTwilioPhoneNumber,
-      to: pPhoneNumber,
-    })
-  } catch (error) {
-    throw error
-  }
+  console.log('vCode :>> ', vCode)
+  await fxSendSms(pPhoneNumber, `${pHash ? pHash : ''} Tu código de verificación PAYA es: ${vCode}`)
+  console.log('se envia el mensaje')
   return vCode.toString()
 }
 
@@ -102,54 +119,25 @@ export const fxTwilioSendCodeRecharge = async (
   pCode: string | null,
   pHash: string | null
 ): Promise<string> => {
-  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
-  const vAuthToken = AppConfig.TWILIO_AUTH_Token
-  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
-  const fxClient = twilio(vAccountSid, vAuthToken)
   let vCode: string | null = pCode
   if (!vCode) {
     vCode = fxGenerateCode()
   }
-  try {
-    await fxClient.messages.create({
-      body: `${pHash ? pHash : ''} Tu código de retiro es: ${vCode}`,
-      from: vTwilioPhoneNumber,
-      to: pPhoneNumber,
-    })
-  } catch (error) {
-    throw error
-  }
+  await fxSendSms(pPhoneNumber, `${pHash ? pHash : ''} Tu código de retiro es: ${vCode}`)
   return vCode.toString()
 }
 
 export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Error> => {
-  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
-  const vAuthToken = AppConfig.TWILIO_AUTH_Token
-  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
-  const fxClient = twilio(vAccountSid, vAuthToken)
-  try {
-    await fxClient.messages.create({
-      body: `${pUser?.dataValues.name} Fuiste verificado como conductor en PAYA`,
-      from: vTwilioPhoneNumber,
-      to: `${pUser.phoneCode}${pUser.phoneNumber}`,
-    })
-  } catch (error) {
-    throw error
-  }
+  await fxSendSms(
+    `${pUser.phoneCode}${pUser.phoneNumber}`,
+    `${pUser?.dataValues.name} Fuiste verificado como conductor en PAYA`
+  )
   return true
 }
 
 export const fxSendMessageTextDinamic = async (data: { phoneCode: string, phoneNumber: string, text: string }): Promise<boolean | Error> => {
-  const vAccountSid = AppConfig.TWILIO_ACCOUNT_SID
-  const vAuthToken = AppConfig.TWILIO_AUTH_Token
-  const vTwilioPhoneNumber: string = AppConfig.TWILIO_PHONE_NUMBER
-  const fxClient = twilio(vAccountSid, vAuthToken)
   try {
-    await fxClient.messages.create({
-      body: data.text,
-      from: vTwilioPhoneNumber,
-      to: `${data.phoneCode}${data.phoneNumber}`,
-    })
+    await fxSendSms(`${data.phoneCode}${data.phoneNumber}`, data.text)
   } catch (error) {
     console.log('error :>> ', error)
     // throw error

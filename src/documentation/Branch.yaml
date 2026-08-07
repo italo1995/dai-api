@@ -12,13 +12,15 @@ components:
       properties:
         countryId:
           description: the countryId of the branch
-          type: number | null
+          type: number
+          nullable: true
         direction:
           description: the direction of the branch
           type: string
         email:
           description: the email of the branch
-          type: string | null
+          type: string
+          nullable: true
         id:
           description: the id of the branch
           type: number
@@ -27,10 +29,12 @@ components:
           type: string
         lat:
           description: the lat of the branch
-          type: number | null
+          type: number
+          nullable: true
         lon:
           description: the lon of the branch
-          type: number | null
+          type: number
+          nullable: true
         name:
           description: the name of the branch
           type: string
@@ -41,25 +45,25 @@ components:
           description: the referencePoint of the branch
           type: string
       required:
-      - id
-      - name
-      - number
-      - direction
+        - id
+        - name
+        - number
+        - direction
       type: object
 paths:
   /api/branch/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -71,23 +75,23 @@ paths:
           description: The list of branch
       summary: Returns a list of branch
       tags:
-      - Branch
+        - Branch
   /api/branch/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Branch/parameters/id'
+        - $ref: '#/components/schemas/Branch/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Branch deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a branch
       tags:
-      - Branch
+        - Branch
   /api/branch/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Branch/parameters/id'
+        - $ref: '#/components/schemas/Branch/parameters/id'
       responses:
         '200':
           content:
@@ -99,113 +103,118 @@ paths:
           description: The element of branch
       summary: Returns a branch element
       tags:
-      - Branch
+        - Branch
   /api/branch/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  direction:
-                    description: The direction of the branch
-                    type: string
-                  email:
-                    description: The email of the branch
-                    type: string | null
-                  image:
-                    description: The image of the branch
-                    type: string
-                  lat:
-                    description: The lat of the branch
-                    type: number | null
-                  lon:
-                    description: The lon of the branch
-                    type: number | null
-                  name:
-                    description: The name of the branch
-                    type: string
-                  number:
-                    description: The number of the branch
-                    type: string
-                  referencePoint:
-                    description: The referencePoint of the branch
-                    type: string
-                required:
-                - id
+              type: object
+              properties:
+                direction:
+                  description: The direction of the branch
+                  type: string
+                email:
+                  description: The email of the branch
+                  type: string
+                  nullable: true
+                image:
+                  description: The image of the branch
+                  type: string
+                lat:
+                  description: The lat of the branch
+                  type: number
+                  nullable: true
+                lon:
+                  description: The lon of the branch
+                  type: number
+                  nullable: true
+                name:
+                  description: The name of the branch
+                  type: string
+                number:
+                  description: The number of the branch
+                  type: string
+                referencePoint:
+                  description: The referencePoint of the branch
+                  type: string
+              required:
                 - name
                 - number
                 - direction
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Branch'
           description: The branch created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new branch
       tags:
-      - Branch
+        - Branch
   /api/branch/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  countryId:
-                    description: The countryId of the branch
-                    type: number | null
-                  direction:
-                    description: The direction of the branch
-                    type: string
-                  email:
-                    description: The email of the branch
-                    type: string | null
-                  id:
-                    description: The id of the branch
-                    type: number
-                  image:
-                    description: The image of the branch
-                    type: string
-                  lat:
-                    description: The lat of the branch
-                    type: number | null
-                  lon:
-                    description: The lon of the branch
-                    type: number | null
-                  name:
-                    description: The name of the branch
-                    type: string
-                  number:
-                    description: The number of the branch
-                    type: string
-                  referencePoint:
-                    description: The referencePoint of the branch
-                    type: string
-                required:
+              type: object
+              properties:
+                countryId:
+                  description: The countryId of the branch
+                  type: number
+                  nullable: true
+                direction:
+                  description: The direction of the branch
+                  type: string
+                email:
+                  description: The email of the branch
+                  type: string
+                  nullable: true
+                id:
+                  description: The id of the branch
+                  type: number
+                image:
+                  description: The image of the branch
+                  type: string
+                lat:
+                  description: The lat of the branch
+                  type: number
+                  nullable: true
+                lon:
+                  description: The lon of the branch
+                  type: number
+                  nullable: true
+                name:
+                  description: The name of the branch
+                  type: string
+                number:
+                  description: The number of the branch
+                  type: string
+                referencePoint:
+                  description: The referencePoint of the branch
+                  type: string
+              required:
                 - id
                 - name
                 - number
                 - direction
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Branch'
           description: The branch updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Branch
       tags:
-      - Branch
+        - Branch
 tags:
-- Branch
+  - Branch

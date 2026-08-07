@@ -32,25 +32,25 @@ components:
           description: the type of the tripPayment
           type: ETypeReview
       required:
-      - id
-      - tripId
-      - type
-      - amount
+        - id
+        - tripId
+        - type
+        - amount
       type: object
 paths:
   /api/tripPayment/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -62,23 +62,23 @@ paths:
           description: The list of tripPayment
       summary: Returns a list of tripPayment
       tags:
-      - TripPayment
+        - TripPayment
   /api/tripPayment/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/TripPayment/parameters/id'
+        - $ref: '#/components/schemas/TripPayment/parameters/id'
       responses:
-        '201':
+        '200':
           description: The TripPayment deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a tripPayment
       tags:
-      - TripPayment
+        - TripPayment
   /api/tripPayment/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/TripPayment/parameters/id'
+        - $ref: '#/components/schemas/TripPayment/parameters/id'
       responses:
         '200':
           content:
@@ -90,89 +90,86 @@ paths:
           description: The element of tripPayment
       summary: Returns a tripPayment element
       tags:
-      - TripPayment
+        - TripPayment
   /api/tripPayment/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  amount:
-                    description: The amount of the tripPayment
-                    type: number
-                  isAprobed:
-                    description: The isAprobed of the tripPayment
-                    type: boolean
-                  type:
-                    description: The type of the tripPayment
-                    type: ETypeReview
-                required:
-                - id
-                - tripId
+              type: object
+              properties:
+                amount:
+                  description: The amount of the tripPayment
+                  type: number
+                isAprobed:
+                  description: The isAprobed of the tripPayment
+                  type: boolean
+                type:
+                  description: The type of the tripPayment
+                  type: ETypeReview
+              required:
                 - type
                 - amount
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TripPayment'
           description: The tripPayment created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new tripPayment
       tags:
-      - TripPayment
+        - TripPayment
   /api/tripPayment/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  amount:
-                    description: The amount of the tripPayment
-                    type: number
-                  currencyId:
-                    description: The currencyId of the tripPayment
-                    type: number
-                  id:
-                    description: The id of the tripPayment
-                    type: number
-                  isAprobed:
-                    description: The isAprobed of the tripPayment
-                    type: boolean
-                  paymentMethodId:
-                    description: The paymentMethodId of the tripPayment
-                    type: number
-                  tripId:
-                    description: The tripId of the tripPayment
-                    type: number
-                  type:
-                    description: The type of the tripPayment
-                    type: ETypeReview
-                required:
+              type: object
+              properties:
+                amount:
+                  description: The amount of the tripPayment
+                  type: number
+                currencyId:
+                  description: The currencyId of the tripPayment
+                  type: number
+                id:
+                  description: The id of the tripPayment
+                  type: number
+                isAprobed:
+                  description: The isAprobed of the tripPayment
+                  type: boolean
+                paymentMethodId:
+                  description: The paymentMethodId of the tripPayment
+                  type: number
+                tripId:
+                  description: The tripId of the tripPayment
+                  type: number
+                type:
+                  description: The type of the tripPayment
+                  type: ETypeReview
+              required:
                 - id
                 - tripId
                 - type
                 - amount
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TripPayment'
           description: The tripPayment updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a TripPayment
       tags:
-      - TripPayment
+        - TripPayment
 tags:
-- TripPayment
+  - TripPayment

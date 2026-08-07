@@ -1,31 +1,48 @@
-/* 
+/*
 - File: AuthController.ts
 
 - Purpose: Es el controlador de auth de usuarios, se encarga de todo lo que tiene que ver con login y registro, incluyendo la parte de mensajes y verificacion del mismo
 
 - Author: Italo Belen
 
-- Creation: 17/01/2024  
+- Creation: 17/01/2024
 
 ==========Functions Manifest==========
 
 - Paya Methods:
-Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
-1- registerOrCreateUserForNumber: Este metodo se encarga de verificar el numero telefonico, si existe ya un usuario y si ya tiene un codigo creado para el dia de hoy.
-  - En caso de no tener un codigo creado y no estar registrado crea un nuevo codigo y lo envia usando sms. Luego crea un usuario usando solo el numero de telefono y el codigo de area.
-  - En caso de tener ser un usario ya existente y no tener un codigo, se genera un codigo y se envia.
-  - En caso de tener ser un usario ya existente y un codigo, se verifica la fecha, si es de "hoy", se envia el mismo dia se envia el mismo, en caso de no serlo se genera uno nuevo y se envia.
-  - Reponde con el usuario
+Para todos los casos, si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 
-2 - verifiedUserCode: Recibe el codigo, el numero telefonico y el codigo de area
-  - Verifica que los datos coincidan y sean del dia de hoy
-  - Reponde con los datos del usuario y el jwt | responde con un error diciendo que el codigo es incorrecto
+1 - registerOrCreateUserForNumber (POST /api/auth/phone, publico): flujo de login/registro por numero de telefono, usado por la app movil.
+  - Verifica el numero telefonico: si no existe un usuario con ese numero, crea uno nuevo (solo con phoneCode/phoneNumber). Si ya existe, lo reutiliza.
+  - Genera (o reutiliza el del dia) un codigo de verificacion y lo envia por SMS via Twilio.
+  - Si updatePhoneNumber es true, en vez de crear un usuario actualiza el telefono del usuario autenticado (requiere Bearer token).
+  - Reponde con el usuario.
 
-3 - update: Cumple la funcion de recibir todos los datos que el usuario puede actualizar en la creacion del mismo y luego los envia a guardar en el servicio
+2 - verifiedUserCode (POST /api/auth/verifiedUserCode, publico): recibe el codigo, el numero telefonico y el codigo de area.
+  - Verifica que el codigo coincida y sea del dia de hoy.
+  - Reponde con los datos del usuario y el jwt, o con un error si el codigo es incorrecto/vencido.
 
-3 - register: Cumple la funcion registrar un usuario sin numero (se usara luego para la parte administrativa) Aun no esta testeada y falta desarrollo. Se hara en el momento de su uso
+3 - update (POST /api/auth/update, requiere Bearer): actualiza los datos del usuario autenticado (perfil, tipo de usuario, detalle de conductor).
+  - Si se envia phoneNumber/phoneCode, exige tambien el code (verificado antes via verifiedUserCode) para aceptar el cambio.
+  - Si se envia details, crea/actualiza el detalle de conductor asociado.
+  - Notifica por push/socket a los administradores cuando un conductor nuevo se registra o edita su informacion.
 
-3 - register: Cumple la funcion loguear un usuario sin numero (se usara luego para la parte administrativa) Aun no esta testeada y falta desarrollo. Se hara en el momento de su uso
+4 - register (POST /api/auth/register, publico): registra un usuario con email y contraseña (uso administrativo, sin numero de telefono).
+  - email y phoneNumber son obligatorios y unicos; el rol siempre queda el de por defecto (no se puede elegir desde aqui).
+  - Reponde con el usuario y el jwt.
+
+5 - login (POST /api/auth/login, publico): loguea un usuario existente con email y contraseña (staff/administrativo).
+  - Reponde con el usuario (incluyendo sus vistas si es operador) y el jwt, o un error si el email/password no coinciden.
+
+6 - me (GET /api/auth/me, requiere Bearer): devuelve los datos del usuario autenticado, incluyendo su conteo de viajes.
+
+7 - NearbyDrivers: busca conductores cercanos por lat/lon/distance. Nota: la ruta esta comentada en AuthRoute.ts, este metodo no esta expuesto actualmente.
+
+8 - approve (POST /api/admin/approve, requiere Bearer operador/admin, enrutado en AdminRoute.ts): marca a un conductor como verificado y le notifica por push/whatsapp.
+
+9 - disconnect (POST /api/auth/disconnect, requiere Bearer): desconecta al usuario autenticado (limpia socketId/tokenPush) y avisa por socket a los administradores si era un conductor.
+
+10 - delete (POST /api/auth/delete, requiere Bearer): elimina (soft delete) la cuenta del usuario autenticado, anonimizando sus datos personales.
 
  */
 import type { NextFunction, Request, Response } from 'express'
@@ -62,6 +79,7 @@ class AuthController {
   ): Promise<Response | undefined> {
     try {
       const vData: IUserInput = pReq.only(['phoneCode', 'phoneNumber'])
+      console.log('vData :>> ', vData)
       const vHash: string = pReq.input('hash')
       const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber', 'json')
       vData.phoneNumber = vData?.phoneNumber.toString()
@@ -308,7 +326,6 @@ class AuthController {
     try {
       // Recogemos los datos que nos interesan para el regositro
       const vData: IUserInput = pReq.only([
-        'roleId',
         'email',
         'password',
         'phoneCode',

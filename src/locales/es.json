@@ -16,5 +16,7 @@
 	"phoneNumber": "El numero de telefono",
 	"isNear": "isNear",
 	"ratings": "ratings",
-	"max": "max"
+	"max": "max",
+	"phone_number": "phone_number",
+	"not_unique": "not_unique"
 }

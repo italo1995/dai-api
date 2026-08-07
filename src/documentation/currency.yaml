@@ -35,26 +35,26 @@ components:
           description: the type of the currency
           type: ETypeReview
       required:
-      - id
-      - name
-      - symbol
-      - change
-      - type
+        - id
+        - name
+        - symbol
+        - change
+        - type
       type: object
 paths:
   /api/currency/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -66,23 +66,23 @@ paths:
           description: The list of currency
       summary: Returns a list of currency
       tags:
-      - Currency
+        - Currency
   /api/currency/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Currency/parameters/id'
+        - $ref: '#/components/schemas/Currency/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Currency deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a currency
       tags:
-      - Currency
+        - Currency
   /api/currency/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Currency/parameters/id'
+        - $ref: '#/components/schemas/Currency/parameters/id'
       responses:
         '200':
           content:
@@ -94,89 +94,87 @@ paths:
           description: The element of currency
       summary: Returns a currency element
       tags:
-      - Currency
+        - Currency
   /api/currency/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  auto:
-                    description: The auto of the currency
-                    type: string
-                  change:
-                    description: The change of the currency
-                    type: number
-                  icon:
-                    description: The icon of the currency
-                    type: string
-                  name:
-                    description: The name of the currency
-                    type: string
-                  orden:
-                    description: The orden of the currency
-                    type: number
-                  symbol:
-                    description: The symbol of the currency
-                    type: string
-                  type:
-                    description: The type of the currency
-                    type: ETypeReview
-                required:
-                - id
+              type: object
+              properties:
+                auto:
+                  description: The auto of the currency
+                  type: string
+                change:
+                  description: The change of the currency
+                  type: number
+                icon:
+                  description: The icon of the currency
+                  type: string
+                name:
+                  description: The name of the currency
+                  type: string
+                orden:
+                  description: The orden of the currency
+                  type: number
+                symbol:
+                  description: The symbol of the currency
+                  type: string
+                type:
+                  description: The type of the currency
+                  type: ETypeReview
+              required:
                 - name
                 - symbol
                 - change
                 - type
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Currency'
           description: The currency created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new currency
       tags:
-      - Currency
+        - Currency
   /api/currency/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  auto:
-                    description: The auto of the currency
-                    type: string
-                  change:
-                    description: The change of the currency
-                    type: number
-                  icon:
-                    description: The icon of the currency
-                    type: string
-                  id:
-                    description: The id of the currency
-                    type: number
-                  name:
-                    description: The name of the currency
-                    type: string
-                  orden:
-                    description: The orden of the currency
-                    type: number
-                  symbol:
-                    description: The symbol of the currency
-                    type: string
-                  type:
-                    description: The type of the currency
-                    type: ETypeReview
-                required:
+              type: object
+              properties:
+                auto:
+                  description: The auto of the currency
+                  type: string
+                change:
+                  description: The change of the currency
+                  type: number
+                icon:
+                  description: The icon of the currency
+                  type: string
+                id:
+                  description: The id of the currency
+                  type: number
+                name:
+                  description: The name of the currency
+                  type: string
+                orden:
+                  description: The orden of the currency
+                  type: number
+                symbol:
+                  description: The symbol of the currency
+                  type: string
+                type:
+                  description: The type of the currency
+                  type: ETypeReview
+              required:
                 - id
                 - name
                 - symbol
@@ -184,28 +182,28 @@ paths:
                 - type
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Currency'
           description: The currency updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Currency
       tags:
-      - Currency
+        - Currency
   /api/currency/updateMany:
     post:
       parameters:
-      - $ref: '#/components/schemas/Currency/parameters/id'
+        - $ref: '#/components/schemas/Currency/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for updateMany
       tags:
-      - Currency
+        - Currency
 tags:
-- Currency
+  - Currency

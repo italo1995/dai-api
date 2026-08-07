@@ -29,25 +29,25 @@ components:
           description: the state of the new
           type: boolean
       required:
-      - id
-      - name
-      - image
-      - description
+        - id
+        - name
+        - image
+        - description
       type: object
 paths:
   /api/new/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -59,23 +59,23 @@ paths:
           description: The list of new
       summary: Returns a list of new
       tags:
-      - New
+        - New
   /api/new/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/New/parameters/id'
+        - $ref: '#/components/schemas/New/parameters/id'
       responses:
-        '201':
+        '200':
           description: The New deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a new
       tags:
-      - New
+        - New
   /api/new/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/New/parameters/id'
+        - $ref: '#/components/schemas/New/parameters/id'
       responses:
         '200':
           content:
@@ -87,92 +87,90 @@ paths:
           description: The element of new
       summary: Returns a new element
       tags:
-      - New
+        - New
   /api/new/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  description:
-                    description: The description of the new
-                    type: string
-                  image:
-                    description: The image of the new
-                    type: string
-                  isFeatured:
-                    description: The isFeatured of the new
-                    type: boolean
-                  name:
-                    description: The name of the new
-                    type: string
-                  state:
-                    description: The state of the new
-                    type: boolean
-                required:
-                - id
+              type: object
+              properties:
+                description:
+                  description: The description of the new
+                  type: string
+                image:
+                  description: The image of the new
+                  type: string
+                isFeatured:
+                  description: The isFeatured of the new
+                  type: boolean
+                name:
+                  description: The name of the new
+                  type: string
+                state:
+                  description: The state of the new
+                  type: boolean
+              required:
                 - name
                 - image
                 - description
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/New'
           description: The new created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new new
       tags:
-      - New
+        - New
   /api/new/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  description:
-                    description: The description of the new
-                    type: string
-                  id:
-                    description: The id of the new
-                    type: number
-                  image:
-                    description: The image of the new
-                    type: string
-                  isFeatured:
-                    description: The isFeatured of the new
-                    type: boolean
-                  name:
-                    description: The name of the new
-                    type: string
-                  state:
-                    description: The state of the new
-                    type: boolean
-                required:
+              type: object
+              properties:
+                description:
+                  description: The description of the new
+                  type: string
+                id:
+                  description: The id of the new
+                  type: number
+                image:
+                  description: The image of the new
+                  type: string
+                isFeatured:
+                  description: The isFeatured of the new
+                  type: boolean
+                name:
+                  description: The name of the new
+                  type: string
+                state:
+                  description: The state of the new
+                  type: boolean
+              required:
                 - id
                 - name
                 - image
                 - description
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/New'
           description: The new updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a New
       tags:
-      - New
+        - New
 tags:
-- New
+  - New

@@ -1,27 +1,19 @@
-components:
-  schemas:
-    server:
-      parameters:
-        id:
-          in: query
-          name: id
-          required: true
-          schema:
-            description: the server id
-            type: string
-      properties: {}
-      required: []
-      type: object
 paths:
   /api/server/:
     get:
-      parameters:
-      - $ref: '#/components/schemas/server/parameters/id'
+      summary: Health check del API
+      tags:
+        - server
       responses:
         '200':
-          description: Success
-      summary: 'Endpoint for '
-      tags:
-      - server
+          description: El servidor está arriba
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Api REST
 tags:
-- server
+  - server

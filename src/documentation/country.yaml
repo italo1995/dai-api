@@ -29,24 +29,24 @@ components:
           description: the state of the country
           type: boolean
       required:
-      - id
-      - name
-      - state
+        - id
+        - name
+        - state
       type: object
 paths:
   /api/country/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -58,23 +58,23 @@ paths:
           description: The list of country
       summary: Returns a list of country
       tags:
-      - Country
+        - Country
   /api/country/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Country/parameters/id'
+        - $ref: '#/components/schemas/Country/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Country deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a country
       tags:
-      - Country
+        - Country
   /api/country/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Country/parameters/id'
+        - $ref: '#/components/schemas/Country/parameters/id'
       responses:
         '200':
           content:
@@ -86,90 +86,88 @@ paths:
           description: The element of country
       summary: Returns a country element
       tags:
-      - Country
+        - Country
   /api/country/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  flag:
-                    description: The flag of the country
-                    type: string
-                  name:
-                    description: The name of the country
-                    type: string
-                  phone:
-                    description: The phone of the country
-                    type: string
-                  phoneCode:
-                    description: The phoneCode of the country
-                    type: string
-                  state:
-                    description: The state of the country
-                    type: boolean
-                required:
-                - id
+              type: object
+              properties:
+                flag:
+                  description: The flag of the country
+                  type: string
+                name:
+                  description: The name of the country
+                  type: string
+                phone:
+                  description: The phone of the country
+                  type: string
+                phoneCode:
+                  description: The phoneCode of the country
+                  type: string
+                state:
+                  description: The state of the country
+                  type: boolean
+              required:
                 - name
                 - state
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Country'
           description: The country created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new country
       tags:
-      - Country
+        - Country
   /api/country/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  flag:
-                    description: The flag of the country
-                    type: string
-                  id:
-                    description: The id of the country
-                    type: number
-                  name:
-                    description: The name of the country
-                    type: string
-                  phone:
-                    description: The phone of the country
-                    type: string
-                  phoneCode:
-                    description: The phoneCode of the country
-                    type: string
-                  state:
-                    description: The state of the country
-                    type: boolean
-                required:
+              type: object
+              properties:
+                flag:
+                  description: The flag of the country
+                  type: string
+                id:
+                  description: The id of the country
+                  type: number
+                name:
+                  description: The name of the country
+                  type: string
+                phone:
+                  description: The phone of the country
+                  type: string
+                phoneCode:
+                  description: The phoneCode of the country
+                  type: string
+                state:
+                  description: The state of the country
+                  type: boolean
+              required:
                 - id
                 - name
                 - state
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Country'
           description: The country updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Country
       tags:
-      - Country
+        - Country
 tags:
-- Country
+  - Country

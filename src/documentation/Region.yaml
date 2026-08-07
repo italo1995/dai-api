@@ -12,7 +12,8 @@ components:
       properties:
         countryId:
           description: the countryId of the region
-          type: number | null
+          type: number
+          nullable: true
         flag:
           description: the flag of the region
           type: string
@@ -29,25 +30,25 @@ components:
           description: the state of the region
           type: boolean
       required:
-      - id
-      - name
-      - countryId
-      - state
+        - id
+        - name
+        - countryId
+        - state
       type: object
 paths:
   /api/region/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -59,23 +60,23 @@ paths:
           description: The list of region
       summary: Returns a list of region
       tags:
-      - Region
+        - Region
   /api/region/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Region/parameters/id'
+        - $ref: '#/components/schemas/Region/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Region deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a region
       tags:
-      - Region
+        - Region
   /api/region/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Region/parameters/id'
+        - $ref: '#/components/schemas/Region/parameters/id'
       responses:
         '200':
           content:
@@ -87,89 +88,87 @@ paths:
           description: The element of region
       summary: Returns a region element
       tags:
-      - Region
+        - Region
   /api/region/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  flag:
-                    description: The flag of the region
-                    type: string
-                  name:
-                    description: The name of the region
-                    type: string
-                  phone:
-                    description: The phone of the region
-                    type: string
-                  state:
-                    description: The state of the region
-                    type: boolean
-                required:
-                - id
-                - name
-                - countryId
-                - state
               type: object
+              properties:
+                flag:
+                  description: The flag of the region
+                  type: string
+                name:
+                  description: The name of the region
+                  type: string
+                phone:
+                  description: The phone of the region
+                  type: string
+                state:
+                  description: The state of the region
+                  type: boolean
+              required:
+                - name
+                - state
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Region'
           description: The region created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new region
       tags:
-      - Region
+        - Region
   /api/region/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  countryId:
-                    description: The countryId of the region
-                    type: number | null
-                  flag:
-                    description: The flag of the region
-                    type: string
-                  id:
-                    description: The id of the region
-                    type: number
-                  name:
-                    description: The name of the region
-                    type: string
-                  phone:
-                    description: The phone of the region
-                    type: string
-                  state:
-                    description: The state of the region
-                    type: boolean
-                required:
+              type: object
+              properties:
+                countryId:
+                  description: The countryId of the region
+                  type: number
+                  nullable: true
+                flag:
+                  description: The flag of the region
+                  type: string
+                id:
+                  description: The id of the region
+                  type: number
+                name:
+                  description: The name of the region
+                  type: string
+                phone:
+                  description: The phone of the region
+                  type: string
+                state:
+                  description: The state of the region
+                  type: boolean
+              required:
                 - id
                 - name
                 - countryId
                 - state
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Region'
           description: The region updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Region
       tags:
-      - Region
+        - Region
 tags:
-- Region
+  - Region

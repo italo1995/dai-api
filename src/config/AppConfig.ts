@@ -23,6 +23,9 @@ const AppConfig = {
   TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_Token: process.env.TWILIO_AUTH_Token,
   TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER || '+13158832778',
+  // En false (o sin credenciales de Twilio) no se envia ningun SMS real: el mensaje se
+  // imprime en la terminal y las funciones responden como si se hubiese enviado.
+  TWILIO_ENABLED: process.env.TWILIO_ENABLED !== 'false',
 }
 
 export default Object.freeze(AppConfig)

@@ -26,25 +26,25 @@ components:
           description: the type of the cancellationOption
           type: ETypeReview
       required:
-      - id
-      - name
-      - isClient
-      - isDriver
+        - id
+        - name
+        - isClient
+        - isDriver
       type: object
 paths:
   /api/cancellationOption/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -56,23 +56,23 @@ paths:
           description: The list of cancellationOption
       summary: Returns a list of cancellationOption
       tags:
-      - CancellationOption
+        - CancellationOption
   /api/cancellationOption/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/CancellationOption/parameters/id'
+        - $ref: '#/components/schemas/CancellationOption/parameters/id'
       responses:
-        '201':
+        '200':
           description: The CancellationOption deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a cancellationOption
       tags:
-      - CancellationOption
+        - CancellationOption
   /api/cancellationOption/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/CancellationOption/parameters/id'
+        - $ref: '#/components/schemas/CancellationOption/parameters/id'
       responses:
         '200':
           content:
@@ -84,86 +84,84 @@ paths:
           description: The element of cancellationOption
       summary: Returns a cancellationOption element
       tags:
-      - CancellationOption
+        - CancellationOption
   /api/cancellationOption/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  isClient:
-                    description: The isClient of the cancellationOption
-                    type: boolean
-                  isDriver:
-                    description: The isDriver of the cancellationOption
-                    type: boolean
-                  name:
-                    description: The name of the cancellationOption
-                    type: string
-                  type:
-                    description: The type of the cancellationOption
-                    type: ETypeReview
-                required:
-                - id
+              type: object
+              properties:
+                isClient:
+                  description: The isClient of the cancellationOption
+                  type: boolean
+                isDriver:
+                  description: The isDriver of the cancellationOption
+                  type: boolean
+                name:
+                  description: The name of the cancellationOption
+                  type: string
+                type:
+                  description: The type of the cancellationOption
+                  type: ETypeReview
+              required:
                 - name
                 - isClient
                 - isDriver
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CancellationOption'
           description: The cancellationOption created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new cancellationOption
       tags:
-      - CancellationOption
+        - CancellationOption
   /api/cancellationOption/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  id:
-                    description: The id of the cancellationOption
-                    type: number
-                  isClient:
-                    description: The isClient of the cancellationOption
-                    type: boolean
-                  isDriver:
-                    description: The isDriver of the cancellationOption
-                    type: boolean
-                  name:
-                    description: The name of the cancellationOption
-                    type: string
-                  type:
-                    description: The type of the cancellationOption
-                    type: ETypeReview
-                required:
+              type: object
+              properties:
+                id:
+                  description: The id of the cancellationOption
+                  type: number
+                isClient:
+                  description: The isClient of the cancellationOption
+                  type: boolean
+                isDriver:
+                  description: The isDriver of the cancellationOption
+                  type: boolean
+                name:
+                  description: The name of the cancellationOption
+                  type: string
+                type:
+                  description: The type of the cancellationOption
+                  type: ETypeReview
+              required:
                 - id
                 - name
                 - isClient
                 - isDriver
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CancellationOption'
           description: The cancellationOption updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a CancellationOption
       tags:
-      - CancellationOption
+        - CancellationOption
 tags:
-- CancellationOption
+  - CancellationOption

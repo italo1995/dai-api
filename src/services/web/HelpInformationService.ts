@@ -15,7 +15,7 @@
   4 - update: actualiza datos del item
 */
 import { type FindOptions } from 'sequelize'
-import type { IHelpInformationInstance } from '../../models/web/HelpinfomationModel'
+import type { IHelpInformationInstance } from '../../models/web/HelpInfomationModel'
 import { modelHelpInformation } from '../../models'
 import type { IHelpInformationInput, IResponseAllHelpInformation } from '../../types/webTypes'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'

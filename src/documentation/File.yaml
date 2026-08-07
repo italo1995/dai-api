@@ -1,37 +1,64 @@
-components:
-  schemas:
-    File:
-      parameters:
-        id:
-          in: query
-          name: id
-          required: true
-          schema:
-            description: the File id
-            type: string
-      properties: {}
-      required: []
-      type: object
 paths:
-  /api/file/show/:folder/:fileName:
-    get:
-      parameters:
-      - $ref: '#/components/schemas/File/parameters/id'
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for show/:folder/:fileName
-      tags:
-      - File
   /api/file/upload:
     post:
-      parameters:
-      - $ref: '#/components/schemas/File/parameters/id'
+      summary: Sube uno o más archivos al servidor
+      description: >
+        Multipart/form-data. Guarda cada archivo recibido en uploads/temp/ con un nombre
+        generado (uuid + timestamp) y devuelve las rutas relativas resultantes. No requiere
+        un nombre de campo en particular, toma todos los archivos que vengan en el form.
+      tags:
+        - File
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
       responses:
         '200':
-          description: Success
-      summary: Endpoint for upload
+          description: Archivos subidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        description: Rutas relativas de los archivos guardados (usar con /api/file/show)
+  /api/file/show/{folder}/{fileName}:
+    get:
+      summary: Descarga un archivo previamente subido
       tags:
-      - File
+        - File
+      parameters:
+        - in: path
+          name: folder
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: fileName
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: El archivo solicitado (descarga binaria, no JSON)
+        '404':
+          description: El archivo no existe en uploads/{folder}/{fileName}
 tags:
-- File
+  - File

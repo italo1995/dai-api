@@ -254,7 +254,7 @@ export class Server {
   }
   listen() {
     this.app.listen(this.app.get('port'), () => {
-      console.log(`corriendo en ${this.app.get('port')}`)
+      console.log(`corriendo en http://localhost:${this.app.get('port')}`)
     })
   }
 }

@@ -27,6 +27,11 @@ import { ETypeUser } from './types/User'
 import CompanyParameterService from './services/web/CompanyParameterService'
 import DriverReportService from './services/User/DriverReportService'
 import CurrencyService from './services/Payments/CurrencyService'
+// Cada cuanto se vuelve a calcular "viajes cercanos" para un conductor sin viaje activo.
+// Evita repetir busquedas pesadas en cada tick de 'coords' (cada pocos segundos) mientras
+// el conductor esta quieto/inactivo.
+const NEARBY_TRIPS_THROTTLE_MS = 15000
+
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
   url: string
@@ -37,7 +42,17 @@ interface IDataError {
 export class SocketService {
   // Declaramos una propiedad estática io que contendrá el objeto io que crearemos
   static io: any
+  // Cache en memoria de los socketId de administradores/operadores conectados, para no
+  // consultar la base de datos en cada tick de 'coords' solo para saber a quien avisar.
+  static adminSocketIds: Set<string> = new Set()
   constructor() {}
+
+  private static registerAdminSocket(pAuth: any, pSocketId: string): void {
+    const vRolId = pAuth?.rolId ?? pAuth?.dataValues?.rolId
+    if (vRolId === 1 || vRolId === 2) {
+      SocketService.adminSocketIds.add(pSocketId)
+    }
+  }
   // Creamos un método estático initSocket que recibe el servidor http y crea el objeto io
   static initSocket(httpServer: any) {
     // Creamos el objeto io con las opciones de cors
@@ -73,6 +88,8 @@ export class SocketService {
     let auth = socket?.handshake?.auth || false
     let user: any
     const socketId = socket.id
+    // Throttle por conexion para el recalculo de "viajes cercanos" (ver 'coords' mas abajo)
+    let vLastNearbySearchAt = 0
     if (socket.id && !auth) {
       auth = await SocketService.verifyTokenUser(false, socket.id)
     }
@@ -84,6 +101,7 @@ export class SocketService {
       }
       // Actualizamos el socket del usuario en la base de datos
       await ClassAuthService.updateSocket(user)
+      SocketService.registerAdminSocket(auth, socketId)
     }
 
     socket.emit('connection', {
@@ -92,6 +110,7 @@ export class SocketService {
 
     socket.on('disconnect', async (_reason: any) => {
       console.log('disconnect', socketId)
+      SocketService.adminSocketIds.delete(socketId)
       try {
         const vUser = {
           id: auth?.id || user?.id,
@@ -135,6 +154,7 @@ export class SocketService {
           user = await SocketService.verifyTokenUser(false, socketId)
           if (user) {
             auth = user
+            SocketService.registerAdminSocket(auth, socketId)
           }
         }
       } catch (error) {
@@ -186,13 +206,19 @@ export class SocketService {
           socketId: coords?.socketId || socketId,
         }
         if (coords?.isDriver) {
-          const admin = await ClassUserService.allUserAdmin()
-          const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
+          const socketIds: any[] = [...SocketService.adminSocketIds]
           if (socketIds.length) {
             if (!coords?.userId || !coords?.id && vUser.id) {
               coords.userId = vUser.id
             }
-            coords.user = await ClassAuthService.show(coords.userId)
+            // Si el coords es del propio conductor conectado, reutilizamos el usuario que ya
+            // tenemos en memoria de la conexion en vez de repetir la query pesada de show()
+            // (varios joins + un COUNT) en cada tick de ubicacion.
+            const vConnectedUser = auth || user
+            coords.user =
+              coords.userId && coords.userId === vUser.id && vConnectedUser
+                ? vConnectedUser
+                : await ClassAuthService.show(coords.userId)
             SocketService.io.to(socketIds).emit('coordsDriver', coords)
           }
         }
@@ -256,40 +282,47 @@ export class SocketService {
             await ClassAuthService.updateSocket(vUser)
           }
           if (coords?.isDriver) {
-            const vDriver = auth || user
-            const vVehicleType = await VehicleTypeService.show(
-              vDriver?.dataValues?.vehicleType || vDriver?.vehicleType
-            )
-            const vParamToRange = {
-              city: coords?.city || null,
-              region: coords?.region || null,
-              country: coords?.country || null,
-              isCar: vVehicleType?.dataValues?.isCar || false,
-              isMoto: vVehicleType?.dataValues?.isMoto || false,
-              isTravel: false,
-              isDelivery: false
-            }
-            const vRangePrice = await RangePriceService.showPrice(vParamToRange)
-            if (vRangePrice?.cityId || vRangePrice?.regionId || vRangePrice?.countryId) {
-              const vUserLocationUpdate = {
-                id: vUser.id,
-                cityId: Number(vRangePrice?.cityId) || null,
-                regionId: Number(vRangePrice?.regionId) || null,
-                countryId: Number(vRangePrice?.countryId) || null,
+            const vNow = Date.now()
+            // Mientras el conductor esta inactivo (sin viaje), no hace falta recalcular
+            // "viajes cercanos" en cada tick de ubicacion: se refresca a lo sumo cada
+            // NEARBY_TRIPS_THROTTLE_MS.
+            if (vNow - vLastNearbySearchAt >= NEARBY_TRIPS_THROTTLE_MS) {
+              vLastNearbySearchAt = vNow
+              const vDriver = auth || user
+              const vVehicleType = await VehicleTypeService.show(
+                vDriver?.dataValues?.vehicleType || vDriver?.vehicleType
+              )
+              const vParamToRange = {
+                city: coords?.city || null,
+                region: coords?.region || null,
+                country: coords?.country || null,
+                isCar: vVehicleType?.dataValues?.isCar || false,
+                isMoto: vVehicleType?.dataValues?.isMoto || false,
+                isTravel: false,
+                isDelivery: false
               }
-              await ClassUserService.updateLocation(vUserLocationUpdate)
+              const vRangePrice = await RangePriceService.showPrice(vParamToRange)
+              if (vRangePrice?.cityId || vRangePrice?.regionId || vRangePrice?.countryId) {
+                const vUserLocationUpdate = {
+                  id: vUser.id,
+                  cityId: Number(vRangePrice?.cityId) || null,
+                  regionId: Number(vRangePrice?.regionId) || null,
+                  countryId: Number(vRangePrice?.countryId) || null,
+                }
+                await ClassUserService.updateLocation(vUserLocationUpdate)
+              }
+              const vParamTripShow = {
+                lat: coords?.lat || null,
+                lon: coords?.lng || null,
+                distance: vRangePrice?.distanceToSearch || 30,
+                isCar: vVehicleType?.dataValues?.isCar || false,
+                isMoto: vVehicleType?.dataValues?.isMoto || false,
+                userId: vUser?.id
+              }
+              const vTripOne: IResponseAllTrip | ITripInstance[] =
+                await ClassTripService.NearbyTrips(vParamTripShow)
+              socket.emit('newTrips', vTripOne)
             }
-            const vParamTripShow = {
-              lat: coords?.lat || null,
-              lon: coords?.lng || null,
-              distance: vRangePrice?.distanceToSearch || 30,
-              isCar: vVehicleType?.dataValues?.isCar || false,
-              isMoto: vVehicleType?.dataValues?.isMoto || false,
-              userId: vUser?.id
-            }
-            const vTripOne: IResponseAllTrip | ITripInstance[] =
-              await ClassTripService.NearbyTrips(vParamTripShow)
-            socket.emit('newTrips', vTripOne)
           }
         }
       } catch (error) {

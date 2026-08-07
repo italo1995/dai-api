@@ -26,24 +26,24 @@ components:
           description: the userId of the verify
           type: string
       required:
-      - id
-      - userId
-      - status
+        - id
+        - userId
+        - status
       type: object
 paths:
   /api/verify/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -55,23 +55,23 @@ paths:
           description: The list of verify
       summary: Returns a list of verify
       tags:
-      - Verify
+        - Verify
   /api/verify/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Verify/parameters/id'
+        - $ref: '#/components/schemas/Verify/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Verify deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a verify
       tags:
-      - Verify
+        - Verify
   /api/verify/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Verify/parameters/id'
+        - $ref: '#/components/schemas/Verify/parameters/id'
       responses:
         '200':
           content:
@@ -83,81 +83,78 @@ paths:
           description: The element of verify
       summary: Returns a verify element
       tags:
-      - Verify
+        - Verify
   /api/verify/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  appeal:
-                    description: The appeal of the verify
-                    type: string
-                  reason:
-                    description: The reason of the verify
-                    type: string
-                  status:
-                    description: The status of the verify
-                    type: EStatusVerify
-                required:
-                - id
-                - userId
-                - status
               type: object
+              properties:
+                appeal:
+                  description: The appeal of the verify
+                  type: string
+                reason:
+                  description: The reason of the verify
+                  type: string
+                status:
+                  description: The status of the verify
+                  type: EStatusVerify
+              required:
+                - status
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Verify'
           description: The verify created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new verify
       tags:
-      - Verify
+        - Verify
   /api/verify/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  appeal:
-                    description: The appeal of the verify
-                    type: string
-                  id:
-                    description: The id of the verify
-                    type: number
-                  reason:
-                    description: The reason of the verify
-                    type: string
-                  status:
-                    description: The status of the verify
-                    type: EStatusVerify
-                  userId:
-                    description: The userId of the verify
-                    type: string
-                required:
+              type: object
+              properties:
+                appeal:
+                  description: The appeal of the verify
+                  type: string
+                id:
+                  description: The id of the verify
+                  type: number
+                reason:
+                  description: The reason of the verify
+                  type: string
+                status:
+                  description: The status of the verify
+                  type: EStatusVerify
+                userId:
+                  description: The userId of the verify
+                  type: string
+              required:
                 - id
                 - userId
                 - status
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Verify'
           description: The verify updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Verify
       tags:
-      - Verify
+        - Verify
 tags:
-- Verify
+  - Verify

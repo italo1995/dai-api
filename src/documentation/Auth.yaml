@@ -1,125 +1,423 @@
 components:
   schemas:
-    Auth:
-      parameters:
-        id:
-          in: query
-          name: id
-          required: true
-          schema:
-            description: the Auth id
-            type: string
-      properties: {}
-      required: []
+    AuthUser:
       type: object
+      description: Usuario devuelto por los endpoints de auth (subconjunto de los campos de User)
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        phoneCode:
+          type: string
+          nullable: true
+        phoneNumber:
+          type: string
+          nullable: true
+        avatar:
+          type: string
+          nullable: true
+        rolId:
+          type: number
+        typeUser:
+          type: string
+          enum:
+            - '0'
+            - '1'
+            - '2'
+            - '3'
+        isNewUser:
+          type: boolean
+        status:
+          type: boolean
 paths:
-  /api/auth/NearbyDrivers:
-    post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for NearbyDrivers
-      tags:
-      - Auth
-  /api/auth/delete:
-    post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '201':
-          description: The Auth deleted
-      security:
-      - BearerAuth: []
-      summary: Delete a auth
-      tags:
-      - Auth
-  /api/auth/disconnect:
-    post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '200':
-          description: Success
-      security:
-      - BearerAuth: []
-      summary: Endpoint for disconnect
-      tags:
-      - Auth
-  /api/auth/login:
-    post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for login
-      tags:
-      - Auth
-  /api/auth/me:
-    get:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '200':
-          description: Success
-      security:
-      - BearerAuth: []
-      summary: Endpoint for me
-      tags:
-      - Auth
   /api/auth/phone:
     post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for phone
+      summary: Registra o reutiliza un usuario por número de teléfono y envía el código SMS
+      description: |
+        Si el número no existe, crea un usuario nuevo (solo con phoneCode/phoneNumber) y le envía un código de verificación por SMS vía Twilio. Si ya existe, reenvía el código del día (o genera uno nuevo si el anterior no es de hoy). No requiere token, salvo cuando se usa para cambiar el teléfono de un usuario ya autenticado (updatePhoneNumber: true).
       tags:
-      - Auth
-  /api/auth/register:
-    post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for register
-      tags:
-      - Auth
-  /api/auth/update:
-    post:
+        - Auth
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              parameters:
-                property: {}
-                required: []
-        required: true
+              type: object
+              required:
+                - phoneCode
+                - phoneNumber
+              properties:
+                phoneCode:
+                  type: string
+                  example: '58'
+                phoneNumber:
+                  type: string
+                  example: '4120009999'
+                hash:
+                  type: string
+                  description: App hash de Twilio para el autofill del SMS (opcional)
+                updatePhoneNumber:
+                  type: boolean
+                  description: |
+                    Si es true, en vez de registrar un usuario nuevo actualiza el teléfono del usuario autenticado (requiere Bearer token).
+      security:
+        - {}
+        - BearerAuth: []
       responses:
-        '201':
+        '200':
+          description: Código enviado. Devuelve el usuario (nuevo o existente)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Auth'
-          description: The auth updated
-      security:
-      - BearerAuth: []
-      summary: Update a update
-      tags:
-      - Auth
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+        '500':
+          description: |
+            Usuario bloqueado (borrado lógicamente), número ya existente (cuando updatePhoneNumber es true), o error al enviar el SMS
   /api/auth/verifiedUserCode:
     post:
-      parameters:
-      - $ref: '#/components/schemas/Auth/parameters/id'
+      summary: Verifica el código SMS enviado por /phone y loguea al usuario
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - phoneCode
+                - phoneNumber
+              properties:
+                code:
+                  type: string
+                phoneCode:
+                  type: string
+                phoneNumber:
+                  type: string
+                socketId:
+                  type: string
+                  description: Socket id actual del cliente, para asociarlo al usuario si se envía
+      responses:
+        '200':
+          description: Código correcto. Devuelve el usuario y el token de acceso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+                      token:
+                        type: string
+        '500':
+          description: Código incorrecto, vencido, o no existe usuario con ese teléfono
+  /api/auth/register:
+    post:
+      summary: Registra un usuario con email y contraseña (uso administrativo / sin teléfono)
+      description: |
+        email y phoneNumber son obligatorios y deben ser únicos: si falta alguno, o si alguno ya está en uso, responde 500 con un error de validación. El usuario siempre queda con el rol por defecto, no se puede elegir el rol desde este endpoint.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - phoneNumber
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                name:
+                  type: string
+                phoneCode:
+                  type: string
+                phoneNumber:
+                  type: string
+                avatar:
+                  type: string
+      responses:
+        '200':
+          description: Usuario creado. Devuelve el usuario y el token de acceso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+                      token:
+                        type: string
+        '500':
+          description: Error de validación (email/phoneNumber faltante, ya en uso, o email inválido)
+  /api/auth/login:
+    post:
+      summary: Login con email y contraseña (usuarios administrativos/staff)
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                socketId:
+                  type: string
+                  description: Socket id actual del cliente, para asociarlo al usuario
+      responses:
+        '200':
+          description: Login correcto. Devuelve el usuario y el token de acceso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+                      token:
+                        type: string
+        '400':
+          description: Email o contraseña incorrectos
+  /api/auth/update:
+    post:
+      summary: Actualiza los datos del usuario autenticado (perfil, tipo de usuario, detalles de conductor)
+      description: |
+        Todos los campos son opcionales, se actualizan solo los enviados. Para cambiar phoneNumber/phoneCode hay que enviar también el code (verificado previamente vía /verifiedUserCode) o la petición falla. details es un arreglo de secciones de detalle de conductor (enviado como JSON string en el campo del mismo nombre).
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                name:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                vehicleType:
+                  type: number
+                dob:
+                  type: string
+                isTaxi:
+                  type: boolean
+                isVip:
+                  type: boolean
+                isAc:
+                  type: boolean
+                availabilityToTravel:
+                  type: boolean
+                typeUser:
+                  type: string
+                  enum:
+                    - '0'
+                    - '1'
+                    - '2'
+                    - '3'
+                seats:
+                  type: number
+                tokenPush:
+                  type: string
+                phoneNumber:
+                  type: string
+                phoneCode:
+                  type: string
+                code:
+                  type: string
+                  description: Código SMS verificado, requerido si se envía phoneNumber/phoneCode
+                details:
+                  type: array
+                  description: JSON con secciones de detalle de conductor
+                  items:
+                    type: object
+                    properties:
+                      sectionName:
+                        type: string
+                      fields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            fieldName:
+                              type: string
+                            type:
+                              type: string
+                            value:
+                              type: string
+      responses:
+        '200':
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+        '500':
+          description: Código incorrecto, cambio de tipo de usuario con viaje activo, u otro error
+  /api/auth/me:
+    get:
+      summary: Devuelve los datos del usuario autenticado
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: Success
-      summary: Endpoint for verifiedUserCode
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+        '500':
+          description: No se encontró el usuario
+  /api/auth/disconnect:
+    post:
+      summary: Marca al usuario autenticado como desconectado (limpia socketId y tokenPush)
       tags:
-      - Auth
+        - Auth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: boolean
+        '500':
+          description: No se encontró el usuario
+  /api/auth/delete:
+    post:
+      summary: Elimina (soft delete) la cuenta del usuario autenticado
+      description: |
+        No borra el registro, lo anonimiza: limpia nombre, email, avatar, tokens y marca deletedAt. El teléfono queda ocupado por el id del usuario para liberar el phoneNumber original.
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: boolean
+        '500':
+          description: No se encontró el usuario
 tags:
-- Auth
+  - name: Auth
+    description: |
+      Autenticación y registro de usuarios (clientes, conductores y staff). El endpoint /api/auth/NearbyDrivers documentado antes en este archivo no existe: la ruta está comentada en src/routes/User/AuthRoute.ts, así que se removió de esta documentación.

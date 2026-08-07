@@ -38,27 +38,27 @@ components:
           description: the timeFrame of the suspension
           type: ETypeTime
       required:
-      - id
-      - driverId
-      - reason
-      - timeFrame
-      - init
-      - end
+        - id
+        - driverId
+        - reason
+        - timeFrame
+        - init
+        - end
       type: object
 paths:
   /api/suspension/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -70,35 +70,35 @@ paths:
           description: The list of suspension
       summary: Returns a list of suspension
       tags:
-      - Suspension
+        - Suspension
   /api/suspension/cancel:
     post:
       parameters:
-      - $ref: '#/components/schemas/Suspension/parameters/id'
+        - $ref: '#/components/schemas/Suspension/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for cancel
       tags:
-      - Suspension
+        - Suspension
   /api/suspension/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Suspension/parameters/id'
+        - $ref: '#/components/schemas/Suspension/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Suspension deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a suspension
       tags:
-      - Suspension
+        - Suspension
   /api/suspension/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Suspension/parameters/id'
+        - $ref: '#/components/schemas/Suspension/parameters/id'
       responses:
         '200':
           content:
@@ -110,90 +110,87 @@ paths:
           description: The element of suspension
       summary: Returns a suspension element
       tags:
-      - Suspension
+        - Suspension
   /api/suspension/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  end:
-                    description: The end of the suspension
-                    type: Date
-                  hours:
-                    description: The hours of the suspension
-                    type: number
-                  init:
-                    description: The init of the suspension
-                    type: Date
-                  isCanceled:
-                    description: The isCanceled of the suspension
-                    type: boolean
-                  reason:
-                    description: The reason of the suspension
-                    type: string
-                  timeFrame:
-                    description: The timeFrame of the suspension
-                    type: ETypeTime
-                required:
-                - id
-                - driverId
+              type: object
+              properties:
+                end:
+                  description: The end of the suspension
+                  type: Date
+                hours:
+                  description: The hours of the suspension
+                  type: number
+                init:
+                  description: The init of the suspension
+                  type: Date
+                isCanceled:
+                  description: The isCanceled of the suspension
+                  type: boolean
+                reason:
+                  description: The reason of the suspension
+                  type: string
+                timeFrame:
+                  description: The timeFrame of the suspension
+                  type: ETypeTime
+              required:
                 - reason
                 - timeFrame
                 - init
                 - end
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Suspension'
           description: The suspension created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new suspension
       tags:
-      - Suspension
+        - Suspension
   /api/suspension/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  adminId:
-                    description: The adminId of the suspension
-                    type: string
-                  driverId:
-                    description: The driverId of the suspension
-                    type: string
-                  end:
-                    description: The end of the suspension
-                    type: Date
-                  hours:
-                    description: The hours of the suspension
-                    type: number
-                  id:
-                    description: The id of the suspension
-                    type: number
-                  init:
-                    description: The init of the suspension
-                    type: Date
-                  isCanceled:
-                    description: The isCanceled of the suspension
-                    type: boolean
-                  reason:
-                    description: The reason of the suspension
-                    type: string
-                  timeFrame:
-                    description: The timeFrame of the suspension
-                    type: ETypeTime
-                required:
+              type: object
+              properties:
+                adminId:
+                  description: The adminId of the suspension
+                  type: string
+                driverId:
+                  description: The driverId of the suspension
+                  type: string
+                end:
+                  description: The end of the suspension
+                  type: Date
+                hours:
+                  description: The hours of the suspension
+                  type: number
+                id:
+                  description: The id of the suspension
+                  type: number
+                init:
+                  description: The init of the suspension
+                  type: Date
+                isCanceled:
+                  description: The isCanceled of the suspension
+                  type: boolean
+                reason:
+                  description: The reason of the suspension
+                  type: string
+                timeFrame:
+                  description: The timeFrame of the suspension
+                  type: ETypeTime
+              required:
                 - id
                 - driverId
                 - reason
@@ -202,16 +199,16 @@ paths:
                 - end
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Suspension'
           description: The suspension updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Suspension
       tags:
-      - Suspension
+        - Suspension
 tags:
-- Suspension
+  - Suspension

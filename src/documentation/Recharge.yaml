@@ -30,7 +30,8 @@ components:
           type: string
         countryId:
           description: the countryId of the recharge
-          type: number | null
+          type: number
+          nullable: true
         currencyId:
           description: the currencyId of the recharge
           type: number
@@ -58,16 +59,16 @@ paths:
   /api/recharge/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -79,23 +80,23 @@ paths:
           description: The list of recharge
       summary: Returns a list of recharge
       tags:
-      - Recharge
+        - Recharge
   /api/recharge/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Recharge/parameters/id'
+        - $ref: '#/components/schemas/Recharge/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Recharge deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a recharge
       tags:
-      - Recharge
+        - Recharge
   /api/recharge/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Recharge/parameters/id'
+        - $ref: '#/components/schemas/Recharge/parameters/id'
       responses:
         '200':
           content:
@@ -107,129 +108,127 @@ paths:
           description: The element of recharge
       summary: Returns a recharge element
       tags:
-      - Recharge
+        - Recharge
   /api/recharge/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  amount:
-                    description: The amount of the recharge
-                    type: number
-                  bank:
-                    description: The bank of the recharge
-                    type: number
-                  capture:
-                    description: The capture of the recharge
-                    type: string
-                  code:
-                    description: The code of the recharge
-                    type: string
-                  reason:
-                    description: The reason of the recharge
-                    type: string
-                  reference:
-                    description: The reference of the recharge
-                    type: string
-                  status:
-                    description: The status of the recharge
-                    type: EStatusVerify
-                  type:
-                    description: The type of the recharge
-                    type: ETypeReview
-                required: []
               type: object
+              properties:
+                amount:
+                  description: The amount of the recharge
+                  type: number
+                bank:
+                  description: The bank of the recharge
+                  type: number
+                capture:
+                  description: The capture of the recharge
+                  type: string
+                code:
+                  description: The code of the recharge
+                  type: string
+                reason:
+                  description: The reason of the recharge
+                  type: string
+                reference:
+                  description: The reference of the recharge
+                  type: string
+                status:
+                  description: The status of the recharge
+                  type: EStatusVerify
+                type:
+                  description: The type of the recharge
+                  type: ETypeReview
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Recharge'
           description: The recharge created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new recharge
       tags:
-      - Recharge
+        - Recharge
   /api/recharge/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  adminId:
-                    description: The adminId of the recharge
-                    type: string
-                  amount:
-                    description: The amount of the recharge
-                    type: number
-                  bank:
-                    description: The bank of the recharge
-                    type: number
-                  bankId:
-                    description: The bankId of the recharge
-                    type: number
-                  capture:
-                    description: The capture of the recharge
-                    type: string
-                  code:
-                    description: The code of the recharge
-                    type: string
-                  countryId:
-                    description: The countryId of the recharge
-                    type: number | null
-                  currencyId:
-                    description: The currencyId of the recharge
-                    type: number
-                  id:
-                    description: The id of the recharge
-                    type: number
-                  reason:
-                    description: The reason of the recharge
-                    type: string
-                  reference:
-                    description: The reference of the recharge
-                    type: string
-                  status:
-                    description: The status of the recharge
-                    type: EStatusVerify
-                  type:
-                    description: The type of the recharge
-                    type: ETypeReview
-                  userId:
-                    description: The userId of the recharge
-                    type: string
-                required: []
+              type: object
+              properties:
+                adminId:
+                  description: The adminId of the recharge
+                  type: string
+                amount:
+                  description: The amount of the recharge
+                  type: number
+                bank:
+                  description: The bank of the recharge
+                  type: number
+                bankId:
+                  description: The bankId of the recharge
+                  type: number
+                capture:
+                  description: The capture of the recharge
+                  type: string
+                code:
+                  description: The code of the recharge
+                  type: string
+                countryId:
+                  description: The countryId of the recharge
+                  type: number
+                  nullable: true
+                currencyId:
+                  description: The currencyId of the recharge
+                  type: number
+                id:
+                  description: The id of the recharge
+                  type: number
+                reason:
+                  description: The reason of the recharge
+                  type: string
+                reference:
+                  description: The reference of the recharge
+                  type: string
+                status:
+                  description: The status of the recharge
+                  type: EStatusVerify
+                type:
+                  description: The type of the recharge
+                  type: ETypeReview
+                userId:
+                  description: The userId of the recharge
+                  type: string
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Recharge'
           description: The recharge updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Recharge
       tags:
-      - Recharge
+        - Recharge
   /api/recharge/verify:
     post:
       parameters:
-      - $ref: '#/components/schemas/Recharge/parameters/id'
+        - $ref: '#/components/schemas/Recharge/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for verify
       tags:
-      - Recharge
+        - Recharge
 tags:
-- Recharge
+  - Recharge

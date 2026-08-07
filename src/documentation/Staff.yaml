@@ -22,16 +22,16 @@ paths:
   /api/staff/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -43,23 +43,23 @@ paths:
           description: The list of staff
       summary: Returns a list of staff
       tags:
-      - Staff
+        - Staff
   /api/staff/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Staff/parameters/id'
+        - $ref: '#/components/schemas/Staff/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Staff deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a staff
       tags:
-      - Staff
+        - Staff
   /api/staff/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Staff/parameters/id'
+        - $ref: '#/components/schemas/Staff/parameters/id'
       responses:
         '200':
           content:
@@ -71,108 +71,105 @@ paths:
           description: The element of staff
       summary: Returns a staff element
       tags:
-      - Staff
+        - Staff
   /api/staff/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  name:
-                    description: The name of the staff
-                    type: string
-                required: []
               type: object
+              properties:
+                name:
+                  description: The name of the staff
+                  type: string
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Staff'
           description: The staff created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new staff
       tags:
-      - Staff
+        - Staff
   /api/staff/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  id:
-                    description: The id of the staff
-                    type: number
-                  name:
-                    description: The name of the staff
-                    type: string
-                required: []
+              type: object
+              properties:
+                id:
+                  description: The id of the staff
+                  type: number
+                name:
+                  description: The name of the staff
+                  type: string
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Staff'
           description: The staff updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Staff
       tags:
-      - Staff
+        - Staff
   /api/staff/user/all:
     get:
       parameters:
-      - $ref: '#/components/schemas/Staff/parameters/id'
+        - $ref: '#/components/schemas/Staff/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for user/all
       tags:
-      - Staff
+        - Staff
   /api/staff/user/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Staff/parameters/id'
+        - $ref: '#/components/schemas/Staff/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for user/show
       tags:
-      - Staff
+        - Staff
   /api/staff/user/store:
     post:
       parameters:
-      - $ref: '#/components/schemas/Staff/parameters/id'
+        - $ref: '#/components/schemas/Staff/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for user/store
       tags:
-      - Staff
+        - Staff
   /api/staff/user/update:
     post:
       parameters:
-      - $ref: '#/components/schemas/Staff/parameters/id'
+        - $ref: '#/components/schemas/Staff/parameters/id'
       responses:
         '200':
           description: Success
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Endpoint for user/update
       tags:
-      - Staff
+        - Staff
 tags:
-- Staff
+  - Staff

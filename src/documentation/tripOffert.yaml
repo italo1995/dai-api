@@ -41,26 +41,26 @@ components:
           description: the tripId of the tripOffert
           type: number
       required:
-      - id
-      - tripId
-      - clientId
-      - driverId
-      - amount
+        - id
+        - tripId
+        - clientId
+        - driverId
+        - amount
       type: object
 paths:
-  /api/tripOffert/all:
+  /api/TripOffer/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -72,23 +72,23 @@ paths:
           description: The list of tripOffert
       summary: Returns a list of tripOffert
       tags:
-      - TripOffert
-  /api/tripOffert/delete:
+        - TripOffert
+  /api/TripOffer/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/TripOffert/parameters/id'
+        - $ref: '#/components/schemas/TripOffert/parameters/id'
       responses:
-        '201':
+        '200':
           description: The TripOffert deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a tripOffert
       tags:
-      - TripOffert
-  /api/tripOffert/show:
+        - TripOffert
+  /api/TripOffer/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/TripOffert/parameters/id'
+        - $ref: '#/components/schemas/TripOffert/parameters/id'
       responses:
         '200':
           content:
@@ -100,89 +100,84 @@ paths:
           description: The element of tripOffert
       summary: Returns a tripOffert element
       tags:
-      - TripOffert
-  /api/tripOffert/store:
+        - TripOffert
+  /api/TripOffer/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  amount:
-                    description: The amount of the tripOffert
-                    type: number
-                  distance:
-                    description: The distance of the tripOffert
-                    type: string
-                  duration:
-                    description: The duration of the tripOffert
-                    type: string
-                  durationInMs:
-                    description: The durationInMs of the tripOffert
-                    type: number
-                  status:
-                    description: The status of the tripOffert
-                    type: EStatusVerify
-                required:
-                - id
-                - tripId
-                - clientId
-                - driverId
-                - amount
               type: object
+              properties:
+                amount:
+                  description: The amount of the tripOffert
+                  type: number
+                distance:
+                  description: The distance of the tripOffert
+                  type: string
+                duration:
+                  description: The duration of the tripOffert
+                  type: string
+                durationInMs:
+                  description: The durationInMs of the tripOffert
+                  type: number
+                status:
+                  description: The status of the tripOffert
+                  type: EStatusVerify
+              required:
+                - amount
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TripOffert'
           description: The tripOffert created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new tripOffert
       tags:
-      - TripOffert
-  /api/tripOffert/update:
+        - TripOffert
+  /api/TripOffer/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  amount:
-                    description: The amount of the tripOffert
-                    type: number
-                  clientId:
-                    description: The clientId of the tripOffert
-                    type: string
-                  currencyId:
-                    description: The currencyId of the tripOffert
-                    type: number
-                  distance:
-                    description: The distance of the tripOffert
-                    type: string
-                  driverId:
-                    description: The driverId of the tripOffert
-                    type: string
-                  duration:
-                    description: The duration of the tripOffert
-                    type: string
-                  durationInMs:
-                    description: The durationInMs of the tripOffert
-                    type: number
-                  id:
-                    description: The id of the tripOffert
-                    type: number
-                  status:
-                    description: The status of the tripOffert
-                    type: EStatusVerify
-                  tripId:
-                    description: The tripId of the tripOffert
-                    type: number
-                required:
+              type: object
+              properties:
+                amount:
+                  description: The amount of the tripOffert
+                  type: number
+                clientId:
+                  description: The clientId of the tripOffert
+                  type: string
+                currencyId:
+                  description: The currencyId of the tripOffert
+                  type: number
+                distance:
+                  description: The distance of the tripOffert
+                  type: string
+                driverId:
+                  description: The driverId of the tripOffert
+                  type: string
+                duration:
+                  description: The duration of the tripOffert
+                  type: string
+                durationInMs:
+                  description: The durationInMs of the tripOffert
+                  type: number
+                id:
+                  description: The id of the tripOffert
+                  type: number
+                status:
+                  description: The status of the tripOffert
+                  type: EStatusVerify
+                tripId:
+                  description: The tripId of the tripOffert
+                  type: number
+              required:
                 - id
                 - tripId
                 - clientId
@@ -190,16 +185,16 @@ paths:
                 - amount
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TripOffert'
           description: The tripOffert updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a TripOffert
       tags:
-      - TripOffert
+        - TripOffert
 tags:
-- TripOffert
+  - TripOffert

@@ -24,7 +24,8 @@ components:
           type: string
         email:
           description: the email of the client
-          type: string | null
+          type: string
+          nullable: true
         fullName:
           description: the fullName of the client
           type: string
@@ -47,26 +48,26 @@ components:
           description: the phoneNumber of the client
           type: string
       required:
-      - id
-      - name
-      - fullName
-      - dni
-      - accountType
+        - id
+        - name
+        - fullName
+        - dni
+        - accountType
       type: object
 paths:
   /api/bank/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -78,23 +79,23 @@ paths:
           description: The list of bank
       summary: Returns a list of bank
       tags:
-      - Bank
+        - Bank
   /api/bank/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Bank/parameters/id'
+        - $ref: '#/components/schemas/Bank/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Bank deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a bank
       tags:
-      - Bank
+        - Bank
   /api/bank/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Bank/parameters/id'
+        - $ref: '#/components/schemas/Bank/parameters/id'
       responses:
         '200':
           content:
@@ -106,110 +107,110 @@ paths:
           description: The element of bank
       summary: Returns a bank element
       tags:
-      - Bank
+        - Bank
   /api/bank/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  accountNumber:
-                    description: The accountNumber of the bank
-                    type: string
-                  accountType:
-                    description: The accountType of the bank
-                    type: string
-                  dni:
-                    description: The dni of the bank
-                    type: string
-                  email:
-                    description: The email of the bank
-                    type: string | null
-                  fullName:
-                    description: The fullName of the bank
-                    type: string
-                  hasCapture:
-                    description: The hasCapture of the bank
-                    type: boolean
-                  icon:
-                    description: The icon of the bank
-                    type: string
-                  isConvert:
-                    description: The isConvert of the bank
-                    type: boolean
-                  name:
-                    description: The name of the bank
-                    type: string
-                  phoneNumber:
-                    description: The phoneNumber of the bank
-                    type: string
-                required:
-                - id
+              type: object
+              properties:
+                accountNumber:
+                  description: The accountNumber of the bank
+                  type: string
+                accountType:
+                  description: The accountType of the bank
+                  type: string
+                dni:
+                  description: The dni of the bank
+                  type: string
+                email:
+                  description: The email of the bank
+                  type: string
+                  nullable: true
+                fullName:
+                  description: The fullName of the bank
+                  type: string
+                hasCapture:
+                  description: The hasCapture of the bank
+                  type: boolean
+                icon:
+                  description: The icon of the bank
+                  type: string
+                isConvert:
+                  description: The isConvert of the bank
+                  type: boolean
+                name:
+                  description: The name of the bank
+                  type: string
+                phoneNumber:
+                  description: The phoneNumber of the bank
+                  type: string
+              required:
                 - name
                 - fullName
                 - dni
                 - accountType
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bank'
           description: The bank created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new bank
       tags:
-      - Bank
+        - Bank
   /api/bank/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  accountNumber:
-                    description: The accountNumber of the bank
-                    type: string
-                  accountType:
-                    description: The accountType of the bank
-                    type: string
-                  currencyId:
-                    description: The currencyId of the bank
-                    type: number
-                  dni:
-                    description: The dni of the bank
-                    type: string
-                  email:
-                    description: The email of the bank
-                    type: string | null
-                  fullName:
-                    description: The fullName of the bank
-                    type: string
-                  hasCapture:
-                    description: The hasCapture of the bank
-                    type: boolean
-                  icon:
-                    description: The icon of the bank
-                    type: string
-                  id:
-                    description: The id of the bank
-                    type: number
-                  isConvert:
-                    description: The isConvert of the bank
-                    type: boolean
-                  name:
-                    description: The name of the bank
-                    type: string
-                  phoneNumber:
-                    description: The phoneNumber of the bank
-                    type: string
-                required:
+              type: object
+              properties:
+                accountNumber:
+                  description: The accountNumber of the bank
+                  type: string
+                accountType:
+                  description: The accountType of the bank
+                  type: string
+                currencyId:
+                  description: The currencyId of the bank
+                  type: number
+                dni:
+                  description: The dni of the bank
+                  type: string
+                email:
+                  description: The email of the bank
+                  type: string
+                  nullable: true
+                fullName:
+                  description: The fullName of the bank
+                  type: string
+                hasCapture:
+                  description: The hasCapture of the bank
+                  type: boolean
+                icon:
+                  description: The icon of the bank
+                  type: string
+                id:
+                  description: The id of the bank
+                  type: number
+                isConvert:
+                  description: The isConvert of the bank
+                  type: boolean
+                name:
+                  description: The name of the bank
+                  type: string
+                phoneNumber:
+                  description: The phoneNumber of the bank
+                  type: string
+              required:
                 - id
                 - name
                 - fullName
@@ -217,16 +218,16 @@ paths:
                 - accountType
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bank'
           description: The bank updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Bank
       tags:
-      - Bank
+        - Bank
 tags:
-- Bank
+  - Bank

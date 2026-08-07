@@ -23,24 +23,24 @@ components:
           description: the orden of the helpinformation
           type: number
       required:
-      - id
-      - name
-      - description
+        - id
+        - name
+        - description
       type: object
 paths:
   /api/helpinformation/all:
     get:
       parameters:
-      - description: The page number to fetch
-        in: query
-        name: pag
-        schema:
-          type: number
-      - description: The keyword to filter by name
-        in: query
-        name: search
-        schema:
-          type: string
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: The keyword to filter by name
+          in: query
+          name: search
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -52,23 +52,23 @@ paths:
           description: The list of helpinformation
       summary: Returns a list of helpinformation
       tags:
-      - Helpinformation
+        - Helpinformation
   /api/helpinformation/delete:
     post:
       parameters:
-      - $ref: '#/components/schemas/Helpinformation/parameters/id'
+        - $ref: '#/components/schemas/Helpinformation/parameters/id'
       responses:
-        '201':
+        '200':
           description: The Helpinformation deleted
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Delete a helpinformation
       tags:
-      - Helpinformation
+        - Helpinformation
   /api/helpinformation/show:
     get:
       parameters:
-      - $ref: '#/components/schemas/Helpinformation/parameters/id'
+        - $ref: '#/components/schemas/Helpinformation/parameters/id'
       responses:
         '200':
           content:
@@ -80,78 +80,76 @@ paths:
           description: The element of helpinformation
       summary: Returns a helpinformation element
       tags:
-      - Helpinformation
+        - Helpinformation
   /api/helpinformation/store:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  description:
-                    description: The description of the helpinformation
-                    type: string
-                  name:
-                    description: The name of the helpinformation
-                    type: string
-                  orden:
-                    description: The orden of the helpinformation
-                    type: number
-                required:
-                - id
+              type: object
+              properties:
+                description:
+                  description: The description of the helpinformation
+                  type: string
+                name:
+                  description: The name of the helpinformation
+                  type: string
+                orden:
+                  description: The orden of the helpinformation
+                  type: number
+              required:
                 - name
                 - description
-              type: object
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Helpinformation'
           description: The helpinformation created
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Creates a new helpinformation
       tags:
-      - Helpinformation
+        - Helpinformation
   /api/helpinformation/update:
     post:
       requestBody:
         content:
           application/json:
             schema:
-              parameters:
-                property:
-                  description:
-                    description: The description of the helpinformation
-                    type: string
-                  id:
-                    description: The id of the helpinformation
-                    type: number
-                  name:
-                    description: The name of the helpinformation
-                    type: string
-                  orden:
-                    description: The orden of the helpinformation
-                    type: number
-                required:
+              type: object
+              properties:
+                description:
+                  description: The description of the helpinformation
+                  type: string
+                id:
+                  description: The id of the helpinformation
+                  type: number
+                name:
+                  description: The name of the helpinformation
+                  type: string
+                orden:
+                  description: The orden of the helpinformation
+                  type: number
+              required:
                 - id
                 - name
                 - description
         required: true
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Helpinformation'
           description: The helpinformation updated
       security:
-      - BearerAuth: []
-      summary: Update a update
+        - BearerAuth: []
+      summary: Update a Helpinformation
       tags:
-      - Helpinformation
+        - Helpinformation
 tags:
-- Helpinformation
+  - Helpinformation
