@@ -8,6 +8,7 @@ export interface IBannerAttributes {
   orden?: number
   link?: string
   state?: boolean
+  isPriority?: boolean
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -42,13 +43,19 @@ export const vBannerAttributes: SequelizeAttributes<IBannerAttributes> = {
   link: {
     type: DataTypes.STRING,
     field: 'link',
-    defaultValue: true,
+    defaultValue: null,
     allowNull: true,
   },
   state: {
     type: DataTypes.BOOLEAN,
     field: 'status',
     defaultValue: true,
+    allowNull: true,
+  },
+  isPriority: {
+    type: DataTypes.BOOLEAN,
+    field: 'is_priority',
+    defaultValue: false,
     allowNull: true,
   },
   createdAt: {

@@ -23,7 +23,7 @@ export const vDriverReportModelAttributes: SequelizeAttributes<IDriverReportAttr
     autoIncrement: true,
   },
   userId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     field: 'user_id',
   },
   amount: {

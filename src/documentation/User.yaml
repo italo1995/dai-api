@@ -59,6 +59,12 @@ components:
         isVip:
           description: the isVip of the user
           type: boolean
+        daiFood:
+          description: Si el conductor esta autorizado para el modulo Marketplace de comida (DAI Food)
+          type: boolean
+        daiMarket:
+          description: Si el conductor esta autorizado para el modulo Marketplace de mercado (DAI Market)
+          type: boolean
         lastName:
           description: the lastName of the user
           type: string
@@ -391,6 +397,12 @@ paths:
                   type: boolean
                 isVip:
                   description: The isVip of the user
+                  type: boolean
+                daiFood:
+                  description: Autoriza (o revoca) el acceso del conductor al modulo Marketplace de comida (DAI Food)
+                  type: boolean
+                daiMarket:
+                  description: Autoriza (o revoca) el acceso del conductor al modulo Marketplace de mercado (DAI Market)
                   type: boolean
                 lastName:
                   description: The lastName of the user

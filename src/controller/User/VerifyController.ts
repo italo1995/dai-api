@@ -107,7 +107,7 @@ class VerifyController {
               console.log('tiene token push')
               const notificationData = {
                 title: 'Tu verificación ha sido exitosa',
-                body: ' Iniciemos juntos este viaje. ¡Eso es PaYá!',
+                body: ' Iniciemos juntos este viaje. ¡Eso es DAI!',
               }
               await NotificationService.sendNotification(
                 [user.dataValues.tokenPush],
@@ -135,7 +135,7 @@ class VerifyController {
           console.log('tiene token push')
           const notificationData = {
             title: 'Usuario activado',
-            body: 'Ya puedes comenzar a usar PaYa, te esperamos',
+            body: 'Ya puedes comenzar a usar DAI, te esperamos',
           }
           await NotificationService.sendNotification(
             [user.dataValues.tokenPush],

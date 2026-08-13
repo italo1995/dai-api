@@ -109,7 +109,10 @@ export const fxTwilioSendCode = async (
     vCode = fxGenerateCode()
   }
   console.log('vCode :>> ', vCode)
-  await fxSendSms(pPhoneNumber, `${pHash ? pHash : ''} Tu código de verificación PAYA es: ${vCode}`)
+  await fxSendSms(
+    pPhoneNumber,
+    `Tu código de verificación DAI es: ${vCode}\n\n${pHash ? pHash : ''} `
+  )
   console.log('se envia el mensaje')
   return vCode.toString()
 }
@@ -130,7 +133,7 @@ export const fxTwilioSendCodeRecharge = async (
 export const fxSendMessage = async (pUser: IUserInstance): Promise<boolean | Error> => {
   await fxSendSms(
     `${pUser.phoneCode}${pUser.phoneNumber}`,
-    `${pUser?.dataValues.name} Fuiste verificado como conductor en PAYA`
+    `${pUser?.dataValues.name} Fuiste verificado como conductor en DAI`
   )
   return true
 }
@@ -163,6 +166,23 @@ export const sortLatLonDriver = (
   }
   return [null, null]
 }
+// Fisher-Yates. No muta el array recibido.
+export const fxShuffleArray = <T>(pArray: T[]): T[] => {
+  const vArray = [...pArray]
+  for (let i = vArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[vArray[i], vArray[j]] = [vArray[j], vArray[i]]
+  }
+  return vArray
+}
+
+// Usados por los controllers del Marketplace (Store, StoreSchedule, StoreProduct) para
+// distinguir dueño de tienda (rolId 4, solo ve/toca lo propio) de admin/operator (rolId 1/2,
+// acceso total). pAuth es req.auth, ya decodeado del bearer token en server.ts.
+export const fxIsStoreRole = (pAuth: any): boolean => Boolean(pAuth && Number(pAuth.rolId) === 4)
+export const fxIsAdminRole = (pAuth: any): boolean =>
+  Boolean(pAuth && (Number(pAuth.rolId) === 1 || Number(pAuth.rolId) === 2))
+
 export const withTimeout: any = (onSuccess: any, onTimeout: any, timeout: any): any => {
   let called = false
   const timer = setTimeout(() => {

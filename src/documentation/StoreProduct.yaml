@@ -1,0 +1,134 @@
+components:
+  schemas:
+    StoreProduct:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+        currencyId:
+          type: number
+          nullable: true
+        image:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        isAvailable:
+          type: boolean
+        isInventoryable:
+          type: boolean
+        stockQuantity:
+          type: number
+          nullable: true
+paths:
+  /api/storeProduct/all:
+    get:
+      summary: Catalogo publico de una tienda (uso app)
+      description: Solo productos con isAvailable=true de tiendas aprobadas
+      tags:
+        - StoreProduct
+      parameters:
+        - in: query
+          name: storeId
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeProduct/show:
+    get:
+      summary: Trae un producto por id
+      tags:
+        - StoreProduct
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeProduct/allAdmin:
+    get:
+      summary: Lista de productos para el panel
+      description: Si el usuario autenticado tiene rol 'store' (rolId 4), devuelve solo productos de sus propias tiendas. Admin/operator ve todos, filtrable por ?storeId=X
+      tags:
+        - StoreProduct
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/storeProduct/store:
+    post:
+      summary: Crea un producto
+      description: El dueño solo puede crear productos en una tienda propia
+      tags:
+        - StoreProduct
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreProduct'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+  /api/storeProduct/update:
+    post:
+      summary: Actualiza un producto
+      tags:
+        - StoreProduct
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreProduct'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+  /api/storeProduct/delete:
+    post:
+      summary: Elimina (soft delete) un producto
+      tags:
+        - StoreProduct
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+tags:
+  - name: StoreProduct
+    description: Catalogo de productos de tiendas del Marketplace

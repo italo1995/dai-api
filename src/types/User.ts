@@ -19,6 +19,8 @@ export interface IUserInput {
   isTaxi?: boolean
   isVip?: boolean
   isAc?: boolean
+  daiFood?: boolean
+  daiMarket?: boolean
   seats?: number
   availabilityToTravel?: boolean
   rolId: number
@@ -45,6 +47,8 @@ export interface IUserInputUpdate {
   isTaxi?: boolean
   isVip?: boolean
   isAc?: boolean
+  daiFood?: boolean
+  daiMarket?: boolean
   seats?: number
   availabilityToTravel?: boolean
   typeUser?: ETypeUser

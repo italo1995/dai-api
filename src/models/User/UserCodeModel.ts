@@ -26,7 +26,7 @@ export const vUserCodeModelAttributes: SequelizeAttributes<IUserCodeAttributes> 
     field: 'code',
   },
   userId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     field: 'user_id',
   },
   phoneNumber: {

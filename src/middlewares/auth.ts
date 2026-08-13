@@ -15,6 +15,8 @@ export function authMiddleware(role: string) {
       next()
     } else if (req.auth && role === 'operator' && (req.auth.rolId === 2 || req.auth.rolId === 1)) {
       next()
+    } else if (req.auth && role === 'store' && req.auth.rolId === 4) {
+      next()
     } else {
       return res
         .status(403)

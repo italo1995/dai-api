@@ -1,0 +1,88 @@
+components:
+  schemas:
+    StoreSchedule:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+        dayOfWeek:
+          type: number
+          description: '0=Lunes, 1=Martes, 2=Miercoles, 3=Jueves, 4=Viernes, 5=Sabado, 6=Domingo'
+        openTime:
+          type: string
+          nullable: true
+          example: '09:00'
+        closeTime:
+          type: string
+          nullable: true
+          example: '18:00'
+        isActive:
+          type: boolean
+paths:
+  /api/storeSchedule/all:
+    get:
+      summary: Horario semanal de una tienda
+      description: Publico, sin autenticacion (la app necesita mostrar horarios sin login)
+      tags:
+        - StoreSchedule
+      parameters:
+        - in: query
+          name: storeId
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StoreSchedule'
+  /api/storeSchedule/setWeek:
+    post:
+      summary: Reemplaza el horario semanal completo de una tienda
+      description: Borra las filas existentes de la tienda y crea las nuevas. El dueño solo puede tocar sus propias tiendas
+      tags:
+        - StoreSchedule
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeId
+                - schedules
+              properties:
+                storeId:
+                  type: number
+                schedules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      dayOfWeek:
+                        type: number
+                      openTime:
+                        type: string
+                      closeTime:
+                        type: string
+                      isActive:
+                        type: boolean
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es el dueño)
+tags:
+  - name: StoreSchedule
+    description: Horario semanal de tiendas del Marketplace

@@ -151,7 +151,7 @@ class TripOffertController {
         }
         const notificationData = {
           title: '¡Tienes una oferta!',
-          body: 'Confirma  para iniciar tu viaje. ¡Eso es PaYá!',
+          body: 'Confirma  para iniciar tu viaje. ¡Eso es DAI!',
           data: JSON.stringify(VnotificationDataDriver),
         }
         await NotificationService.sendNotification([tokenPush], notificationData)

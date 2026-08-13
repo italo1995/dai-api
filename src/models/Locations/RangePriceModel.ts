@@ -22,10 +22,10 @@ export interface IRangePriceAttributes {
   deletedAt?: Date
 }
 export enum ETypeRangePrice {
-  CARROPAYA = 'Carro PaYá',
-  MOTOPAYA = 'Moto PaYá',
-  DELIVERY = 'Delivery PaYá',
-  CIUDADACIUDAD = 'Ciudad a ciudad PaYá',
+  CARROPAYA = 'Carro DAI',
+  MOTOPAYA = 'Moto DAI',
+  DELIVERY = 'Delivery DAI',
+  CIUDADACIUDAD = 'Ciudad a ciudad DAI',
 }
 interface IRangePriceCreationAttributes extends Optional<IRangePriceAttributes, 'id'> {}
 

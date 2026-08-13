@@ -3,7 +3,7 @@ import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeType
 
 export interface IUserAddressAttributes {
   id: string
-  userId: number
+  userId: string
   name: string
   address: string
   reference: string
@@ -28,7 +28,7 @@ export const vUserAddressModelAttributes: SequelizeAttributes<IUserAddressAttrib
     autoIncrement: true,
   },
   userId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     field: 'user_id',
   },
   name: {

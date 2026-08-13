@@ -26,11 +26,11 @@ export const vUserRatingAttributes: SequelizeAttributes<IUserRatingAttributes> =
     autoIncrement: true,
   },
   userId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     field: 'user_id',
   },
   type: {
-    type: DataTypes.ENUM('clientID', 'driverID'),
+    type: DataTypes.ENUM('clientId', 'driverId'),
     field: 'type',
   },
   ratings: {

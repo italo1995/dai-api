@@ -37,11 +37,11 @@ export const vUserTransactionAttributes: SequelizeAttributes<IUserTransactionAtt
     defaultValue: () => uuidv4(),
   },
   userId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     field: 'userId',
   },
   operatorId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     field: 'operator_id',
   },
   amount: {

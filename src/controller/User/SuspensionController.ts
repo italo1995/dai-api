@@ -136,7 +136,7 @@ class SuspensionController {
       //   fxSendMessageTextDinamic({
       //     phoneCode: user?.dataValues.phoneCode,
       //     phoneNumber: user?.dataValues.phoneNumber,
-      //     text: `Ha sido suspendido en PAYA hasta: ${vResponse.end.toLocaleString()}`
+      //     text: `Ha sido suspendido en DAI hasta: ${vResponse.end.toLocaleString()}`
       //   })
       // }
       if (user?.dataValues.tokenPush) {
@@ -185,13 +185,13 @@ class SuspensionController {
       //   fxSendMessageTextDinamic({
       //     phoneCode: user?.dataValues.phoneCode,
       //     phoneNumber: user?.dataValues.phoneNumber,
-      //     text: `Tu usuario ${user.dataValues.name} ha sido activado en PAYA`
+      //     text: `Tu usuario ${user.dataValues.name} ha sido activado en DAI`
       //   })
       // }
       if (user?.dataValues.tokenPush) {
         const notificationData = {
           title: '¡Tu cuenta ha sido habilitada!',
-          body: 'Ya puedes trabajar con nosotros nuevamente ¡Eso es PaYá!',
+          body: 'Ya puedes trabajar con nosotros nuevamente ¡Eso es DAI!',
         }
         await NotificationService.sendNotification(
           [user.dataValues.tokenPush],

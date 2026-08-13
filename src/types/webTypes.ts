@@ -6,6 +6,7 @@ import type { IResponseAll } from './generalType'
 import type { ITermInstance } from '../models/web/TermModel'
 import type { IHelpInformationInstance } from '../models/web/HelpInfomationModel'
 import type { EDataType, IDataContentInstance } from '../models/web/DataContentModel'
+import type { IPopupInstance } from '../models/web/PopupModel'
 
 export interface INewInput {
   id: string
@@ -26,9 +27,20 @@ export interface IBannerInput {
   orden?: number
   link?: string
   state?: boolean
+  isPriority?: boolean
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
+}
+
+// Forma que recibe la app (endpoint publico /api/banner/all): hasta MAX_BANNERS activos,
+// los de isPriority=true primero, el resto elegido al azar en cada consulta.
+export interface IBannerPublic {
+  id: number
+  name: string
+  image: string
+  orden?: number | null
+  link?: string | null
 }
 
 export interface IReviewInput {
@@ -115,5 +127,37 @@ export interface IResponseAllDataContent extends IResponseAll {
   total: number
   totalPage: number
   data: IDataContentInstance[]
+  actualPage: number
+}
+
+export interface IPopupInput {
+  id: string
+  name: string
+  image: string
+  orden?: number
+  link?: string
+  state?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+}
+
+export interface IPopupOrderInput {
+  id: number
+  orden: number
+}
+
+// Forma minima que recibe la app (endpoint publico /api/popup/all)
+export interface IPopupPublic {
+  id: number
+  image: string
+  link?: string | null
+  orden?: number | null
+}
+
+export interface IResponseAllPopup extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IPopupInstance[]
   actualPage: number
 }

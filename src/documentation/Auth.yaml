@@ -37,6 +37,18 @@ components:
           type: boolean
         status:
           type: boolean
+        daiFood:
+          type: boolean
+          description: >-
+            Si el conductor esta autorizado para el modulo Marketplace de comida (DAI Food).
+            Solo se puede otorgar/revocar desde el panel admin (POST /api/user/update), no
+            desde /api/auth/update.
+        daiMarket:
+          type: boolean
+          description: >-
+            Si el conductor esta autorizado para el modulo Marketplace de mercado (DAI
+            Market). Solo se puede otorgar/revocar desde el panel admin (POST
+            /api/user/update), no desde /api/auth/update.
 paths:
   /api/auth/phone:
     post:
@@ -196,6 +208,61 @@ paths:
                         type: string
         '500':
           description: Error de validación (email/phoneNumber faltante, ya en uso, o email inválido)
+  /api/auth/registerStore:
+    post:
+      summary: Registra un dueño de tienda (rol 'store', Marketplace)
+      description: |
+        Mismo flujo que /api/auth/register (email/password/telefono), pero fuerza rolId=4 ('store'). No se puede elegir el rol desde el body. El usuario creado puede loguearse y crear sus propias tiendas, pendientes de aprobacion por un admin.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - phoneNumber
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                name:
+                  type: string
+                phoneCode:
+                  type: string
+                phoneNumber:
+                  type: string
+                avatar:
+                  type: string
+      responses:
+        '200':
+          description: Usuario creado. Devuelve el usuario y el token de acceso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  code:
+                    type: number
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+                      token:
+                        type: string
+        '500':
+          description: Error de validación (email/phoneNumber faltante o ya en uso)
   /api/auth/login:
     post:
       summary: Login con email y contraseña (usuarios administrativos/staff)

@@ -39,6 +39,10 @@ import UserRoute from './User/UserRoute'
 import ViewRoute from './web/ViewRoute'
 import StaffRoute from './web/StaffRoute'
 import RechargeRoute from './Payments/RechargeRoute'
+import PopupRoute from './web/PopupRoute'
+import StoreRoute from './Store/StoreRoute'
+import StoreScheduleRoute from './Store/StoreScheduleRoute'
+import StoreProductRoute from './Store/StoreProductRoute'
 
 const router = express.Router()
 
@@ -82,5 +86,9 @@ router.use('/user', UserRoute)
 router.use('/view', ViewRoute)
 router.use('/staff', StaffRoute)
 router.use('/recharge', RechargeRoute)
+router.use('/popup', PopupRoute)
+router.use('/store', StoreRoute)
+router.use('/storeSchedule', StoreScheduleRoute)
+router.use('/storeProduct', StoreProductRoute)
 
 export default router

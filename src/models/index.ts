@@ -48,6 +48,10 @@ import { fxViewFactory } from './web/ViewModel'
 import { fxStaffFactory } from './web/StaffModel'
 import { fxStaffViewFactory } from './web/StaffViewModel'
 import { fxRechargeFactory } from './payments/RechargeModel'
+import { fxPopupFactory } from './web/PopupModel'
+import { fxStoreFactory } from './Store/StoreModel'
+import { fxStoreScheduleFactory } from './Store/StoreScheduleModel'
+import { fxStoreProductFactory } from './Store/StoreProductModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -102,6 +106,10 @@ export const modelView = fxViewFactory(sequelize)
 export const modelStaff = fxStaffFactory(sequelize)
 export const modelStaffView = fxStaffViewFactory(sequelize)
 export const modelRecharge = fxRechargeFactory(sequelize)
+export const modelPopup = fxPopupFactory(sequelize)
+export const modelStore = fxStoreFactory(sequelize)
+export const modelStoreSchedule = fxStoreScheduleFactory(sequelize)
+export const modelStoreProduct = fxStoreProductFactory(sequelize)
 
 const models = {
   modelUser,
@@ -149,6 +157,10 @@ const models = {
   modelStaff,
   modelStaffView,
   modelRecharge,
+  modelPopup,
+  modelStore,
+  modelStoreSchedule,
+  modelStoreProduct,
 }
 
 export type ModelRegistry = typeof models

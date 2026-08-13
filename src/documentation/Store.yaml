@@ -1,0 +1,196 @@
+components:
+  schemas:
+    Store:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - food
+            - market
+        ownerId:
+          type: string
+        phoneCode:
+          type: string
+          nullable: true
+        phoneNumber:
+          type: string
+          nullable: true
+        logo:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          nullable: true
+        lon:
+          type: number
+          nullable: true
+        cityId:
+          type: number
+          nullable: true
+        regionId:
+          type: number
+          nullable: true
+        countryId:
+          type: number
+          nullable: true
+        isOpen:
+          type: boolean
+        isApproved:
+          type: boolean
+          nullable: true
+          description: 'null = pendiente de revision, true = aprobada, false = rechazada'
+        rejectionReason:
+          type: string
+          nullable: true
+        avgPrepTimeMinutes:
+          type: number
+          nullable: true
+paths:
+  /api/store/all:
+    get:
+      summary: Lista publica de tiendas aprobadas (uso app)
+      description: Solo tiendas con isApproved=true, con los campos minimos para renderizar (sin timestamps, sin datos administrativos)
+      tags:
+        - Store
+      responses:
+        '200':
+          description: Success
+  /api/store/show:
+    get:
+      summary: Trae una tienda por id
+      description: Publica si esta aprobada. Si no, solo la puede ver el dueño o un admin/operator autenticado
+      tags:
+        - Store
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+  /api/store/allAdmin:
+    get:
+      summary: Lista de tiendas para el panel
+      description: Si el usuario autenticado tiene rol 'store' (rolId 4), devuelve solo sus propias tiendas. Si es admin/operator, devuelve todas, con filtro opcional por estado de aprobacion (?isApproved=true|false|pending)
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/store/store:
+    post:
+      summary: Crea una tienda
+      description: Si el usuario autenticado es rol 'store', ownerId se fuerza al propio usuario (no se puede crear a nombre de otro). Admin/operator debe enviar ownerId explicitamente. Queda con isApproved=null (pendiente)
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store'
+      responses:
+        '200':
+          description: Success
+  /api/store/update:
+    post:
+      summary: Actualiza una tienda
+      description: El dueño solo puede editar sus propias tiendas, y no puede modificar isApproved/rejectionReason/ownerId desde este endpoint (usar /approve o /reject)
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es el dueño)
+  /api/store/delete:
+    post:
+      summary: Elimina (soft delete) una tienda
+      description: El dueño solo puede borrar sus propias tiendas. Admin/operator, cualquiera
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+  /api/store/approve:
+    post:
+      summary: Aprueba una tienda (solo admin/operator)
+      description: Marca isApproved=true y limpia rejectionReason. A partir de este momento la tienda aparece en /api/store/all
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+  /api/store/reject:
+    post:
+      summary: Rechaza una tienda (solo admin/operator)
+      description: Marca isApproved=false y guarda el motivo. rejectionReason es obligatorio
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - rejectionReason
+              properties:
+                id:
+                  type: number
+                rejectionReason:
+                  type: string
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: rejectionReason es requerido
+tags:
+  - name: Store
+    description: Tiendas/comercios del Marketplace (DAI Food / DAI Market). Requieren aprobacion de un admin antes de ser visibles en la app.

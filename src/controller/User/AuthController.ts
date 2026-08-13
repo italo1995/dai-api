@@ -278,7 +278,7 @@ class AuthController {
             if (pushIds.length) {
               const notificationData = {
                 title: 'Hay un nuevo candidato para conductor.',
-                body: ' Por favor recuerda verificarlo. ¡Eso es PaYá!.',
+                body: ' Por favor recuerda verificarlo. ¡Eso es DAI!.',
               }
               await NotificationService.sendNotification(
                 pushIds,
@@ -294,7 +294,7 @@ class AuthController {
             if (pushIds.length) {
               const notificationData = {
                 title: `${vUserDB.dataValues.name} editó su información`,
-                body: 'Por favor recuerda verificarlo. ¡Eso es PaYá!.',
+                body: 'Por favor recuerda verificarlo. ¡Eso es DAI!.',
               }
               await NotificationService.sendNotification(
                 pushIds,
@@ -349,6 +349,49 @@ class AuthController {
       const vUserData = {
         token: vToken,
         user: vUser,
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vUserData, 'Registrado'))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+
+  // POST /api/auth/registerStore (publico): registro publico de dueños de tienda (Marketplace).
+  // Mismo flujo que register(), pero fuerza rolId=4 ('store') - nunca elegible desde el body.
+  async registerStore(
+    pReq: Request,
+    pRes: Response,
+    pNext: NextFunction
+  ): Promise<Response | undefined> {
+    try {
+      const vData: IUserInput = pReq.only([
+        'email',
+        'password',
+        'phoneCode',
+        'phoneNumber',
+        'name',
+        'avatar',
+      ])
+      vData.status = true
+      vData.isNewUser = false
+      vData.rolId = 4
+      await ClassAuthService.validate(vData)
+      if (typeof vData.password === 'string') {
+        vData.password = bcrypt.hashSync(vData.password, 10)
+      }
+      const vUser: IUserInstance = await ClassAuthService.create(vData)
+      const vToken = fxGenerateAccessToken(vUser)
+      const vUserData = {
+        token: vToken,
+        user: vUser,
+      }
+      const admin = await ClassUserService.allUserAdmin()
+      const pushIds: any[] = admin.map((vAdmin: any) => vAdmin.tokenPush).filter(Boolean)
+      if (pushIds.length) {
+        await NotificationService.sendNotification(pushIds, {
+          title: 'Nueva tienda registrada',
+          body: `${vUser.dataValues?.name || 'Un nuevo comercio'} se registró y espera aprobación.`,
+        })
       }
       return pRes.status(200).send(fxSuccessResponse(200, vUserData, 'Registrado'))
     } catch (error: any) {

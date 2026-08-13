@@ -136,6 +136,8 @@ class UserController {
         'statusDriver',
         'verifiedDriver',
         'typeUser',
+        'daiFood',
+        'daiMarket',
       ])
       if (vData.typeUser === ETypeUser.driver && vData?.id) {
         const vUserDB: IUserInstance | null = await ClassUser.show({
@@ -145,7 +147,7 @@ class UserController {
         if (vData.verifiedDriver && !vUserDB?.dataValues?.verifiedDriver && vUserDB?.dataValues?.tokenPush) {
           const notificationData = {
             title: 'Usuario activado',
-            body: 'Ya puedes comenzar a usar PaYa, te esperamos',
+            body: 'Ya puedes comenzar a usar DAI, te esperamos',
           }
           await NotificationService.sendNotification(
             [vUserDB.dataValues.tokenPush],

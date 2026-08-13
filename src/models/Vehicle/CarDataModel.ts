@@ -7,7 +7,7 @@ export interface ICarDataAttributes {
   name: string
   icon: string
   type: ETypeCarData
-  parentId?: string | null
+  parentId?: number | null
   isCar?: boolean
   isMoto?: boolean
   createdAt?: Date
@@ -47,7 +47,7 @@ export const vCarDataAttributes: SequelizeAttributes<ICarDataAttributes> = {
     allowNull: false,
   },
   parentId: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     field: 'parent_id',
     allowNull: true,
     defaultValue: null,

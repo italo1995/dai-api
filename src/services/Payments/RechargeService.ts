@@ -5,6 +5,7 @@ import {
   type IRechargeAttributes,
   type rechargeReponseAll,
   ETypeRecharge,
+  EStatusRecharge,
 } from '../../models/payments/RechargeModel'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices, fxFilterDate } from '../../utils/query'
 import { subtractTimeUnitFromCurrentDate } from '../../utils/helpers'
@@ -168,7 +169,10 @@ class rechargeService implements IrechargeService {
         if (pParam?.again) {
           let totalAgain = 0
           for (const item of vResponse) {
-            if (item?.dataValues?.type === ETypeRecharge.recharge) {
+            if (
+              item?.dataValues?.type === ETypeRecharge.recharge &&
+              item?.dataValues?.status === EStatusRecharge.APPROVED
+            ) {
               totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.amount) })
             }
           }
@@ -180,12 +184,17 @@ class rechargeService implements IrechargeService {
             'currencyId', 'userId'
           ]
           whereStatementNotFilter.group = ['currencyId', 'userId']
+          whereStatementNotFilter.where = {
+            type: ETypeRecharge.recharge,
+            status: EStatusRecharge.APPROVED,
+            ...(pParam?.userId ? { userId: pParam.userId } : {}),
+          }
           const again: any = await modelRecharge.unscoped().findAll(whereStatementNotFilter)
           if (again) {
             vResponsePaginate.totalAmount = again
             let totalAgain = 0
             for (const item of again) {
-              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
+              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.totalAmount) })
             }
             vResponsePaginate.totalAgain = totalAgain
           } else {

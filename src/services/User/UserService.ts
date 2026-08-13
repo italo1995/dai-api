@@ -151,6 +151,7 @@ class UserService implements IUserService {
       const vResponse: IUserInstance | null = await modelUser.scope(['allAttributes', 'isDriverSuspended']).findOne(whereStatement)
       return vResponse
     } catch (error) {
+      console.log('error :>> ', error)
       throw error
     }
   }

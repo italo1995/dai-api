@@ -384,7 +384,7 @@ export class SocketService {
           const text = vTrip?.dataValues.typeService === ETypeService.DELIVERY ? 'te ha seleccionado como repartidor' : 'te ha seleccionado como repartidor'
           const notificationData = {
             title: `${vClient?.dataValues.name} ${text}`,
-            body: 'Dirígete al destino. ¡Eso es PaYá!',
+            body: 'Dirígete al destino. ¡Eso es DAI!',
           }
           await NotificationService.sendNotification(
             [vDriver.dataValues.tokenPush],

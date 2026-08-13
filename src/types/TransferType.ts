@@ -3,7 +3,7 @@ import type { IResponseAll } from './generalType'
 
 export interface IUserAddressInput {
   id?: string
-  userId: number
+  userId: string
   name: string
   address: string
   reference: string

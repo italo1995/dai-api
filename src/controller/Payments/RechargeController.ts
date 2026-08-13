@@ -88,7 +88,7 @@ export const recharge = {
           if (pushIds.length) {
             const notificationData = {
               title: 'Tienes recargas pendientes por aprobar.',
-              body: 'Por favor, recuerda revisarlas. ¡Eso es PaYá!',
+              body: 'Por favor, recuerda revisarlas. ¡Eso es DAI!',
             }
             await NotificationService.sendNotification(
               pushIds,
@@ -162,7 +162,7 @@ export const recharge = {
         if (vClient?.dataValues.tokenPush && vClient.dataValues.typeUser === ETypeUser.driver) {
           const notificationData = {
             title: '¡Tu recarga no fue aprobada!',
-            body: 'Verifica e inténtalo de nuevo. ¡Eso es PaYá!.',
+            body: 'Verifica e inténtalo de nuevo. ¡Eso es DAI!.',
           }
           await NotificationService.sendNotification(
             [vClient.dataValues.tokenPush],
@@ -184,7 +184,7 @@ export const recharge = {
           if (vClient?.dataValues.tokenPush && vClient.dataValues.typeUser === ETypeUser.driver) {
             const notificationData = {
               title: '¡Tu recarga fue aprobada!',
-              body: 'Ya puedes iniciar tus viajes. ¡Eso es PaYá!.',
+              body: 'Ya puedes iniciar tus viajes. ¡Eso es DAI!.',
             }
             await NotificationService.sendNotification(
               [vClient.dataValues.tokenPush],

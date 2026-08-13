@@ -13,6 +13,8 @@ router.route('/me').get(authMiddleware('client'), controller.me)
 
 router.route('/register').post(controller.register)
 
+router.route('/registerStore').post(controller.registerStore)
+
 router.route('/login').post(controller.login)
 
 router.route('/verifiedUserCode').post(controller.verifiedUserCode)

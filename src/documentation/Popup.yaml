@@ -1,0 +1,304 @@
+components:
+  schemas:
+    Popup:
+      type: object
+      description: >
+        Popup publicitario inicial (CMS). Se muestran hasta 6, ordenados por el campo orden,
+        al abrir la app/web.
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+          description: Nombre interno del popup (no se muestra al usuario final)
+        image:
+          type: string
+          description: Ruta relativa de la imagen (ver /api/file/upload y /api/file/show)
+        orden:
+          type: number
+          nullable: true
+          description: Orden de aparición, menor primero
+        link:
+          type: string
+          nullable: true
+          description: URL a la que navega el usuario al tocar el popup (opcional)
+        state:
+          type: boolean
+          description: Si es false, el popup no se muestra aunque exista
+    PopupPublic:
+      type: object
+      description: Forma mínima que recibe la app. Solo popups con state=true.
+      properties:
+        id:
+          type: number
+        image:
+          type: string
+          description: Ruta relativa de la imagen. URL completa = APIURL + /file/show/ + image
+        orden:
+          type: number
+          nullable: true
+        link:
+          type: string
+          nullable: true
+paths:
+  /api/popup/all:
+    get:
+      summary: 'Endpoint público para la app: solo popups activos, campos mínimos'
+      description: >
+        Pensado para el cliente (app móvil / landing). Filtra por state=true y devuelve solo
+        id/image/link/orden, ordenados por orden ascendente. Sin paginación (máximo 6 igual).
+      tags:
+        - Popup
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PopupPublic'
+  /api/popup/allAdmin:
+    get:
+      summary: Lista completa de popups para el panel admin (activos e inactivos)
+      tags:
+        - Popup
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: Página a traer (si se omite, trae todos sin paginar)
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: orden
+          schema:
+            type: number
+          description: '1: por nombre, 3: más viejos primero, cualquier otro: más nuevos primero'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Popup'
+  /api/popup/show:
+    get:
+      summary: Devuelve un popup por id
+      tags:
+        - Popup
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/Popup'
+        '500':
+          description: No se encontró el popup
+  /api/popup/store:
+    post:
+      summary: Crea un popup nuevo
+      description: >
+        Falla con 500 si ya existen 6 popups (activos o no). Hay que borrar uno para poder
+        crear otro.
+      tags:
+        - Popup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - image
+              properties:
+                name:
+                  type: string
+                image:
+                  type: string
+                  description: Ruta temporal devuelta por /api/file/upload
+                orden:
+                  type: number
+                link:
+                  type: string
+                state:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Popup creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/Popup'
+        '500':
+          description: Ya existen 6 popups, u otro error
+  /api/popup/update:
+    post:
+      summary: Actualiza un popup existente
+      tags:
+        - Popup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: number
+                name:
+                  type: string
+                image:
+                  type: string
+                orden:
+                  type: number
+                link:
+                  type: string
+                state:
+                  type: boolean
+      responses:
+        '200':
+          description: Popup actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/Popup'
+        '500':
+          description: No se encontró el popup
+  /api/popup/updateOrder:
+    post:
+      summary: Actualiza el orden de varios popups de una sola vez
+      description: Pensado para guardar un reordenamiento (drag & drop) del panel admin en un solo request.
+      tags:
+        - Popup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  type: array
+                  description: Enviado como JSON string en el campo data
+                  items:
+                    type: object
+                    required:
+                      - id
+                      - orden
+                    properties:
+                      id:
+                        type: number
+                      orden:
+                        type: number
+      responses:
+        '200':
+          description: Popups reordenados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Popup'
+        '500':
+          description: Falta el arreglo data
+  /api/popup/delete:
+    post:
+      summary: Elimina (soft delete) un popup
+      tags:
+        - Popup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Popup eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: boolean
+        '500':
+          description: No se encontró el popup
+tags:
+  - name: Popup
+    description: >
+      Gestión del popup publicitario inicial (hasta 6 imágenes ordenables, con link y estado
+      activo/inactivo). Mutaciones requieren rol admin u operador.

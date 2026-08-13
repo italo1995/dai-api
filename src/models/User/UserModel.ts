@@ -20,6 +20,8 @@ export interface IUserAttributes {
   isTaxi?: boolean
   isVip?: boolean
   isAc?: boolean
+  daiFood?: boolean
+  daiMarket?: boolean
   availabilityToTravel?: boolean
   verifiedDriver?: boolean
   typeUser?: ETypeUser
@@ -141,6 +143,18 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
   isAc: {
     type: DataTypes.BOOLEAN,
     field: 'is_ac',
+    allowNull: true,
+    defaultValue: false,
+  },
+  daiFood: {
+    type: DataTypes.BOOLEAN,
+    field: 'dai_food',
+    allowNull: true,
+    defaultValue: false,
+  },
+  daiMarket: {
+    type: DataTypes.BOOLEAN,
+    field: 'dai_market',
     allowNull: true,
     defaultValue: false,
   },
@@ -320,7 +334,7 @@ export function fxUserFactory(sequelize: Sequelize) {
         attributes: ['id', 'email', 'rolId', 'password', 'name', 'lastName', 'staffId'],
       },
       allAttributes: {
-        attributes: ['id', 'name', 'lastName', 'avatar', 'email', 'phoneCode', 'phoneNumber', 'vehicleType', 'isTaxi', 'isVip', 'isAc', 'seats', 'availabilityToTravel', 'rolId', 'status', 'statusDriver', 'verifiedDriver', 'typeUser', 'isNewUser', 'token', 'tokenPush', 'socketId', 'dob', 'lat', 'lon', 'balance', 'driverSuspendedTo', 'staffId', 'branchId', 'cityId', 'regionId', 'countryId', 'createdAt', 'updatedAt'],
+        attributes: ['id', 'name', 'lastName', 'avatar', 'email', 'phoneCode', 'phoneNumber', 'vehicleType', 'isTaxi', 'isVip', 'isAc', 'daiFood', 'daiMarket', 'seats', 'availabilityToTravel', 'rolId', 'status', 'statusDriver', 'verifiedDriver', 'typeUser', 'isNewUser', 'token', 'tokenPush', 'socketId', 'dob', 'lat', 'lon', 'balance', 'driverSuspendedTo', 'staffId', 'branchId', 'cityId', 'regionId', 'countryId', 'createdAt', 'updatedAt'],
       },
       isDriverSuspended: {
         attributes: [[sequelize.literal('CASE WHEN "driver_suspended_to" > NOW() THEN true ELSE false END'), 'isDriverSuspended']],
@@ -332,7 +346,7 @@ export function fxUserFactory(sequelize: Sequelize) {
   })
 
   vUser.associate = function (models: ModelRegistry) {
-    const { modelUser, modelDriverDetail, modelTrip, modelUserRating, modelStaff, modelVehicleType, modelBranch, modelVerify, modelSuspension } = models
+    const { modelUser, modelDriverDetail, modelTrip, modelUserRating, modelStaff, modelVehicleType, modelBranch, modelVerify, modelSuspension, modelStore } = models
     modelUser.hasMany(modelDriverDetail, {
       foreignKey: 'user_id',
       as: 'detail',
@@ -377,6 +391,11 @@ export function fxUserFactory(sequelize: Sequelize) {
       sourceKey: 'id',
       foreignKey: 'driverId',
       as: 'suspension',
+    })
+    modelUser.hasMany(modelStore, {
+      sourceKey: 'id',
+      foreignKey: 'ownerId',
+      as: 'stores',
     })
   }
 

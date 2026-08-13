@@ -28,14 +28,67 @@ components:
         state:
           description: the state of the banner
           type: boolean
+        isPriority:
+          description: >-
+            Si es true, el banner siempre se incluye en /api/banner/all (endpoint público).
+            Si es false, entra al pool del que se eligen al azar los banners restantes hasta
+            completar MAX_BANNERS (6).
+          type: boolean
       required:
         - id
         - name
         - image
       type: object
+    BannerPublic:
+      type: object
+      description: >-
+        Forma pública que recibe la app (/api/banner/all). Hasta 6 banners activos: primero
+        los isPriority=true, el resto elegido al azar en cada consulta.
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        image:
+          type: string
+          description: Ruta relativa de la imagen. URL completa = APIURL + /file/show/ + image
+        orden:
+          type: number
+          nullable: true
+        link:
+          type: string
+          nullable: true
 paths:
   /api/banner/all:
     get:
+      summary: 'Endpoint público para la app: hasta 6 banners activos, priorizados + aleatorios'
+      description: >-
+        Devuelve como máximo MAX_BANNERS (6) banners con state=true. Primero incluye todos
+        los que tienen isPriority=true (ordenados por orden), y completa los cupos restantes
+        eligiendo al azar entre los banners sin prioridad. El orden del resultado cambia en
+        cada consulta.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean }
+                  code: { type: number }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BannerPublic'
+          description: The list of banner
+      tags:
+        - Banner
+  /api/banner/allAdmin:
+    get:
+      summary: Lista completa de banners para el panel admin (activos e inactivos)
+      security:
+        - BearerAuth: []
       parameters:
         - description: The page number to fetch
           in: query
@@ -56,7 +109,6 @@ paths:
                   $ref: '#/components/schemas/Banner'
                 type: Array
           description: The list of banner
-      summary: Returns a list of banner
       tags:
         - Banner
   /api/banner/delete:
@@ -110,6 +162,9 @@ paths:
                 state:
                   description: The state of the banner
                   type: boolean
+                isPriority:
+                  description: Si es true, el banner siempre se muestra en /api/banner/all
+                  type: boolean
               required:
                 - name
                 - image
@@ -151,6 +206,9 @@ paths:
                   type: number
                 state:
                   description: The state of the banner
+                  type: boolean
+                isPriority:
+                  description: Si es true, el banner siempre se muestra en /api/banner/all
                   type: boolean
               required:
                 - id

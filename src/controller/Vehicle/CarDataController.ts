@@ -120,6 +120,7 @@ class CarDataController {
   async autoCreate(_pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vRutaJSON: any = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../carData.json'), 'utf-8'))
+      console.log('vRutaJSON :>> ', vRutaJSON)
       const data: ICarDataAttributes[] = []
       for (const item of vRutaJSON.moto.models) {
         if (item) {
