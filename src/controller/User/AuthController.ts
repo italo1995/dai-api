@@ -9,7 +9,7 @@
 
 ==========Functions Manifest==========
 
-- Paya Methods:
+- Dai Methods:
 Para todos los casos, si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 
 1 - registerOrCreateUserForNumber (POST /api/auth/phone, publico): flujo de login/registro por numero de telefono, usado por la app movil.

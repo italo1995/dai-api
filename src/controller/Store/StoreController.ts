@@ -17,7 +17,7 @@ Para todos los casos, si ocurre cualquier error, lo envia usando NextFunction al
 8 - destroy: elimina (soft delete) una tienda propia o, si es admin/operator, cualquiera
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassStoreService from '../../services/Store/StoreService'
+import ClassStoreService, { fxToPublicStore } from '../../services/Store/StoreService'
 import type { IStoreInput, IResponseAllStore, IStorePublic } from '../../types/Store'
 import { fxSuccessResponse, fxErrorResponse, moveImages, fxIsStoreRole, fxIsAdminRole } from '../../utils/helpers'
 import type { IStoreInstance } from '../../models/Store/StoreModel'
@@ -32,18 +32,21 @@ class StoreController {
       }
       const vAuth: any = (pReq as any).auth
       const vIsOwner = fxIsStoreRole(vAuth) && vResponse.dataValues.ownerId === vAuth.id
-      if (!vResponse.dataValues.isApproved && !vIsOwner && !fxIsAdminRole(vAuth)) {
+      const vIsPrivileged = vIsOwner || fxIsAdminRole(vAuth)
+      if (!vResponse.dataValues.isApproved && !vIsPrivileged) {
         return pRes.status(403).send(fxErrorResponse(403, null, 'Acceso denegado'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      const vData = vIsPrivileged ? vResponse : fxToPublicStore(vResponse)
+      return pRes.status(200).send(fxSuccessResponse(200, vData, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
   }
 
-  async all(_pReq: Request, pRes: Response, pNext: NextFunction) {
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vResponse: IStorePublic[] = await ClassStoreService.all()
+      const vType: string | undefined = pReq.query.type as string | undefined
+      const vResponse: IStorePublic[] = await ClassStoreService.all(vType)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)

@@ -16,23 +16,12 @@ Para todos los casos, si ocurre cualquier error, lo envia usando NextFunction al
 6 - destroy: elimina (soft delete) un producto propio o, si es admin/operator, cualquiera
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassStoreProductService from '../../services/Store/StoreProductService'
+import ClassStoreProductService, { fxToPublicStoreProduct } from '../../services/Store/StoreProductService'
 import ClassStoreService from '../../services/Store/StoreService'
-import type { IStoreProductInput, IResponseAllStoreProduct, IStoreProductPublic } from '../../types/StoreProduct'
-import { fxSuccessResponse, fxErrorResponse, moveImages, fxIsStoreRole, fxIsAdminRole } from '../../utils/helpers'
+import type { IStoreProductInput, IResponseAllStoreProduct } from '../../types/StoreProduct'
+import { fxSuccessResponse, fxErrorResponse, moveImages, fxIsStoreRole, fxCanManageStore } from '../../utils/helpers'
 import type { IStoreProductInstance } from '../../models/Store/StoreProductModel'
 import type { IStoreInstance } from '../../models/Store/StoreModel'
-
-async function fxCanManageStore(pAuth: any, pStoreId: number): Promise<boolean> {
-  if (fxIsAdminRole(pAuth)) {
-    return true
-  }
-  if (!fxIsStoreRole(pAuth)) {
-    return false
-  }
-  const vStore: IStoreInstance | null = await ClassStoreService.show(pStoreId)
-  return Boolean(vStore && vStore.dataValues.ownerId === pAuth.id)
-}
 
 class StoreProductController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -42,7 +31,16 @@ class StoreProductController {
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+      const vAuth: any = (pReq as any).auth
+      const vIsPrivileged = await fxCanManageStore(vAuth, vResponse.dataValues.storeId)
+      if (!vIsPrivileged) {
+        const vStore: IStoreInstance | null = await ClassStoreService.show(vResponse.dataValues.storeId)
+        if (!vResponse.dataValues.isAvailable || !vStore?.dataValues.isApproved) {
+          return pRes.status(403).send(fxErrorResponse(403, null, 'Acceso denegado'))
+        }
+      }
+      const vData = vIsPrivileged ? vResponse : fxToPublicStoreProduct(vResponse)
+      return pRes.status(200).send(fxSuccessResponse(200, vData, 'Correcto'))
     } catch (error) {
       pNext(error)
     }
@@ -50,11 +48,11 @@ class StoreProductController {
 
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vStoreId: number = Number(pReq.query.storeId)
-      if (!vStoreId) {
+      const vParam: any = pReq.query
+      if (!Number(vParam?.storeId)) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'storeId es requerido'))
       }
-      const vResponse: IStoreProductPublic[] = await ClassStoreProductService.all(vStoreId)
+      const vResponse = await ClassStoreProductService.all(vParam)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
@@ -84,7 +82,8 @@ class StoreProductController {
         'price',
         'currencyId',
         'image',
-        'category',
+        'departmentId',
+        'categoryIds',
         'isAvailable',
         'isInventoryable',
         'stockQuantity',
@@ -99,6 +98,7 @@ class StoreProductController {
       const vResponse: IStoreProductInstance = await ClassStoreProductService.create(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -121,7 +121,8 @@ class StoreProductController {
         'price',
         'currencyId',
         'image',
-        'category',
+        'departmentId',
+        'categoryIds',
         'isAvailable',
         'isInventoryable',
         'stockQuantity',

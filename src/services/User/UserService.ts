@@ -255,6 +255,13 @@ class UserService implements IUserService {
             ['verifiedDriver', 'asc']
           ]
         }
+      } else if (pParam.type === 'store') {
+        // Usuarios con rol 'store' (rolId=4), para que el admin pueda elegir un dueño ya
+        // existente al crear una tienda en vez de tener que pegar el uuid a mano.
+        whereStatement.where = {
+          ...whereStatement.where,
+          rolId: 4,
+        }
       }
       if (pParam?.isStaff) {
         whereStatement.where = {

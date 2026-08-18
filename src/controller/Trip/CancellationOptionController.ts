@@ -7,7 +7,7 @@
 
 ==========Functions Manifest==========
 
-- Paya Methods:
+- Dai Methods:
 Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 1- show: Sirve un dato especifico filtrado por el id
 

@@ -25,10 +25,25 @@ import { modelStore } from '../../models'
 import type { IStoreInput, IResponseAllStore, IStorePublic } from '../../types/Store'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
+// Campos seguros para exponer a un caller sin privilegios (app/cliente publico). Se usan tanto
+// en all() como para achicar la respuesta de show() cuando quien pregunta no es el dueno ni admin.
+export const vStorePublicFields = [
+  'id', 'name', 'type', 'logo', 'lat', 'lon', 'cityId', 'isOpen', 'avgPrepTimeMinutes',
+] as const
+
+export function fxToPublicStore(pStore: IStoreInstance): IStorePublic {
+  const vData: any = pStore.dataValues
+  const vPublic: any = {}
+  vStorePublicFields.forEach((vField) => {
+    vPublic[vField] = vData[vField]
+  })
+  return vPublic as IStorePublic
+}
+
 interface IStoreService {
   validate(data: any): any
   show(pId: number): Promise<IStoreInstance | null>
-  all(): Promise<IStorePublic[]>
+  all(pType?: string): Promise<IStorePublic[]>
   allAdmin(pParam: any, pOwnerId?: string): Promise<IResponseAllStore | IStoreInstance[]>
   create(payload: IStoreInput): Promise<IStoreInstance>
   update(payload: IStoreInput): Promise<IStoreInstance | null>
@@ -43,12 +58,18 @@ class StoreService implements IStoreService {
     await dataValidate.validate()
   }
 
-  // Endpoint publico consumido por la app: solo tiendas aprobadas por el admin.
-  public async all(): Promise<IStorePublic[]> {
+  // Endpoint publico consumido por la app: solo tiendas aprobadas por el admin. pType filtra
+  // por 'food' o 'market' (DAI Food vs DAI Market) - la app pide cada seccion por separado en
+  // vez de traer todo mezclado.
+  public async all(pType?: string): Promise<IStorePublic[]> {
     try {
+      const vWhere: any = { isApproved: true }
+      if (pType === 'food' || pType === 'market') {
+        vWhere.type = pType
+      }
       const vResponse: IStoreInstance[] = await modelStore.findAll({
-        where: { isApproved: true },
-        attributes: ['id', 'name', 'type', 'logo', 'lat', 'lon', 'cityId', 'isOpen', 'avgPrepTimeMinutes'],
+        where: vWhere,
+        attributes: [...vStorePublicFields],
       })
       return vResponse as unknown as IStorePublic[]
     } catch (error) {
@@ -78,6 +99,9 @@ class StoreService implements IStoreService {
         whereStatement.where = { ...whereStatement.where, isApproved: false }
       } else if (pParam?.isApproved === 'pending') {
         whereStatement.where = { ...whereStatement.where, isApproved: null }
+      }
+      if (pParam?.type === 'food' || pParam?.type === 'market') {
+        whereStatement.where = { ...whereStatement.where, type: pParam.type }
       }
 
       const vResponse: IStoreInstance[] = await modelStore.findAll(whereStatement)

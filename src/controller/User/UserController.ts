@@ -7,6 +7,7 @@
 - Creation: 17/03/2024  
  */
 import type { NextFunction, Request, Response } from 'express'
+import bcrypt from 'bcryptjs'
 import ClassUser from '../../services/User/UserService'
 import { type IUserInput, type IResponseAllUser, ETypeUser } from '../../types/User'
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
@@ -103,7 +104,14 @@ class UserController {
         'statusDriver',
         'verifiedDriver',
         'typeUser',
+        'password',
       ])
+      // Opcional: solo lo usan flujos como "crear dueño de tienda" desde el admin, donde el
+      // usuario necesita poder loguearse despues. Si no viene, el usuario queda sin clave
+      // (mismo comportamiento de antes) hasta que se registre/actualice por otro medio.
+      if (typeof vData.password === 'string' && vData.password) {
+        vData.password = bcrypt.hashSync(vData.password, 10)
+      }
       await ClassUser.validate(vData)
       const vResponse: IUserInstance | null = await ClassUser.create(vData)
       if (!vResponse) {

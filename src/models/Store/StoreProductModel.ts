@@ -10,7 +10,7 @@ export interface IStoreProductAttributes {
   price: number
   currencyId?: number | null
   image?: string | null
-  category?: string | null
+  departmentId?: number | null
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number | null
@@ -76,11 +76,17 @@ export const vStoreProductModelAttributes: SequelizeAttributes<IStoreProductAttr
     allowNull: true,
     defaultValue: null,
   },
-  category: {
-    type: DataTypes.STRING,
-    field: 'category',
+  departmentId: {
+    type: DataTypes.INTEGER,
+    field: 'department_id',
     allowNull: true,
     defaultValue: null,
+    references: {
+      model: {
+        tableName: 'store_departments',
+      },
+      key: 'id',
+    },
   },
   isAvailable: {
     type: DataTypes.BOOLEAN,
@@ -134,7 +140,7 @@ export function fxStoreProductFactory(sequelize: Sequelize) {
   )
 
   vStoreProduct.associate = function (models: ModelRegistry) {
-    const { modelStoreProduct, modelStore, modelCurrency } = models
+    const { modelStoreProduct, modelStore, modelCurrency, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory } = models
     modelStoreProduct.hasOne(modelStore, {
       sourceKey: 'storeId',
       foreignKey: 'id',
@@ -144,6 +150,17 @@ export function fxStoreProductFactory(sequelize: Sequelize) {
       sourceKey: 'currencyId',
       foreignKey: 'id',
       as: 'currency',
+    })
+    modelStoreProduct.hasOne(modelStoreDepartment, {
+      sourceKey: 'departmentId',
+      foreignKey: 'id',
+      as: 'department',
+    })
+    modelStoreProduct.belongsToMany(modelStoreCategory, {
+      through: modelStoreProductCategory,
+      foreignKey: 'productId',
+      otherKey: 'categoryId',
+      as: 'categories',
     })
   }
 

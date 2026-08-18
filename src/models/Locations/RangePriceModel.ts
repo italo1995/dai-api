@@ -22,8 +22,8 @@ export interface IRangePriceAttributes {
   deletedAt?: Date
 }
 export enum ETypeRangePrice {
-  CARROPAYA = 'Carro DAI',
-  MOTOPAYA = 'Moto DAI',
+  CARRODAI = 'Carro DAI',
+  MOTODAI = 'Moto DAI',
   DELIVERY = 'Delivery DAI',
   CIUDADACIUDAD = 'Ciudad a ciudad DAI',
 }

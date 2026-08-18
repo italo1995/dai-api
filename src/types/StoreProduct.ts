@@ -9,7 +9,8 @@ export interface IStoreProductInput {
   price: number
   currencyId?: number
   image?: string
-  category?: string
+  departmentId?: number | null
+  categoryIds?: number[]
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number
@@ -26,9 +27,10 @@ export interface IStoreProductPublic {
   price: number
   currencyId?: number | null
   image?: string | null
-  category?: string | null
   isInventoryable?: boolean
   stockQuantity?: number | null
+  department?: { id: number; name: string } | null
+  categories?: { id: number; name: string }[]
 }
 
 export interface IResponseAllStoreProduct extends IResponseAll {

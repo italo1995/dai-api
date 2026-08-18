@@ -14,4 +14,4 @@ Esta API proporciona servicios similares a Uber para un servicio de taxis. Permi
 4. Ejecuta `npm run dev` para iniciar el servidor.
 
 ## Documentación
-La documentación completa está disponible en apiqa.payatraslados.com/doc.
+La documentación completa está disponible en apiqa.daitraslados.com/doc.

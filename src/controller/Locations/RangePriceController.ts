@@ -92,10 +92,10 @@ class RangePriceController {
       vData.isMoto = false
       vData.isTravel = false
       vData.isDelivery = false
-      if (vData.name === ETypeRangePrice.CARROPAYA) {
+      if (vData.name === ETypeRangePrice.CARRODAI) {
         vData.isCar = true
       }
-      if (vData.name === ETypeRangePrice.MOTOPAYA) {
+      if (vData.name === ETypeRangePrice.MOTODAI) {
         vData.isMoto = true
         vData.isCar = false
       }
@@ -140,10 +140,10 @@ class RangePriceController {
       vData.isTravel = false
       vData.isDelivery = false
 
-      if (vData.name === ETypeRangePrice.CARROPAYA) {
+      if (vData.name === ETypeRangePrice.CARRODAI) {
         vData.isCar = true
       }
-      if (vData.name === ETypeRangePrice.MOTOPAYA) {
+      if (vData.name === ETypeRangePrice.MOTODAI) {
         vData.isMoto = true
       }
       if (vData.name === ETypeRangePrice.CIUDADACIUDAD) {

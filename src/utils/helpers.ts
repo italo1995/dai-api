@@ -4,6 +4,8 @@ import imageThumbnail from 'image-thumbnail'
 import twilio from 'twilio'
 import AppConfig from '../config/AppConfig'
 import type { IUserAttributes, IUserInstance } from '../models/User/UserModel'
+import ClassStoreService from '../services/Store/StoreService'
+import type { IStoreInstance } from '../models/Store/StoreModel'
 
 export const fxSuccessResponse = (
   code: number | null = null,
@@ -182,6 +184,20 @@ export const fxShuffleArray = <T>(pArray: T[]): T[] => {
 export const fxIsStoreRole = (pAuth: any): boolean => Boolean(pAuth && Number(pAuth.rolId) === 4)
 export const fxIsAdminRole = (pAuth: any): boolean =>
   Boolean(pAuth && (Number(pAuth.rolId) === 1 || Number(pAuth.rolId) === 2))
+
+// Admin/operator pueden manejar cualquier tienda; el rol 'store' solo la propia. Usado por
+// StoreProductController, StoreDepartmentController y StoreCategoryController para gatear
+// create/update/delete de recursos que cuelgan de un storeId.
+export async function fxCanManageStore(pAuth: any, pStoreId: number): Promise<boolean> {
+  if (fxIsAdminRole(pAuth)) {
+    return true
+  }
+  if (!fxIsStoreRole(pAuth)) {
+    return false
+  }
+  const vStore: IStoreInstance | null = await ClassStoreService.show(pStoreId)
+  return Boolean(vStore && vStore.dataValues.ownerId === pAuth.id)
+}
 
 export const withTimeout: any = (onSuccess: any, onTimeout: any, timeout: any): any => {
   let called = false

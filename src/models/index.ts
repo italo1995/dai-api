@@ -52,6 +52,9 @@ import { fxPopupFactory } from './web/PopupModel'
 import { fxStoreFactory } from './Store/StoreModel'
 import { fxStoreScheduleFactory } from './Store/StoreScheduleModel'
 import { fxStoreProductFactory } from './Store/StoreProductModel'
+import { fxStoreDepartmentFactory } from './Store/StoreDepartmentModel'
+import { fxStoreCategoryFactory } from './Store/StoreCategoryModel'
+import { fxStoreProductCategoryFactory } from './Store/StoreProductCategoryModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -110,6 +113,9 @@ export const modelPopup = fxPopupFactory(sequelize)
 export const modelStore = fxStoreFactory(sequelize)
 export const modelStoreSchedule = fxStoreScheduleFactory(sequelize)
 export const modelStoreProduct = fxStoreProductFactory(sequelize)
+export const modelStoreDepartment = fxStoreDepartmentFactory(sequelize)
+export const modelStoreCategory = fxStoreCategoryFactory(sequelize)
+export const modelStoreProductCategory = fxStoreProductCategoryFactory(sequelize)
 
 const models = {
   modelUser,
@@ -161,6 +167,9 @@ const models = {
   modelStore,
   modelStoreSchedule,
   modelStoreProduct,
+  modelStoreDepartment,
+  modelStoreCategory,
+  modelStoreProductCategory,
 }
 
 export type ModelRegistry = typeof models

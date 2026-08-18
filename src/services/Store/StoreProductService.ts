@@ -16,16 +16,50 @@
   6 - update: actualiza un producto existente
   7 - softDeleteRecord: elimina (soft delete) un producto
 */
-import { type FindOptions } from 'sequelize'
+import { type FindOptions, Op } from 'sequelize'
 import type { IStoreProductInstance } from '../../models/Store/StoreProductModel'
-import { modelStoreProduct, modelStore } from '../../models'
+import { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory } from '../../models'
 import type { IStoreProductInput, IResponseAllStoreProduct, IStoreProductPublic } from '../../types/StoreProduct'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
+import sequelize from '../../models'
+
+// Campos seguros para exponer a un caller sin privilegios (app/cliente publico). Se usan tanto
+// en all() como para achicar la respuesta de show() cuando quien pregunta no es el dueno ni admin.
+export const vStoreProductPublicFields = [
+  'id', 'name', 'description', 'price', 'currencyId', 'image', 'isInventoryable', 'stockQuantity',
+] as const
+
+// include reutilizado por all()/show() para traer nombre de departamento y categorias sin que
+// el cliente tenga que pedirlos aparte.
+export const vStoreProductCategorizationInclude = [
+  {
+    model: modelStoreDepartment,
+    as: 'department',
+    attributes: ['id', 'name'],
+  },
+  {
+    model: modelStoreCategory,
+    as: 'categories',
+    attributes: ['id', 'name'],
+    through: { attributes: [] },
+  },
+]
+
+export function fxToPublicStoreProduct(pProduct: IStoreProductInstance): IStoreProductPublic {
+  const vData: any = pProduct.dataValues
+  const vPublic: any = {}
+  vStoreProductPublicFields.forEach((vField) => {
+    vPublic[vField] = vData[vField]
+  })
+  vPublic.department = vData.department ?? null
+  vPublic.categories = vData.categories ?? []
+  return vPublic as IStoreProductPublic
+}
 
 interface IStoreProductService {
   validate(data: any): any
   show(pId: number): Promise<IStoreProductInstance | null>
-  all(pStoreId: number): Promise<IStoreProductPublic[]>
+  all(pParam: any): Promise<IResponseAllStoreProduct>
   allAdmin(pParam: any, pOwnerId?: string): Promise<IResponseAllStoreProduct | IStoreProductInstance[]>
   create(payload: IStoreProductInput): Promise<IStoreProductInstance>
   update(payload: IStoreProductInput): Promise<IStoreProductInstance | null>
@@ -38,32 +72,68 @@ class StoreProductService implements IStoreProductService {
     await dataValidate.validate()
   }
 
-  public async all(pStoreId: number): Promise<IStoreProductPublic[]> {
+  // pParam: storeId (requerido), search (opcional, busca por nombre), departmentId (opcional,
+  // un solo id), categoryId (opcional, uno o varios ids separados por coma - trae productos que
+  // tengan AL MENOS una de esas categorias), limit (default 10), page (default 1). Siempre
+  // pagina, a diferencia de allAdmin que solo pagina si viene pag.
+  public async all(pParam: any): Promise<IResponseAllStoreProduct> {
     try {
-      const vResponse: IStoreProductInstance[] = await modelStoreProduct.findAll({
-        where: { storeId: pStoreId, isAvailable: true },
-        attributes: [
-          'id',
-          'name',
-          'description',
-          'price',
-          'currencyId',
-          'image',
-          'category',
-          'isInventoryable',
-          'stockQuantity',
-        ],
-        include: [
-          {
-            model: modelStore,
-            as: 'store',
-            required: true,
-            attributes: [],
-            where: { isApproved: true },
-          },
-        ],
+      const vStoreId = Number(pParam?.storeId)
+      const vLimit = Number(pParam?.limit) || 10
+      const vPage = Number(pParam?.page) || 1
+      const vOffset = (vPage - 1) * vLimit
+
+      const vWhere: any = { storeId: vStoreId, isAvailable: true }
+      if (pParam?.search) {
+        vWhere.name = { [Op.iLike]: `%${pParam.search}%` }
+      }
+      if (pParam?.departmentId) {
+        vWhere.departmentId = Number(pParam.departmentId)
+      }
+      if (pParam?.categoryId) {
+        const vCategoryIds: number[] = String(pParam.categoryId)
+          .split(',')
+          .map((pId) => Number(pId.trim()))
+          .filter((pId) => !Number.isNaN(pId))
+        if (vCategoryIds.length) {
+          // Se filtra por la tabla puente en vez de meter esto en el include de categories que
+          // ya usa la respuesta (ese debe seguir trayendo TODAS las categorias del producto,
+          // no solo las que matchean el filtro).
+          const vMatches = await modelStoreProductCategory.findAll({
+            where: { categoryId: { [Op.in]: vCategoryIds } },
+            attributes: ['productId'],
+          })
+          const vProductIds = [...new Set(vMatches.map((pMatch) => pMatch.dataValues.productId))]
+          vWhere.id = { [Op.in]: vProductIds.length ? vProductIds : [-1] }
+        }
+      }
+
+      const vStoreInclude = {
+        model: modelStore,
+        as: 'store',
+        required: true,
+        attributes: [],
+        where: { isApproved: true },
+      }
+
+      const vCount: number = await modelStoreProduct.count({ where: vWhere, include: [vStoreInclude] })
+      // unscoped() para pisar el defaultScope (ordena por createdAt, que no esta en
+      // vStoreProductPublicFields y rompe la query) sin afectar el filtro paranoid de deletedAt.
+      const vResponse: IStoreProductInstance[] = await modelStoreProduct.unscoped().findAll({
+        where: vWhere,
+        attributes: [...vStoreProductPublicFields],
+        include: [vStoreInclude, ...vStoreProductCategorizationInclude],
+        order: [['id', 'DESC']],
+        limit: vLimit,
+        offset: vOffset,
       })
-      return vResponse as unknown as IStoreProductPublic[]
+
+      return {
+        total: vCount,
+        totalPage: Math.max(Math.ceil(vCount / vLimit), 1),
+        data: vResponse,
+        actualPage: vPage,
+      } as unknown as IResponseAllStoreProduct
     } catch (error) {
       throw error
     }
@@ -118,6 +188,7 @@ class StoreProductService implements IStoreProductService {
     try {
       const vResponse: IStoreProductInstance | null = await modelStoreProduct.findOne({
         where: { id: pId },
+        include: vStoreProductCategorizationInclude,
       })
       return vResponse
     } catch (error) {
@@ -125,10 +196,46 @@ class StoreProductService implements IStoreProductService {
     }
   }
 
+  // Valida que departmentId (si viene) y todos los categoryIds (si vienen) pertenezcan a la
+  // misma tienda del producto. Tira un error legible en vez de guardar datos inconsistentes.
+  private async fxValidateCategorization(pStoreId: number, pDepartmentId?: number | null, pCategoryIds?: number[]) {
+    if (pDepartmentId) {
+      const vDepartment = await modelStoreDepartment.findOne({ where: { id: pDepartmentId } })
+      if (!vDepartment || vDepartment.dataValues.storeId !== pStoreId) {
+        throw new Error('El departamento no pertenece a esta tienda')
+      }
+    }
+    if (pCategoryIds?.length) {
+      const vCategories = await modelStoreCategory.findAll({ where: { id: pCategoryIds } })
+      if (vCategories.length !== pCategoryIds.length || vCategories.some((pCat) => pCat.dataValues.storeId !== pStoreId)) {
+        throw new Error('Una o mas categorias no pertenecen a esta tienda')
+      }
+    }
+  }
+
+  private async fxSetCategories(pProductId: number, pCategoryIds?: number[]) {
+    if (pCategoryIds === undefined) {
+      return
+    }
+    console.log('pCategoryIds :>> ', pCategoryIds)
+    await sequelize.transaction(async (pTransaction) => {
+      await modelStoreProductCategory.destroy({ where: { productId: pProductId }, transaction: pTransaction })
+      if (pCategoryIds?.length) {
+        await modelStoreProductCategory.bulkCreate(
+          pCategoryIds.map((pCategoryId) => ({ productId: pProductId, categoryId: pCategoryId })),
+          { transaction: pTransaction }
+        )
+      }
+    })
+  }
+
   async create(pData: IStoreProductInput): Promise<IStoreProductInstance> {
     try {
-      const vResponse: IStoreProductInstance = await modelStoreProduct.create(pData)
-      return vResponse
+      await this.fxValidateCategorization(pData.storeId, pData.departmentId, pData.categoryIds)
+      const { categoryIds, ...vProductData } = pData
+      const vResponse: IStoreProductInstance = await modelStoreProduct.create(vProductData)
+      await this.fxSetCategories(vResponse.dataValues.id, categoryIds)
+      return (await this.show(vResponse.dataValues.id)) as IStoreProductInstance
     } catch (error) {
       throw error
     }
@@ -137,11 +244,18 @@ class StoreProductService implements IStoreProductService {
   async update(pData: IStoreProductInput): Promise<IStoreProductInstance | null> {
     try {
       if (pData?.id) {
-        const vResponse: IStoreProductInstance | null = await modelStoreProduct.findOne({
+        const vExisting: IStoreProductInstance | null = await modelStoreProduct.findOne({
           where: { id: pData.id },
         })
-        await vResponse?.update(pData)
-        return vResponse
+        if (!vExisting) {
+          return null
+        }
+        const vStoreId = vExisting.dataValues.storeId
+        await this.fxValidateCategorization(vStoreId, pData.departmentId, pData.categoryIds)
+        const { categoryIds, ...vProductData } = pData
+        await vExisting.update(vProductData)
+        await this.fxSetCategories(vExisting.dataValues.id, categoryIds)
+        return await this.show(vExisting.dataValues.id)
       }
       return null
     } catch (error) {

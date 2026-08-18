@@ -9,7 +9,7 @@
 
 ==========Functions Manifest==========
 
-- Paya Methods:
+- Dai Methods:
 Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 1- registerOrCreateUserForNumber: Este metodo se encarga de verificar el numero telefonico, si existe ya un usuario y si ya tiene un codigo creado para el dia de hoy.
   - En caso de no tener un codigo creado y no estar registrado crea un nuevo codigo y lo envia usando sms. Luego crea un usuario usando solo el numero de telefono y el codigo de area.
