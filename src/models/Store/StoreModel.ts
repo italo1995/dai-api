@@ -15,6 +15,8 @@ export interface IStoreAttributes {
   phoneCode?: string | null
   phoneNumber?: string | null
   logo?: string | null
+  banner?: string | null
+  description?: string | null
   lat?: number | null
   lon?: number | null
   cityId?: number | null
@@ -82,6 +84,18 @@ export const vStoreModelAttributes: SequelizeAttributes<IStoreAttributes> = {
   logo: {
     type: DataTypes.STRING,
     field: 'logo',
+    allowNull: true,
+    defaultValue: null,
+  },
+  banner: {
+    type: DataTypes.STRING,
+    field: 'banner',
+    allowNull: true,
+    defaultValue: null,
+  },
+  description: {
+    type: DataTypes.TEXT,
+    field: 'description',
     allowNull: true,
     defaultValue: null,
   },

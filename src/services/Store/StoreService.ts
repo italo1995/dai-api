@@ -30,8 +30,8 @@ import sequelize from '../../models'
 // Campos seguros para exponer a un caller sin privilegios (app/cliente publico). Se usan tanto
 // en all() como para achicar la respuesta de show() cuando quien pregunta no es el dueno ni admin.
 export const vStorePublicFields = [
-  'id', 'name', 'type', 'logo', 'lat', 'lon', 'cityId', 'isOpen', 'avgPrepTimeMinutes',
-  'avgRating', 'ratingCount',
+  'id', 'name', 'type', 'logo', 'banner', 'description', 'lat', 'lon', 'cityId', 'isOpen',
+  'avgPrepTimeMinutes', 'avgRating', 'ratingCount',
 ] as const
 
 // include reutilizado por show()/all()/allAdmin() para traer las categorias de negocio sin que

@@ -18,7 +18,7 @@
 */
 import { type FindOptions, Op } from 'sequelize'
 import type { IStoreProductInstance } from '../../models/Store/StoreProductModel'
-import sequelize, { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory } from '../../models'
+import sequelize, { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory, modelStoreProductModifierGroup, modelStoreProductModifier, modelStoreProductImage } from '../../models'
 import type { IStoreProductInput, IResponseAllStoreProduct, IStoreProductPublic } from '../../types/StoreProduct'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -30,6 +30,30 @@ export const vStoreProductPublicFields = [
 
 // include reutilizado por all()/show() para traer nombre de departamento y categorias sin que
 // el cliente tenga que pedirlos aparte.
+// Grupos de modificadores (con sus opciones) del producto, para que la app arme la pantalla de
+// detalle (secciones tipo "¿Como la quieres?", "Adicionales") sin un segundo llamado a
+// storeProductModifierGroup/all.
+export const vStoreProductModifierInclude = {
+  model: modelStoreProductModifierGroup,
+  as: 'modifierGroups',
+  attributes: ['id', 'name', 'required', 'minSelections', 'maxSelections'],
+  include: [
+    {
+      model: modelStoreProductModifier,
+      as: 'modifiers',
+      attributes: ['id', 'name', 'extraPrice'],
+    },
+  ],
+}
+
+// Galeria de fotos adicionales del producto (aparte del campo image, que sigue siendo la
+// portada usada en listados). Ordenadas por 'order' via el defaultScope del modelo.
+export const vStoreProductImagesInclude = {
+  model: modelStoreProductImage,
+  as: 'images',
+  attributes: ['id', 'image', 'order'],
+}
+
 export const vStoreProductCategorizationInclude = [
   {
     model: modelStoreDepartment,
@@ -42,6 +66,8 @@ export const vStoreProductCategorizationInclude = [
     attributes: ['id', 'name'],
     through: { attributes: [] },
   },
+  vStoreProductModifierInclude,
+  vStoreProductImagesInclude,
 ]
 
 export function fxToPublicStoreProduct(pProduct: IStoreProductInstance): IStoreProductPublic {
@@ -52,6 +78,8 @@ export function fxToPublicStoreProduct(pProduct: IStoreProductInstance): IStoreP
   })
   vPublic.department = vData.department ?? null
   vPublic.categories = vData.categories ?? []
+  vPublic.modifierGroups = vData.modifierGroups ?? []
+  vPublic.images = vData.images ?? []
   return vPublic as IStoreProductPublic
 }
 
@@ -228,12 +256,31 @@ class StoreProductService implements IStoreProductService {
     })
   }
 
+  // images: reemplaza por completo la galeria del producto (destroy + bulkCreate), igual que
+  // categorias/modificadores - no hay CRUD por foto individual. El orden del array define el
+  // campo 'order' (asi la app las muestra en el mismo orden que las subieron).
+  private async fxSetImages(pProductId: number, pImages?: string[]) {
+    if (pImages === undefined) {
+      return
+    }
+    await sequelize.transaction(async (pTransaction) => {
+      await modelStoreProductImage.destroy({ where: { productId: pProductId }, transaction: pTransaction })
+      if (pImages.length) {
+        await modelStoreProductImage.bulkCreate(
+          pImages.map((pImage, pIndex) => ({ productId: pProductId, image: pImage, order: pIndex })),
+          { transaction: pTransaction }
+        )
+      }
+    })
+  }
+
   async create(pData: IStoreProductInput): Promise<IStoreProductInstance> {
     try {
       await this.fxValidateCategorization(pData.storeId, pData.departmentId, pData.categoryIds)
-      const { categoryIds, ...vProductData } = pData
+      const { categoryIds, images, ...vProductData } = pData
       const vResponse: IStoreProductInstance = await modelStoreProduct.create(vProductData)
       await this.fxSetCategories(vResponse.dataValues.id, categoryIds)
+      await this.fxSetImages(vResponse.dataValues.id, images)
       return (await this.show(vResponse.dataValues.id)) as IStoreProductInstance
     } catch (error) {
       throw error
@@ -251,9 +298,10 @@ class StoreProductService implements IStoreProductService {
         }
         const vStoreId = vExisting.dataValues.storeId
         await this.fxValidateCategorization(vStoreId, pData.departmentId, pData.categoryIds)
-        const { categoryIds, ...vProductData } = pData
+        const { categoryIds, images, ...vProductData } = pData
         await vExisting.update(vProductData)
         await this.fxSetCategories(vExisting.dataValues.id, categoryIds)
+        await this.fxSetImages(vExisting.dataValues.id, images)
         return await this.show(vExisting.dataValues.id)
       }
       return null

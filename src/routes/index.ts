@@ -48,6 +48,7 @@ import StoreCategoryRoute from './Store/StoreCategoryRoute'
 import BusinessCategoryRoute from './Store/BusinessCategoryRoute'
 import StoreRatingRoute from './Store/StoreRatingRoute'
 import StoreFavoriteRoute from './Store/StoreFavoriteRoute'
+import StoreProductModifierGroupRoute from './Store/StoreProductModifierGroupRoute'
 
 const router = express.Router()
 
@@ -100,5 +101,6 @@ router.use('/storeCategory', StoreCategoryRoute)
 router.use('/businessCategory', BusinessCategoryRoute)
 router.use('/storeRating', StoreRatingRoute)
 router.use('/storeFavorite', StoreFavoriteRoute)
+router.use('/storeProductModifierGroup', StoreProductModifierGroupRoute)
 
 export default router

@@ -30,6 +30,23 @@ components:
         stockQuantity:
           type: number
           nullable: true
+        modifierGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoreProductModifierGroup'
+          description: 'Incluido en /show y /all (con sus opciones) - ver StoreProductModifierGroup.yaml. No requiere un llamado aparte'
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              image:
+                type: string
+              order:
+                type: number
+          description: 'Galeria de fotos adicionales (aparte de "image", que sigue siendo la portada usada en listados). Al crear/editar se manda como array de strings (paths) en el mismo campo "images" - reemplaza toda la galeria, no hay CRUD por foto individual. El orden del array define el orden en que se muestran'
 paths:
   /api/storeProduct/all:
     get:

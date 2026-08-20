@@ -11,6 +11,9 @@ export interface IStoreProductInput {
   image?: string
   departmentId?: number | null
   categoryIds?: number[]
+  // Reemplaza toda la galeria (aparte de 'image', que sigue siendo la portada). El orden del
+  // array define el orden en que se muestran.
+  images?: string[]
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number
@@ -31,6 +34,15 @@ export interface IStoreProductPublic {
   stockQuantity?: number | null
   department?: { id: number; name: string } | null
   categories?: { id: number; name: string }[]
+  modifierGroups?: {
+    id: number
+    name: string
+    required: boolean
+    minSelections: number
+    maxSelections?: number | null
+    modifiers: { id: number; name: string; extraPrice: number }[]
+  }[]
+  images?: { id: number; image: string; order: number }[]
 }
 
 export interface IResponseAllStoreProduct extends IResponseAll {

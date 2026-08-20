@@ -59,6 +59,9 @@ import { fxBusinessCategoryFactory } from './Store/BusinessCategoryModel'
 import { fxStoreBusinessCategoryFactory } from './Store/StoreBusinessCategoryModel'
 import { fxStoreRatingFactory } from './Store/StoreRatingModel'
 import { fxStoreFavoriteFactory } from './Store/StoreFavoriteModel'
+import { fxStoreProductModifierGroupFactory } from './Store/StoreProductModifierGroupModel'
+import { fxStoreProductModifierFactory } from './Store/StoreProductModifierModel'
+import { fxStoreProductImageFactory } from './Store/StoreProductImageModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -124,6 +127,9 @@ export const modelBusinessCategory = fxBusinessCategoryFactory(sequelize)
 export const modelStoreBusinessCategory = fxStoreBusinessCategoryFactory(sequelize)
 export const modelStoreRating = fxStoreRatingFactory(sequelize)
 export const modelStoreFavorite = fxStoreFavoriteFactory(sequelize)
+export const modelStoreProductModifierGroup = fxStoreProductModifierGroupFactory(sequelize)
+export const modelStoreProductModifier = fxStoreProductModifierFactory(sequelize)
+export const modelStoreProductImage = fxStoreProductImageFactory(sequelize)
 
 const models = {
   modelUser,
@@ -182,6 +188,9 @@ const models = {
   modelStoreBusinessCategory,
   modelStoreRating,
   modelStoreFavorite,
+  modelStoreProductModifierGroup,
+  modelStoreProductModifier,
+  modelStoreProductImage,
 }
 
 export type ModelRegistry = typeof models

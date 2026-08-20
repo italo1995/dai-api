@@ -140,7 +140,7 @@ export function fxStoreProductFactory(sequelize: Sequelize) {
   )
 
   vStoreProduct.associate = function (models: ModelRegistry) {
-    const { modelStoreProduct, modelStore, modelCurrency, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory } = models
+    const { modelStoreProduct, modelStore, modelCurrency, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory, modelStoreProductModifierGroup, modelStoreProductImage } = models
     modelStoreProduct.hasOne(modelStore, {
       sourceKey: 'storeId',
       foreignKey: 'id',
@@ -161,6 +161,16 @@ export function fxStoreProductFactory(sequelize: Sequelize) {
       foreignKey: 'productId',
       otherKey: 'categoryId',
       as: 'categories',
+    })
+    modelStoreProduct.hasMany(modelStoreProductModifierGroup, {
+      sourceKey: 'id',
+      foreignKey: 'productId',
+      as: 'modifierGroups',
+    })
+    modelStoreProduct.hasMany(modelStoreProductImage, {
+      sourceKey: 'id',
+      foreignKey: 'productId',
+      as: 'images',
     })
   }
 

@@ -86,6 +86,8 @@ class StoreController {
         'phoneCode',
         'phoneNumber',
         'logo',
+        'banner',
+        'description',
         'lat',
         'lon',
         'cityId',
@@ -102,6 +104,9 @@ class StoreController {
       }
       if (vData?.logo && vData.logo.includes('temp')) {
         vData.logo = await moveImages(vData.logo)
+      }
+      if (vData?.banner && vData.banner.includes('temp')) {
+        vData.banner = await moveImages(vData.banner)
       }
       const vResponse: IStoreInstance = await ClassStoreService.create(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
@@ -128,6 +133,8 @@ class StoreController {
         'phoneCode',
         'phoneNumber',
         'logo',
+        'banner',
+        'description',
         'lat',
         'lon',
         'cityId',
@@ -141,6 +148,9 @@ class StoreController {
       // ownerId solo se tocan via approve()/reject()/admin.
       if (vData?.logo && vData.logo.includes('temp')) {
         vData.logo = await moveImages(vData.logo)
+      }
+      if (vData?.banner && vData.banner.includes('temp')) {
+        vData.banner = await moveImages(vData.banner)
       }
       const vResponse: IStoreInstance | null = await ClassStoreService.update(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))

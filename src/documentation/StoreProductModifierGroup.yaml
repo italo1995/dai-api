@@ -1,0 +1,145 @@
+components:
+  schemas:
+    StoreProductModifier:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        extraPrice:
+          type: number
+          description: 0 para opciones incluidas sin costo (ej. "Con todo"), mayor a 0 para adicionales
+    StoreProductModifierGroup:
+      type: object
+      properties:
+        id:
+          type: number
+        productId:
+          type: number
+        name:
+          type: string
+          example: '¿Como la quieres?'
+        required:
+          type: boolean
+        minSelections:
+          type: number
+        maxSelections:
+          type: number
+          nullable: true
+          description: null = sin tope de selecciones
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoreProductModifier'
+          description: Al crear/editar, reemplaza por completo las opciones del grupo (destroy + bulkCreate) - no hay un endpoint aparte para editar una opcion suelta
+paths:
+  /api/storeProductModifierGroup/all:
+    get:
+      summary: Lista publica de los grupos de modificadores (con sus opciones) de un producto
+      description: Publico, la usa la app para armar la pantalla de detalle del producto (secciones tipo "¿Como la quieres?", "Adicionales")
+      tags:
+        - StoreProductModifierGroup
+      parameters:
+        - in: query
+          name: productId
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: productId es requerido
+  /api/storeProductModifierGroup/show:
+    get:
+      summary: Trae un grupo por id, con sus opciones
+      tags:
+        - StoreProductModifierGroup
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeProductModifierGroup/allAdmin:
+    get:
+      summary: Lista paginada/buscable para el panel (dueño de la tienda del producto, admin u operator)
+      tags:
+        - StoreProductModifierGroup
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: productId
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeProductModifierGroup/store:
+    post:
+      summary: Crea un grupo de modificadores con sus opciones
+      description: El dueño solo puede crearlo en un producto de una tienda propia (se resuelve el producto -> tienda para validar)
+      tags:
+        - StoreProductModifierGroup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreProductModifierGroup'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es dueño del producto ni admin/operator)
+  /api/storeProductModifierGroup/update:
+    post:
+      summary: Actualiza un grupo (nombre/required/min/max) y reemplaza sus opciones si vienen
+      description: productId no se puede cambiar desde aca - un grupo no cambia de producto
+      tags:
+        - StoreProductModifierGroup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreProductModifierGroup'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+  /api/storeProductModifierGroup/delete:
+    post:
+      summary: Elimina (soft delete) un grupo de modificadores
+      tags:
+        - StoreProductModifierGroup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+tags:
+  - name: StoreProductModifierGroup
+    description: Grupos de modificadores de un producto (ej. "¿Como la quieres?", "Adicionales") y sus opciones. Cubren tanto grupos obligatorios de seleccion unica/multiple (required=true) como opcionales con precio extra (ej. "Queso extra +$1.00").

@@ -23,6 +23,14 @@ components:
         logo:
           type: string
           nullable: true
+        banner:
+          type: string
+          nullable: true
+          description: Imagen de portada que se muestra al abrir la tienda (store/show) en la app. Distinta del logo, que se usa en los listados
+        description:
+          type: string
+          nullable: true
+          description: Descripcion de la tienda, se muestra al abrir la tienda en la app
         lat:
           type: number
           nullable: true
@@ -71,6 +79,14 @@ components:
         logo:
           type: string
           nullable: true
+        banner:
+          type: string
+          nullable: true
+          description: Imagen de portada que se muestra al abrir la tienda en la app (store/show). Distinta del logo, que se usa en los listados
+        description:
+          type: string
+          nullable: true
+          description: Descripcion de la tienda, se muestra al abrir la tienda en la app
         lat:
           type: number
           nullable: true

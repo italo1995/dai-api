@@ -9,6 +9,8 @@ export interface IStoreInput {
   phoneCode?: string
   phoneNumber?: string
   logo?: string
+  banner?: string
+  description?: string
   lat?: number
   lon?: number
   cityId?: number
@@ -28,6 +30,8 @@ export interface IStorePublic {
   name: string
   type: ETypeStore
   logo?: string | null
+  banner?: string | null
+  description?: string | null
   lat?: number | null
   lon?: number | null
   cityId?: number | null

@@ -84,6 +84,7 @@ class StoreProductController {
         'image',
         'departmentId',
         'categoryIds',
+        'images',
         'isAvailable',
         'isInventoryable',
         'stockQuantity',
@@ -94,6 +95,9 @@ class StoreProductController {
       }
       if (vData?.image && vData.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
+      }
+      if (vData?.images?.length) {
+        vData.images = await Promise.all(vData.images.map((pImage) => moveImages(pImage)))
       }
       const vResponse: IStoreProductInstance = await ClassStoreProductService.create(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
@@ -123,12 +127,16 @@ class StoreProductController {
         'image',
         'departmentId',
         'categoryIds',
+        'images',
         'isAvailable',
         'isInventoryable',
         'stockQuantity',
       ])
       if (vData?.image && vData.image.includes('temp')) {
         vData.image = await moveImages(vData.image)
+      }
+      if (vData?.images?.length) {
+        vData.images = await Promise.all(vData.images.map((pImage) => moveImages(pImage)))
       }
       const vResponse: IStoreProductInstance | null = await ClassStoreProductService.update(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
