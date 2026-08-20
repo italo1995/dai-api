@@ -8,7 +8,8 @@
 ==========Functions Manifest==========
 Para todos los casos, si ocurre cualquier error, lo envia usando NextFunction al middleware de errores.
 1 - show: trae una tienda por id. Publico si esta aprobada; si no, solo el dueño o admin/operator
-2 - all: endpoint publico para la app/cliente. Solo tiendas aprobadas
+2 - all: endpoint publico para la app/cliente. Solo tiendas aprobadas, paginado, con
+    busqueda por nombre (?search=) y filtro por categoria de negocio (?categoryId=)
 3 - allAdmin: panel (dueño ve solo las propias, admin/operator ve todas con filtro opcional)
 4 - create: crea una tienda. El dueño solo puede crearla para si mismo (ownerId se fuerza al propio id)
 5 - update: actualiza una tienda. El dueño solo puede editar la propia, y no puede tocar isApproved/rejectionReason/ownerId
@@ -17,8 +18,8 @@ Para todos los casos, si ocurre cualquier error, lo envia usando NextFunction al
 8 - destroy: elimina (soft delete) una tienda propia o, si es admin/operator, cualquiera
  */
 import type { NextFunction, Request, Response } from 'express'
-import ClassStoreService, { fxToPublicStore } from '../../services/Store/StoreService'
-import type { IStoreInput, IResponseAllStore, IStorePublic } from '../../types/Store'
+import ClassStoreService, { fxToPublicStore, fxGetFavoriteStoreIdSet } from '../../services/Store/StoreService'
+import type { IStoreInput, IResponseAllStore, IResponseAllStorePublic } from '../../types/Store'
 import { fxSuccessResponse, fxErrorResponse, moveImages, fxIsStoreRole, fxIsAdminRole } from '../../utils/helpers'
 import type { IStoreInstance } from '../../models/Store/StoreModel'
 
@@ -36,7 +37,13 @@ class StoreController {
       if (!vResponse.dataValues.isApproved && !vIsPrivileged) {
         return pRes.status(403).send(fxErrorResponse(403, null, 'Acceso denegado'))
       }
-      const vData = vIsPrivileged ? vResponse : fxToPublicStore(vResponse)
+      let vData: any = vResponse
+      if (!vIsPrivileged) {
+        const vFavoriteIds = vAuth?.id
+          ? await fxGetFavoriteStoreIdSet(vAuth.id, [vResponse.dataValues.id])
+          : undefined
+        vData = fxToPublicStore(vResponse, vFavoriteIds)
+      }
       return pRes.status(200).send(fxSuccessResponse(200, vData, 'Correcto'))
     } catch (error) {
       pNext(error)
@@ -45,8 +52,9 @@ class StoreController {
 
   async all(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vType: string | undefined = pReq.query.type as string | undefined
-      const vResponse: IStorePublic[] = await ClassStoreService.all(vType)
+      const vParam: any = pReq.query
+      const vAuth: any = (pReq as any).auth
+      const vResponse: IResponseAllStorePublic = await ClassStoreService.all(vParam, vAuth?.id)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)
@@ -85,6 +93,7 @@ class StoreController {
         'countryId',
         'isOpen',
         'avgPrepTimeMinutes',
+        'businessCategoryIds',
       ])
       if (fxIsStoreRole(vAuth)) {
         vData.ownerId = vAuth.id
@@ -126,6 +135,7 @@ class StoreController {
         'countryId',
         'isOpen',
         'avgPrepTimeMinutes',
+        'businessCategoryIds',
       ])
       // El dueño no puede reasignar la tienda ni autoaprobarse: isApproved/rejectionReason/
       // ownerId solo se tocan via approve()/reject()/admin.

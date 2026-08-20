@@ -25,6 +25,10 @@ export interface IStoreAttributes {
   isApproved?: boolean | null
   rejectionReason?: string | null
   avgPrepTimeMinutes?: number | null
+  // Denormalizado desde store_ratings (ver StoreRatingService) para no calcular el promedio en
+  // cada lectura. avgRating nunca supera 5 (clamp aplicado al escribir, no al leer).
+  avgRating?: number
+  ratingCount?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -135,6 +139,18 @@ export const vStoreModelAttributes: SequelizeAttributes<IStoreAttributes> = {
     allowNull: true,
     defaultValue: null,
   },
+  avgRating: {
+    type: DataTypes.FLOAT,
+    field: 'avg_rating',
+    allowNull: false,
+    defaultValue: 0,
+  },
+  ratingCount: {
+    type: DataTypes.INTEGER,
+    field: 'rating_count',
+    allowNull: false,
+    defaultValue: 0,
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -165,7 +181,7 @@ export function fxStoreFactory(sequelize: Sequelize) {
   })
 
   vStore.associate = function (models: ModelRegistry) {
-    const { modelStore, modelUser, modelCity, modelRegion, modelCountry, modelStoreSchedule, modelStoreProduct } = models
+    const { modelStore, modelUser, modelCity, modelRegion, modelCountry, modelStoreSchedule, modelStoreProduct, modelBusinessCategory, modelStoreBusinessCategory, modelStoreRating } = models
     modelStore.hasOne(modelUser, {
       sourceKey: 'ownerId',
       foreignKey: 'id',
@@ -195,6 +211,17 @@ export function fxStoreFactory(sequelize: Sequelize) {
       sourceKey: 'id',
       foreignKey: 'storeId',
       as: 'products',
+    })
+    modelStore.belongsToMany(modelBusinessCategory, {
+      through: modelStoreBusinessCategory,
+      foreignKey: 'storeId',
+      otherKey: 'businessCategoryId',
+      as: 'businessCategories',
+    })
+    modelStore.hasMany(modelStoreRating, {
+      sourceKey: 'id',
+      foreignKey: 'storeId',
+      as: 'ratings',
     })
   }
 

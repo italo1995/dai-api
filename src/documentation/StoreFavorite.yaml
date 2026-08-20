@@ -1,0 +1,74 @@
+paths:
+  /api/storeFavorite/add:
+    post:
+      summary: Agrega una tienda a mis favoritos (idempotente)
+      tags:
+        - StoreFavorite
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeId
+              properties:
+                storeId:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: storeId es requerido
+  /api/storeFavorite/remove:
+    post:
+      summary: Quita una tienda de mis favoritos
+      tags:
+        - StoreFavorite
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeId
+              properties:
+                storeId:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: storeId es requerido
+  /api/storeFavorite/all:
+    get:
+      summary: Lista paginada de mis tiendas favoritas
+      description: Mismo shape que /api/store/all (StorePublic), con isFavorite siempre en true
+      tags:
+        - StoreFavorite
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+            default: 1
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Success
+tags:
+  - name: StoreFavorite
+    description: 'Tiendas favoritas del usuario logueado. /api/store/all y /api/store/show tambien incluyen un campo isFavorite por tienda cuando la request trae un JWT valido (si no hay sesion, esa clave no aparece en la respuesta)'

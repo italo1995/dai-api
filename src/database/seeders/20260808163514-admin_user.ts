@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 // Credenciales de arranque para el primer login administrativo (rolId 1).
 // Cambiar la contraseña desde la app apenas se entre por primera vez.
+// const ADMIN_EMAIL = 'admin@payatraslados.com'
+// const ADMIN_PASSWORD = 'PayaAdmin2026*'
 const ADMIN_EMAIL = 'admin@daitraslados.com'
 const ADMIN_PASSWORD = 'DaiAdmin2026*'
 

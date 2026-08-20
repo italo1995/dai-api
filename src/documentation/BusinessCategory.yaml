@@ -1,0 +1,143 @@
+components:
+  schemas:
+    BusinessCategory:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - food
+            - market
+paths:
+  /api/businessCategory/all:
+    get:
+      summary: Lista publica de categorias de negocio (uso app y panel)
+      description: 'Categoriza la tienda en si (ej. Hamburguesas, Supermercado), no sus productos. Las crea unicamente el admin/operator. No pagina por defecto (son pocas) - devuelve un array plano. Si se envia ?page, devuelve el shape paginado: total, totalPage, actualPage, data (array de BusinessCategory)'
+      tags:
+        - BusinessCategory
+      parameters:
+        - in: query
+          name: type
+          required: false
+          schema:
+            type: string
+            enum:
+              - food
+              - market
+          description: Filtra por tipo. Sin este param trae food y market mezcladas
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+          description: Si se envia, activa la paginacion (sin este param devuelve el array completo sin paginar)
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: number
+            default: 10
+          description: Solo aplica si se envio page
+      responses:
+        '200':
+          description: Success
+  /api/businessCategory/show:
+    get:
+      summary: Trae una categoria por id
+      tags:
+        - BusinessCategory
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/businessCategory/allAdmin:
+    get:
+      summary: Lista paginada/buscable para el panel (solo admin/operator)
+      tags:
+        - BusinessCategory
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: type
+          required: false
+          schema:
+            type: string
+            enum:
+              - food
+              - market
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es admin/operator)
+  /api/businessCategory/store:
+    post:
+      summary: Crea una categoria de negocio (solo admin/operator)
+      tags:
+        - BusinessCategory
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessCategory'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es admin/operator)
+  /api/businessCategory/update:
+    post:
+      summary: Actualiza una categoria de negocio (solo admin/operator)
+      tags:
+        - BusinessCategory
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessCategory'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es admin/operator)
+  /api/businessCategory/delete:
+    post:
+      summary: Elimina (soft delete) una categoria de negocio (solo admin/operator)
+      description: Es paranoid - las tiendas que ya la tenian asignada dejan de mostrarla (el join respeta deletedAt), sin necesidad de limpiar la tabla puente
+      tags:
+        - BusinessCategory
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es admin/operator)
+tags:
+  - name: BusinessCategory
+    description: Categorias globales que categorizan la tienda en si (ej. Hamburguesas, Supermercado). Las crea el admin; el dueño solo elige entre las existentes al crear/editar su tienda. No confundir con las categorias de productos (storeCategory), que cada tienda maneja por su cuenta.

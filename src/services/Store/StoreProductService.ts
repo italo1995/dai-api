@@ -18,10 +18,9 @@
 */
 import { type FindOptions, Op } from 'sequelize'
 import type { IStoreProductInstance } from '../../models/Store/StoreProductModel'
-import { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory } from '../../models'
+import sequelize, { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory } from '../../models'
 import type { IStoreProductInput, IResponseAllStoreProduct, IStoreProductPublic } from '../../types/StoreProduct'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
-import sequelize from '../../models'
 
 // Campos seguros para exponer a un caller sin privilegios (app/cliente publico). Se usan tanto
 // en all() como para achicar la respuesta de show() cuando quien pregunta no es el dueno ni admin.

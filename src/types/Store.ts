@@ -16,6 +16,7 @@ export interface IStoreInput {
   countryId?: number
   isOpen?: boolean
   avgPrepTimeMinutes?: number
+  businessCategoryIds?: number[]
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -32,6 +33,12 @@ export interface IStorePublic {
   cityId?: number | null
   isOpen?: boolean
   avgPrepTimeMinutes?: number | null
+  avgRating?: number
+  ratingCount?: number
+  businessCategories?: { id: number; name: string }[]
+  // Solo viene si quien pregunta esta logueado (ver StoreController). Sin sesion, esta clave ni
+  // siquiera aparece en la respuesta.
+  isFavorite?: boolean
 }
 
 export interface IStoreApprovalInput {
@@ -43,5 +50,12 @@ export interface IResponseAllStore extends IResponseAll {
   total: number
   totalPage: number
   data: IStoreInstance[]
+  actualPage: number
+}
+
+export interface IResponseAllStorePublic extends IResponseAll {
+  total: number
+  totalPage: number
+  data: IStorePublic[]
   actualPage: number
 }

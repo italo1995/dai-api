@@ -1,6 +1,5 @@
 import { type Optional, type Sequelize, type Model, DataTypes } from 'sequelize'
 import type { SequelizeAttributes, ModelStatic } from '../../types/SequelizeTypes'
-import { v4 as uuidv4 } from 'uuid'
 
 export interface ICityAttributes {
   id: number
@@ -21,9 +20,10 @@ export interface ICityInstance
 
 export const vCityModelAttributes: SequelizeAttributes<ICityAttributes> = {
   id: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
+    field: 'id',
     primaryKey: true,
-    defaultValue: () => uuidv4(),
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,

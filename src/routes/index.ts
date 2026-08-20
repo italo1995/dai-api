@@ -45,6 +45,9 @@ import StoreScheduleRoute from './Store/StoreScheduleRoute'
 import StoreProductRoute from './Store/StoreProductRoute'
 import StoreDepartmentRoute from './Store/StoreDepartmentRoute'
 import StoreCategoryRoute from './Store/StoreCategoryRoute'
+import BusinessCategoryRoute from './Store/BusinessCategoryRoute'
+import StoreRatingRoute from './Store/StoreRatingRoute'
+import StoreFavoriteRoute from './Store/StoreFavoriteRoute'
 
 const router = express.Router()
 
@@ -94,5 +97,8 @@ router.use('/storeSchedule', StoreScheduleRoute)
 router.use('/storeProduct', StoreProductRoute)
 router.use('/storeDepartment', StoreDepartmentRoute)
 router.use('/storeCategory', StoreCategoryRoute)
+router.use('/businessCategory', BusinessCategoryRoute)
+router.use('/storeRating', StoreRatingRoute)
+router.use('/storeFavorite', StoreFavoriteRoute)
 
 export default router

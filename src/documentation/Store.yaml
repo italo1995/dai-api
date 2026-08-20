@@ -50,13 +50,98 @@ components:
         avgPrepTimeMinutes:
           type: number
           nullable: true
+        businessCategoryIds:
+          type: array
+          items:
+            type: number
+          description: 'Al crear/editar: ids de BusinessCategory a asignar. Requerido, minimo 1, y todos deben ser del mismo type que la tienda'
+    StorePublic:
+      type: object
+      description: Shape que devuelven /api/store/all y /api/store/show cuando quien pregunta no es el dueño ni admin/operator
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - food
+            - market
+        logo:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          nullable: true
+        lon:
+          type: number
+          nullable: true
+        cityId:
+          type: number
+          nullable: true
+        isOpen:
+          type: boolean
+        avgPrepTimeMinutes:
+          type: number
+          nullable: true
+        avgRating:
+          type: number
+          description: Denormalizado desde store_ratings, nunca supera 5
+        ratingCount:
+          type: number
+        businessCategories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              name:
+                type: string
+        isFavorite:
+          type: boolean
+          description: Solo presente si la request trae un JWT valido (Authorization header). Sin sesion, esta clave no aparece en la respuesta
 paths:
   /api/store/all:
     get:
-      summary: Lista publica de tiendas aprobadas (uso app)
-      description: Solo tiendas con isApproved=true, con los campos minimos para renderizar (sin timestamps, sin datos administrativos)
+      summary: Lista publica de tiendas aprobadas, paginada (uso app)
+      description: 'Solo tiendas con isApproved=true, con los campos minimos para renderizar (sin timestamps, sin datos administrativos). Respuesta paginada: total, totalPage, actualPage, data (array de StorePublic)'
       tags:
         - Store
+      parameters:
+        - in: query
+          name: type
+          required: false
+          schema:
+            type: string
+            enum:
+              - food
+              - market
+        - in: query
+          name: search
+          required: false
+          schema:
+            type: string
+          description: Busca por nombre (contiene, sin importar mayusculas)
+        - in: query
+          name: categoryId
+          required: false
+          schema:
+            type: string
+          description: 'Uno o varios ids de BusinessCategory separados por coma (ej: 1,3). Trae tiendas que tengan al menos una'
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: number
+            default: 10
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+            default: 1
       responses:
         '200':
           description: Success

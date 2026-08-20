@@ -70,7 +70,7 @@ class CityController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICityInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone'])
+      const vData: ICityInput = pReq.only(['name', 'flag', 'regionId', 'state', 'phone'])
 
       const vResponse: ICityInstance | null = await ClassCityService.create(vData)
       if (!vResponse) {
@@ -80,13 +80,14 @@ class CityController {
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
+      console.log('error :>> ', error)
       pNext(error)
     }
   }
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICityUpdate = pReq.only(['id', 'name', 'flag', 'phoneCode', 'state', 'phone'])
+      const vData: ICityUpdate = pReq.only(['id', 'name', 'flag', 'regionId', 'state', 'phone'])
       const vResponse: ICityInstance | null = await ClassCityService.update(vData)
       if (!vResponse) {
         return pRes

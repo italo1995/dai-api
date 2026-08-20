@@ -1,0 +1,141 @@
+components:
+  schemas:
+    StoreRating:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+        userId:
+          type: string
+        orderId:
+          type: number
+          nullable: true
+          description: Reservado para cuando exista el modulo de Ordenes del marketplace. No se valida todavia
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+paths:
+  /api/storeRating/all:
+    get:
+      summary: Lista publica de comentarios de una tienda, paginada (uso app)
+      description: El promedio/cantidad para mostrar en la tienda NO sale de aca - ya vienen en Store.avgRating/ratingCount. Este endpoint es solo para listar los comentarios
+      tags:
+        - StoreRating
+      parameters:
+        - in: query
+          name: storeId
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+            default: 1
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: storeId es requerido
+  /api/storeRating/show:
+    get:
+      summary: Trae una calificacion por id
+      tags:
+        - StoreRating
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeRating/allAdmin:
+    get:
+      summary: Lista paginada/buscable para moderacion (solo admin/operator)
+      tags:
+        - StoreRating
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: storeId
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es admin/operator)
+  /api/storeRating/rate:
+    post:
+      summary: Crea o actualiza la calificacion del usuario logueado para una tienda
+      description: 'Un usuario tiene una sola calificacion por tienda: si ya calico, esto la actualiza (rating y comment) en vez de crear una nueva. No exige una orden real (no existe aun el modulo de Ordenes) - cualquier cliente logueado puede calificar cualquier tienda. Recalcula Store.avgRating/ratingCount automaticamente'
+      tags:
+        - StoreRating
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeId
+                - rating
+              properties:
+                storeId:
+                  type: number
+                rating:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: storeId y rating son requeridos, o rating fuera de rango 1-5
+  /api/storeRating/delete:
+    post:
+      summary: Elimina (soft delete) una calificacion - moderacion (solo admin/operator)
+      description: Recalcula Store.avgRating/ratingCount al borrar
+      tags:
+        - StoreRating
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado (no es admin/operator)
+tags:
+  - name: StoreRating
+    description: Calificaciones de tiendas (1-5 estrellas + comentario opcional). El promedio/cantidad para mostrar viven denormalizados en Store (avgRating/ratingCount), no hace falta consultar esta tabla para eso.
