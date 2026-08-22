@@ -8,6 +8,9 @@ export interface ICartItemAttributes {
   productId: number
   quantity: number
   notes?: string | null
+  // Snapshot del precio unitario (producto + modificadores) al momento de agregar/editar la
+  // seleccion - se compara contra el precio en vivo en el show() para avisar si cambio.
+  unitPriceAtAdd?: number | null
   createdAt?: Date
   updatedAt?: Date
 }
@@ -55,6 +58,12 @@ export const vCartItemModelAttributes: SequelizeAttributes<ICartItemAttributes> 
   notes: {
     type: DataTypes.STRING,
     field: 'notes',
+    allowNull: true,
+    defaultValue: null,
+  },
+  unitPriceAtAdd: {
+    type: DataTypes.DOUBLE,
+    field: 'unit_price_at_add',
     allowNull: true,
     defaultValue: null,
   },

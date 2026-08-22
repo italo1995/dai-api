@@ -79,6 +79,18 @@ class CartService {
     }
   }
 
+  // Precio unitario (producto + suma de extraPrice de los modificadores elegidos) en este
+  // momento - se usa tanto para el snapshot al agregar/editar como para el calculo en vivo del
+  // show(), asi ambos numeros salen exactamente de la misma cuenta.
+  private async fxComputeUnitPrice(pProductPrice: number, pModifierIds: number[]): Promise<number> {
+    if (!pModifierIds.length) {
+      return pProductPrice
+    }
+    const vModifiers = await modelStoreProductModifier.findAll({ where: { id: pModifierIds } })
+    const vExtraPrice = vModifiers.reduce((pSum, pModifier) => pSum + (pModifier.dataValues.extraPrice || 0), 0)
+    return pProductPrice + vExtraPrice
+  }
+
   private async fxSetItemModifiers(pCartItemId: number, pModifierIds: number[]) {
     await sequelize.transaction(async (pTransaction) => {
       await modelCartItemModifier.destroy({ where: { cartItemId: pCartItemId }, transaction: pTransaction })
@@ -114,11 +126,13 @@ class CartService {
     // alta si el cliente no eligio nada ahi - no solo cuando manda un array no vacio.
     const vModifierIds = pData.modifierIds ?? []
     await this.fxValidateModifierSelection(pData.productId, vModifierIds)
+    const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, vModifierIds)
     const vItem = await modelCartItem.create({
       cartId: vCart.dataValues.id,
       productId: pData.productId,
       quantity: pData.quantity && pData.quantity > 0 ? pData.quantity : 1,
       notes: pData.notes ?? null,
+      unitPriceAtAdd: vUnitPriceAtAdd,
     })
     if (vModifierIds.length) {
       await this.fxSetItemModifiers(vItem.dataValues.id, vModifierIds)
@@ -144,6 +158,13 @@ class CartService {
       // Idem addItem: se valida siempre que el cliente toque la seleccion, incluso si manda [].
       await this.fxValidateModifierSelection(vItem.dataValues.productId, pData.modifierIds)
       await this.fxSetItemModifiers(vItem.dataValues.id, pData.modifierIds)
+      // El cliente esta reconfirmando la seleccion ahora mismo - se retoma el snapshot del
+      // precio para que priceChanged se calcule desde este momento, no desde el alta original.
+      const vProduct = await modelStoreProduct.findByPk(vItem.dataValues.productId)
+      if (vProduct) {
+        const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, pData.modifierIds)
+        await vItem.update({ unitPriceAtAdd: vUnitPriceAtAdd })
+      }
     }
     return this.show(pUserId)
   }
@@ -203,6 +224,14 @@ class CartService {
         .filter(Boolean)
       const vExtraPrice = vModifiers.reduce((pSum: number, pModifier: any) => pSum + (pModifier.extraPrice || 0), 0)
       const vUnitPrice = (vProduct?.price || 0) + vExtraPrice
+      // Se compara contra el snapshot tomado al agregar/editar la seleccion (unitPriceAtAdd) -
+      // si el producto o algun modificador cambio de precio en el medio, esto lo detecta. No
+      // aplica si el producto quedo no disponible (ahi no hay "precio actual" confiable).
+      const vPriceChanged =
+        !vUnavailable &&
+        vItemData.unitPriceAtAdd !== null &&
+        vItemData.unitPriceAtAdd !== undefined &&
+        Math.abs(vItemData.unitPriceAtAdd - vUnitPrice) > 0.001
       return {
         id: vItemData.id,
         productId: vItemData.productId,
@@ -219,6 +248,8 @@ class CartService {
         unitPrice: vUnitPrice,
         subtotal: vUnitPrice * vItemData.quantity,
         unavailable: vUnavailable,
+        priceChanged: vPriceChanged,
+        ...(vPriceChanged ? { previousUnitPrice: vItemData.unitPriceAtAdd } : {}),
       }
     })
     const vTotal = vItems

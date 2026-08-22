@@ -41,6 +41,10 @@ export interface ICartItemPublic {
   subtotal: number
   // true si el producto fue borrado o quedo no disponible despues de agregarlo al carrito
   unavailable: boolean
+  // true si unitPrice cambio desde que se agrego/edito la seleccion de modificadores
+  priceChanged: boolean
+  // solo presente si priceChanged=true - el unitPrice que tenia en ese momento
+  previousUnitPrice?: number
 }
 
 export interface ICartPublic {

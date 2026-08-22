@@ -48,6 +48,12 @@ components:
         unavailable:
           type: boolean
           description: true si el producto se borro o quedo no disponible despues de agregarlo al carrito - no se descuenta del total
+        priceChanged:
+          type: boolean
+          description: true si unitPrice cambio desde que se agrego o se edito por ultima vez la seleccion de modificadores de este item
+        previousUnitPrice:
+          type: number
+          description: Solo presente si priceChanged=true - el unitPrice que tenia en ese momento
     CartPublic:
       type: object
       properties:
