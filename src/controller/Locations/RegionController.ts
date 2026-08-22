@@ -70,7 +70,14 @@ class RegionController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IRegionInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone'])
+      const vData: IRegionInput = pReq.only([
+        'name',
+        'flag',
+        'phoneCode',
+        'state',
+        'phone',
+        'countryId',
+      ])
 
       const vResponse: IRegionInstance | null = await ClassRegionService.create(vData)
       if (!vResponse) {
@@ -86,7 +93,15 @@ class RegionController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: IRegionUpdate = pReq.only(['id', 'name', 'flag', 'phoneCode', 'state', 'phone'])
+      const vData: IRegionUpdate = pReq.only([
+        'id',
+        'name',
+        'flag',
+        'phoneCode',
+        'state',
+        'phone',
+        'countryId',
+      ])
       const vResponse: IRegionInstance | null = await ClassRegionService.update(vData)
       if (!vResponse) {
         return pRes

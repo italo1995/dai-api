@@ -22,7 +22,7 @@ Para todo los caso si ocurre cualquier error, lo envia usando NextFunction al mi
 import type { NextFunction, Request, Response } from 'express'
 import ClassCurrencyService from '../../services/Payments/CurrencyService'
 import type { ICurrencyInput, IResponseAllCurrency } from '../../types/CurrencyType'
-import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
+import { fxSuccessResponse, fxErrorResponse, moveImages } from '../../utils/helpers'
 import type { ICurrencyInstance } from '../../models/payments/CurrencyModel'
 
 class CurrencyController {
@@ -60,6 +60,9 @@ class CurrencyController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: ICurrencyInput = pReq.only(['name', 'symbol', 'change', 'type', 'auto', 'icon'])
+      if (vData?.icon && vData.icon.includes('temp')) {
+        vData.icon = await moveImages(vData.icon)
+      }
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.create(vData)
       if (!vResponse) {
         return pRes
@@ -83,6 +86,9 @@ class CurrencyController {
         'auto',
         'icon',
       ])
+      if (vData?.icon && vData.icon.includes('temp')) {
+        vData.icon = await moveImages(vData.icon)
+      }
       const vResponse: ICurrencyInstance | null = await ClassCurrencyService.update(vData)
       if (!vResponse) {
         return pRes
