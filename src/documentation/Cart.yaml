@@ -1,0 +1,193 @@
+components:
+  schemas:
+    CartItemModifierPublic:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        extraPrice:
+          type: number
+    CartItemPublic:
+      type: object
+      properties:
+        id:
+          type: number
+        productId:
+          type: number
+        product:
+          type: object
+          nullable: true
+          description: null solo si el producto fue borrado
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            image:
+              type: string
+              nullable: true
+            price:
+              type: number
+        quantity:
+          type: number
+        notes:
+          type: string
+          nullable: true
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItemModifierPublic'
+        unitPrice:
+          type: number
+          description: Precio de una unidad (producto + modificadores), calculado en vivo con el catalogo actual
+        subtotal:
+          type: number
+          description: unitPrice * quantity
+        unavailable:
+          type: boolean
+          description: true si el producto se borro o quedo no disponible despues de agregarlo al carrito - no se descuenta del total
+    CartPublic:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+          nullable: true
+          description: null si el carrito esta vacio. Se fija con el primer producto que se agrega
+        store:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            logo:
+              type: string
+              nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItemPublic'
+        total:
+          type: number
+          description: Suma de los subtotales de los items disponibles (los unavailable no se cuentan)
+paths:
+  /api/cart/show:
+    get:
+      summary: Trae el carrito del usuario logueado
+      description: Si todavia no tiene carrito, se crea uno vacio (storeId null, items []) - nunca devuelve 404
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartPublic'
+  /api/cart/addItem:
+    post:
+      summary: Agrega un producto al carrito
+      description: 'Si el carrito ya tiene productos de OTRA tienda, devuelve 409 salvo que se mande replaceStore=true (vacia el carrito y agrega este item). modifierIds se valida contra los grupos del producto (required/minSelections/maxSelections)'
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+              properties:
+                productId:
+                  type: number
+                quantity:
+                  type: number
+                  default: 1
+                modifierIds:
+                  type: array
+                  items:
+                    type: number
+                notes:
+                  type: string
+                replaceStore:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Success
+        '409':
+          description: El carrito tiene productos de otra tienda (mandar replaceStore=true para vaciar y agregar igual)
+  /api/cart/updateItem:
+    post:
+      summary: Cambia la cantidad y/o los modificadores de un item ya agregado
+      description: modifierIds reemplaza toda la seleccion anterior (mismo patron que categoryIds en productos) - no se manda, no se toca
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cartItemId
+              properties:
+                cartItemId:
+                  type: number
+                quantity:
+                  type: number
+                  description: Minimo 1 - para quitar el item usar /removeItem
+                modifierIds:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Success
+  /api/cart/removeItem:
+    post:
+      summary: Quita un item del carrito
+      description: Si era el ultimo item, el carrito vuelve a quedar sin tienda asignada (storeId null)
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cartItemId
+              properties:
+                cartItemId:
+                  type: number
+      responses:
+        '200':
+          description: Success
+  /api/cart/clear:
+    post:
+      summary: Vacia el carrito completo
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+tags:
+  - name: Cart
+    description: Carrito de compra del usuario logueado. Una sola tienda por carrito (el delivery es 1 orden = 1 tienda). Los precios se calculan en vivo desde el catalogo actual, no se guarda snapshot - eso se hace recien cuando el carrito se convierte en Order (modulo futuro)

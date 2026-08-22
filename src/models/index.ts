@@ -62,6 +62,9 @@ import { fxStoreFavoriteFactory } from './Store/StoreFavoriteModel'
 import { fxStoreProductModifierGroupFactory } from './Store/StoreProductModifierGroupModel'
 import { fxStoreProductModifierFactory } from './Store/StoreProductModifierModel'
 import { fxStoreProductImageFactory } from './Store/StoreProductImageModel'
+import { fxCartFactory } from './Cart/CartModel'
+import { fxCartItemFactory } from './Cart/CartItemModel'
+import { fxCartItemModifierFactory } from './Cart/CartItemModifierModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -130,6 +133,9 @@ export const modelStoreFavorite = fxStoreFavoriteFactory(sequelize)
 export const modelStoreProductModifierGroup = fxStoreProductModifierGroupFactory(sequelize)
 export const modelStoreProductModifier = fxStoreProductModifierFactory(sequelize)
 export const modelStoreProductImage = fxStoreProductImageFactory(sequelize)
+export const modelCart = fxCartFactory(sequelize)
+export const modelCartItem = fxCartItemFactory(sequelize)
+export const modelCartItemModifier = fxCartItemModifierFactory(sequelize)
 
 const models = {
   modelUser,
@@ -191,6 +197,9 @@ const models = {
   modelStoreProductModifierGroup,
   modelStoreProductModifier,
   modelStoreProductImage,
+  modelCart,
+  modelCartItem,
+  modelCartItemModifier,
 }
 
 export type ModelRegistry = typeof models
