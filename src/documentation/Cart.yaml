@@ -74,6 +74,17 @@ components:
             logo:
               type: string
               nullable: true
+        currency:
+          type: object
+          nullable: true
+          description: 'Moneda en la que estan expresados total/discount/grandTotal - se toma de los productos del carrito (todo el catalogo de una tienda comparte moneda en la practica). null si el carrito esta vacio'
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            symbol:
+              type: string
         items:
           type: array
           items:

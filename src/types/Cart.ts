@@ -59,6 +59,14 @@ export interface ICartPublic {
     name: string
     logo?: string | null
   } | null
+  // moneda en la que estan expresados total/discount/grandTotal - se toma de los productos del
+  // carrito (todos los productos de una tienda comparten moneda en la practica). null si el
+  // carrito esta vacio (todavia no hay de donde tomarla)
+  currency: {
+    id: number
+    name: string
+    symbol: string
+  } | null
   items: ICartItemPublic[]
   // suma de los subtotales de los items disponibles (los no disponibles no se cuentan)
   total: number

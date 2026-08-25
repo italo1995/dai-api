@@ -5,7 +5,7 @@
   se calculan en vivo en cada show() a partir del catalogo actual - no se guarda ningun snapshot
   aca, eso se hace recien cuando el carrito se convierta en Order (modulo futuro).
 */
-import { modelCart, modelCartItem, modelCartItemModifier, modelCoupon, modelStore, modelStoreProduct, modelStoreProductModifierGroup, modelStoreProductModifier } from '../../models'
+import { modelCart, modelCartItem, modelCartItemModifier, modelCoupon, modelCurrency, modelStore, modelStoreProduct, modelStoreProductModifierGroup, modelStoreProductModifier } from '../../models'
 import sequelize from '../../models'
 import type { ICartInstance } from '../../models/Cart/CartModel'
 import { ECouponType } from '../../models/Coupon/CouponModel'
@@ -26,7 +26,8 @@ const vCartItemInclude = [
   {
     model: modelStoreProduct,
     as: 'product',
-    attributes: ['id', 'name', 'image', 'price', 'isAvailable', 'storeId'],
+    attributes: ['id', 'name', 'image', 'price', 'isAvailable', 'storeId', 'currencyId'],
+    include: [{ model: modelCurrency, as: 'currency', attributes: ['id', 'name', 'symbol'] }],
   },
   {
     model: modelCartItemModifier,
@@ -269,6 +270,16 @@ class CartService {
         { model: modelCoupon, as: 'coupon' },
       ],
     })
+    // Se toma la moneda del primer item que tenga producto vigente - en la practica todo el
+    // catalogo de una tienda comparte moneda, y el carrito ya es de una sola tienda a la vez.
+    let vCurrency: { id: number; name: string; symbol: string } | null = null
+    for (const pItem of vFullCart.dataValues.items ?? []) {
+      const vCurrencyData = pItem.dataValues.product?.dataValues?.currency?.dataValues
+      if (vCurrencyData) {
+        vCurrency = { id: vCurrencyData.id, name: vCurrencyData.name, symbol: vCurrencyData.symbol }
+        break
+      }
+    }
     const vItems: ICartItemPublic[] = (vFullCart.dataValues.items ?? []).map((pItem: any) => {
       const vItemData = pItem.dataValues
       const vProduct = vItemData.product?.dataValues
@@ -328,6 +339,7 @@ class CartService {
             logo: vFullCart.dataValues.store.dataValues.logo,
           }
         : null,
+      currency: vCurrency,
       items: vItems,
       total: vTotal,
       coupon: vCouponData
