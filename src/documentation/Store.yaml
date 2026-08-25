@@ -118,6 +118,9 @@ components:
         isFavorite:
           type: boolean
           description: Solo presente si la request trae un JWT valido (Authorization header). Sin sesion, esta clave no aparece en la respuesta
+        distanceKm:
+          type: number
+          description: Solo presente si la request mando lat y lon - distancia en linea recta en kilometros
 paths:
   /api/store/all:
     get:
@@ -146,6 +149,25 @@ paths:
           schema:
             type: string
           description: 'Uno o varios ids de BusinessCategory separados por coma (ej: 1,3). Trae tiendas que tengan al menos una'
+        - in: query
+          name: lat
+          required: false
+          schema:
+            type: number
+          description: 'Latitud del cliente. Si se manda junto con lon, filtra tiendas dentro de radiusKm y ordena por cercania (mas cerca primero) en vez del orden por defecto. Tiendas sin lat/lon cargado quedan afuera'
+        - in: query
+          name: lon
+          required: false
+          schema:
+            type: number
+          description: Longitud del cliente. Ver lat
+        - in: query
+          name: radiusKm
+          required: false
+          schema:
+            type: number
+            default: 15
+          description: Solo aplica si se mando lat/lon. Radio de busqueda en kilometros
         - in: query
           name: limit
           required: false

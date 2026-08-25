@@ -55,6 +55,11 @@ export function fxToPublicStore(pStore: IStoreInstance, pFavoriteStoreIds?: Set<
   if (pFavoriteStoreIds) {
     vPublic.isFavorite = pFavoriteStoreIds.has(vData.id)
   }
+  // Solo esta presente cuando all() se llamo con lat/lon (ver StoreService.all) - Postgres lo
+  // devuelve como string, se normaliza a number para que la app no tenga que parsearlo
+  if (vData.distanceKm !== undefined && vData.distanceKm !== null) {
+    vPublic.distanceKm = Number(vData.distanceKm)
+  }
   return vPublic as IStorePublic
 }
 
@@ -136,14 +141,49 @@ class StoreService implements IStoreService {
         }
       }
 
+      // Busqueda/orden por cercania. El calculo exacto (Haversine) es relativamente caro si se
+      // corre sobre toda la tabla, asi que primero se recorta con un bounding-box (un simple
+      // rango de lat/lon, que si usa el indice stores_lat_lon_idx) y recien sobre ese subconjunto
+      // chico se pide a Postgres que calcule y ordene por distancia real - nunca se trae todo a
+      // Node para calcular ahi (eso si bloquearia el event loop con muchas tiendas/pedidos
+      // concurrentes).
+      const vLat = Number(pParam?.lat)
+      const vLon = Number(pParam?.lon)
+      const vHasGeo = pParam?.lat !== undefined && pParam?.lon !== undefined && !Number.isNaN(vLat) && !Number.isNaN(vLon)
+      let vOrder: any = [['id', 'DESC']]
+      let vDistanceAttribute: any = null
+      if (vHasGeo) {
+        const vRadiusKm = Number(pParam?.radiusKm) > 0 ? Number(pParam.radiusKm) : 15
+        const vLatDelta = vRadiusKm / 111.32
+        const vLonDelta = vRadiusKm / (111.32 * Math.max(Math.cos((vLat * Math.PI) / 180), 0.01))
+        vWhere.lat = { [Op.between]: [vLat - vLatDelta, vLat + vLatDelta] }
+        vWhere.lon = { [Op.between]: [vLon - vLonDelta, vLon + vLonDelta] }
+        // Formula de Haversine (grados -> radianes, distancia sobre una esfera de radio 6371km).
+        // Se usa asin(sqrt(...)) en vez de acos(...) porque es numericamente mas estable cerca de
+        // distancia 0 (acos puede devolver NaN por errores de redondeo cuando el argumento se
+        // pasa levemente de 1).
+        vDistanceAttribute = sequelize.literal(
+          `6371 * 2 * asin(sqrt(
+            power(sin(radians("Store"."lat" - ${vLat}) / 2), 2) +
+            cos(radians(${vLat})) * cos(radians("Store"."lat")) *
+            power(sin(radians("Store"."lon" - ${vLon}) / 2), 2)
+          ))`
+        )
+        vOrder = [[sequelize.literal('"distanceKm"'), 'ASC']]
+      }
+
       const vCount: number = await modelStore.count({ where: vWhere })
-      const vResponse: IStoreInstance[] = await modelStore.findAll({
+      const vFindOptions: any = {
         where: vWhere,
         include: [vStoreBusinessCategoryInclude],
-        order: [['id', 'DESC']],
+        order: vOrder,
         limit: vLimit,
         offset: vOffset,
-      })
+      }
+      if (vDistanceAttribute) {
+        vFindOptions.attributes = { include: [[vDistanceAttribute, 'distanceKm']] }
+      }
+      const vResponse: IStoreInstance[] = await modelStore.findAll(vFindOptions)
 
       const vFavoriteIds = pUserId
         ? await fxGetFavoriteStoreIdSet(pUserId, vResponse.map((pStore) => pStore.dataValues.id))

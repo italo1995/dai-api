@@ -43,6 +43,9 @@ export interface IStorePublic {
   // Solo viene si quien pregunta esta logueado (ver StoreController). Sin sesion, esta clave ni
   // siquiera aparece en la respuesta.
   isFavorite?: boolean
+  // Solo viene si el request mando lat/lon (busqueda por cercania) - distancia en linea recta
+  // en kilometros entre esas coordenadas y la tienda
+  distanceKm?: number
 }
 
 export interface IStoreApprovalInput {
