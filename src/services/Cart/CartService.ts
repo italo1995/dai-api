@@ -9,7 +9,13 @@ import { modelCart, modelCartItem, modelCartItemModifier, modelCoupon, modelCurr
 import sequelize from '../../models'
 import type { ICartInstance } from '../../models/Cart/CartModel'
 import { ECouponType } from '../../models/Coupon/CouponModel'
-import type { IAddCartItemInput, ICartItemPublic, ICartPublic, IUpdateCartItemInput } from '../../types/Cart'
+import type {
+  IAddCartItemInput,
+  ICartItemPublic,
+  ICartModifierSelection,
+  ICartPublic,
+  IUpdateCartItemInput,
+} from '../../types/Cart'
 
 // Error esperado (datos invalidos / conflicto de negocio) - el controller lo distingue de un
 // crash real por el nombre de la clase, y responde con pCode en vez de reventar con un 500.
@@ -51,26 +57,44 @@ class CartService {
     return vCart
   }
 
-  // Valida que los modifierIds elegidos existan para ese producto y respeten required/min/max de
-  // cada grupo. Tira CartError (400) con un mensaje claro en vez de guardar datos inconsistentes.
-  private async fxValidateModifierSelection(pProductId: number, pModifierIds: number[]) {
+  // Valida que los modificadores elegidos existan para ese producto, respeten required/min/max
+  // de cada grupo, y que la cantidad pedida de cada uno no pase su maxQuantity (ej: "Queso extra"
+  // permite hasta 3x). Tira CartError (400) con un mensaje claro en vez de guardar datos
+  // inconsistentes. Devuelve la seleccion normalizada (quantity siempre presente, default 1) para
+  // que el caller no tenga que repetir la logica de default.
+  private async fxValidateModifierSelection(
+    pProductId: number,
+    pSelections: ICartModifierSelection[]
+  ): Promise<Required<ICartModifierSelection>[]> {
     const vGroups = await modelStoreProductModifierGroup.findAll({
       where: { productId: pProductId },
       include: [{ model: modelStoreProductModifier, as: 'modifiers' }],
     })
-    const vAllModifierIds = new Set<number>()
+    const vModifierById = new Map<number, { name: string; maxQuantity: number }>()
     vGroups.forEach((pGroup: any) => {
-      ;(pGroup.dataValues.modifiers ?? []).forEach((pModifier: any) => vAllModifierIds.add(pModifier.id))
+      ;(pGroup.dataValues.modifiers ?? []).forEach((pModifier: any) => {
+        vModifierById.set(pModifier.id, { name: pModifier.name, maxQuantity: pModifier.maxQuantity || 1 })
+      })
     })
-    for (const vId of pModifierIds) {
-      if (!vAllModifierIds.has(vId)) {
-        throw new CartError(`El modificador ${vId} no pertenece a este producto`)
+    const vNormalized: Required<ICartModifierSelection>[] = []
+    for (const vSelection of pSelections) {
+      const vModifier = vModifierById.get(vSelection.modifierId)
+      if (!vModifier) {
+        throw new CartError(`El modificador ${vSelection.modifierId} no pertenece a este producto`)
       }
+      const vQuantity =
+        vSelection.quantity && vSelection.quantity > 0 ? Math.floor(vSelection.quantity) : 1
+      if (vQuantity > vModifier.maxQuantity) {
+        throw new CartError(`"${vModifier.name}" permite como maximo ${vModifier.maxQuantity} unidad(es)`)
+      }
+      vNormalized.push({ modifierId: vSelection.modifierId, quantity: vQuantity })
     }
     for (const vGroup of vGroups) {
       const vGroupData: any = vGroup.dataValues
       const vGroupModifierIds = new Set((vGroupData.modifiers ?? []).map((pModifier: any) => pModifier.id))
-      const vSelectedInGroup = pModifierIds.filter((pId) => vGroupModifierIds.has(pId))
+      // El min/max de un grupo cuenta OPCIONES distintas elegidas, no unidades totales - pedir
+      // 3x "Queso extra" sigue contando como 1 sola opcion elegida en su grupo.
+      const vSelectedInGroup = vNormalized.filter((pSelection) => vGroupModifierIds.has(pSelection.modifierId))
       const vMinRequired = vGroupData.required ? Math.max(1, vGroupData.minSelections) : vGroupData.minSelections
       if (vSelectedInGroup.length < vMinRequired) {
         throw new CartError(`Debes elegir al menos ${vMinRequired} opcion(es) de "${vGroupData.name}"`)
@@ -79,26 +103,37 @@ class CartService {
         throw new CartError(`Podes elegir como maximo ${vGroupData.maxSelections} opcion(es) de "${vGroupData.name}"`)
       }
     }
+    return vNormalized
   }
 
-  // Precio unitario (producto + suma de extraPrice de los modificadores elegidos) en este
-  // momento - se usa tanto para el snapshot al agregar/editar como para el calculo en vivo del
-  // show(), asi ambos numeros salen exactamente de la misma cuenta.
-  private async fxComputeUnitPrice(pProductPrice: number, pModifierIds: number[]): Promise<number> {
-    if (!pModifierIds.length) {
+  // Precio unitario (producto + suma de extraPrice*quantity de los modificadores elegidos) en
+  // este momento - se usa tanto para el snapshot al agregar/editar como para el calculo en vivo
+  // del show(), asi ambos numeros salen exactamente de la misma cuenta.
+  private async fxComputeUnitPrice(pProductPrice: number, pSelections: Required<ICartModifierSelection>[]): Promise<number> {
+    if (!pSelections.length) {
       return pProductPrice
     }
-    const vModifiers = await modelStoreProductModifier.findAll({ where: { id: pModifierIds } })
-    const vExtraPrice = vModifiers.reduce((pSum, pModifier) => pSum + (pModifier.dataValues.extraPrice || 0), 0)
+    const vModifiers = await modelStoreProductModifier.findAll({
+      where: { id: pSelections.map((pSelection) => pSelection.modifierId) },
+    })
+    const vPriceById = new Map(vModifiers.map((pModifier) => [pModifier.dataValues.id, pModifier.dataValues.extraPrice || 0]))
+    const vExtraPrice = pSelections.reduce(
+      (pSum, pSelection) => pSum + (vPriceById.get(pSelection.modifierId) || 0) * pSelection.quantity,
+      0
+    )
     return pProductPrice + vExtraPrice
   }
 
-  private async fxSetItemModifiers(pCartItemId: number, pModifierIds: number[]) {
+  private async fxSetItemModifiers(pCartItemId: number, pSelections: Required<ICartModifierSelection>[]) {
     await sequelize.transaction(async (pTransaction) => {
       await modelCartItemModifier.destroy({ where: { cartItemId: pCartItemId }, transaction: pTransaction })
-      if (pModifierIds.length) {
+      if (pSelections.length) {
         await modelCartItemModifier.bulkCreate(
-          pModifierIds.map((pModifierId) => ({ cartItemId: pCartItemId, modifierId: pModifierId })),
+          pSelections.map((pSelection) => ({
+            cartItemId: pCartItemId,
+            modifierId: pSelection.modifierId,
+            quantity: pSelection.quantity,
+          })),
           { transaction: pTransaction }
         )
       }
@@ -124,11 +159,10 @@ class CartService {
     if (vCart.dataValues.storeId !== vProductStoreId) {
       await vCart.update({ storeId: vProductStoreId })
     }
-    // Se valida siempre (aunque no vengan modifierIds) para que un grupo required rechace el
+    // Se valida siempre (aunque no vengan modifiers) para que un grupo required rechace el
     // alta si el cliente no eligio nada ahi - no solo cuando manda un array no vacio.
-    const vModifierIds = pData.modifierIds ?? []
-    await this.fxValidateModifierSelection(pData.productId, vModifierIds)
-    const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, vModifierIds)
+    const vSelections = await this.fxValidateModifierSelection(pData.productId, pData.modifiers ?? [])
+    const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, vSelections)
     const vItem = await modelCartItem.create({
       cartId: vCart.dataValues.id,
       productId: pData.productId,
@@ -136,8 +170,8 @@ class CartService {
       notes: pData.notes ?? null,
       unitPriceAtAdd: vUnitPriceAtAdd,
     })
-    if (vModifierIds.length) {
-      await this.fxSetItemModifiers(vItem.dataValues.id, vModifierIds)
+    if (vSelections.length) {
+      await this.fxSetItemModifiers(vItem.dataValues.id, vSelections)
     }
     return this.show(pUserId)
   }
@@ -156,15 +190,15 @@ class CartService {
       }
       await vItem.update({ quantity: pData.quantity })
     }
-    if (pData.modifierIds !== undefined) {
+    if (pData.modifiers !== undefined) {
       // Idem addItem: se valida siempre que el cliente toque la seleccion, incluso si manda [].
-      await this.fxValidateModifierSelection(vItem.dataValues.productId, pData.modifierIds)
-      await this.fxSetItemModifiers(vItem.dataValues.id, pData.modifierIds)
+      const vSelections = await this.fxValidateModifierSelection(vItem.dataValues.productId, pData.modifiers)
+      await this.fxSetItemModifiers(vItem.dataValues.id, vSelections)
       // El cliente esta reconfirmando la seleccion ahora mismo - se retoma el snapshot del
       // precio para que priceChanged se calcule desde este momento, no desde el alta original.
       const vProduct = await modelStoreProduct.findByPk(vItem.dataValues.productId)
       if (vProduct) {
-        const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, pData.modifierIds)
+        const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, vSelections)
         await vItem.update({ unitPriceAtAdd: vUnitPriceAtAdd })
       }
     }
@@ -285,9 +319,22 @@ class CartService {
       const vProduct = vItemData.product?.dataValues
       const vUnavailable = !vProduct || vProduct.isAvailable === false
       const vModifiers = (vItemData.modifiers ?? [])
-        .map((pModifierRow: any) => pModifierRow.dataValues.modifier?.dataValues)
+        .map((pModifierRow: any) => {
+          const vModifierData = pModifierRow.dataValues.modifier?.dataValues
+          if (!vModifierData) {
+            return null
+          }
+          const vQuantity = pModifierRow.dataValues.quantity || 1
+          return {
+            id: vModifierData.id,
+            name: vModifierData.name,
+            extraPrice: vModifierData.extraPrice,
+            quantity: vQuantity,
+            subtotal: vModifierData.extraPrice * vQuantity,
+          }
+        })
         .filter(Boolean)
-      const vExtraPrice = vModifiers.reduce((pSum: number, pModifier: any) => pSum + (pModifier.extraPrice || 0), 0)
+      const vExtraPrice = vModifiers.reduce((pSum: number, pModifier: any) => pSum + pModifier.subtotal, 0)
       const vUnitPrice = (vProduct?.price || 0) + vExtraPrice
       // Se compara contra el snapshot tomado al agregar/editar la seleccion (unitPriceAtAdd) -
       // si el producto o algun modificador cambio de precio en el medio, esto lo detecta. No
@@ -305,11 +352,7 @@ class CartService {
           : null,
         quantity: vItemData.quantity,
         notes: vItemData.notes,
-        modifiers: vModifiers.map((pModifier: any) => ({
-          id: pModifier.id,
-          name: pModifier.name,
-          extraPrice: pModifier.extraPrice,
-        })),
+        modifiers: vModifiers,
         unitPrice: vUnitPrice,
         subtotal: vUnitPrice * vItemData.quantity,
         unavailable: vUnavailable,

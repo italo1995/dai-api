@@ -5,6 +5,7 @@ export interface IStoreProductModifierInput {
   id?: number
   name: string
   extraPrice: number
+  maxQuantity?: number
 }
 
 export interface IStoreProductModifierGroupInput {

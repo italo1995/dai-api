@@ -6,6 +6,8 @@ export interface ICartItemModifierAttributes {
   id: number
   cartItemId: number
   modifierId: number
+  // cuantas unidades de este modificador eligio el cliente (ej: 2x "Queso extra"). Default 1
+  quantity?: number
   createdAt?: Date
   updatedAt?: Date
 }
@@ -43,6 +45,12 @@ export const vCartItemModifierModelAttributes: SequelizeAttributes<ICartItemModi
       },
       key: 'id',
     },
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    field: 'quantity',
+    allowNull: false,
+    defaultValue: 1,
   },
   createdAt: {
     type: DataTypes.DATE,

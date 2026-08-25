@@ -30,7 +30,7 @@ import sequelize from '../../models'
 const vModifiersInclude = {
   model: modelStoreProductModifier,
   as: 'modifiers',
-  attributes: ['id', 'name', 'extraPrice'],
+  attributes: ['id', 'name', 'extraPrice', 'maxQuantity'],
 }
 
 interface IStoreProductModifierGroupService {
@@ -108,7 +108,10 @@ class StoreProductModifierGroupService implements IStoreProductModifierGroupServ
     }
   }
 
-  private async fxSetModifiers(pGroupId: number, pModifiers: { name: string; extraPrice: number }[]) {
+  private async fxSetModifiers(
+    pGroupId: number,
+    pModifiers: { name: string; extraPrice: number; maxQuantity?: number }[]
+  ) {
     await sequelize.transaction(async (pTransaction) => {
       await modelStoreProductModifier.destroy({ where: { groupId: pGroupId }, transaction: pTransaction })
       if (pModifiers?.length) {
@@ -117,6 +120,8 @@ class StoreProductModifierGroupService implements IStoreProductModifierGroupServ
             groupId: pGroupId,
             name: pModifier.name,
             extraPrice: pModifier.extraPrice || 0,
+            maxQuantity:
+              pModifier.maxQuantity && pModifier.maxQuantity > 0 ? Math.floor(pModifier.maxQuantity) : 1,
           })),
           { transaction: pTransaction }
         )

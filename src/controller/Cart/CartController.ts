@@ -28,7 +28,7 @@ class CartController {
       const vData: IAddCartItemInput = pReq.only([
         'productId',
         'quantity',
-        'modifierIds',
+        'modifiers',
         'notes',
         'replaceStore',
       ])
@@ -48,7 +48,7 @@ class CartController {
   async updateItem(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vAuth: any = (pReq as any).auth
-      const vData: IUpdateCartItemInput = pReq.only(['cartItemId', 'quantity', 'modifierIds'])
+      const vData: IUpdateCartItemInput = pReq.only(['cartItemId', 'quantity', 'modifiers'])
       if (!vData.cartItemId) {
         return pRes.status(400).send(fxErrorResponse(400, null, 'cartItemId es requerido'))
       }

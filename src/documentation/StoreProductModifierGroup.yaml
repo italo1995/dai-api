@@ -10,6 +10,10 @@ components:
         extraPrice:
           type: number
           description: 0 para opciones incluidas sin costo (ej. "Con todo"), mayor a 0 para adicionales
+        maxQuantity:
+          type: number
+          default: 1
+          description: 'Maximo de unidades que se pueden pedir de esta opcion en un mismo item (ej: "Queso extra" con maxQuantity=3 permite pedir hasta 3x). Default 1 = se comporta como antes (si/no), sin selector de cantidad'
     StoreProductModifierGroup:
       type: object
       properties:

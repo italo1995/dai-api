@@ -1,7 +1,14 @@
+export interface ICartModifierSelection {
+  modifierId: number
+  // cuantas unidades de esa opcion - opcional, default 1 (solo tiene sentido pedir mas de 1 si
+  // el modificador lo permite, ver StoreProductModifier.maxQuantity)
+  quantity?: number
+}
+
 export interface IAddCartItemInput {
   productId: number
   quantity?: number
-  modifierIds?: number[]
+  modifiers?: ICartModifierSelection[]
   notes?: string
   // Si el carrito ya tiene productos de otra tienda, por defecto se rechaza (409). Con
   // replaceStore=true se vacia el carrito y se agrega este item en su lugar, en un solo llamado.
@@ -11,7 +18,7 @@ export interface IAddCartItemInput {
 export interface IUpdateCartItemInput {
   cartItemId: number
   quantity?: number
-  modifierIds?: number[]
+  modifiers?: ICartModifierSelection[]
 }
 
 export interface IRemoveCartItemInput {
@@ -25,7 +32,12 @@ export interface IApplyCouponInput {
 export interface ICartItemModifierPublic {
   id: number
   name: string
+  // precio de una unidad de esta opcion
   extraPrice: number
+  // cuantas unidades eligio el cliente (ej: 2x "Queso extra")
+  quantity: number
+  // extraPrice * quantity
+  subtotal: number
 }
 
 export interface ICartItemPublic {

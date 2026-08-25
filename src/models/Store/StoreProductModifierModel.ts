@@ -6,6 +6,9 @@ export interface IStoreProductModifierAttributes {
   groupId: number
   name: string
   extraPrice: number
+  // maximo de unidades que se pueden elegir de esta opcion en un mismo item (ej: "Queso extra"
+  // con maxQuantity=3 permite pedir hasta 3x). Default 1 = se comporta como antes (si/no)
+  maxQuantity?: number
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -45,6 +48,12 @@ export const vStoreProductModifierModelAttributes: SequelizeAttributes<IStorePro
     field: 'extra_price',
     allowNull: false,
     defaultValue: 0,
+  },
+  maxQuantity: {
+    type: DataTypes.INTEGER,
+    field: 'max_quantity',
+    allowNull: false,
+    defaultValue: 1,
   },
   createdAt: {
     type: DataTypes.DATE,

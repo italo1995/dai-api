@@ -41,7 +41,7 @@ export const vStoreProductModifierInclude = {
     {
       model: modelStoreProductModifier,
       as: 'modifiers',
-      attributes: ['id', 'name', 'extraPrice'],
+      attributes: ['id', 'name', 'extraPrice', 'maxQuantity'],
     },
   ],
 }
