@@ -9,5 +9,7 @@ router.route('/addItem').post(authMiddleware('client'), controller.addItem)
 router.route('/updateItem').post(authMiddleware('client'), controller.updateItem)
 router.route('/removeItem').post(authMiddleware('client'), controller.removeItem)
 router.route('/clear').post(authMiddleware('client'), controller.clear)
+router.route('/applyCoupon').post(authMiddleware('client'), controller.applyCoupon)
+router.route('/removeCoupon').post(authMiddleware('client'), controller.removeCoupon)
 
 export default router

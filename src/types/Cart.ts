@@ -18,6 +18,10 @@ export interface IRemoveCartItemInput {
   cartItemId: number
 }
 
+export interface IApplyCouponInput {
+  code: string
+}
+
 export interface ICartItemModifierPublic {
   id: number
   name: string
@@ -58,4 +62,19 @@ export interface ICartPublic {
   items: ICartItemPublic[]
   // suma de los subtotales de los items disponibles (los no disponibles no se cuentan)
   total: number
+  // cupon actualmente aplicado, o null si no hay ninguno - se mantiene visible aunque ya no se
+  // pueda aplicar (ver couponError), para que la app pueda mostrar por que se dejo de descontar
+  coupon: {
+    id: number
+    code: string
+    type: 'percentage' | 'fixed'
+    value: number
+  } | null
+  // monto descontado por el cupon (0 si no hay cupon o no se puede aplicar ahora mismo)
+  discount: number
+  // solo presente si hay un cupon aplicado pero no se puede usar en este momento (vencido,
+  // inactivo, agoto su limite de usos, o el total no alcanza el minimo de compra)
+  couponError?: string
+  // total - discount
+  grandTotal: number
 }

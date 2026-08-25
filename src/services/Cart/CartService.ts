@@ -5,9 +5,10 @@
   se calculan en vivo en cada show() a partir del catalogo actual - no se guarda ningun snapshot
   aca, eso se hace recien cuando el carrito se convierta en Order (modulo futuro).
 */
-import { modelCart, modelCartItem, modelCartItemModifier, modelStore, modelStoreProduct, modelStoreProductModifierGroup, modelStoreProductModifier } from '../../models'
+import { modelCart, modelCartItem, modelCartItemModifier, modelCoupon, modelStore, modelStoreProduct, modelStoreProductModifierGroup, modelStoreProductModifier } from '../../models'
 import sequelize from '../../models'
 import type { ICartInstance } from '../../models/Cart/CartModel'
+import { ECouponType } from '../../models/Coupon/CouponModel'
 import type { IAddCartItemInput, ICartItemPublic, ICartPublic, IUpdateCartItemInput } from '../../types/Cart'
 
 // Error esperado (datos invalidos / conflicto de negocio) - el controller lo distingue de un
@@ -203,8 +204,60 @@ class CartService {
   async clear(pUserId: string): Promise<ICartPublic> {
     const vCart = await this.fxGetOrCreateCart(pUserId)
     await this.fxClearCartRows(vCart.dataValues.id)
-    await vCart.update({ storeId: null })
+    await vCart.update({ storeId: null, couponId: null })
     return this.show(pUserId)
+  }
+
+  // Solo valida y guarda el codigo en el carrito - NO incrementa usageCount todavia (eso pasa
+  // recien cuando el carrito se convierta en Order, para no gastar el limite de usos de alguien
+  // que aplica y quita el cupon varias veces mientras arma el pedido).
+  async applyCoupon(pUserId: string, pCode: string): Promise<ICartPublic> {
+    const vCoupon = await modelCoupon.findOne({ where: { code: pCode.trim().toUpperCase() } })
+    if (!vCoupon) {
+      throw new CartError('El cupon no existe')
+    }
+    const vCart = await this.fxGetOrCreateCart(pUserId)
+    const vCurrentTotal = (await this.show(pUserId)).total
+    const vError = this.fxValidateCoupon(vCoupon.dataValues, vCurrentTotal)
+    if (vError) {
+      throw new CartError(vError)
+    }
+    await vCart.update({ couponId: vCoupon.dataValues.id })
+    return this.show(pUserId)
+  }
+
+  async removeCoupon(pUserId: string): Promise<ICartPublic> {
+    const vCart = await this.fxGetOrCreateCart(pUserId)
+    await vCart.update({ couponId: null })
+    return this.show(pUserId)
+  }
+
+  // Devuelve un mensaje de error si el cupon no se puede aplicar ahora mismo, o null si esta OK.
+  // Se usa tanto al aplicar (rechaza de una) como en cada show() (para detectar que dejo de ser
+  // valido despues de aplicado - vencio, se desactivo, o el carrito bajo del minimo de compra).
+  private fxValidateCoupon(pCoupon: any, pCurrentTotal: number): string | null {
+    if (!pCoupon.isActive) {
+      return 'Este cupon ya no esta activo'
+    }
+    if (pCoupon.expiresAt && new Date(pCoupon.expiresAt).getTime() < Date.now()) {
+      return 'Este cupon ya vencio'
+    }
+    if (pCoupon.usageLimit !== null && pCoupon.usageLimit !== undefined && pCoupon.usageCount >= pCoupon.usageLimit) {
+      return 'Este cupon alcanzo su limite de usos'
+    }
+    if (pCoupon.minOrderAmount && pCurrentTotal < pCoupon.minOrderAmount) {
+      return `Este cupon requiere una compra minima de ${pCoupon.minOrderAmount}`
+    }
+    return null
+  }
+
+  private fxComputeDiscount(pCoupon: any, pTotal: number): number {
+    if (pCoupon.type === ECouponType.PERCENTAGE) {
+      const vRaw = pTotal * (pCoupon.value / 100)
+      return pCoupon.maxDiscount ? Math.min(vRaw, pCoupon.maxDiscount) : vRaw
+    }
+    // fixed - nunca descuenta mas de lo que hay
+    return Math.min(pCoupon.value, pTotal)
   }
 
   async show(pUserId: string): Promise<ICartPublic> {
@@ -213,6 +266,7 @@ class CartService {
       include: [
         { model: modelStore, as: 'store', attributes: ['id', 'name', 'logo'] },
         { model: modelCartItem, as: 'items', include: vCartItemInclude },
+        { model: modelCoupon, as: 'coupon' },
       ],
     })
     const vItems: ICartItemPublic[] = (vFullCart.dataValues.items ?? []).map((pItem: any) => {
@@ -255,6 +309,15 @@ class CartService {
     const vTotal = vItems
       .filter((pItem) => !pItem.unavailable)
       .reduce((pSum, pItem) => pSum + pItem.subtotal, 0)
+    const vCouponData = vFullCart.dataValues.coupon?.dataValues
+    let vDiscount = 0
+    let vCouponError: string | undefined
+    if (vCouponData) {
+      vCouponError = this.fxValidateCoupon(vCouponData, vTotal) ?? undefined
+      if (!vCouponError) {
+        vDiscount = this.fxComputeDiscount(vCouponData, vTotal)
+      }
+    }
     return {
       id: vFullCart.dataValues.id,
       storeId: vFullCart.dataValues.storeId,
@@ -267,6 +330,12 @@ class CartService {
         : null,
       items: vItems,
       total: vTotal,
+      coupon: vCouponData
+        ? { id: vCouponData.id, code: vCouponData.code, type: vCouponData.type, value: vCouponData.value }
+        : null,
+      discount: vDiscount,
+      ...(vCouponError ? { couponError: vCouponError } : {}),
+      grandTotal: vTotal - vDiscount,
     }
   }
 }

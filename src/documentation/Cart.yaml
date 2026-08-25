@@ -81,6 +81,31 @@ components:
         total:
           type: number
           description: Suma de los subtotales de los items disponibles (los unavailable no se cuentan)
+        coupon:
+          type: object
+          nullable: true
+          description: Cupon actualmente aplicado, o null. Se mantiene visible aunque ya no se pueda aplicar (ver couponError)
+          properties:
+            id:
+              type: number
+            code:
+              type: string
+            type:
+              type: string
+              enum:
+                - percentage
+                - fixed
+            value:
+              type: number
+        discount:
+          type: number
+          description: Monto descontado por el cupon (0 si no hay cupon aplicado o no se puede usar ahora mismo)
+        couponError:
+          type: string
+          description: Solo presente si hay un cupon aplicado pero no se puede usar ahora (vencido, inactivo, agoto sus usos, o el total no alcanza el minimo)
+        grandTotal:
+          type: number
+          description: total - discount
 paths:
   /api/cart/show:
     get:
@@ -187,6 +212,41 @@ paths:
   /api/cart/clear:
     post:
       summary: Vacia el carrito completo
+      description: Tambien quita el cupon aplicado, si habia uno
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/cart/applyCoupon:
+    post:
+      summary: Aplica un cupon al carrito
+      description: 'Valida el cupon en el momento (activo, no vencido, con usos disponibles, y que el total del carrito alcance el minOrderAmount) - si no es valido, devuelve 400 con el motivo y no lo aplica. No incrementa el uso del cupon (eso pasa recien al convertirse en Order)'
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: 'El cupon no existe, o no se puede aplicar ahora mismo (vencido/inactivo/sin usos/no alcanza el minimo)'
+  /api/cart/removeCoupon:
+    post:
+      summary: Quita el cupon aplicado del carrito
       tags:
         - Cart
       security:

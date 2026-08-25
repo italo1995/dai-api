@@ -1,0 +1,149 @@
+components:
+  schemas:
+    Coupon:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+          description: Se guarda siempre en mayusculas, sin importar como se mande
+        type:
+          type: string
+          enum:
+            - percentage
+            - fixed
+        value:
+          type: number
+          description: 'Si type=percentage, es un porcentaje (ej: 10 = 10%). Si type=fixed, es un monto fijo en la moneda base'
+        minOrderAmount:
+          type: number
+          nullable: true
+          description: Compra minima (sobre el total del carrito) para poder aplicar el cupon
+        maxDiscount:
+          type: number
+          nullable: true
+          description: Tope del descuento, solo aplica si type=percentage
+        usageLimit:
+          type: number
+          nullable: true
+          description: Cantidad maxima de veces que se puede usar en total (null = ilimitado)
+        usageCount:
+          type: number
+          description: Se incrementa recien cuando el carrito se convierta en Order (modulo futuro) - aplicar/quitar del carrito no lo toca
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        isActive:
+          type: boolean
+paths:
+  /api/coupon/show:
+    get:
+      summary: Trae un cupon por id (solo DAI)
+      tags:
+        - Coupon
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/coupon/all:
+    get:
+      summary: Lista de cupones (solo DAI)
+      description: A diferencia de otros catalogos, este endpoint tambien requiere sesion de operator/admin - no se expone publicamente el listado de codigos
+      tags:
+        - Coupon
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/coupon/store:
+    post:
+      summary: Crea un cupon (solo DAI)
+      tags:
+        - Coupon
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - type
+                - value
+              properties:
+                code:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - percentage
+                    - fixed
+                value:
+                  type: number
+                minOrderAmount:
+                  type: number
+                maxDiscount:
+                  type: number
+                usageLimit:
+                  type: number
+                expiresAt:
+                  type: string
+                  format: date-time
+                isActive:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Ya existe un cupon con ese codigo, o faltan campos requeridos
+  /api/coupon/update:
+    post:
+      summary: Actualiza un cupon (solo DAI)
+      tags:
+        - Coupon
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coupon'
+      responses:
+        '200':
+          description: Success
+  /api/coupon/delete:
+    post:
+      summary: Elimina (soft delete) un cupon (solo DAI)
+      tags:
+        - Coupon
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+tags:
+  - name: Coupon
+    description: Cupones de plataforma. Los establece unicamente DAI (admin/operator) - las tiendas no pueden crear ni ver cupones. El cliente nunca llama estos endpoints directamente, solo interactua via cart/applyCoupon

@@ -6,6 +6,7 @@ export interface ICartAttributes {
   id: number
   userId: string
   storeId?: number | null
+  couponId?: number | null
   createdAt?: Date
   updatedAt?: Date
 }
@@ -46,6 +47,18 @@ export const vCartModelAttributes: SequelizeAttributes<ICartAttributes> = {
       key: 'id',
     },
   },
+  couponId: {
+    type: DataTypes.INTEGER,
+    field: 'coupon_id',
+    allowNull: true,
+    defaultValue: null,
+    references: {
+      model: {
+        tableName: 'coupons',
+      },
+      key: 'id',
+    },
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'createdAt',
@@ -66,7 +79,7 @@ export function fxCartFactory(sequelize: Sequelize) {
   })
 
   vCart.associate = function (models: ModelRegistry) {
-    const { modelCart, modelCartItem, modelStore } = models
+    const { modelCart, modelCartItem, modelStore, modelCoupon } = models
     modelCart.hasMany(modelCartItem, {
       sourceKey: 'id',
       foreignKey: 'cartId',
@@ -76,6 +89,11 @@ export function fxCartFactory(sequelize: Sequelize) {
       sourceKey: 'storeId',
       foreignKey: 'id',
       as: 'store',
+    })
+    modelCart.hasOne(modelCoupon, {
+      sourceKey: 'couponId',
+      foreignKey: 'id',
+      as: 'coupon',
     })
   }
 

@@ -65,6 +65,7 @@ import { fxStoreProductImageFactory } from './Store/StoreProductImageModel'
 import { fxCartFactory } from './Cart/CartModel'
 import { fxCartItemFactory } from './Cart/CartItemModel'
 import { fxCartItemModifierFactory } from './Cart/CartItemModifierModel'
+import { fxCouponFactory } from './Coupon/CouponModel'
 // @ts-ignore
 const database = config[AppConfig.NODE_ENV] || config.development
 
@@ -136,6 +137,7 @@ export const modelStoreProductImage = fxStoreProductImageFactory(sequelize)
 export const modelCart = fxCartFactory(sequelize)
 export const modelCartItem = fxCartItemFactory(sequelize)
 export const modelCartItemModifier = fxCartItemModifierFactory(sequelize)
+export const modelCoupon = fxCouponFactory(sequelize)
 
 const models = {
   modelUser,
@@ -200,6 +202,7 @@ const models = {
   modelCart,
   modelCartItem,
   modelCartItemModifier,
+  modelCoupon,
 }
 
 export type ModelRegistry = typeof models
