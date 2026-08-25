@@ -22,7 +22,7 @@
 */
 import { type FindOptions, Op } from 'sequelize'
 import type { IStoreInstance } from '../../models/Store/StoreModel'
-import { modelStore, modelBusinessCategory, modelStoreBusinessCategory, modelStoreFavorite } from '../../models'
+import { modelStore, modelBusinessCategory, modelStoreBusinessCategory, modelStoreFavorite, modelStoreProduct } from '../../models'
 import type { IStoreInput, IResponseAllStore, IResponseAllStorePublic, IStorePublic } from '../../types/Store'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 import sequelize from '../../models'
@@ -105,7 +105,18 @@ class StoreService implements IStoreService {
         vWhere.type = pParam.type
       }
       if (pParam?.search) {
-        vWhere.name = { [Op.iLike]: `%${pParam.search}%` }
+        // Busca tanto por nombre de tienda como por nombre de producto vendido (ej: "Hamburguesa"
+        // debe listar tiendas que se llamen asi Y tiendas que vendan hamburguesas, aunque no
+        // tengan esa palabra en el nombre).
+        const vMatchingProducts = await modelStoreProduct.findAll({
+          where: { name: { [Op.iLike]: `%${pParam.search}%` }, isAvailable: true },
+          attributes: ['storeId'],
+        })
+        const vProductStoreIds = [...new Set(vMatchingProducts.map((pProduct) => pProduct.dataValues.storeId))]
+        vWhere[Op.or] = [
+          { name: { [Op.iLike]: `%${pParam.search}%` } },
+          ...(vProductStoreIds.length ? [{ id: { [Op.in]: vProductStoreIds } }] : []),
+        ]
       }
       if (pParam?.categoryId) {
         const vCategoryIds: number[] = String(pParam.categoryId)

@@ -139,7 +139,7 @@ paths:
           required: false
           schema:
             type: string
-          description: Busca por nombre (contiene, sin importar mayusculas)
+          description: 'Busca por nombre de tienda O por nombre de producto vendido (contiene, sin importar mayusculas) - ej: "hamburguesa" trae tanto tiendas que se llamen asi como tiendas que vendan un producto disponible con ese nombre'
         - in: query
           name: categoryId
           required: false
