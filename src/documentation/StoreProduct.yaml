@@ -51,7 +51,7 @@ paths:
   /api/storeProduct/all:
     get:
       summary: Catalogo publico de una tienda (uso app)
-      description: Solo productos con isAvailable=true de tiendas aprobadas
+      description: 'Solo productos con isAvailable=true de tiendas aprobadas. Siempre pagina (a diferencia de allAdmin, que solo pagina si se manda pag)'
       tags:
         - StoreProduct
       parameters:
@@ -60,9 +60,39 @@ paths:
           required: true
           schema:
             type: number
+        - in: query
+          name: search
+          required: false
+          schema:
+            type: string
+          description: Busca por nombre de producto (contiene, sin importar mayusculas)
+        - in: query
+          name: departmentId
+          required: false
+          schema:
+            type: number
+          description: Un solo id de StoreDepartment
+        - in: query
+          name: categoryId
+          required: false
+          schema:
+            type: string
+          description: 'Uno o varios ids de StoreCategory separados por coma (ej: 1,3). Trae productos que tengan al menos una'
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: number
+            default: 10
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+            default: 1
       responses:
         '200':
-          description: Success
+          description: 'Success - respuesta paginada: total, totalPage, actualPage, data (array de StoreProduct)'
   /api/storeProduct/show:
     get:
       summary: Trae un producto por id
