@@ -45,10 +45,12 @@ export const vCouponModelAttributes: SequelizeAttributes<ICouponAttributes> = {
     autoIncrement: true,
   },
   code: {
+    // unicidad real la impone el indice parcial `coupons_code_unique_active`
+    // (ver migracion 20260826200000) - excluye filas soft-deleted para permitir
+    // reusar un codigo despues de borrar el cupon que lo tenia.
     type: DataTypes.STRING,
     field: 'code',
     allowNull: false,
-    unique: true,
   },
   type: {
     type: DataTypes.STRING,
