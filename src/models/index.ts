@@ -56,6 +56,8 @@ import { fxStoreDepartmentFactory } from './Store/StoreDepartmentModel'
 import { fxStoreCategoryFactory } from './Store/StoreCategoryModel'
 import { fxStoreProductCategoryFactory } from './Store/StoreProductCategoryModel'
 import { fxBusinessCategoryFactory } from './Store/BusinessCategoryModel'
+import { fxStoreCurrencyFactory } from './Store/StoreCurrencyModel'
+import { fxStorePaymentMethodFactory } from './Store/StorePaymentMethodModel'
 import { fxStoreBusinessCategoryFactory } from './Store/StoreBusinessCategoryModel'
 import { fxStoreRatingFactory } from './Store/StoreRatingModel'
 import { fxStoreFavoriteFactory } from './Store/StoreFavoriteModel'
@@ -127,6 +129,8 @@ export const modelStoreProduct = fxStoreProductFactory(sequelize)
 export const modelStoreDepartment = fxStoreDepartmentFactory(sequelize)
 export const modelStoreCategory = fxStoreCategoryFactory(sequelize)
 export const modelStoreProductCategory = fxStoreProductCategoryFactory(sequelize)
+export const modelStoreCurrency = fxStoreCurrencyFactory(sequelize)
+export const modelStorePaymentMethod = fxStorePaymentMethodFactory(sequelize)
 export const modelBusinessCategory = fxBusinessCategoryFactory(sequelize)
 export const modelStoreBusinessCategory = fxStoreBusinessCategoryFactory(sequelize)
 export const modelStoreRating = fxStoreRatingFactory(sequelize)
@@ -192,6 +196,8 @@ const models = {
   modelStoreDepartment,
   modelStoreCategory,
   modelStoreProductCategory,
+  modelStoreCurrency,
+  modelStorePaymentMethod,
   modelBusinessCategory,
   modelStoreBusinessCategory,
   modelStoreRating,

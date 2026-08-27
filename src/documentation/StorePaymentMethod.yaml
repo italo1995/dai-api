@@ -1,0 +1,143 @@
+components:
+  schemas:
+    StorePaymentMethod:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+        type:
+          type: string
+          enum:
+            - efectivo
+            - transferencia
+            - zelle
+            - nequi
+            - pago_movil
+            - otro
+          description: No es el mismo catalogo que PaymentMethod (ese es global, del modulo de traslados) - cada tienda arma su propia lista dinamica
+        label:
+          type: string
+          nullable: true
+          description: 'Detalle libre opcional (ej: "Banco Mercantil" para transferencia, o el nombre real cuando type=otro)'
+        isActive:
+          type: boolean
+paths:
+  /api/storePaymentMethod/show:
+    get:
+      summary: Trae un metodo de pago de tienda por id
+      tags:
+        - StorePaymentMethod
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storePaymentMethod/all:
+    get:
+      summary: Lista los metodos de pago que acepta una tienda
+      description: Publico, no tiene datos sensibles
+      tags:
+        - StorePaymentMethod
+      parameters:
+        - in: query
+          name: storeId
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storePaymentMethod/allAdmin:
+    get:
+      summary: Lista para el panel (admin/operator o dueño de la tienda)
+      tags:
+        - StorePaymentMethod
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/storePaymentMethod/store:
+    post:
+      summary: Agrega un metodo de pago a una tienda
+      description: El dueño solo puede agregar a una tienda propia
+      tags:
+        - StorePaymentMethod
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeId
+                - type
+              properties:
+                storeId:
+                  type: number
+                type:
+                  type: string
+                  enum:
+                    - efectivo
+                    - transferencia
+                    - zelle
+                    - nequi
+                    - pago_movil
+                    - otro
+                label:
+                  type: string
+                isActive:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Acceso denegado
+  /api/storePaymentMethod/update:
+    post:
+      summary: Actualiza un metodo de pago de tienda
+      description: storeId no se puede cambiar - un metodo de pago no cambia de tienda
+      tags:
+        - StorePaymentMethod
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePaymentMethod'
+      responses:
+        '200':
+          description: Success
+  /api/storePaymentMethod/delete:
+    post:
+      summary: Elimina (soft delete) un metodo de pago de tienda
+      tags:
+        - StorePaymentMethod
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+tags:
+  - name: StorePaymentMethod
+    description: Metodos de pago que una tienda acepta - lista dinamica por comercio, sin relacion con el catalogo global PaymentMethod del modulo de traslados

@@ -1,0 +1,150 @@
+components:
+  schemas:
+    StoreCurrency:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+        currencyId:
+          type: number
+        exchangeRate:
+          type: number
+          description: Tasa que ESTA tienda usa para esta moneda - independiente de currencies.change (global, del modulo de traslados). Cada comercio administra la suya propia
+        isDefault:
+          type: boolean
+          description: Solo una moneda puede ser default por tienda a la vez - es la que se le muestra al cliente por defecto en esa tienda. Marcar una nueva como default le quita el default a las demas de la misma tienda automaticamente
+        currency:
+          type: object
+          description: Incluido en show/all/allAdmin para no requerir un llamado aparte a currency/show
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            symbol:
+              type: string
+paths:
+  /api/storeCurrency/show:
+    get:
+      summary: Trae una moneda de tienda por id
+      tags:
+        - StoreCurrency
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeCurrency/all:
+    get:
+      summary: Lista las monedas aceptadas por una tienda
+      description: Publico, no tiene datos sensibles
+      tags:
+        - StoreCurrency
+      parameters:
+        - in: query
+          name: storeId
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/storeCurrency/allAdmin:
+    get:
+      summary: Lista para el panel (admin/operator o dueño de la tienda)
+      tags:
+        - StoreCurrency
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/storeCurrency/store:
+    post:
+      summary: Agrega una moneda a una tienda
+      description: 'El dueño solo puede agregar a una tienda propia. Devuelve 400 si esa tienda ya tiene esa moneda agregada (unique parcial store_id+currency_id sobre filas activas)'
+      tags:
+        - StoreCurrency
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeId
+                - currencyId
+                - exchangeRate
+              properties:
+                storeId:
+                  type: number
+                currencyId:
+                  type: number
+                exchangeRate:
+                  type: number
+                isDefault:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Esa tienda ya tiene esa moneda agregada
+        '403':
+          description: Acceso denegado
+  /api/storeCurrency/update:
+    post:
+      summary: Actualiza la tasa y/o el default de una moneda de tienda
+      description: storeId/currencyId no se pueden cambiar - para eso hay que borrar y agregar de nuevo
+      tags:
+        - StoreCurrency
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: number
+                exchangeRate:
+                  type: number
+                isDefault:
+                  type: boolean
+      responses:
+        '200':
+          description: Success
+  /api/storeCurrency/delete:
+    post:
+      summary: Elimina (soft delete) una moneda de tienda
+      tags:
+        - StoreCurrency
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+tags:
+  - name: StoreCurrency
+    description: Monedas que una tienda acepta, cada una con su propia tasa de cambio administrada por esa tienda de forma independiente al resto

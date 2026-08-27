@@ -51,6 +51,8 @@ import StoreFavoriteRoute from './Store/StoreFavoriteRoute'
 import StoreProductModifierGroupRoute from './Store/StoreProductModifierGroupRoute'
 import CartRoute from './Cart/CartRoute'
 import CouponRoute from './Coupon/CouponRoute'
+import StoreCurrencyRoute from './Store/StoreCurrencyRoute'
+import StorePaymentMethodRoute from './Store/StorePaymentMethodRoute'
 
 const router = express.Router()
 
@@ -106,5 +108,7 @@ router.use('/storeFavorite', StoreFavoriteRoute)
 router.use('/storeProductModifierGroup', StoreProductModifierGroupRoute)
 router.use('/cart', CartRoute)
 router.use('/coupon', CouponRoute)
+router.use('/storeCurrency', StoreCurrencyRoute)
+router.use('/storePaymentMethod', StorePaymentMethodRoute)
 
 export default router
