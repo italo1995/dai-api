@@ -16,6 +16,13 @@ components:
         value:
           type: number
           description: 'Si type=percentage, es un porcentaje (ej: 10 = 10%). Si type=fixed, es un monto fijo en la moneda base'
+        appliesTo:
+          type: string
+          enum:
+            - purchase
+            - delivery
+          default: purchase
+          description: 'A que monto pega el descuento cuando se use en una Orden (modulo futuro): el total de la compra (productos) o el costo del delivery. Todavia no hay logica que lo aplique - es solo el dato del cupon'
         minOrderAmount:
           type: number
           nullable: true
@@ -92,6 +99,12 @@ paths:
                     - fixed
                 value:
                   type: number
+                appliesTo:
+                  type: string
+                  enum:
+                    - purchase
+                    - delivery
+                  default: purchase
                 minOrderAmount:
                   type: number
                 maxDiscount:

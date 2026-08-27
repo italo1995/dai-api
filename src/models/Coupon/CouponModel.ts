@@ -7,11 +7,20 @@ export enum ECouponType {
   FIXED = 'fixed',
 }
 
+// A que monto pega el descuento cuando el cupon se aplique a una orden (modulo futuro): al total
+// de la compra (productos) o al costo del delivery. Por ahora es solo un dato del cupon - la
+// logica que realmente descuenta del delivery se construye junto con el modulo de Orden.
+export enum ECouponAppliesTo {
+  PURCHASE = 'purchase',
+  DELIVERY = 'delivery',
+}
+
 export interface ICouponAttributes {
   id: number
   code: string
   type: ECouponType
   value: number
+  appliesTo?: ECouponAppliesTo
   minOrderAmount?: number | null
   maxDiscount?: number | null
   usageLimit?: number | null
@@ -50,6 +59,12 @@ export const vCouponModelAttributes: SequelizeAttributes<ICouponAttributes> = {
     type: DataTypes.DOUBLE,
     field: 'value',
     allowNull: false,
+  },
+  appliesTo: {
+    type: DataTypes.STRING,
+    field: 'applies_to',
+    allowNull: false,
+    defaultValue: ECouponAppliesTo.PURCHASE,
   },
   minOrderAmount: {
     type: DataTypes.DOUBLE,

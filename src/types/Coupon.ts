@@ -1,4 +1,4 @@
-import type { ECouponType } from '../models/Coupon/CouponModel'
+import type { ECouponAppliesTo, ECouponType } from '../models/Coupon/CouponModel'
 import type { IResponseAll } from './generalType'
 import type { ICouponInstance } from '../models/Coupon/CouponModel'
 
@@ -7,6 +7,7 @@ export interface ICouponInput {
   code: string
   type: ECouponType
   value: number
+  appliesTo?: ECouponAppliesTo
   minOrderAmount?: number
   maxDiscount?: number
   usageLimit?: number
