@@ -28,6 +28,9 @@ components:
         state:
           description: the state of the country
           type: boolean
+        timezone:
+          description: 'Nombre de zona IANA (ej: America/Bogota, America/Caracas). Default America/Caracas. Usado para calcular si una tienda de ese pais esta abierta ahora mismo (store/all -> isOpenNow)'
+          type: string
       required:
         - id
         - name
@@ -110,6 +113,9 @@ paths:
                 state:
                   description: The state of the country
                   type: boolean
+                timezone:
+                  description: 'Nombre de zona IANA (ej: America/Bogota). Default America/Caracas si no se manda'
+                  type: string
               required:
                 - name
                 - state
@@ -152,6 +158,9 @@ paths:
                 state:
                   description: The state of the country
                   type: boolean
+                timezone:
+                  description: 'Nombre de zona IANA (ej: America/Bogota)'
+                  type: string
               required:
                 - id
                 - name

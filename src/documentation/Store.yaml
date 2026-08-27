@@ -121,6 +121,9 @@ components:
         distanceKm:
           type: number
           description: Solo presente si la request mando lat y lon - distancia en linea recta en kilometros
+        isOpenNow:
+          type: boolean
+          description: 'Calculado en cada request cruzando el horario (StoreSchedule) contra la hora actual en la zona horaria del pais de la tienda (Country.timezone) - a diferencia de isOpen (bandera manual del dueño), este siempre refleja la realidad'
 paths:
   /api/store/all:
     get:
@@ -168,6 +171,12 @@ paths:
             type: number
             default: 15
           description: Solo aplica si se mando lat/lon. Radio de busqueda en kilometros
+        - in: query
+          name: isOpenNow
+          required: false
+          schema:
+            type: boolean
+          description: 'Filtra por si la tienda esta abierta AHORA MISMO (calculado contra StoreSchedule + zona horaria del pais, no la bandera manual isOpen). Calculado 100% en SQL, no rompe la paginacion'
         - in: query
           name: orderBy
           required: false

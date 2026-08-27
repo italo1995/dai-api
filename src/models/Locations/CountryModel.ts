@@ -8,6 +8,11 @@ export interface ICountryAttributes {
   phoneCode?: string
   state: boolean
   phone?: string
+  // nombre de zona IANA (ej: 'America/Bogota', 'America/Caracas') - usado para calcular si una
+  // tienda de ese pais esta abierta AHORA MISMO (StoreService.fxIsStoreOpenNow), ya que
+  // openTime/closeTime de StoreSchedule son horas locales sin zona propia. Default Venezuela
+  // porque es el mercado base de DAI - al agregar un pais nuevo hay que revisar/corregir esto
+  timezone?: string
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -45,6 +50,12 @@ export const vCountryModelAttributes: SequelizeAttributes<ICountryAttributes> = 
     field: 'phone',
     allowNull: true,
     defaultValue: null,
+  },
+  timezone: {
+    type: DataTypes.STRING,
+    field: 'timezone',
+    allowNull: false,
+    defaultValue: 'America/Caracas',
   },
   createdAt: {
     type: DataTypes.DATE,

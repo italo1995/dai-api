@@ -70,7 +70,7 @@ class CountryController {
 
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICountryInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone'])
+      const vData: ICountryInput = pReq.only(['name', 'flag', 'phoneCode', 'state', 'phone', 'timezone'])
 
       const vResponse: ICountryInstance | null = await ClassCountryService.create(vData)
       if (!vResponse) {
@@ -86,7 +86,7 @@ class CountryController {
 
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
-      const vData: ICountryUpdate = pReq.only(['id', 'name', 'flag', 'phoneCode', 'state', 'phone'])
+      const vData: ICountryUpdate = pReq.only(['id', 'name', 'flag', 'phoneCode', 'state', 'phone', 'timezone'])
       const vResponse: ICountryInstance | null = await ClassCountryService.update(vData)
       if (!vResponse) {
         return pRes

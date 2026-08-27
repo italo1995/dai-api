@@ -22,7 +22,7 @@
 */
 import { type FindOptions, Op } from 'sequelize'
 import { EStoreOrderBy, type IStoreInstance } from '../../models/Store/StoreModel'
-import { modelStore, modelBusinessCategory, modelStoreBusinessCategory, modelStoreFavorite, modelStoreProduct } from '../../models'
+import { modelStore, modelBusinessCategory, modelStoreBusinessCategory, modelStoreFavorite, modelStoreProduct, modelCountry, modelStoreSchedule } from '../../models'
 import type { IStoreInput, IResponseAllStore, IResponseAllStorePublic, IStorePublic } from '../../types/Store'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 import sequelize from '../../models'
@@ -43,6 +43,84 @@ export const vStoreBusinessCategoryInclude = {
   through: { attributes: [] },
 }
 
+// Filtro ?isOpenNow=true|false de all(). Calculado 100% en SQL (no post-filtrado en Node
+// despues de traer resultados) para que la paginacion (total/totalPage via count()) siga siendo
+// correcta - post-filtrar en JS despues de un LIMIT/OFFSET rompe el conteo real de resultados.
+// Misma logica que fxIsStoreOpenNow pero en Postgres: convierte la hora actual a la zona del
+// pais de la tienda (AT TIME ZONE) y la compara contra el horario de ESE dia de la semana
+// (ISODOW: 1=lunes...7=domingo, se resta 1 para que coincida con dayOfWeek 0=lunes...6=domingo).
+const vStoreOpenNowExistsSql = `EXISTS (
+  SELECT 1 FROM store_schedules ss
+  INNER JOIN countries c ON c.id = "Store"."country_id"
+  WHERE ss.store_id = "Store"."id"
+    AND ss."deletedAt" IS NULL
+    AND ss.is_active = true
+    AND ss.day_of_week = (EXTRACT(ISODOW FROM (now() AT TIME ZONE c.timezone))::int - 1)
+    AND (now() AT TIME ZONE c.timezone)::time >= ss.open_time
+    AND (now() AT TIME ZONE c.timezone)::time < ss.close_time
+)`
+
+// Solo lo necesario para calcular isOpenNow (fxIsStoreOpenNow) - el horario completo no se
+// expone en la respuesta publica, se descarta despues de calcular el booleano en fxToPublicStore.
+export const vStoreOpenNowInclude = [
+  {
+    model: modelCountry,
+    as: 'country',
+    attributes: ['id', 'timezone'],
+  },
+  {
+    model: modelStoreSchedule,
+    as: 'schedules',
+    attributes: ['dayOfWeek', 'openTime', 'closeTime', 'isActive'],
+  },
+]
+
+// Dia de la semana (0=Lunes...6=Domingo, mismo orden que StoreSchedule.dayOfWeek) segun la hora
+// LOCAL de pTimezone - usa Intl en vez de una libreria de fechas nueva, Node ya trae soporte de
+// zonas horarias con el runtime ICU incluido.
+const vWeekdayToDayOfWeek: Record<string, number> = {
+  Mon: 0,
+  Tue: 1,
+  Wed: 2,
+  Thu: 3,
+  Fri: 4,
+  Sat: 5,
+  Sun: 6,
+}
+
+// Compara la hora actual (convertida a la zona horaria del pais de la tienda) contra el horario
+// de ESE dia de la semana. openTime/closeTime son horas locales sin zona propia (columnas TIME
+// planas) - por eso hace falta saber en que zona esta la tienda antes de comparar; comparar
+// directo contra la hora del servidor daria mal para cualquier tienda en otro huso horario.
+// No soporta horarios que cruzan la medianoche (ej: abre 20:00 cierra 02:00) - se asume que
+// closeTime siempre es mas tarde que openTime dentro del mismo dia.
+export function fxIsStoreOpenNow(
+  pSchedules: { dayOfWeek: number; openTime: string | null; closeTime: string | null; isActive?: boolean }[] | undefined,
+  pTimezone: string | null | undefined
+): boolean {
+  if (!pSchedules?.length) {
+    return false
+  }
+  const vParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: pTimezone || 'America/Caracas',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date())
+  const vWeekday = vParts.find((pPart) => pPart.type === 'weekday')?.value ?? ''
+  const vHour = vParts.find((pPart) => pPart.type === 'hour')?.value ?? '00'
+  const vMinute = vParts.find((pPart) => pPart.type === 'minute')?.value ?? '00'
+  // Algunos entornos de ICU devuelven '24' para la medianoche con hour12:false en vez de '00'.
+  const vCurrentTime = `${vHour === '24' ? '00' : vHour}:${vMinute}:00`
+  const vDayOfWeek = vWeekdayToDayOfWeek[vWeekday]
+  const vTodaySchedule = pSchedules.find((pSchedule) => pSchedule.dayOfWeek === vDayOfWeek)
+  if (!vTodaySchedule || vTodaySchedule.isActive === false || !vTodaySchedule.openTime || !vTodaySchedule.closeTime) {
+    return false
+  }
+  return vCurrentTime >= vTodaySchedule.openTime && vCurrentTime < vTodaySchedule.closeTime
+}
+
 // pFavoriteStoreIds solo se pasa cuando quien pregunta esta logueado (ver StoreController) - sin
 // sesion, isFavorite ni siquiera se incluye en la respuesta (no se manda 'false' a lo pavo).
 export function fxToPublicStore(pStore: IStoreInstance, pFavoriteStoreIds?: Set<number>): IStorePublic {
@@ -59,6 +137,11 @@ export function fxToPublicStore(pStore: IStoreInstance, pFavoriteStoreIds?: Set<
   // devuelve como string, se normaliza a number para que la app no tenga que parsearlo
   if (vData.distanceKm !== undefined && vData.distanceKm !== null) {
     vPublic.distanceKm = Number(vData.distanceKm)
+  }
+  // Solo se calcula cuando la query trajo el include de schedules (ver StoreService.all/show) -
+  // isOpen (arriba, en vStorePublicFields) sigue siendo la bandera manual del dueño
+  if (vData.schedules !== undefined) {
+    vPublic.isOpenNow = fxIsStoreOpenNow(vData.schedules, vData.country?.dataValues?.timezone)
   }
   return vPublic as IStorePublic
 }
@@ -141,6 +224,12 @@ class StoreService implements IStoreService {
         }
       }
 
+      if (pParam?.isOpenNow === 'true' || pParam?.isOpenNow === true) {
+        vWhere[Op.and] = [sequelize.literal(vStoreOpenNowExistsSql)]
+      } else if (pParam?.isOpenNow === 'false' || pParam?.isOpenNow === false) {
+        vWhere[Op.and] = [sequelize.literal(`NOT ${vStoreOpenNowExistsSql}`)]
+      }
+
       // Busqueda/orden por cercania. El calculo exacto (Haversine) es relativamente caro si se
       // corre sobre toda la tabla, asi que primero se recorta con un bounding-box (un simple
       // rango de lat/lon, que si usa el indice stores_lat_lon_idx) y recien sobre ese subconjunto
@@ -192,7 +281,7 @@ class StoreService implements IStoreService {
       const vCount: number = await modelStore.count({ where: vWhere })
       const vFindOptions: any = {
         where: vWhere,
-        include: [vStoreBusinessCategoryInclude],
+        include: [vStoreBusinessCategoryInclude, ...vStoreOpenNowInclude],
         order: vOrder,
         limit: vLimit,
         offset: vOffset,
@@ -272,7 +361,7 @@ class StoreService implements IStoreService {
         where: {
           id: pId,
         },
-        include: [vStoreBusinessCategoryInclude],
+        include: [vStoreBusinessCategoryInclude, ...vStoreOpenNowInclude],
       })
       return vResponse
     } catch (error) {

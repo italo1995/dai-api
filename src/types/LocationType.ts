@@ -3,6 +3,7 @@ export interface ICountryInput {
   flag?: string
   state: boolean
   phone?: string
+  timezone?: string
 }
 
 export interface ICountryUpdate {
@@ -11,6 +12,7 @@ export interface ICountryUpdate {
   flag?: string
   phoneCode?: string
   state?: boolean
+  timezone?: string
 }
 
 export interface IRegionInput {

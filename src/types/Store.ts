@@ -46,6 +46,10 @@ export interface IStorePublic {
   // Solo viene si el request mando lat/lon (busqueda por cercania) - distancia en linea recta
   // en kilometros entre esas coordenadas y la tienda
   distanceKm?: number
+  // true/false si la tienda esta abierta AHORA MISMO segun su horario (StoreSchedule) y la zona
+  // horaria de su pais - a diferencia de isOpen (bandera manual del dueño), esto se calcula en
+  // cada request
+  isOpenNow?: boolean
 }
 
 export interface IStoreApprovalInput {
