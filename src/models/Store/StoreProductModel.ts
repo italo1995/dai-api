@@ -14,6 +14,11 @@ export interface IStoreProductAttributes {
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number | null
+  // precio promocional (null = sin promo activa). Se puede borrar mandando null - vuelve a
+  // regir 'price'. promoEndsAt es opcional - si no se manda, la promo queda activa hasta que se
+  // borre promoPrice a mano
+  promoPrice?: number | null
+  promoEndsAt?: Date | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -58,6 +63,18 @@ export const vStoreProductModelAttributes: SequelizeAttributes<IStoreProductAttr
     field: 'price',
     allowNull: false,
     defaultValue: 0,
+  },
+  promoPrice: {
+    type: DataTypes.DOUBLE,
+    field: 'promo_price',
+    allowNull: true,
+    defaultValue: null,
+  },
+  promoEndsAt: {
+    type: DataTypes.DATE,
+    field: 'promo_ends_at',
+    allowNull: true,
+    defaultValue: null,
   },
   currencyId: {
     type: DataTypes.INTEGER,
@@ -175,7 +192,19 @@ export function fxStoreProductFactory(sequelize: Sequelize) {
   }
 
   vStoreProduct.prototype.toJSON = function () {
-    const vValues = { ...this.get() }
+    const vValues: any = { ...this.get() }
+    // finalPrice/isPromoActive calculados aca (no importado de utils/helpers, para evitar un
+    // ciclo de imports models -> helpers -> services -> models) para que cualquier respuesta que
+    // serialice un producto (catalogo, admin, carrito) traiga el precio ya resuelto sin que cada
+    // caller tenga que repetir la comparacion de promoEndsAt.
+    if (vValues.price !== undefined) {
+      const vIsPromoActive =
+        vValues.promoPrice !== null &&
+        vValues.promoPrice !== undefined &&
+        (!vValues.promoEndsAt || new Date(vValues.promoEndsAt).getTime() > Date.now())
+      vValues.finalPrice = vIsPromoActive ? vValues.promoPrice : vValues.price
+      vValues.isPromoActive = vIsPromoActive
+    }
     return vValues
   }
   return vStoreProduct

@@ -47,7 +47,13 @@ export interface ICartItemPublic {
     id: number
     name: string
     image?: string | null
+    // precio de catalogo (sin promocion) - util para mostrar tachado si isPromoActive=true
     price: number
+    promoPrice?: number | null
+    // true si promoPrice esta vigente ahora mismo (no vencio) - unitPrice ya usa promoPrice
+    // en vez de price cuando esto es true, esto es solo para que la UI sepa si mostrar el
+    // precio tachado/la etiqueta de oferta
+    isPromoActive: boolean
   } | null
   quantity: number
   notes?: string | null

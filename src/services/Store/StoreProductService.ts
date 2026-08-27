@@ -21,11 +21,13 @@ import type { IStoreProductInstance } from '../../models/Store/StoreProductModel
 import sequelize, { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory, modelStoreProductModifierGroup, modelStoreProductModifier, modelStoreProductImage } from '../../models'
 import type { IStoreProductInput, IResponseAllStoreProduct, IStoreProductPublic } from '../../types/StoreProduct'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
+import { fxGetProductPricing } from '../../utils/helpers'
 
 // Campos seguros para exponer a un caller sin privilegios (app/cliente publico). Se usan tanto
 // en all() como para achicar la respuesta de show() cuando quien pregunta no es el dueno ni admin.
 export const vStoreProductPublicFields = [
-  'id', 'name', 'description', 'price', 'currencyId', 'image', 'isInventoryable', 'stockQuantity',
+  'id', 'name', 'description', 'price', 'promoPrice', 'promoEndsAt', 'currencyId', 'image',
+  'isInventoryable', 'stockQuantity',
 ] as const
 
 // include reutilizado por all()/show() para traer nombre de departamento y categorias sin que
@@ -80,6 +82,13 @@ export function fxToPublicStoreProduct(pProduct: IStoreProductInstance): IStoreP
   vPublic.categories = vData.categories ?? []
   vPublic.modifierGroups = vData.modifierGroups ?? []
   vPublic.images = vData.images ?? []
+  // dataValues es el store interno de Sequelize (no pasa por el toJSON del modelo, que es donde
+  // se calculan finalPrice/isPromoActive) - se recalcula aca con el mismo helper que usa el
+  // carrito, asi los tres lugares (catalogo admin/store via toJSON, catalogo publico via esta
+  // funcion, y el carrito) coinciden siempre.
+  const vPricing = fxGetProductPricing(vData.price, vData.promoPrice, vData.promoEndsAt)
+  vPublic.finalPrice = vPricing.finalPrice
+  vPublic.isPromoActive = vPricing.isPromoActive
   return vPublic as IStoreProductPublic
 }
 

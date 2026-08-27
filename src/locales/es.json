@@ -19,5 +19,6 @@
 	"max": "max",
 	"phone_number": "phone_number",
 	"not_unique": "not_unique",
-	"image": "image"
+	"image": "image",
+	"isActive": "isActive"
 }

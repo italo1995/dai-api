@@ -7,6 +7,10 @@ export interface IStoreProductInput {
   name: string
   description?: string
   price: number
+  // precio promocional - mandar null para borrarlo (vuelve a regir price)
+  promoPrice?: number | null
+  // opcional - si no se manda, la promo queda activa hasta que se borre promoPrice a mano
+  promoEndsAt?: Date | null
   currencyId?: number
   image?: string
   departmentId?: number | null
@@ -28,6 +32,11 @@ export interface IStoreProductPublic {
   name: string
   description?: string | null
   price: number
+  promoPrice?: number | null
+  promoEndsAt?: Date | null
+  // price, o promoPrice si hay una promo activa y no vencida - lo que hay que MOSTRAR/COBRAR
+  finalPrice: number
+  isPromoActive: boolean
   currencyId?: number | null
   image?: string | null
   isInventoryable?: boolean

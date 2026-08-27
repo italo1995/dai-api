@@ -16,6 +16,7 @@ import type {
   ICartPublic,
   IUpdateCartItemInput,
 } from '../../types/Cart'
+import { fxGetProductPricing } from '../../utils/helpers'
 
 // Error esperado (datos invalidos / conflicto de negocio) - el controller lo distingue de un
 // crash real por el nombre de la clase, y responde con pCode en vez de reventar con un 500.
@@ -32,7 +33,7 @@ const vCartItemInclude = [
   {
     model: modelStoreProduct,
     as: 'product',
-    attributes: ['id', 'name', 'image', 'price', 'isAvailable', 'storeId', 'currencyId'],
+    attributes: ['id', 'name', 'image', 'price', 'promoPrice', 'promoEndsAt', 'isAvailable', 'storeId', 'currencyId'],
     include: [{ model: modelCurrency, as: 'currency', attributes: ['id', 'name', 'symbol'] }],
   },
   {
@@ -162,7 +163,12 @@ class CartService {
     // Se valida siempre (aunque no vengan modifiers) para que un grupo required rechace el
     // alta si el cliente no eligio nada ahi - no solo cuando manda un array no vacio.
     const vSelections = await this.fxValidateModifierSelection(pData.productId, pData.modifiers ?? [])
-    const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, vSelections)
+    const { finalPrice: vProductPrice } = fxGetProductPricing(
+      vProduct.dataValues.price,
+      vProduct.dataValues.promoPrice,
+      vProduct.dataValues.promoEndsAt
+    )
+    const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProductPrice, vSelections)
     const vItem = await modelCartItem.create({
       cartId: vCart.dataValues.id,
       productId: pData.productId,
@@ -198,7 +204,12 @@ class CartService {
       // precio para que priceChanged se calcule desde este momento, no desde el alta original.
       const vProduct = await modelStoreProduct.findByPk(vItem.dataValues.productId)
       if (vProduct) {
-        const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProduct.dataValues.price, vSelections)
+        const { finalPrice: vProductPrice } = fxGetProductPricing(
+          vProduct.dataValues.price,
+          vProduct.dataValues.promoPrice,
+          vProduct.dataValues.promoEndsAt
+        )
+        const vUnitPriceAtAdd = await this.fxComputeUnitPrice(vProductPrice, vSelections)
         await vItem.update({ unitPriceAtAdd: vUnitPriceAtAdd })
       }
     }
@@ -335,10 +346,14 @@ class CartService {
         })
         .filter(Boolean)
       const vExtraPrice = vModifiers.reduce((pSum: number, pModifier: any) => pSum + pModifier.subtotal, 0)
-      const vUnitPrice = (vProduct?.price || 0) + vExtraPrice
+      const vProductPricing = vProduct
+        ? fxGetProductPricing(vProduct.price, vProduct.promoPrice, vProduct.promoEndsAt)
+        : { finalPrice: 0, isPromoActive: false }
+      const vUnitPrice = vProductPricing.finalPrice + vExtraPrice
       // Se compara contra el snapshot tomado al agregar/editar la seleccion (unitPriceAtAdd) -
-      // si el producto o algun modificador cambio de precio en el medio, esto lo detecta. No
-      // aplica si el producto quedo no disponible (ahi no hay "precio actual" confiable).
+      // si el producto (incluyendo si entro/salio de promocion), o algun modificador cambio de
+      // precio en el medio, esto lo detecta. No aplica si el producto quedo no disponible (ahi
+      // no hay "precio actual" confiable).
       const vPriceChanged =
         !vUnavailable &&
         vItemData.unitPriceAtAdd !== null &&
@@ -348,7 +363,14 @@ class CartService {
         id: vItemData.id,
         productId: vItemData.productId,
         product: vProduct
-          ? { id: vProduct.id, name: vProduct.name, image: vProduct.image, price: vProduct.price }
+          ? {
+              id: vProduct.id,
+              name: vProduct.name,
+              image: vProduct.image,
+              price: vProduct.price,
+              promoPrice: vProduct.promoPrice ?? null,
+              isPromoActive: vProductPricing.isPromoActive,
+            }
           : null,
         quantity: vItemData.quantity,
         notes: vItemData.notes,

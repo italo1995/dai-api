@@ -199,6 +199,25 @@ export async function fxCanManageStore(pAuth: any, pStoreId: number): Promise<bo
   return Boolean(vStore && vStore.dataValues.ownerId === pAuth.id)
 }
 
+// Precio efectivo de un producto considerando su precio promocional (StoreProduct.promoPrice) y
+// vencimiento opcional (promoEndsAt). Usado tanto por StoreProductModel.toJSON (catalogo) como
+// por CartService (para que el precio del carrito sea siempre el mismo numero que ve el cliente
+// en el catalogo) - una sola fuente de verdad para no duplicar la comparacion de fecha.
+export function fxGetProductPricing(
+  pPrice: number,
+  pPromoPrice?: number | null,
+  pPromoEndsAt?: Date | string | null
+): { finalPrice: number; isPromoActive: boolean } {
+  const vIsPromoActive =
+    pPromoPrice !== null &&
+    pPromoPrice !== undefined &&
+    (!pPromoEndsAt || new Date(pPromoEndsAt).getTime() > Date.now())
+  return {
+    finalPrice: vIsPromoActive ? (pPromoPrice as number) : pPrice,
+    isPromoActive: vIsPromoActive,
+  }
+}
+
 export const withTimeout: any = (onSuccess: any, onTimeout: any, timeout: any): any => {
   let called = false
   const timer = setTimeout(() => {
