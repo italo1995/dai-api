@@ -49,15 +49,19 @@ export const vStoreBusinessCategoryInclude = {
 // Misma logica que fxIsStoreOpenNow pero en Postgres: convierte la hora actual a la zona del
 // pais de la tienda (AT TIME ZONE) y la compara contra el horario de ESE dia de la semana
 // (ISODOW: 1=lunes...7=domingo, se resta 1 para que coincida con dayOfWeek 0=lunes...6=domingo).
+// LEFT JOIN + COALESCE (no INNER JOIN): una tienda sin countryId (country_id NULL) tiene que
+// caer al mismo default 'America/Caracas' que usa fxIsStoreOpenNow del lado de JS - con INNER
+// JOIN esa tienda quedaba afuera de CUALQUIER resultado de isOpenNow (ni true ni false la
+// devolvian bien), aunque el campo calculado en la respuesta si la marcaba correctamente.
 const vStoreOpenNowExistsSql = `EXISTS (
   SELECT 1 FROM store_schedules ss
-  INNER JOIN countries c ON c.id = "Store"."country_id"
+  LEFT JOIN countries c ON c.id = "Store"."country_id"
   WHERE ss.store_id = "Store"."id"
     AND ss."deletedAt" IS NULL
     AND ss.is_active = true
-    AND ss.day_of_week = (EXTRACT(ISODOW FROM (now() AT TIME ZONE c.timezone))::int - 1)
-    AND (now() AT TIME ZONE c.timezone)::time >= ss.open_time
-    AND (now() AT TIME ZONE c.timezone)::time < ss.close_time
+    AND ss.day_of_week = (EXTRACT(ISODOW FROM (now() AT TIME ZONE COALESCE(c.timezone, 'America/Caracas')))::int - 1)
+    AND (now() AT TIME ZONE COALESCE(c.timezone, 'America/Caracas'))::time >= ss.open_time
+    AND (now() AT TIME ZONE COALESCE(c.timezone, 'America/Caracas'))::time < ss.close_time
 )`
 
 // Solo lo necesario para calcular isOpenNow (fxIsStoreOpenNow) - el horario completo no se
