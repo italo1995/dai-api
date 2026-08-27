@@ -21,7 +21,7 @@
   9 - softDeleteRecord: elimina (soft delete) una tienda
 */
 import { type FindOptions, Op } from 'sequelize'
-import type { IStoreInstance } from '../../models/Store/StoreModel'
+import { EStoreOrderBy, type IStoreInstance } from '../../models/Store/StoreModel'
 import { modelStore, modelBusinessCategory, modelStoreBusinessCategory, modelStoreFavorite, modelStoreProduct } from '../../models'
 import type { IStoreInput, IResponseAllStore, IResponseAllStorePublic, IStorePublic } from '../../types/Store'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
@@ -150,8 +150,23 @@ class StoreService implements IStoreService {
       const vLat = Number(pParam?.lat)
       const vLon = Number(pParam?.lon)
       const vHasGeo = pParam?.lat !== undefined && pParam?.lon !== undefined && !Number.isNaN(vLat) && !Number.isNaN(vLon)
+      // orderBy es independiente del filtro de radio: lat/lon siempre recorta por cercania (si
+      // vienen), pero el orden del resultado se puede pedir aparte (relevance/rating/distance).
+      // Si piden distance sin mandar lat/lon (no hay de donde sacar la distancia), se cae de
+      // vuelta a relevance en silencio en vez de devolver un error - un dato faltante no debería
+      // romper el listado.
+      const vOrderByRequested = Object.values(EStoreOrderBy).includes(pParam?.orderBy)
+        ? (pParam.orderBy as EStoreOrderBy)
+        : vHasGeo
+          ? EStoreOrderBy.DISTANCE
+          : EStoreOrderBy.RELEVANCE
+      const vOrderBy = vOrderByRequested === EStoreOrderBy.DISTANCE && !vHasGeo ? EStoreOrderBy.RELEVANCE : vOrderByRequested
+
       let vOrder: any = [['id', 'DESC']]
       let vDistanceAttribute: any = null
+      if (vOrderBy === EStoreOrderBy.RATING) {
+        vOrder = [['avgRating', 'DESC']]
+      }
       if (vHasGeo) {
         const vRadiusKm = Number(pParam?.radiusKm) > 0 ? Number(pParam.radiusKm) : 15
         const vLatDelta = vRadiusKm / 111.32
@@ -169,7 +184,9 @@ class StoreService implements IStoreService {
             power(sin(radians("Store"."lon" - ${vLon}) / 2), 2)
           ))`
         )
-        vOrder = [[sequelize.literal('"distanceKm"'), 'ASC']]
+        if (vOrderBy === EStoreOrderBy.DISTANCE) {
+          vOrder = [[sequelize.literal('"distanceKm"'), 'ASC']]
+        }
       }
 
       const vCount: number = await modelStore.count({ where: vWhere })
@@ -183,7 +200,12 @@ class StoreService implements IStoreService {
       if (vDistanceAttribute) {
         vFindOptions.attributes = { include: [[vDistanceAttribute, 'distanceKm']] }
       }
-      const vResponse: IStoreInstance[] = await modelStore.findAll(vFindOptions)
+      // unscoped(): el defaultScope del modelo ordena por createdAt DESC, y Sequelize CONCATENA
+      // (no reemplaza) el order de la query con el de la scope - sin esto, "createdAt DESC"
+      // quedaba como criterio primario por delante de vOrder, pisando en silencio tanto
+      // orderBy=rating como orderBy=distance (esta query siempre define su propio orden a mano,
+      // asi que no hace falta el de la scope).
+      const vResponse: IStoreInstance[] = await modelStore.unscoped().findAll(vFindOptions)
 
       const vFavoriteIds = pUserId
         ? await fxGetFavoriteStoreIdSet(pUserId, vResponse.map((pStore) => pStore.dataValues.id))

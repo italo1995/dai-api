@@ -7,6 +7,16 @@ export enum ETypeStore {
   MARKET = 'market',
 }
 
+// Orden del listado publico de tiendas (store/all?orderBy=X). RELEVANCE es el orden de siempre
+// (hoy: mas nuevas primero) - se llama asi para dejar la puerta abierta a un scoring real de
+// busqueda mas adelante sin tener que inventar un cuarto valor. DISTANCE requiere que la request
+// tambien mande lat/lon (si no, no hay de donde sacar la distancia).
+export enum EStoreOrderBy {
+  RELEVANCE = 'relevance',
+  RATING = 'rating',
+  DISTANCE = 'distance',
+}
+
 export interface IStoreAttributes {
   id: number
   name: string

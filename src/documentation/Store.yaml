@@ -154,7 +154,7 @@ paths:
           required: false
           schema:
             type: number
-          description: 'Latitud del cliente. Si se manda junto con lon, filtra tiendas dentro de radiusKm y ordena por cercania (mas cerca primero) en vez del orden por defecto. Tiendas sin lat/lon cargado quedan afuera'
+          description: 'Latitud del cliente. Si se manda junto con lon, filtra tiendas dentro de radiusKm (independiente de orderBy). Tiendas sin lat/lon cargado quedan afuera del filtro de radio'
         - in: query
           name: lon
           required: false
@@ -168,6 +168,17 @@ paths:
             type: number
             default: 15
           description: Solo aplica si se mando lat/lon. Radio de busqueda en kilometros
+        - in: query
+          name: orderBy
+          required: false
+          schema:
+            type: string
+            enum:
+              - relevance
+              - rating
+              - distance
+            default: 'relevance (o distance si se mando lat/lon)'
+          description: 'Orden del resultado. relevance = el de siempre (mas nuevas primero). rating = por avgRating descendente. distance = por distanceKm ascendente, requiere lat/lon (si se pide distance sin mandarlos, cae a relevance en silencio en vez de dar error). Si no se manda orderBy pero SI se manda lat/lon, el default pasa a ser distance (mismo comportamiento que antes de que existiera este parametro)'
         - in: query
           name: limit
           required: false
