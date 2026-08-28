@@ -18,7 +18,7 @@
 */
 import { type FindOptions, Op } from 'sequelize'
 import type { IStoreProductInstance } from '../../models/Store/StoreProductModel'
-import sequelize, { modelStoreProduct, modelStore, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory, modelStoreProductModifierGroup, modelStoreProductModifier, modelStoreProductImage } from '../../models'
+import sequelize, { modelStoreProduct, modelStore, modelCurrency, modelStoreDepartment, modelStoreCategory, modelStoreProductCategory, modelStoreProductModifierGroup, modelStoreProductModifier, modelStoreProductImage } from '../../models'
 import type { IStoreProductInput, IResponseAllStoreProduct, IStoreProductPublic } from '../../types/StoreProduct'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 import { fxGetProductPricing } from '../../utils/helpers'
@@ -56,6 +56,17 @@ export const vStoreProductImagesInclude = {
   attributes: ['id', 'image', 'order'],
 }
 
+// La asociacion 'currency' ya existia en StoreProductModel (hasOne modelCurrency via
+// currencyId) desde que se agrego el campo, pero nunca se incluia en las queries - el catalogo
+// solo devolvia el id crudo y dejaba que el caller lo resolviera a mano contra currency/all.
+// Se agrega aca para que coincida con el mismo patron ya usado en cart/show (currency: {id,
+// name, symbol}) y el consumidor no tenga que hacer ese join el mismo.
+export const vStoreProductCurrencyInclude = {
+  model: modelCurrency,
+  as: 'currency',
+  attributes: ['id', 'name', 'symbol'],
+}
+
 export const vStoreProductCategorizationInclude = [
   {
     model: modelStoreDepartment,
@@ -68,6 +79,7 @@ export const vStoreProductCategorizationInclude = [
     attributes: ['id', 'name'],
     through: { attributes: [] },
   },
+  vStoreProductCurrencyInclude,
   vStoreProductModifierInclude,
   vStoreProductImagesInclude,
 ]
@@ -79,6 +91,7 @@ export function fxToPublicStoreProduct(pProduct: IStoreProductInstance): IStoreP
     vPublic[vField] = vData[vField]
   })
   vPublic.department = vData.department ?? null
+  vPublic.currency = vData.currency ?? null
   vPublic.categories = vData.categories ?? []
   vPublic.modifierGroups = vData.modifierGroups ?? []
   vPublic.images = vData.images ?? []

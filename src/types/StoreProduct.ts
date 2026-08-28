@@ -38,6 +38,10 @@ export interface IStoreProductPublic {
   finalPrice: number
   isPromoActive: boolean
   currencyId?: number | null
+  // moneda en la que esta expresado 'price'/'promoPrice'/'finalPrice', ya resuelta (mismo
+  // patron que 'currency' en cart/show) - se deja tambien currencyId por compatibilidad, pero
+  // usar este objeto evita que la app tenga que resolver el id a mano contra currency/all
+  currency?: { id: number; name: string; symbol: string } | null
   image?: string | null
   isInventoryable?: boolean
   stockQuantity?: number | null

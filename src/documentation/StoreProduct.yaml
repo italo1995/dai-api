@@ -17,6 +17,17 @@ components:
         currencyId:
           type: number
           nullable: true
+        currency:
+          type: object
+          nullable: true
+          description: 'Moneda en la que esta expresado price/promoPrice/finalPrice, ya resuelta (mismo patron que currency en cart/show). Incluido en /show y /all - no requiere resolver currencyId aparte contra currency/all.'
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            symbol:
+              type: string
         image:
           type: string
           nullable: true
