@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "VIOS DOCS",
+    "title": "Dai API",
     "version": "1.0.0",
-    "description": "",
+    "description": "API de Dai: servicio de traslados (estilo taxi/app de viajes) y Marketplace (Dai Food / Dai Market). Cubre pasajeros, conductores, viajes, cobranzas/billetera, y el marketplace de tiendas (productos, carrito, cupones, monedas y metodos de pago por tienda). Ver el README de cada repositorio para arquitectura y guia de arranque.",
     "license": {
-      "name": "MIT",
-      "url": "https://choosealicense.com/licenses/mit/"
+      "name": "UNLICENSED - Propiedad de Neuron / Dai",
+      "url": ""
     }
   },
   "components": {
