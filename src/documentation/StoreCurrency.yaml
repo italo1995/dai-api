@@ -11,7 +11,16 @@ components:
           type: number
         exchangeRate:
           type: number
-          description: Tasa que ESTA tienda usa para esta moneda - independiente de currencies.change (global, del modulo de traslados). Cada comercio administra la suya propia
+          description: >-
+            Tasa que ESTA tienda usa para esta moneda - independiente de currencies.change
+            (global, del modulo de traslados). Cada comercio administra la suya propia.
+            CONVENCION: son las unidades de ESTA moneda (currency.symbol) que equivalen a 1
+            unidad de la moneda en la que esta expresado el precio a convertir (normalmente
+            storeProduct.currency, ver StoreProduct.yaml) - o sea, para mostrar un precio en
+            esta moneda: precioConvertido = producto.finalPrice * exchangeRate. Si esta fila
+            es la misma moneda en la que ya esta el producto, no hace falta convertir (el
+            valor logico de exchangeRate ahi seria 1, pero no se fuerza a nivel de dato). El
+            calculo de la conversion lo hace quien consuma la API (panel/app), no el backend.
         isDefault:
           type: boolean
           description: Solo una moneda puede ser default por tienda a la vez - es la que se le muestra al cliente por defecto en esa tienda. Marcar una nueva como default le quita el default a las demas de la misma tienda automaticamente
