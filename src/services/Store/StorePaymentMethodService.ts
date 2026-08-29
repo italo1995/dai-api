@@ -17,9 +17,17 @@
 */
 import { type FindOptions } from 'sequelize'
 import type { IStorePaymentMethodInstance } from '../../models/Store/StorePaymentMethodModel'
-import { modelStorePaymentMethod } from '../../models'
+import { modelStorePaymentMethod, modelCurrency } from '../../models'
 import type { IStorePaymentMethodInput, IResponseAllStorePaymentMethod } from '../../types/StorePaymentMethod'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
+
+// Mismo patron que StoreCurrencyService: se resuelve la moneda (id, name, symbol) en vez de
+// dejar que el consumidor cruce currencyId contra currency/all a mano.
+const vCurrencyInclude = {
+  model: modelCurrency,
+  as: 'currency',
+  attributes: ['id', 'name', 'symbol'],
+}
 
 class StorePaymentMethodService {
   async validate(data: any) {
@@ -31,6 +39,7 @@ class StorePaymentMethodService {
     try {
       const vResponse: IStorePaymentMethodInstance | null = await modelStorePaymentMethod.findOne({
         where: { id: pId },
+        include: [vCurrencyInclude],
       })
       return vResponse
     } catch (error) {
@@ -42,6 +51,7 @@ class StorePaymentMethodService {
     try {
       const vResponse: IStorePaymentMethodInstance[] = await modelStorePaymentMethod.findAll({
         where: { storeId: pStoreId },
+        include: [vCurrencyInclude],
       })
       return vResponse
     } catch (error) {
@@ -58,6 +68,7 @@ class StorePaymentMethodService {
       if (pParam?.storeId) {
         whereStatement.where = { ...whereStatement.where, storeId: Number(pParam.storeId) }
       }
+      whereStatement.include = [vCurrencyInclude]
       const vResponse: IStorePaymentMethodInstance[] = await modelStorePaymentMethod.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllStorePaymentMethod = await fxReponseServices(

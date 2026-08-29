@@ -144,6 +144,17 @@ de Módulos se bootstrapea una única vez con `POST /view/createMany` (ya corrid
   solo se validan/muestran en el carrito), filtro de conductores por Dai Food/Dai Market al asignar
   un pedido, endpoint que convierta el Carrito en Orden, descuento automático de inventario al
   vender + estado "agotado" + contador de ventas por producto.
+  - **Decisión de diseño ya tomada, pendiente de implementar junto con Orden**: el Carrito se
+    mantiene siempre en la moneda base del producto (como ya funciona hoy — no se le agrega lógica
+    de conversión). La moneda de una Orden se **deriva del método de pago que el cliente elige**
+    (`StorePaymentMethod.currencyId`) en vez de ser una elección independiente — al confirmar el
+    pedido, el servidor calcula el total en esa moneda usando la tasa vigente de `storeCurrency` en
+    ese momento y la **congela** en la Orden (`currencyId` + tasa usada), para que un cambio
+    posterior en la tasa de la tienda no le mueva el precio a pedidos ya hechos.
+- **Métodos de pago con moneda**: `StorePaymentMethod.currencyId` (opcional) ata un método a una
+  moneda específica — ej. Zelle solo tiene sentido en USD, Pago Móvil a un banco venezolano solo en
+  Bolívares. Un comercio que acepta el mismo `type` en más de una moneda (ej. efectivo en USD y en
+  Bs) crea dos filas separadas — no hay restricción de unicidad por `type`.
 - **Sucursales (`Branch`)**: el modelo y el CRUD existen, pero no hay ninguna sucursal cargada
   todavía en ningún ambiente — es una funcionalidad ligada a Recargas, no al Marketplace.
 

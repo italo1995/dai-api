@@ -6,6 +6,7 @@ export interface IStorePaymentMethodInput {
   storeId: number
   type: EStorePaymentMethodType
   label?: string | null
+  currencyId?: number | null
   isActive?: boolean
   createdAt?: Date
   updatedAt?: Date

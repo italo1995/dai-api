@@ -51,7 +51,7 @@ class StorePaymentMethodController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vAuth: any = (pReq as any).auth
-      const vData: IStorePaymentMethodInput = pReq.only(['storeId', 'type', 'label', 'isActive'])
+      const vData: IStorePaymentMethodInput = pReq.only(['storeId', 'type', 'label', 'currencyId', 'isActive'])
       const vStoreId = Number(vData.storeId)
       if (!vStoreId || !(await fxCanManageStore(vAuth, vStoreId))) {
         return pRes.status(403).send(fxErrorResponse(403, null, 'Acceso denegado'))
@@ -75,7 +75,7 @@ class StorePaymentMethodController {
         return pRes.status(403).send(fxErrorResponse(403, null, 'Acceso denegado'))
       }
       // storeId no se toca desde update - un metodo de pago no cambia de tienda.
-      const vData: IStorePaymentMethodInput = pReq.only(['id', 'type', 'label', 'isActive'])
+      const vData: IStorePaymentMethodInput = pReq.only(['id', 'type', 'label', 'currencyId', 'isActive'])
       const vResponse: IStorePaymentMethodInstance | null = await ClassStorePaymentMethodService.update(vData)
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {

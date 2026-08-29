@@ -19,6 +19,11 @@ export interface IStorePaymentMethodAttributes {
   storeId: number
   type: EStorePaymentMethodType
   label?: string | null
+  // Moneda en la que se cobra con este metodo (ej: Zelle -> USD, Pago Movil -> Bolivar). Nullable
+  // a proposito: un metodo como 'efectivo' puede no atarse a una sola moneda especifica. No
+  // referencia store_currencies - es la moneda base (tabla currencies), independiente de si la
+  // tienda declaro esa moneda como aceptada ahi.
+  currencyId?: number | null
   isActive?: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -58,6 +63,18 @@ export const vStorePaymentMethodModelAttributes: SequelizeAttributes<IStorePayme
     field: 'label',
     allowNull: true,
     defaultValue: null,
+  },
+  currencyId: {
+    type: DataTypes.INTEGER,
+    field: 'currency_id',
+    allowNull: true,
+    defaultValue: null,
+    references: {
+      model: {
+        tableName: 'currencies',
+      },
+      key: 'id',
+    },
   },
   isActive: {
     type: DataTypes.BOOLEAN,
@@ -99,11 +116,16 @@ export function fxStorePaymentMethodFactory(sequelize: Sequelize) {
   )
 
   vStorePaymentMethod.associate = function (models: ModelRegistry) {
-    const { modelStorePaymentMethod, modelStore } = models
+    const { modelStorePaymentMethod, modelStore, modelCurrency } = models
     modelStorePaymentMethod.hasOne(modelStore, {
       sourceKey: 'storeId',
       foreignKey: 'id',
       as: 'store',
+    })
+    modelStorePaymentMethod.hasOne(modelCurrency, {
+      sourceKey: 'currencyId',
+      foreignKey: 'id',
+      as: 'currency',
     })
   }
 

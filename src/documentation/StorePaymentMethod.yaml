@@ -21,6 +21,26 @@ components:
           type: string
           nullable: true
           description: 'Detalle libre opcional (ej: "Banco Mercantil" para transferencia, o el nombre real cuando type=otro)'
+        currencyId:
+          type: number
+          nullable: true
+          description: >-
+            Moneda en la que se cobra con este metodo (ej: zelle -> USD, pago_movil -> Bolivar).
+            Opcional - un metodo como efectivo puede no atarse a una sola moneda. Si una tienda
+            acepta el mismo tipo de metodo en mas de una moneda (ej: efectivo en USD y en
+            Bolivares), se crean dos filas separadas, una por moneda (no hay restriccion de
+            unicidad por type).
+        currency:
+          type: object
+          nullable: true
+          description: Moneda ya resuelta (id, name, symbol) - incluido en show/all/allAdmin, no requiere un llamado aparte a currency/all
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            symbol:
+              type: string
         isActive:
           type: boolean
 paths:
@@ -94,6 +114,9 @@ paths:
                     - otro
                 label:
                   type: string
+                currencyId:
+                  type: number
+                  nullable: true
                 isActive:
                   type: boolean
                   default: true
