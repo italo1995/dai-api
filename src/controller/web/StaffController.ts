@@ -160,4 +160,27 @@ export const staff = {
       pNext(error)
     }
   },
+
+  // Faltaba: el panel (ListItemsComponent generico, vURI='staff/user') siempre llama
+  // {vURI}/delete al borrar una fila de la lista de usuarios Staff - o sea POST
+  // staff/user/delete - pero esa ruta nunca existia (solo /staff/delete, que borra la
+  // Asignacion, no la persona). El boton de borrar un usuario Staff fallaba en 404 silencioso
+  // (sin ningun aviso visible) desde que se implemento esta seccion. Encontrado probando en
+  // vivo en produccion. Reusa ClassUserService.softDeleteRecord, mismo patron que
+  // UserController.destroy - un usuario Staff es un User comun con rolId 1 o 2.
+  async destroyUser(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      // El id de User es un UUID (string) - softDeleteRecord esta tipado como (pId: number) pero
+      // es un typing flojo preexistente (UserController.destroy hace exactamente lo mismo), no
+      // afecta a Sequelize en runtime. Se mantiene el mismo patron ya usado ahi.
+      const vId: number = pReq.input('id', 'string')
+      const vResponse: boolean = await ClassUserService.softDeleteRecord(vId)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Borrado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  },
 }

@@ -171,5 +171,17 @@ paths:
       summary: Endpoint for user/update
       tags:
         - Staff
+  /api/staff/user/delete:
+    post:
+      parameters:
+        - $ref: '#/components/schemas/Staff/parameters/id'
+      responses:
+        '200':
+          description: The staff user deleted
+      security:
+        - BearerAuth: []
+      summary: Borra un usuario Staff (persona) - no confundir con /staff/delete, que borra la Asignacion
+      tags:
+        - Staff
 tags:
   - Staff
