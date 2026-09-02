@@ -231,11 +231,22 @@ export class SocketService {
             // tenemos en memoria de la conexion en vez de repetir la query pesada de show()
             // (varios joins + un COUNT) en cada tick de ubicacion.
             const vConnectedUser = auth || user
-            coords.user =
-              coords.userId && coords.userId === vUser.id && vConnectedUser
-                ? vConnectedUser
-                : await ClassAuthService.show(coords.userId)
-            SocketService.io.to(socketIds).emit('coordsDriver', coords)
+            if (coords.userId && coords.userId === vUser.id && vConnectedUser) {
+              coords.user = vConnectedUser
+              SocketService.io.to(socketIds).emit('coordsDriver', coords)
+            } else if (coords.userId) {
+              coords.user = await ClassAuthService.show(coords.userId)
+              SocketService.io.to(socketIds).emit('coordsDriver', coords)
+            }
+            // Si coords.userId sigue vacio aca (socket sin auth resuelta Y el cliente tampoco
+            // mando userId/id) antes esto llamaba ClassAuthService.show(undefined), que Sequelize
+            // rechaza duro con "WHERE parameter \"id\" has invalid \"undefined\" value" - eran
+            // 225 de los 387 errores guardados en error_reportings, siempre con este mismo
+            // patron (coords de un conductor sin usuario identificado en el socket). Se deja de
+            // emitir 'coordsDriver' en ese caso en vez de crashear - no hay un usuario real que
+            // mostrarle al admin de todas formas. La causa raiz probable (por que el socket no
+            // esta identificado) sigue sin confirmar - ver el log 'socket connected ... (sin
+            // auth)' agregado hoy mismo en la conexion.
           }
         }
         if (coords?.tripId) {

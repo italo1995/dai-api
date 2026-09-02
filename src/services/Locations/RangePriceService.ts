@@ -96,10 +96,15 @@ class RangePriceService implements IRangePriceService {
     isDelivery: boolean
     isTravel: boolean
   }): Promise<IRangePriceInstance | null> {
+    // Antes esto crasheaba con "Cannot read properties of null (reading 'normalize')" cada vez
+    // que llegaba sin 'city' (ej: el conductor manda coords sin ciudad resuelta todavia del lado
+    // de la app) - se llamaba .normalize() de forma incondicional, incluso ANTES del try/catch
+    // de abajo. country/region ya toleran null (terminan armando '%null%', que simplemente no
+    // matchea nada via iLike, igual que un filtro vacio) - se le da el mismo trato a city en vez
+    // de crashear.
     const formattedCity = city
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
+      ? city.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      : null
     try {
       const whereStatement: FindOptions = {}
       whereStatement.include = [
