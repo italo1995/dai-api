@@ -206,6 +206,50 @@ class UserController {
       pNext(error)
     }
   }
+
+  // Lista usuarios borrados, para el panel de "Usuarios eliminados" (ver restore() abajo).
+  async allDeleted(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vParam: any = pReq.query
+      const vResponse: IResponseAllUser | IUserInstance[] = await ClassUser.allDeleted(vParam)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  // Restaura un usuario borrado (deletedAt = null) - reactiva la cuenta tal cual estaba.
+  async restore(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: string = pReq.input('id', 'string')
+      const vResponse: boolean = await ClassUser.restore(vId)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Restaurado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
+  // Libera el numero de telefono de un usuario borrado SIN reactivar la cuenta - para cuando el
+  // admin borro a alguien a proposito y no quiere que la cuenta vuelva, pero el numero deberia
+  // poder usarse en un registro nuevo. Ver el comentario de ClassUser.releasePhone.
+  async releasePhone(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vId: string = pReq.input('id', 'string')
+      const vResponse: boolean = await ClassUser.releasePhone(vId)
+      if (!vResponse) {
+        return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
+      }
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Numero liberado con exito'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
 }
 
 export default new UserController()

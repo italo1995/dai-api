@@ -177,6 +177,53 @@ paths:
       summary: Delete a user
       tags:
         - User
+  /api/user/allDeleted:
+    get:
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+        - in: query
+          name: limit
+          schema:
+            type: number
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista paginada de usuarios borrados (paranoid:false), para el panel de Usuarios eliminados
+      security:
+        - BearerAuth: []
+      summary: Lista usuarios borrados
+      tags:
+        - User
+  /api/user/restore:
+    post:
+      parameters:
+        - $ref: '#/components/schemas/User/parameters/id'
+      responses:
+        '200':
+          description: El usuario restaurado (deletedAt = null) - libera su numero de telefono sin perder la cuenta original
+      security:
+        - BearerAuth: []
+      summary: Restaura un usuario borrado
+      tags:
+        - User
+  /api/user/releasePhone:
+    post:
+      parameters:
+        - $ref: '#/components/schemas/User/parameters/id'
+      responses:
+        '200':
+          description: Limpia el phoneNumber de un usuario borrado (deletedAt se mantiene) para que ese numero se pueda usar en un registro nuevo, sin reactivar la cuenta original
+      security:
+        - BearerAuth: []
+      summary: Libera el numero de telefono de un usuario borrado, sin reactivar la cuenta
+      tags:
+        - User
   /api/user/location:
     get:
       parameters:

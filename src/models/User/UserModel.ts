@@ -43,7 +43,10 @@ export interface IUserAttributes {
   countryId?: number | null
   createdAt?: Date
   updatedAt?: Date
-  deletedAt?: Date
+  // '| null' explicito (a diferencia de createdAt/updatedAt) porque restore() necesita poder
+  // volver a poner esto en null - el tipo generado por sequelize-cli no lo contemplaba porque
+  // hasta ahora nada en el codebase revertia un soft delete.
+  deletedAt?: Date | null
 }
 export enum EStatusDriver {
   INACTIVE = 0,

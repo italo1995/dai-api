@@ -310,6 +310,83 @@ class UserService implements IUserService {
     }
   }
 
+  // Lista usuarios borrados (paranoid:false + filtro deletedAt IS NOT NULL) para que el admin
+  // pueda encontrar uno y restaurarlo, en vez de tener que editar la base de datos a mano. Un
+  // numero de telefono queda inutilizable mientras el usuario borrado siga asi (phoneNumber
+  // sigue siendo unique:true a proposito) - restaurar la cuenta original es la forma de
+  // recuperarlo. Ver tambien restore().
+  public async allDeleted(pParam: any): Promise<IResponseAllUser | IUserInstance[]> {
+    try {
+      let whereStatement: FindOptions = { paranoid: false }
+      whereStatement = fxPaginate(pParam, whereStatement)
+      whereStatement.order = fxOrderNameId(pParam, whereStatement)
+      whereStatement.where = fxSearchILike(
+        pParam,
+        whereStatement,
+        pParam?.typeSearch || 'name',
+        modelUser.name
+      )
+      whereStatement.where = {
+        ...whereStatement.where,
+        deletedAt: { [Op.ne]: null },
+      }
+      const vResponse: IUserInstance[] = await modelUser.findAll(whereStatement)
+      if (Number(pParam?.pag)) {
+        const vResponsePaginate: IResponseAllUser = await fxReponseServices(
+          pParam,
+          whereStatement,
+          modelUser.name,
+          vResponse
+        )
+        return vResponsePaginate
+      }
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // Restaura un usuario soft-deleted (deletedAt = null) - vuelve la cuenta a estar activa tal
+  // cual estaba. paranoid:false es necesario en el where para que Sequelize encuentre la fila -
+  // por default excluye las borradas.
+  async restore(pId: string): Promise<boolean> {
+    try {
+      const [vAffected] = await modelUser.update(
+        { deletedAt: null },
+        { where: { id: pId }, paranoid: false }
+      )
+      return vAffected > 0
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // Libera el numero de telefono de un usuario borrado SIN reactivar la cuenta - para cuando un
+  // admin borro a alguien a proposito (ej: mal comportamiento) y no quiere que vuelva, pero el
+  // numero de esa persona deberia poder usarse en un registro nuevo de otra persona. A
+  // diferencia de restore(), esto deja deletedAt intacto (el usuario sigue bloqueado/oculto) y
+  // solo limpia phoneNumber (nullable) - el resto de los datos de la cuenta borrada se
+  // conservan para historial/auditoria, solo se pierde el numero en si. Se valida primero que
+  // el usuario siga borrado, para no liberar por error el telefono de una cuenta activa.
+  async releasePhone(pId: string): Promise<boolean> {
+    try {
+      const vExisting = await modelUser.findOne({ where: { id: pId }, paranoid: false })
+      if (!vExisting || !vExisting.dataValues.deletedAt) {
+        return false
+      }
+      const [vAffected] = await modelUser.update(
+        // phoneNumber esta tipado como 'string' (no 'string | null') porque en el resto del
+        // codebase siempre se asume presente - se acota el cast solo a esta escritura puntual
+        // en vez de aflojar el tipo global y arriesgar romper esos otros usos.
+        { phoneNumber: null } as any,
+        { where: { id: pId }, paranoid: false }
+      )
+      return vAffected > 0
+    } catch (error) {
+      throw error
+    }
+  }
+
   public async operatorAll(): Promise<IUserInstance[]> {
     try {
       const vResponse: IUserInstance[] = await modelUser.findAll({
