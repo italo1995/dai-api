@@ -104,6 +104,11 @@ export class SocketService {
       SocketService.registerAdminSocket(auth, socketId)
     }
 
+    // Visibilidad basica de conexiones - antes esto no logueaba nada, asi que un socket que
+    // conecta sin token valido (auth=false) quedaba completamente invisible en la terminal, sin
+    // forma de distinguir "no llego nada" de "llego pero sin auth".
+    console.log('socket connected', socketId, auth ? `userId=${auth.id}` : '(sin auth)')
+
     socket.emit('connection', {
       socketId,
     })
@@ -169,6 +174,11 @@ export class SocketService {
     })
 
     socket.on('changeState', async (pStateDriver: EStatusDriver) => {
+      // Este es el evento que dispara el toggle "disponible" del conductor. No logueaba nada -
+      // ni al recibirse ni al terminar - asi que en la terminal (que solo muestra requests HTTP
+      // via morgan) esto es invisible aunque llegue y funcione perfecto. Se agrega este log para
+      // poder diferenciar "no llego el evento" de "llego pero algo fallo silenciosamente".
+      console.log('changeState recibido', { userId: auth?.id || user?.id, pStateDriver, socketId })
       try {
         const vUser = {
           id: auth?.id || user?.id,
@@ -177,6 +187,7 @@ export class SocketService {
         }
         if (vUser?.id) {
           const vUserDB = await ClassAuthService.updateSocket(vUser)
+          console.log('changeState aplicado', { userId: vUser.id, statusDriver: pStateDriver })
           if (Number(vUser.statusDriver) === EStatusDriver.INACTIVE || Number(vUser.statusDriver) === EStatusDriver.BUSSY) {
             const admin = await ClassUserService.allUserAdmin()
             const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
@@ -185,6 +196,11 @@ export class SocketService {
               SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
             }
           }
+        } else {
+          // Llego el evento pero sin usuario identificado (auth/user ambos vacios) - el socket
+          // nunca se autentico. Se ignora en silencio (igual que antes), pero ahora al menos
+          // queda visible en la terminal en vez de desaparecer sin dejar rastro.
+          console.log('changeState ignorado: sin usuario identificado en este socket', { socketId })
         }
       } catch (error) {
         const req: IDataError = {
@@ -535,6 +551,8 @@ export class SocketService {
           id: data.tripId,
           userId: auth?.id || user?.id || data?.driverId || false,
         })
+        console.log('vTrip?.dataValues.status :>> ', vTrip?.dataValues.status)
+        console.log('EStatusTrip.FINALIZADO :>> ', EStatusTrip.FINALIZADO)
         if (vTrip?.dataValues.status !== EStatusTrip.FINALIZADO) {
           // TODO: aca debo sumarle al driver monto
           const vPercentageParameter = await CompanyParameterService.showByName('percentage')
@@ -588,6 +606,7 @@ export class SocketService {
           headers: socket.headers,
           userId: auth?.id || user?.id,
         }
+        console.log('error :>> ', error)
         ErrorReportingService.errorCreatedReporting(req, error)
       }
     })

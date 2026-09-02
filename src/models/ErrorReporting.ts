@@ -26,12 +26,17 @@ export const vErrorReportingModelAttributes: SequelizeAttributes<IErrorReporting
   type: {
     type: DataTypes.STRING,
   },
+  // data/error son TEXT en la migracion real (20240110132109-ErrorsReportings) - iban
+  // declarados como STRING aca, desalineados con la tabla real. No rompia nada porque Sequelize
+  // no valida longitud de string al hacer .create() sin validators explicitos, pero es
+  // enganoso. El 'unique: true' en error tampoco existe en la migracion (nunca se aplico a la
+  // DB real) - se saca porque ademas no tendria sentido: dos errores identicos (mismo mensaje +
+  // stack) son un caso normal y esperado, no algo que deba fallar al guardar.
   data: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
   },
   error: {
-    type: DataTypes.STRING,
-    unique: true,
+    type: DataTypes.TEXT,
   },
 }
 // --> Factory....

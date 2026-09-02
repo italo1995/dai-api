@@ -1,0 +1,49 @@
+components:
+  schemas:
+    ErrorReporting:
+      properties:
+        id:
+          description: the id of the error report
+          type: string
+        type:
+          description: the event or HTTP path that originated the error (e.g. 'changeState', 'coords', or an HTTP path)
+          type: string
+        data:
+          description: JSON string with the request/event that triggered the error (url, headers, body, userId)
+          type: string
+        error:
+          description: JSON string with the caught error (message, stack)
+          type: string
+        createdAt:
+          type: string
+paths:
+  /api/errorReporting/all:
+    get:
+      parameters:
+        - description: The page number to fetch
+          in: query
+          name: pag
+          schema:
+            type: number
+        - description: Items per page
+          in: query
+          name: limit
+          schema:
+            type: number
+        - description: Search text, matched against 'type' by default (set typeSearch to change)
+          in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErrorReporting'
+                type: Array
+          description: Paginated list of captured errors (admin/operator only)
+      summary: Returns a paginated list of captured server errors (admin panel, hidden route - see payaWeb menu-routing.module.ts 'errores')
+      tags:
+        - ErrorReporting

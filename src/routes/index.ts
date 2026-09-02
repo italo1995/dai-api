@@ -53,6 +53,7 @@ import CartRoute from './Cart/CartRoute'
 import CouponRoute from './Coupon/CouponRoute'
 import StoreCurrencyRoute from './Store/StoreCurrencyRoute'
 import StorePaymentMethodRoute from './Store/StorePaymentMethodRoute'
+import ErrorReportingRoute from './ErrorReportingRoute'
 
 const router = express.Router()
 
@@ -110,5 +111,6 @@ router.use('/cart', CartRoute)
 router.use('/coupon', CouponRoute)
 router.use('/storeCurrency', StoreCurrencyRoute)
 router.use('/storePaymentMethod', StorePaymentMethodRoute)
+router.use('/errorReporting', ErrorReportingRoute)
 
 export default router
