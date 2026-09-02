@@ -68,12 +68,18 @@ export class SocketService {
         skipMiddlewares: true,
       },
     })
-    // Usamos un middleware para verificar el token del usuario y adjuntarlo al handshake
+    // Usamos un middleware para verificar el token del usuario y adjuntarlo al handshake.
+    // Acepta el token por header Authorization (como lo manda hoy la app - extraHeaders) O por
+    // socket.handshake.auth.token (la opcion 'auth' nativa de socket.io-client) - por si algun
+    // cliente (o una version futura de la app) lo manda de esa forma en vez de header. Si
+    // vienen los dos, el header gana. Cualquiera sea el caso, socket.handshake.auth termina
+    // siempre en el usuario ya resuelto o en 'false' - nunca se deja el objeto crudo del
+    // cliente sin verificar.
     this.io.use(async (socket: any, next: any) => {
-      if (socket?.handshake?.headers?.authorization) {
-        const token = socket.handshake.headers.authorization.split(' ')[1]
-        socket.handshake.auth = await this.verifyTokenUser(token)
-      }
+      const vHeaderToken = socket?.handshake?.headers?.authorization?.split(' ')[1]
+      const vAuthOptionToken = socket?.handshake?.auth?.token
+      const vToken = vHeaderToken || vAuthOptionToken
+      socket.handshake.auth = vToken ? await this.verifyTokenUser(vToken) : false
       // socket.use(([event]: any) => {
       //   socket.event = event // Aquí guardas el nombre del evento
       // })
