@@ -235,17 +235,18 @@ class UserController {
     }
   }
 
-  // Libera el numero de telefono de un usuario borrado SIN reactivar la cuenta - para cuando el
-  // admin borro a alguien a proposito y no quiere que la cuenta vuelva, pero el numero deberia
-  // poder usarse en un registro nuevo. Ver el comentario de ClassUser.releasePhone.
-  async releasePhone(pReq: Request, pRes: Response, pNext: NextFunction) {
+  // Libera el numero de telefono y el correo de un usuario borrado SIN reactivar la cuenta -
+  // para cuando el admin borro a alguien a proposito y no quiere que la cuenta vuelva, pero
+  // esos datos deberian poder usarse en un registro nuevo. Ver el comentario de
+  // ClassUser.releaseContactInfo.
+  async releaseContactInfo(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vId: string = pReq.input('id', 'string')
-      const vResponse: boolean = await ClassUser.releasePhone(vId)
+      const vResponse: boolean = await ClassUser.releaseContactInfo(vId)
       if (!vResponse) {
         return pRes.status(500).send(fxErrorResponse(500, { data: false }, 'Ocurrio un error'))
       }
-      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Numero liberado con exito'))
+      return pRes.status(200).send(fxSuccessResponse(200, { data: true }, 'Datos liberados con exito'))
     } catch (error) {
       pNext(error)
     }

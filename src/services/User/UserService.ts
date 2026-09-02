@@ -361,24 +361,25 @@ class UserService implements IUserService {
     }
   }
 
-  // Libera el numero de telefono de un usuario borrado SIN reactivar la cuenta - para cuando un
-  // admin borro a alguien a proposito (ej: mal comportamiento) y no quiere que vuelva, pero el
-  // numero de esa persona deberia poder usarse en un registro nuevo de otra persona. A
+  // Libera el numero de telefono Y el correo de un usuario borrado SIN reactivar la cuenta -
+  // para cuando un admin borro a alguien a proposito (ej: mal comportamiento) y no quiere que
+  // vuelva, pero esos datos deberian poder usarse en un registro nuevo de otra persona (ambos
+  // campos son unique:true, a proposito no se toca eso - ver User.email/phoneNumber). A
   // diferencia de restore(), esto deja deletedAt intacto (el usuario sigue bloqueado/oculto) y
-  // solo limpia phoneNumber (nullable) - el resto de los datos de la cuenta borrada se
-  // conservan para historial/auditoria, solo se pierde el numero en si. Se valida primero que
-  // el usuario siga borrado, para no liberar por error el telefono de una cuenta activa.
-  async releasePhone(pId: string): Promise<boolean> {
+  // solo limpia phoneNumber/email (ambos nullable) - el resto de los datos de la cuenta borrada
+  // se conservan para historial/auditoria. Se valida primero que el usuario siga borrado, para
+  // no liberar por error los datos de una cuenta activa.
+  async releaseContactInfo(pId: string): Promise<boolean> {
     try {
       const vExisting = await modelUser.findOne({ where: { id: pId }, paranoid: false })
       if (!vExisting || !vExisting.dataValues.deletedAt) {
         return false
       }
       const [vAffected] = await modelUser.update(
-        // phoneNumber esta tipado como 'string' (no 'string | null') porque en el resto del
-        // codebase siempre se asume presente - se acota el cast solo a esta escritura puntual
-        // en vez de aflojar el tipo global y arriesgar romper esos otros usos.
-        { phoneNumber: null } as any,
+        // phoneNumber/email estan tipados sin '| null' porque en el resto del codebase siempre
+        // se asumen presentes - se acota el cast solo a esta escritura puntual en vez de aflojar
+        // el tipo global y arriesgar romper esos otros usos.
+        { phoneNumber: null, email: null } as any,
         { where: { id: pId }, paranoid: false }
       )
       return vAffected > 0

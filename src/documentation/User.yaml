@@ -212,16 +212,16 @@ paths:
       summary: Restaura un usuario borrado
       tags:
         - User
-  /api/user/releasePhone:
+  /api/user/releaseContactInfo:
     post:
       parameters:
         - $ref: '#/components/schemas/User/parameters/id'
       responses:
         '200':
-          description: Limpia el phoneNumber de un usuario borrado (deletedAt se mantiene) para que ese numero se pueda usar en un registro nuevo, sin reactivar la cuenta original
+          description: Limpia phoneNumber y email de un usuario borrado (deletedAt se mantiene) para que esos datos se puedan usar en un registro nuevo, sin reactivar la cuenta original
       security:
         - BearerAuth: []
-      summary: Libera el numero de telefono de un usuario borrado, sin reactivar la cuenta
+      summary: Libera el numero de telefono y el correo de un usuario borrado, sin reactivar la cuenta
       tags:
         - User
   /api/user/location:
