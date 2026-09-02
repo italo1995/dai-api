@@ -30,6 +30,10 @@ export enum ETypeService {
   CAR = 'car',
   DELIVERY = 'delivery',
   TRAVEL = 'travel',
+  // Un solo valor sirve para Dai Food y Dai Market - la diferencia de a que conductores se les
+  // asigna vive en stores.type (food/market), no hace falta duplicarlo aca (ver
+  // ARQUITECTURA_MARKETPLACE.md y tarea [Orden 5/8] del desglose de Orden).
+  MARKETPLACE = 'marketplace',
 }
 export enum EStatusTrip {
   ALL = 'all',
