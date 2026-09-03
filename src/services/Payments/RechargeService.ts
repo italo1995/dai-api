@@ -44,6 +44,14 @@ class rechargeService implements IrechargeService {
           userId: pParam.userId
         }
       }
+      // Antes 'all' no soportaba filtrar por status - hacia falta para poder pedir solo las
+      // pendientes (badge del sidebar, ver SelectedMenuService.fxGetPendingRecharges en payaWeb).
+      if (pParam?.status) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          status: Number(pParam.status)
+        }
+      }
       if (pParam.filterDate) {
         const timeFilter = subtractTimeUnitFromCurrentDate(pParam.filterDate)
         const currentDate = new Date()

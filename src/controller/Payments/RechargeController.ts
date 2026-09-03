@@ -12,6 +12,7 @@ import ClassUserService from '../../services/User/UserService'
 import CurrencyService from '../../services/Payments/CurrencyService'
 import NotificationService from '../fcmPushController'
 import { ETypeUser } from '../../types/User'
+import { SocketService } from '../../ws'
 
 export const recharge = {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -108,6 +109,28 @@ export const recharge = {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, null, 'Ocurrio un error'))
+      }
+      // Avisar a los admins/operadores cuando un cliente/conductor manda una recarga propia
+      // (rolId 3) y queda PENDIENTE. Antes esto no avisaba a nadie - la unica notificacion que
+      // existia era para el caso de retiro (withDraw) creado POR un admin para otra persona (ver
+      // mas arriba), no para el flujo comun de "alguien sube su comprobante". Mismo patron ya
+      // probado que usa AuthController para 'newDriver': push + evento de socket a los admins
+      // conectados, para que el contador del sidebar se actualice en vivo sin recargar la
+      // pagina.
+      if (user.rolId === 3 && vResponse?.dataValues.status === EStatusRecharge.PENDING) {
+        const admin = await ClassUserService.allUserAdmin()
+        const socketIds: any[] = admin.map((vUser: any) => vUser.socketId).filter(Boolean)
+        const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush).filter(Boolean)
+        if (pushIds.length) {
+          const notificationData = {
+            title: 'Nueva recarga pendiente por aprobar',
+            body: `${user.user || 'Un usuario'} envió un comprobante - revísalo en el panel. ¡Eso es DAI!`,
+          }
+          await NotificationService.sendNotification(pushIds, notificationData)
+        }
+        if (socketIds.length) {
+          SocketService.io.to(socketIds).emit('newRecharge', vResponse)
+        }
       }
       if (user.rolId !== 3) {
         const currencyId = vResponse?.dataValues?.currencyId || await CurrencyService.principal()
