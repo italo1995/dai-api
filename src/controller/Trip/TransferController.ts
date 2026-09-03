@@ -6,26 +6,38 @@ import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import ClassTripService from '../../services/Trip/TripService'
 import ClassAuthService from '../../services/User/AuthService'
 import imageThumbnail from 'image-thumbnail'
+
+// Resuelve una ruta dentro de uploads/ tolerando que el archivo haya quedado colocado un nivel
+// mas adentro, en src/uploads/ (paso en produccion con los recursos estaticos - ubicacion_inicio.svg,
+// logo.png - que quedaron copiados ahi por error en algun deploy manual, y por decision de Italo
+// no se van a mover en el servidor). Primero prueba la ruta canonica (uploads/ al mismo nivel que
+// src/, coincide con como FileController.ts sirve el resto de los uploads del proyecto); si no
+// existe, prueba la misma ruta pero adentro de src/uploads/. Si ninguna existe, devuelve la
+// canonica igual - así el error que tira fs.readFileSync/existsSync sigue siendo el mismo de
+// siempre (no se oculta un archivo realmente faltante).
+function fxResolveUploadPath(pRelativePath: string): string {
+  const vCanonical = path.resolve(__dirname, '../../../uploads', pRelativePath)
+  if (fs.existsSync(vCanonical)) {
+    return vCanonical
+  }
+  const vFallback = path.resolve(__dirname, '../../../src/uploads', pRelativePath)
+  if (fs.existsSync(vFallback)) {
+    return vFallback
+  }
+  return vCanonical
+}
+
 class TransferController {
   async marker(_pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const auth = _pReq.auth
-      const image: any = fs.readFileSync(
-        path.resolve(__dirname, '../../../uploads/resources/ubicacion_inicio.svg')
-      )
-      let avatar: any = fs.readFileSync(
-        path.resolve(__dirname, '../../../uploads/resources/logo.png')
-      )
+      const image: any = fs.readFileSync(fxResolveUploadPath('resources/ubicacion_inicio.svg'))
+      let avatar: any = fs.readFileSync(fxResolveUploadPath('resources/logo.png'))
       if (auth?.avatar) {
-        avatar = fs.readFileSync(path.resolve(__dirname, `../../../uploads/${auth?.avatar}`))
-        const extname = path.extname(path.resolve(__dirname, `../../../uploads/${auth?.avatar}`))
-        const avatarName = path.basename(
-          path.resolve(__dirname, `../../../uploads/${auth?.avatar}`),
-          extname
-        )
-        if (
-          fs.existsSync(path.resolve(__dirname, `../../../uploads/user/${avatarName}user_u64pxv2.png`))
-        ) {
+        avatar = fs.readFileSync(fxResolveUploadPath(auth.avatar))
+        const extname = path.extname(auth.avatar)
+        const avatarName = path.basename(auth.avatar, extname)
+        if (fs.existsSync(fxResolveUploadPath(`user/${avatarName}user_u64pxv2.png`))) {
           return pRes
             .status(200)
             .send(fxSuccessResponse(200, { img: `user/${avatarName}user_u64pxv2.png` }, 'Correcto'))
@@ -45,7 +57,7 @@ class TransferController {
           .status(200)
           .send(fxSuccessResponse(200, { img: `user/${avatarName}user_u64pxv2.png` }, 'Correcto'))
       } else {
-        if (fs.existsSync(path.resolve(__dirname, '../../../uploads/user/marker_u.png'))) {
+        if (fs.existsSync(fxResolveUploadPath('user/marker_u.png'))) {
           return pRes
             .status(200)
             .send(fxSuccessResponse(200, { img: 'user/marker_u.png' }, 'Correcto'))
@@ -84,14 +96,10 @@ class TransferController {
           const vClientId = vTrip.dataValues.userId
           const vClient = await ClassAuthService.show(vClientId)
           const avatar = vClient?.dataValues.avatar
-          const extname = path.extname(path.resolve(__dirname, `../../../uploads/${avatar}`))
-          const avatarName = path.basename(
-            path.resolve(__dirname, `../../../uploads/${avatar}`),
-            extname
-          )
-          if (
-            fs.existsSync(path.resolve(__dirname, `../../../uploads/user/${avatarName}user_u64pxv2.png`))
-          ) {
+          const vAvatarPath = fxResolveUploadPath(String(avatar))
+          const extname = path.extname(vAvatarPath)
+          const avatarName = path.basename(vAvatarPath, extname)
+          if (fs.existsSync(fxResolveUploadPath(`user/${avatarName}user_u64pxv2.png`))) {
             return pRes
               .status(200)
               .send(fxSuccessResponse(200, { img: `user/${avatarName}user_u64pxv2.png` }, 'Correcto'))
@@ -120,9 +128,7 @@ class TransferController {
       // const resizedImage = await sharp(avatar)
       //   .resize(45, 45)
       //   .toBuffer()
-      const image: any = fs.readFileSync(
-        path.resolve(__dirname, '../../../uploads/resources/ubicacion_inicio.svg')
-      )
+      const image: any = fs.readFileSync(fxResolveUploadPath('resources/ubicacion_inicio.svg'))
       const base64Image: any = Buffer.from(image).toString('base64')
       const dataURI = 'data:image/svg+xml;base64,' + base64Image
       // const base64ImageAvatar: any = Buffer.from(resizedImage).toString('base64')
