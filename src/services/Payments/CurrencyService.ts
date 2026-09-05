@@ -29,6 +29,7 @@ interface ICurrencyService {
   update(payload: ICurrencyInput): Promise<ICurrencyInstance | null>
   softDeleteRecord(pId: number): Promise<boolean>
   convert(data: { currencyId?: number, amount: number }): Promise<number>
+  convertToPrincipal(data: { currencyId?: number, amount: number }): Promise<number>
 }
 
 class CurrencyService implements ICurrencyService {
@@ -153,6 +154,38 @@ class CurrencyService implements ICurrencyService {
           vAmountConvertReponse = data.amount * vChange
         } else {
           vAmountConvertReponse = data.amount / vChange
+        }
+        return Number(vAmountConvertReponse.toFixed(4))
+      }
+      return data.amount
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // Inverso de convert(): toma un monto YA expresado en 'currencyId' (ej. el price/amount de un
+  // trip/recharge, guardados siempre en la moneda que eligio el usuario, nunca normalizados) y
+  // lo devuelve en la moneda principal (dolares). convert() esta pensado para el sentido
+  // contrario (principal -> currencyId) y se estaba usando por error en varios lugares con un
+  // monto que ya estaba en la moneda destino, duplicando la conversion.
+  async convertToPrincipal(data: { currencyId?: number, amount: number }): Promise<number> {
+    try {
+      if (!data?.currencyId) {
+        return data.amount
+      }
+      const vResponse: ICurrencyInstance | null = await modelCurrency.findOne({
+        where: {
+          id: data.currencyId,
+        },
+      })
+      if (vResponse) {
+        const vChange = vResponse?.dataValues.change
+        const vType = vResponse?.dataValues.type
+        let vAmountConvertReponse = data.amount
+        if (vType) {
+          vAmountConvertReponse = data.amount / vChange
+        } else {
+          vAmountConvertReponse = data.amount * vChange
         }
         return Number(vAmountConvertReponse.toFixed(4))
       }

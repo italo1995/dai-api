@@ -58,7 +58,7 @@ class UserService implements IUserService {
       const commission: number = pParam?.minAmount ? (pParam.minAmount * vPercentage) / 100 : 0
       let minAmount = 0
       if (pParam.currencyId && commission) {
-        minAmount = await CurrencyService.convert({ currencyId: Number(pParam.currencyId), amount: Number(commission) })
+        minAmount = await CurrencyService.convertToPrincipal({ currencyId: Number(pParam.currencyId), amount: Number(commission) })
       }
       let query = `SELECT temp.*, vehicle_types.is_car, vehicle_types.is_moto FROM (SELECT id, lat, lon, socket_id, status_driver, verified_driver, type_user, token_push, availability_to_travel, vehicle_type, balance, driver_suspended_to, (6371 * acos(cos(radians(${Number(pParam.lat)})) * cos(radians(lat)) * cos(radians(lon) - radians(${Number(pParam.lon)})) + sin(radians(${Number(pParam.lat)})) * sin(radians(lat)))) as distance FROM users where balance > ${minAmount}) as temp left join vehicle_types on temp.vehicle_type = vehicle_types.id WHERE NOT distance IS NULL AND distance >= 0 AND distance < ${Number(pParam.distance)} AND status_driver = 1 AND verified_driver = true AND type_user = '2' AND socket_id is not null`
       if (pParam.typeService === ETypeService.CAR) {

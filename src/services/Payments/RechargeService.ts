@@ -181,7 +181,7 @@ class rechargeService implements IrechargeService {
               item?.dataValues?.type === ETypeRecharge.recharge &&
               item?.dataValues?.status === EStatusRecharge.APPROVED
             ) {
-              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.amount) })
+              totalAgain += await CurrencyService.convertToPrincipal({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.amount) })
             }
           }
           vResponsePaginate.totalAgainFilter = totalAgain
@@ -202,7 +202,7 @@ class rechargeService implements IrechargeService {
             vResponsePaginate.totalAmount = again
             let totalAgain = 0
             for (const item of again) {
-              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.totalAmount) })
+              totalAgain += await CurrencyService.convertToPrincipal({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.totalAmount) })
             }
             vResponsePaginate.totalAgain = totalAgain
           } else {

@@ -135,7 +135,7 @@ export const recharge = {
       if (user.rolId !== 3) {
         const currencyId = vResponse?.dataValues?.currencyId || await CurrencyService.principal()
         if (Number(vData.type) === ETypeRecharge.recharge && vData.userId) {
-          const amount: number = await CurrencyService.convert({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
+          const amount: number = await CurrencyService.convertToPrincipal({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
           await ClassUserService.sumBalance({
             id: vData.userId,
             balance: amount
@@ -195,7 +195,7 @@ export const recharge = {
       }
       if (Number(vData.status) === EStatusRecharge.APPROVED && oldRechargeJSON.status === EStatusRecharge.PENDING) {
         const currencyId = vResponse?.dataValues?.currencyId
-        const amount: number = await CurrencyService.convert({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
+        const amount: number = await CurrencyService.convertToPrincipal({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
         if (oldRecharge?.dataValues.userId) {
           await ClassUserService.sumBalance({
             id: oldRecharge?.dataValues.userId,
@@ -263,7 +263,7 @@ export const recharge = {
       }
       if (Number(vData.status) === EStatusRecharge.APPROVED && oldRechargeJSON.status === EStatusRecharge.PENDING) {
         const currencyId = vResponse?.dataValues?.currencyId
-        const amount: number = await CurrencyService.convert({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
+        const amount: number = await CurrencyService.convertToPrincipal({ currencyId: Number(currencyId), amount: Number(vResponse?.dataValues.amount) })
         if (oldRechargeJSON.type === ETypeRecharge.recharge) {
           if (oldRecharge?.dataValues.userId) {
             await ClassUserService.sumBalance({

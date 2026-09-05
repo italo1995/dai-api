@@ -304,7 +304,7 @@ class TripService implements ITripService {
             vResp.again = again
             let totalAgain = 0
             for (const item of again) {
-              totalAgain += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
+              totalAgain += await CurrencyService.convertToPrincipal({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
             }
             vResp.totalAgain = totalAgain
           } else {
@@ -314,7 +314,7 @@ class TripService implements ITripService {
             vResp.againFilter = againFilter
             let totalAgainFilter = 0
             for (const item of againFilter) {
-              totalAgainFilter += await CurrencyService.convert({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
+              totalAgainFilter += await CurrencyService.convertToPrincipal({ currencyId: Number(item?.dataValues.currencyId), amount: Number(item?.dataValues?.again) })
             }
             vResp.totalAgainFilter = totalAgainFilter
           } else {
@@ -462,7 +462,7 @@ class TripService implements ITripService {
         const commission: number = trip?.price ? (trip.price * vPercentage) / 100 : 0
         let minAmount = 0
         if (trip.currencyId && commission) {
-          minAmount = await CurrencyService.convert({ currencyId: Number(trip.currencyId), amount: Number(commission) })
+          minAmount = await CurrencyService.convertToPrincipal({ currencyId: Number(trip.currencyId), amount: Number(commission) })
         }
         if (vUser === null || (!vUser?.dataValues?.balance && vUser?.dataValues?.balance !== 0)) {
           vResponse.push(trip)

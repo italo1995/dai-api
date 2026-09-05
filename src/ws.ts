@@ -575,7 +575,7 @@ export class SocketService {
           const vPercentageParameter = await CompanyParameterService.showByName('percentage')
           const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
           const vTripPrice = Number(vTrip?.dataValues.price)
-          const vTripConvert = await CurrencyService.convert({ currencyId: Number(vTrip?.dataValues.currencyId), amount: Number(vTripPrice) })
+          const vTripConvert = await CurrencyService.convertToPrincipal({ currencyId: Number(vTrip?.dataValues.currencyId), amount: Number(vTripPrice) })
           const commission: number = (vTripConvert * vPercentage) / 100
           if (vTrip?.dataValues?.driverId) {
             await DriverReportService.updatedOrCreate({
