@@ -544,33 +544,37 @@ class TripController {
 
         if (pReq.auth.typeUser === ETypeUser.passenger && vResponse?.dataValues.driverId) {
           const vDriver = await ClassUserService.show({ id: vResponse.dataValues.driverId })
-          if (vDriver?.dataValues.socketId) {
-            if (vDriver?.dataValues.tokenPush) {
-              const notificationData = {
-                title: 'Tu pasajero ha cancelado el servicio',
-                body: '¡Gracias por tu disposición!. Es momento de tomar otro viaje',
-              }
-              await NotificationService.sendNotification(
-                [vDriver.dataValues.tokenPush],
-                notificationData
-              )
+          // El push no depende de que el conductor tenga un socket activo en este instante
+          // (antes estaba anidado dentro del if de socketId - si el conductor estaba
+          // desconectado/reconectando en ese momento, no se enteraba de la cancelacion ni por
+          // push ni por socket, y podia completar un viaje ya cancelado, ver QA-01).
+          if (vDriver?.dataValues.tokenPush) {
+            const notificationData = {
+              title: 'Tu pasajero ha cancelado el servicio',
+              body: '¡Gracias por tu disposición!. Es momento de tomar otro viaje',
             }
+            await NotificationService.sendNotification(
+              [vDriver.dataValues.tokenPush],
+              notificationData
+            )
+          }
+          if (vDriver?.dataValues.socketId) {
             SocketService.io.to(vDriver.dataValues.socketId).emit('cancelTripActive', vResponse)
           }
         }
         if (pReq.auth.typeUser === ETypeUser.driver && vResponse?.dataValues.userId) {
           const vClient = await ClassUserService.show({ id: vResponse.dataValues.userId })
-          if (vClient?.dataValues.socketId) {
-            if (vClient?.dataValues.tokenPush) {
-              const notificationData = {
-                title: 'Tu conductor ha cancelado el servicio',
-                body: 'Si tienes alguna duda, contacta a un operador',
-              }
-              await NotificationService.sendNotification(
-                [vClient.dataValues.tokenPush],
-                notificationData
-              )
+          if (vClient?.dataValues.tokenPush) {
+            const notificationData = {
+              title: 'Tu conductor ha cancelado el servicio',
+              body: 'Si tienes alguna duda, contacta a un operador',
             }
+            await NotificationService.sendNotification(
+              [vClient.dataValues.tokenPush],
+              notificationData
+            )
+          }
+          if (vClient?.dataValues.socketId) {
             SocketService.io.to(vClient.dataValues.socketId).emit('cancelTripActive', vResponse)
           }
         }

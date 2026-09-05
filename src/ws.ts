@@ -227,6 +227,7 @@ export class SocketService {
           lon: coords?.lng || null,
           socketId: coords?.socketId || socketId,
         }
+        console.log('vUser :>> ', vUser)
         if (coords?.isDriver) {
           const socketIds: any[] = [...SocketService.adminSocketIds]
           if (socketIds.length) {
@@ -568,9 +569,15 @@ export class SocketService {
           id: data.tripId,
           userId: auth?.id || user?.id || data?.driverId || false,
         })
-        console.log('vTrip?.dataValues.status :>> ', vTrip?.dataValues.status)
-        console.log('EStatusTrip.FINALIZADO :>> ', EStatusTrip.FINALIZADO)
-        if (vTrip?.dataValues.status !== EStatusTrip.FINALIZADO) {
+        // No permitir completar un viaje ya cancelado/anulado - antes solo se excluia
+        // FINALIZADO, asi que un conductor que no se entero de la cancelacion (ver fix en
+        // TripController.update, cancelTripActive) podia completarlo igual y quedaba
+        // registrado como exitoso con calificacion mutua (QA-01).
+        if (
+          vTrip?.dataValues.status !== EStatusTrip.FINALIZADO &&
+          vTrip?.dataValues.status !== EStatusTrip.CANCELADO &&
+          vTrip?.dataValues.status !== EStatusTrip.ANULADO
+        ) {
           // TODO: aca debo sumarle al driver monto
           const vPercentageParameter = await CompanyParameterService.showByName('percentage')
           const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
