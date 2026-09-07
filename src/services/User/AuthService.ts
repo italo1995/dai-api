@@ -222,7 +222,10 @@ class AuthService implements IAuthService {
         id: pData.id,
         lat: pData?.lat || vUser?.dataValues?.lat || null,
         lon: pData?.lon || vUser?.dataValues?.lon || null,
-        socketId: pData?.socketId || vUser?.dataValues?.socketId || null,
+        // 'socketId' in pData (no solo su valor) porque el disconnect manda socketId:null a
+        // proposito para limpiarlo - con || caia en el fallback y el null nunca se guardaba,
+        // dejando el socketId viejo/muerto en la DB para siempre despues de cada desconexion.
+        socketId: 'socketId' in pData ? pData.socketId : vUser?.dataValues?.socketId || null,
         statusDriver:
           'statusDriver' in pData ? pData.statusDriver : vUser!.dataValues.statusDriver!,
         balance: pData?.discount ? Number(balance) - pData.discount : balance,
