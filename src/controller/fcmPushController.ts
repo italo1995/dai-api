@@ -11,7 +11,10 @@ class NotificationService {
   private messaging: admin.messaging.Messaging
 
   constructor() {
-    const vRutaJSON = path.resolve(__dirname, '../paya-7871b-a25830197977.json')
+    const vRutaJSON = path.resolve(
+      __dirname,
+      '../dai-traslados-firebase-adminsdk-fbsvc-0cfa4d7e1e.json'
+    )
     admin.initializeApp({
       credential: admin.credential.cert(vRutaJSON),
     })
