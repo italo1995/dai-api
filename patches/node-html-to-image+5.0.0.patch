@@ -1,0 +1,13 @@
+diff --git a/node_modules/node-html-to-image/dist/main.js b/node_modules/node-html-to-image/dist/main.js
+index d10db1e..a7df424 100644
+--- a/node_modules/node-html-to-image/dist/main.js
++++ b/node_modules/node-html-to-image/dist/main.js
+@@ -62,7 +62,7 @@ function nodeHtmlToImage(options) {
+         catch (err) {
+             console.error(err);
+             yield cluster.close();
+-            process.exit(1);
++            throw err;
+         }
+     });
+ }
