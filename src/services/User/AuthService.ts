@@ -40,8 +40,15 @@ interface IAuthService {
   updateSocket(payload: IUserUpdateSocket): Promise<IUserInstance | null>
   disconnect(pId: string): Promise<boolean | IUserInstance>
   delete(pId: string): Promise<boolean>
-  beginDriverSession(pUserId: string): Promise<string | null | undefined>
+  beginDriverSession(pUserId: string): Promise<IBeginDriverSessionResult | undefined>
   clearSocketIfCurrent(pUserId: string, pExpectedSocketId: string): Promise<void>
+}
+
+export interface IBeginDriverSessionResult {
+  sessionId: string
+  previousSocketId: string | null
+  previousTokenPush: string | null
+  hadPreviousSession: boolean
 }
 
 class AuthService implements IAuthService {
@@ -391,24 +398,30 @@ class AuthService implements IAuthService {
     }
   }
 
-  // QA-03: al hacer login/verifiedUserCode, si el usuario es conductor y ya tiene una sesion
-  // activa (otro dispositivo logueado sin haber hecho logout), rechaza el intento devolviendo
-  // null en vez de generar una sesion nueva - "gana el primero". Para cualquier otro typeUser
-  // (pasajero, staff, admin, tienda) no aplica ningun limite: devuelve undefined y el JWT se
-  // genera sin sessionId, como siempre. Busca el usuario de nuevo con el scope por defecto (no
-  // usa el que le pasen) porque el caller (login) trae al usuario con el scope 'withPassword',
-  // que no incluye typeUser ni activeSessionId.
-  async beginDriverSession(pUserId: string): Promise<string | null | undefined> {
+  // QA-03: al hacer login/verifiedUserCode, si el usuario es conductor, se le asigna una nueva
+  // sesion "activa" - "gana el ultimo": si ya habia una sesion de otro dispositivo, queda
+  // desplazada (su JWT deja de ser valido en el siguiente chequeo, tanto HTTP como socket) sin
+  // rechazar este login. Devuelve los datos del dispositivo desplazado (si habia uno) para que
+  // el caller le avise. Para cualquier otro typeUser (pasajero, staff, admin, tienda) no aplica
+  // ningun limite: devuelve undefined y el JWT se genera sin sessionId, como siempre. Busca el
+  // usuario de nuevo con el scope por defecto (no usa el que le pasen) porque el caller (login)
+  // trae al usuario con el scope 'withPassword', que no incluye typeUser/activeSessionId.
+  async beginDriverSession(pUserId: string): Promise<IBeginDriverSessionResult | undefined> {
     const vUser: IUserInstance | null = await modelUser.findOne({ where: { id: pUserId } })
     if (vUser?.dataValues.typeUser !== ETypeUser.driver) {
       return undefined
     }
-    if (vUser?.dataValues.activeSessionId) {
-      return null
-    }
+    const vPreviousSocketId = vUser.dataValues.socketId || null
+    const vPreviousTokenPush = vUser.dataValues.tokenPush || null
+    const vHadPreviousSession = !!vUser.dataValues.activeSessionId
     const vSessionId = uuidv4()
-    await vUser?.update({ activeSessionId: vSessionId })
-    return vSessionId
+    await vUser.update({ activeSessionId: vSessionId })
+    return {
+      sessionId: vSessionId,
+      previousSocketId: vPreviousSocketId,
+      previousTokenPush: vPreviousTokenPush,
+      hadPreviousSession: vHadPreviousSession,
+    }
   }
 
   // Carrera del disconnect (ver analisis de Ricardo, 2026-09-08): si el socket A muere sin que

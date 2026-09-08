@@ -71,6 +71,22 @@ import TripService from '../../services/Trip/TripService'
 import StaffViewService from '../../services/web/StaffViewService'
 import { SocketService } from '../../ws'
 
+// QA-03: aviso al dispositivo desplazado cuando un conductor se loguea en otro ("gana el
+// ultimo"). Standalone (no metodo de clase) porque las rutas llaman a 'controller.login' como
+// referencia suelta, sin bindear 'this'. Push + socket, cada uno independiente del otro - si el
+// dispositivo viejo no tiene push token o no esta conectado, igual se intenta el otro canal.
+async function notifyDisplacedDevice(pSocketId: string | null, pTokenPush: string | null): Promise<void> {
+  if (pTokenPush) {
+    await NotificationService.sendNotification([pTokenPush], {
+      title: 'Se inició sesión en otro dispositivo',
+      body: 'Si fuiste vos, no hace falta hacer nada. Si no fuiste vos, contáctanos.',
+    })
+  }
+  if (pSocketId) {
+    SocketService.io.to(pSocketId).emit('sessionTakenOver', {})
+  }
+}
+
 class AuthController {
   async registerOrCreateUserForNumber(
     pReq: Request,
@@ -153,27 +169,21 @@ class AuthController {
         if (!vUser) {
           return pRes.status(500).send(fxErrorResponse(500, { code: false }, 'Codigo incorrecto'))
         }
+        // Mismo orden que en login(): capturar/desplazar la sesion vieja ANTES de que
+        // updateSocket pise el socketId del dispositivo anterior.
+        const vSession = await ClassAuthService.beginDriverSession(vUser.dataValues.id)
+        if (vSession?.hadPreviousSession) {
+          await notifyDisplacedDevice(vSession.previousSocketId, vSession.previousTokenPush)
+        }
         if (socketId) {
           await ClassAuthService.updateSocket({
             id: vUser.id,
             socketId: socketId,
           })
         }
-        const vSessionId = await ClassAuthService.beginDriverSession(vUser.dataValues.id)
-        if (vSessionId === null) {
-          return pRes
-            .status(409)
-            .send(
-              fxErrorResponse(
-                409,
-                null,
-                'Ya iniciaste sesión en otro dispositivo. Cierra sesión ahí primero para poder entrar aquí.'
-              )
-            )
-        }
         const vResponse = {
           user: JSON.parse(JSON.stringify(vUser)),
-          token: fxGenerateAccessToken(vUser.dataValues, vSessionId),
+          token: fxGenerateAccessToken(vUser.dataValues, vSession?.sessionId),
         }
         await ClassAuthService.deleteUserNumber(vPhoneNumber)
         return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
@@ -418,6 +428,13 @@ class AuthController {
       if (!vUser || !bcrypt.compareSync(vData.password, vUser.password)) {
         return pRes.status(400).send(fxErrorResponse(400, null, 'Email or password is incorrect'))
       } else {
+        // Antes de tocar el socketId: si es conductor y ya habia otro dispositivo con sesion
+        // activa, "gana el ultimo" - se le avisa al viejo antes de desplazarlo (ver
+        // notifyDisplacedDevice). Va primero porque updateSocket ya pisaria el socketId viejo.
+        const vSession = await ClassAuthService.beginDriverSession(vUser.id)
+        if (vSession?.hadPreviousSession) {
+          await notifyDisplacedDevice(vSession.previousSocketId, vSession.previousTokenPush)
+        }
         await ClassAuthService.updateSocket({
           ...vData,
           id: vUser.id
@@ -430,19 +447,7 @@ class AuthController {
           userResponse.views = JSON.parse(JSON.stringify(view))
         }
         delete userResponse.password
-        const vSessionId = await ClassAuthService.beginDriverSession(vUser.id)
-        if (vSessionId === null) {
-          return pRes
-            .status(409)
-            .send(
-              fxErrorResponse(
-                409,
-                null,
-                'Ya iniciaste sesión en otro dispositivo. Cierra sesión ahí primero para poder entrar aquí.'
-              )
-            )
-        }
-        const vToken = fxGenerateAccessToken(vUser, vSessionId)
+        const vToken = fxGenerateAccessToken(vUser, vSession?.sessionId)
         return pRes
           .status(200)
           .send(fxSuccessResponse(200, { token: vToken, user: userResponse }, 'logueado con exito'))
