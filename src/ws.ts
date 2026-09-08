@@ -654,6 +654,16 @@ export class SocketService {
       if (token) {
         const decoded = jwt.verify(token, AppConfig.SECRET_KEY) as any
         const user: IUserInstance | null = await modelUser.findByPk(decoded.id)
+        // QA-03: mismo chequeo de sesion unica que en server.ts/verifyTokenUser (HTTP) - un
+        // token de una sesion desplazada por un login mas nuevo en otro dispositivo se rechaza
+        // aca tambien, para que ni el socket conecte con el.
+        if (
+          user &&
+          user.dataValues.activeSessionId &&
+          decoded.sessionId !== user.dataValues.activeSessionId
+        ) {
+          return null
+        }
         if (user) {
           return user
         }

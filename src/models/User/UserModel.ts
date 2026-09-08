@@ -31,6 +31,11 @@ export interface IUserAttributes {
   tokenPush?: string | null
   rolId?: number
   socketId?: string | null
+  // Solo se usa para conductores (ver QA-03): marca cual login es el "activo" cuando la misma
+  // cuenta se abre en varios dispositivos. Se fija en login(), se limpia en disconnect()
+  // (logout), y se valida en cada verifyTokenUser (http y socket) contra el sessionId que viene
+  // adentro del JWT - si no coinciden, el token se trata como invalido.
+  activeSessionId?: string | null
   tokenExpire?: Date
   lat?: number | null
   lon?: number | null
@@ -231,6 +236,12 @@ export const vUserModelAttributes: SequelizeAttributes<IUserAttributes> = {
     allowNull: true,
     type: DataTypes.STRING,
     field: 'socket_id',
+    defaultValue: null,
+  },
+  activeSessionId: {
+    allowNull: true,
+    type: DataTypes.STRING,
+    field: 'active_session_id',
     defaultValue: null,
   },
   dob: {

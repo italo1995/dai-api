@@ -30,12 +30,20 @@ export const fxErrorResponse = (code: number, data: any, message: string) => {
   }
 }
 
-export const fxGenerateAccessToken = (user: IUserAttributes): string => {
-  const payload = {
+export const fxGenerateAccessToken = (
+  user: IUserAttributes,
+  sessionId?: string | null
+): string => {
+  const payload: Record<string, any> = {
     id: user.id,
     email: user.email,
     role: user.rolId,
     user: user.name,
+  }
+  // Solo va en el token cuando aplica (ver AuthService.beginDriverSession) - hoy unicamente
+  // para conductores, como parte del control de sesion unica (QA-03).
+  if (sessionId) {
+    payload.sessionId = sessionId
   }
   const accessToken = jwt.sign(payload, AppConfig.SECRET_KEY as Secret)
   return accessToken

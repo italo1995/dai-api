@@ -21,12 +21,14 @@
   9 - login: Se usa para el login de administrador, verificando la contraseña
 */
 import { Op, Sequelize, ValidationError, ValidationErrorItem } from 'sequelize'
+import { v4 as uuidv4 } from 'uuid'
 import type {
   IUserInput,
   IUserCodeInput,
   IUserInputUpdate,
   IUserUpdateSocket,
 } from '../../types/User'
+import { ETypeUser } from '../../types/User'
 import { EStatusDriver, type IUserInstance } from '../../models/User/UserModel'
 import type { IUserCodeInstance } from '../../models/User/UserCodeModel'
 import { modelDriverDetail, modelUser, modelUserCode, modelUserRating, modelVehicleType } from '../../models'
@@ -38,6 +40,7 @@ interface IAuthService {
   updateSocket(payload: IUserUpdateSocket): Promise<IUserInstance | null>
   disconnect(pId: string): Promise<boolean | IUserInstance>
   delete(pId: string): Promise<boolean>
+  beginDriverSession(pUserId: string): Promise<string | null | undefined>
 }
 
 class AuthService implements IAuthService {
@@ -314,6 +317,10 @@ class AuthService implements IAuthService {
             tokenPush: null,
             socketId: null,
             statusDriver: EStatusDriver.INACTIVE,
+            // Libera el "cupo" de sesion activa (ver QA-03/beginDriverSession) - un logout
+            // explicito es la unica forma normal de que otro dispositivo pueda entrar despues
+            // con la misma cuenta.
+            activeSessionId: null,
           },
           { where: { id: pId } }
         )
@@ -381,6 +388,26 @@ class AuthService implements IAuthService {
     } catch (error) {
       throw error
     }
+  }
+
+  // QA-03: al hacer login/verifiedUserCode, si el usuario es conductor y ya tiene una sesion
+  // activa (otro dispositivo logueado sin haber hecho logout), rechaza el intento devolviendo
+  // null en vez de generar una sesion nueva - "gana el primero". Para cualquier otro typeUser
+  // (pasajero, staff, admin, tienda) no aplica ningun limite: devuelve undefined y el JWT se
+  // genera sin sessionId, como siempre. Busca el usuario de nuevo con el scope por defecto (no
+  // usa el que le pasen) porque el caller (login) trae al usuario con el scope 'withPassword',
+  // que no incluye typeUser ni activeSessionId.
+  async beginDriverSession(pUserId: string): Promise<string | null | undefined> {
+    const vUser: IUserInstance | null = await modelUser.findOne({ where: { id: pUserId } })
+    if (vUser?.dataValues.typeUser !== ETypeUser.driver) {
+      return undefined
+    }
+    if (vUser?.dataValues.activeSessionId) {
+      return null
+    }
+    const vSessionId = uuidv4()
+    await vUser?.update({ activeSessionId: vSessionId })
+    return vSessionId
   }
 
   private formatearFecha(date: Date) {

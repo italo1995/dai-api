@@ -159,9 +159,21 @@ class AuthController {
             socketId: socketId,
           })
         }
+        const vSessionId = await ClassAuthService.beginDriverSession(vUser.dataValues.id)
+        if (vSessionId === null) {
+          return pRes
+            .status(409)
+            .send(
+              fxErrorResponse(
+                409,
+                null,
+                'Ya iniciaste sesión en otro dispositivo. Cierra sesión ahí primero para poder entrar aquí.'
+              )
+            )
+        }
         const vResponse = {
           user: JSON.parse(JSON.stringify(vUser)),
-          token: fxGenerateAccessToken(vUser.dataValues),
+          token: fxGenerateAccessToken(vUser.dataValues, vSessionId),
         }
         await ClassAuthService.deleteUserNumber(vPhoneNumber)
         return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
@@ -418,7 +430,19 @@ class AuthController {
           userResponse.views = JSON.parse(JSON.stringify(view))
         }
         delete userResponse.password
-        const vToken = fxGenerateAccessToken(vUser)
+        const vSessionId = await ClassAuthService.beginDriverSession(vUser.id)
+        if (vSessionId === null) {
+          return pRes
+            .status(409)
+            .send(
+              fxErrorResponse(
+                409,
+                null,
+                'Ya iniciaste sesión en otro dispositivo. Cierra sesión ahí primero para poder entrar aquí.'
+              )
+            )
+        }
+        const vToken = fxGenerateAccessToken(vUser, vSessionId)
         return pRes
           .status(200)
           .send(fxSuccessResponse(200, { token: vToken, user: userResponse }, 'logueado con exito'))

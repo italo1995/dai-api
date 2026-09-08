@@ -50,6 +50,16 @@ export class Server {
                 id: decoded.id,
               },
             })
+            // QA-03: si el usuario tiene una sesion activa marcada (solo pasa para conductores,
+            // ver beginDriverSession) y este token no es de esa sesion, se trata como invalido -
+            // significa que se logueo despues en otro dispositivo y este quedo desplazado.
+            if (
+              vUser?.dataValues?.activeSessionId &&
+              decoded.sessionId !== vUser.dataValues.activeSessionId
+            ) {
+              resolve(false)
+              return
+            }
             resolve({ ...decoded, ...vUser?.dataValues })
           } else {
             resolve(false)
