@@ -482,6 +482,29 @@ class TripController {
           amount: vData.price || null,
         }
         await ClassTripPaymentService.updatePrice(vUpdateTripPaymentData)
+        // Avisar directo a los conductores que YA ofertaron en este viaje - la busqueda generica
+        // de "conductores cercanos" mas abajo no los cubre de forma confiable (puede excluirlos
+        // en silencio por estar recien reconectados, fuera del radio recalculado, etc). Esto no
+        // depende de esa busqueda ni de lat/lon.
+        const vPendingOffers = await TripOffertService.showAllPendingByTrip(vResponse.dataValues.id)
+        for (const vOffer of vPendingOffers) {
+          const vOfferDriver = (vOffer as any).driver
+          if (vOfferDriver?.tokenPush) {
+            await NotificationService.sendNotification([vOfferDriver.tokenPush], {
+              title: 'El pasajero actualizó el precio',
+              body: 'Revisa el nuevo monto del viaje. ¡Eso es DAI!',
+              data: JSON.stringify(vResponse),
+            })
+          }
+          if (vOfferDriver?.socketId) {
+            SocketService.io.to(vOfferDriver.socketId).emit('newTrip', vResponse)
+          } else {
+            console.log('trip/update: conductor con oferta pendiente sin socket activo, no se pudo avisar en vivo', {
+              tripId: vResponse.dataValues.id,
+              driverId: vOfferDriver?.id,
+            })
+          }
+        }
       }
       const vInitRoute: ITripRouteInput = pReq.input('initRoute', 'json')
       const vEndRoute: ITripRouteInput = pReq.input('endRoute', 'json')

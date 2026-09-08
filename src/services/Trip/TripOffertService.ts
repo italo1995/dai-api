@@ -32,6 +32,7 @@ interface ITripOffertService {
   create(payload: ITripOffertInput): Promise<ITripOffertInstance>
   update(payload: ITripOffertUpdate): Promise<ITripOffertInstance | null>
   softDeleteRecord(pId: string): Promise<boolean>
+  showAllPendingByTrip(pTripId: number): Promise<ITripOffertInstance[]>
 }
 
 class TripOffertService implements ITripOffertService {
@@ -69,6 +70,35 @@ class TripOffertService implements ITripOffertService {
         attributes: ['id', 'tripId', 'driverId', 'clientId', 'currencyId', 'amount', 'createdAt'],
         where: {
           id: pId,
+        },
+        include: [
+          {
+            model: modelUser,
+            required: true,
+            as: 'driver',
+            attributes: ['id', 'socketId', 'tokenPush'],
+          },
+        ],
+      })
+      return vResponse
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // Ofertas en espera (ESPERA) de un viaje - se usa para avisarle directo a los conductores que
+  // ya ofertaron cuando el pasajero cambia el precio (ver TripController.update): el
+  // re-calculo generico de "conductores cercanos" que ya existia para ese caso puede excluir en
+  // silencio a un conductor que ya esta comprometido con el viaje (ej. su socketId todavia no
+  // se reactualizo tras una reconexion, o quedo justo fuera del radio recalculado) - esto los
+  // notifica directo, sin pasar por esa busqueda.
+  async showAllPendingByTrip(pTripId: number): Promise<ITripOffertInstance[]> {
+    try {
+      const vResponse: ITripOffertInstance[] = await this.model.findAll({
+        attributes: ['id', 'tripId', 'driverId', 'clientId', 'currencyId', 'amount', 'createdAt'],
+        where: {
+          tripId: pTripId,
+          status: ETripOffertStatus.ESPERA,
         },
         include: [
           {
