@@ -61,6 +61,13 @@ export class SocketService {
         origin: '*',
         methods: ['GET', 'POST'],
       },
+      // Defaults de engine.io: pingInterval 25000 + pingTimeout 20000 = 45s para notar una
+      // conexion muerta en silencio (sin evento de transporte, ej. red movil que cambia de
+      // celda). Se bajan a 10s/5s = 15s de ventana - a costa de algo mas de trafico de
+      // heartbeat y de ser un poco mas sensible a demoras de red pasajeras (analisis de
+      // Ricardo, 2026-09-08).
+      pingInterval: 10000,
+      pingTimeout: 5000,
       connectionStateRecovery: {
         // the backup duration of the sessions and the packets
         maxDisconnectionDuration: 2 * 60 * 1000,
