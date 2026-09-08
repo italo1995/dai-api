@@ -563,10 +563,14 @@ class UserService implements IUserService {
         await vUser?.update({
           balance: Number(balance) + pData.balance,
         })
-        SocketService.io.to(vUser?.dataValues.socketId).emit('recharge', {
-          balance: vUser?.balance,
-          type: 'recharge'
-        })
+        if (vUser?.dataValues.socketId) {
+          SocketService.io.to(vUser.dataValues.socketId).emit('recharge', {
+            balance: vUser?.balance,
+            type: 'recharge'
+          })
+        } else {
+          console.log('sumBalance: usuario sin socket activo, no se pudo avisar en vivo', { id: pData.id })
+        }
         return vUser
       }
       
@@ -580,10 +584,14 @@ class UserService implements IUserService {
         await vUser?.update({
           balance: pData?.discount ? Number(balance) - pData.discount : balance,
         })
-        SocketService.io.to(vUser?.dataValues.socketId).emit('recharge', {
-          balance: vUser?.balance,
-          type: 'withDraw'
-        })
+        if (vUser?.dataValues.socketId) {
+          SocketService.io.to(vUser.dataValues.socketId).emit('recharge', {
+            balance: vUser?.balance,
+            type: 'withDraw'
+          })
+        } else {
+          console.log('sumBalance: usuario sin socket activo, no se pudo avisar en vivo', { id: pData.id })
+        }
         return vUser
       }
       return null

@@ -41,6 +41,7 @@ interface IAuthService {
   disconnect(pId: string): Promise<boolean | IUserInstance>
   delete(pId: string): Promise<boolean>
   beginDriverSession(pUserId: string): Promise<string | null | undefined>
+  clearSocketIfCurrent(pUserId: string, pExpectedSocketId: string): Promise<void>
 }
 
 class AuthService implements IAuthService {
@@ -408,6 +409,20 @@ class AuthService implements IAuthService {
     const vSessionId = uuidv4()
     await vUser?.update({ activeSessionId: vSessionId })
     return vSessionId
+  }
+
+  // Carrera del disconnect (ver analisis de Ricardo, 2026-09-08): si el socket A muere sin que
+  // el server se entere de inmediato (ping timeout ~45s), el cliente puede reconectar como
+  // socket B mientras tanto - la DB ya quedo con B. Cuando por fin llega el disconnect tardio
+  // de A, si limpiara el socketId sin condicion, pisaria el B bueno con null y el usuario queda
+  // conectado pero inalcanzable en silencio hasta reiniciar la app. Por eso esto es un UPDATE
+  // atomico condicionado (compare-and-swap): solo limpia si el socketId en la DB sigue siendo
+  // exactamente el que se esta desconectando - si ya cambio (alguien reconecto), no toca nada.
+  async clearSocketIfCurrent(pUserId: string, pExpectedSocketId: string): Promise<void> {
+    await modelUser.update(
+      { socketId: null },
+      { where: { id: pUserId, socketId: pExpectedSocketId } }
+    )
   }
 
   private formatearFecha(date: Date) {

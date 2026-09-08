@@ -123,20 +123,13 @@ export class SocketService {
       console.log('disconnect', socketId)
       SocketService.adminSocketIds.delete(socketId)
       try {
-        const vUser = {
-          id: auth?.id || user?.id,
-          // statusDriver: 0,
-          socketId: null,
-        }
-        console.log('vUser disconnect :>> ', vUser)
-        if (vUser?.id) {
-          // const vUserDB = await ClassAuthService.show(auth?.id || user.id)
-          // if (vUserDB?.dataValues.statusDriver === 1) {
-          //   vUser.statusDriver = 0
-          // }
-          await ClassAuthService.updateSocket(vUser)
+        const vUserId = auth?.id || user?.id
+        if (vUserId) {
+          // Compare-and-swap: solo limpia si el socketId en la DB sigue siendo este mismo -
+          // si el usuario ya reconecto con un socket nuevo antes de que este disconnect
+          // tardio llegara, no lo toca (ver analisis de Ricardo, 2026-09-08).
+          await ClassAuthService.clearSocketIfCurrent(vUserId, socketId)
         } else {
-          await ClassAuthService.updateSocket(vUser)
           await ClassTripService.deletePanic({ socketId: socketId })
         }
       } catch (error) {
@@ -225,9 +218,12 @@ export class SocketService {
           id: auth?.id || user?.id,
           lat: coords?.lat || null,
           lon: coords?.lng || null,
-          socketId: coords?.socketId || socketId,
+          // Siempre el socketId real de ESTA conexion, nunca el que mande el cliente - el
+          // cliente puede traer en el payload un id viejo/muerto (ej. un emit bufferado desde
+          // antes de reconectar) y terminaria pisando el socketId correcto que ya quedo
+          // guardado al conectar.
+          socketId: socketId,
         }
-        console.log('vUser :>> ', vUser)
         if (coords?.isDriver) {
           const socketIds: any[] = [...SocketService.adminSocketIds]
           if (socketIds.length) {

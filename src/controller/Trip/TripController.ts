@@ -713,7 +713,11 @@ class TripController {
             notificationData
           )
         }
-        await SocketService.io.to(dirver?.dataValues?.socketId).emit('cancelTripActive', vResponse)
+        if (dirver?.dataValues?.socketId) {
+          await SocketService.io.to(dirver.dataValues.socketId).emit('cancelTripActive', vResponse)
+        } else {
+          console.log('cancelTrip: conductor sin socket activo, no se pudo avisar en vivo', { driverId })
+        }
       }
       if (clientId) {
         const client = await ClassUserService.show({ id: clientId })
@@ -727,7 +731,11 @@ class TripController {
             notificationData
           )
         }
-        await SocketService.io.to(client?.dataValues?.socketId).emit('cancelTripActive', vResponse)
+        if (client?.dataValues?.socketId) {
+          await SocketService.io.to(client.dataValues.socketId).emit('cancelTripActive', vResponse)
+        } else {
+          console.log('cancelTrip: cliente sin socket activo, no se pudo avisar en vivo', { clientId })
+        }
       }
 
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
