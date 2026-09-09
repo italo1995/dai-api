@@ -8,6 +8,7 @@ import { EStatusDriver, type IUserInstance } from './models/User/UserModel'
 import ClassTripService from './services/Trip/TripService'
 import { EStatusTrip, ETypeService, type ITripInstance } from './models/Trip/TripModel'
 import type {
+  IParamShowActiveTrip,
   IParamShowTrip,
   IResponseAllTrip,
   ITripOffertUpdate,
@@ -20,6 +21,7 @@ import ClassUserService from './services/User/UserService'
 import NotificationService from './controller/fcmPushController'
 import RangePriceService from './services/Locations/RangePriceService'
 import VehicleTypeService from './services/Vehicle/VehicleTypeService'
+import ClassVehicleAdditionalService from './services/Vehicle/VehicleAdditionalService'
 import ErrorReportingService from './services/ErrorReportingService'
 import { withTimeout } from './utils/helpers'
 import TripPaymentService from './services/Trip/TripPaymentService'
@@ -31,6 +33,51 @@ import CurrencyService from './services/Payments/CurrencyService'
 // Evita repetir busquedas pesadas en cada tick de 'coords' (cada pocos segundos) mientras
 // el conductor esta quieto/inactivo.
 const NEARBY_TRIPS_THROTTLE_MS = 15000
+
+// Si el pasajero que se acaba de conectar tiene un viaje activo todavia PENDIENTE (buscando
+// conductor), reenvia cualquier oferta que siga en espera - cubre el caso de perder señal justo
+// cuando un conductor oferta: el evento 'newTripOffer' en vivo se pierde (io.to a un socket
+// muerto no llega a nadie), y sin esto el pasajero nunca se enteraba de esa oferta hasta que el
+// conductor la cancelara o expirara. Reconstruye el mismo shape que arma
+// TripOffertController.create() al ofertar por primera vez, asi el manejador de 'newTripOffer'
+// que ya tiene la app no necesita ningun cambio. "Mejor esfuerzo": si algo falla aca no debe
+// tumbar la conexion.
+async function resyncMissedOffersOnConnect(pSocket: any, pAuth: any): Promise<void> {
+  try {
+    if (pAuth?.typeUser !== ETypeUser.passenger) {
+      return
+    }
+    const vParam: IParamShowActiveTrip = { isClient: true, userId: pAuth.id }
+    const vTrip = await ClassTripService.showActive(vParam)
+    if (!vTrip || vTrip.dataValues.status !== EStatusTrip.PENDIENTE) {
+      return
+    }
+    const vPendingOffers = await ClassTripOffertService.showAllPendingByTrip(vTrip.dataValues.id)
+    for (const vOffer of vPendingOffers) {
+      const vDriverId = vOffer.dataValues.driverId
+      const vDriver = await ClassUserService.show({ id: vDriverId, isDriver: true })
+      const vVehicleAdditionalService = await ClassVehicleAdditionalService.allFilterIdArray(vDriver)
+      const vFullOffer = await ClassTripOffertService.show(Number(vOffer.dataValues.id))
+      pSocket.emit('newTripOffer', {
+        offer: vFullOffer,
+        driver: vDriver,
+        countTrips: await ClassTripService.countTrip(vDriverId),
+        duration: vOffer.dataValues.duration,
+        distance: vOffer.dataValues.distance,
+        vehicleAdditionalService: vVehicleAdditionalService,
+      })
+    }
+    if (vPendingOffers.length) {
+      console.log('resyncMissedOffersOnConnect: se reenviaron ofertas pendientes al reconectar', {
+        userId: pAuth.id,
+        tripId: vTrip.dataValues.id,
+        count: vPendingOffers.length,
+      })
+    }
+  } catch (error) {
+    console.log('resyncMissedOffersOnConnect error', error)
+  }
+}
 
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
@@ -115,6 +162,9 @@ export class SocketService {
       // Actualizamos el socket del usuario en la base de datos
       await ClassAuthService.updateSocket(user)
       SocketService.registerAdminSocket(auth, socketId)
+      // No se espera (no bloquea la conexion) - es un "mejor esfuerzo" de recuperar ofertas
+      // que se pudieron haber perdido mientras el pasajero estaba sin señal.
+      resyncMissedOffersOnConnect(socket, auth)
     }
 
     // Visibilidad basica de conexiones - antes esto no logueaba nada, asi que un socket que
