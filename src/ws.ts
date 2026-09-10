@@ -133,7 +133,23 @@ export class SocketService {
       const vHeaderToken = socket?.handshake?.headers?.authorization?.split(' ')[1]
       const vAuthOptionToken = socket?.handshake?.auth?.token
       const vToken = vHeaderToken || vAuthOptionToken
-      socket.handshake.auth = vToken ? await this.verifyTokenUser(vToken) : false
+      if (!vToken) {
+        // Ningun cliente logueado deberia conectar sin token - si esto es de un usuario real
+        // (no el panel/pre-login), ese dispositivo NO va a recibir eventos en vivo. Ver el log
+        // de 'verifyTokenUser' de arriba para el detalle cuando SI llega token pero falla.
+        console.log('socket handshake sin token', socket.id, {
+          headerPresente: !!socket?.handshake?.headers?.authorization,
+          authOptionPresente: socket?.handshake?.auth?.token !== undefined,
+        })
+        socket.handshake.auth = false
+      } else {
+        socket.handshake.auth = await this.verifyTokenUser(vToken)
+        if (!socket.handshake.auth) {
+          console.log('socket handshake con token pero no se resolvio usuario', socket.id, {
+            via: vHeaderToken ? 'header Authorization' : 'auth.token',
+          })
+        }
+      }
       // socket.use(([event]: any) => {
       //   socket.event = event // Aquí guardas el nombre del evento
       // })
@@ -705,21 +721,30 @@ export class SocketService {
   static async verifyTokenUser(token: string | false = false, socketId: string | false = false) {
     try {
       if (token) {
-        const decoded = jwt.verify(token, AppConfig.SECRET_KEY) as any
+        let decoded: any
+        try {
+          decoded = jwt.verify(token, AppConfig.SECRET_KEY) as any
+        } catch (vJwtError: any) {
+          // Firma/formato invalido, o firmado con otra SECRET_KEY.
+          console.log('verifyTokenUser: token invalido -', vJwtError?.name || 'JsonWebTokenError')
+          return null
+        }
         const user: IUserInstance | null = await modelUser.findByPk(decoded.id)
+        if (!user) {
+          console.log('verifyTokenUser: token valido pero el usuario no existe - id', decoded?.id)
+          return null
+        }
         // QA-03: mismo chequeo de sesion unica que en server.ts/verifyTokenUser (HTTP) - un
         // token de una sesion desplazada por un login mas nuevo en otro dispositivo se rechaza
         // aca tambien, para que ni el socket conecte con el.
         if (
-          user &&
           user.dataValues.activeSessionId &&
           decoded.sessionId !== user.dataValues.activeSessionId
         ) {
+          console.log('verifyTokenUser: sesion desplazada (QA-03) - token de una sesion vieja, userId', decoded?.id)
           return null
         }
-        if (user) {
-          return user
-        }
+        return user
       } else if (socketId) {
         const user: IUserInstance | null = await modelUser.findOne({
           where: {
