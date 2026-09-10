@@ -10,6 +10,7 @@
   antes de readyAt). Avisa al cliente. NO crea el viaje ni busca conductor - eso lo hacen las
   tareas 4/8 (scheduler) y 5/8 (asignacion), que leen dispatchAt/status de aca.
 */
+import type { FindOptions } from 'sequelize'
 import sequelize, {
   modelCart,
   modelCartItem,
@@ -21,15 +22,25 @@ import sequelize, {
   modelStore,
   modelStoreProduct,
   modelTrip,
+  modelUser,
 } from '../../models'
 import { EMarketplaceOrderStatus, type IMarketplaceOrderInstance } from '../../models/Marketplace/MarketplaceOrderModel'
 import { EStatusTrip } from '../../models/Trip/TripModel'
 import { EStatusDriver } from '../../models/User/UserModel'
+import { ETypeUser } from '../../types/User'
+import { fxPaginate, fxReponseServices } from '../../utils/query'
 import ClassCartService from '../Cart/CartService'
 import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
+
+// Quien pide un listado / detalle - se usa para el scoping por rol ([Orden 8/8]).
+export interface IOrderRequester {
+  id: string
+  rolId: number
+  typeUser: string
+}
 
 // Regla de negocio (ARQUITECTURA_MARKETPLACE.md seccion 3): si el pedido tarda menos de este
 // umbral en prepararse, se despacha de una; si tarda mas, la busqueda de conductor se difiere
@@ -439,19 +450,92 @@ class MarketplaceOrderService {
 
   async showById(pOrderId: number): Promise<IMarketplaceOrderInstance> {
     const vOrder = await modelMarketplaceOrder.findByPk(pOrderId, {
-      include: [
-        {
-          model: modelMarketplaceOrderItem,
-          as: 'items',
-          include: [{ model: modelMarketplaceOrderItemModifier, as: 'modifiers' }],
-        },
-        { model: modelStore, as: 'store', attributes: ['id', 'name', 'logo'] },
-      ],
+      include: this.fxFullInclude(),
     })
     if (!vOrder) {
       throw new MarketplaceOrderError('El pedido no existe', 404)
     }
     return vOrder
+  }
+
+  private fxFullInclude() {
+    return [
+      {
+        model: modelMarketplaceOrderItem,
+        as: 'items',
+        include: [{ model: modelMarketplaceOrderItemModifier, as: 'modifiers' }],
+      },
+      { model: modelStore, as: 'store', attributes: ['id', 'name', 'logo', 'type', 'lat', 'lon'] },
+      { model: modelUser, as: 'customer', attributes: ['id', 'name', 'phoneCode', 'phoneNumber'] },
+      { model: modelTrip, as: 'trip', required: false },
+    ]
+  }
+
+  // [Orden 8/8] Detalle de un pedido con scoping por rol: cliente/comercio/repartidor asignado
+  // ven el suyo, admin/operador cualquiera. Si no le corresponde -> 403.
+  async showScoped(pOrderId: number, pReq: IOrderRequester): Promise<IMarketplaceOrderInstance> {
+    const vOrder = await this.showById(pOrderId)
+    if (pReq.rolId === 1 || pReq.rolId === 2) {
+      return vOrder
+    }
+    if (vOrder.dataValues.customerId === pReq.id) {
+      return vOrder
+    }
+    const vTripDriverId = (vOrder as any).dataValues.trip?.dataValues?.driverId
+    if (vTripDriverId && vTripDriverId === pReq.id) {
+      return vOrder
+    }
+    const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+    if (vStore?.dataValues.ownerId === pReq.id) {
+      return vOrder
+    }
+    throw new MarketplaceOrderError('No tenes acceso a este pedido', 403)
+  }
+
+  // [Orden 8/8] Listado paginado con la vista que corresponde a quien pregunta:
+  // - cliente (passenger): sus pedidos
+  // - repartidor (driver): los pedidos cuyo viaje tiene asignado
+  // - dueño de comercio (rolId 4): los pedidos de sus tiendas
+  // - admin/operador (rolId 1/2): todos (con filtro opcional ?storeId)
+  // Filtro comun opcional: ?status. Paginacion: ?pag + ?limit (mismo patron que el resto).
+  async list(pParam: any, pReq: IOrderRequester): Promise<any> {
+    const vWhere: any = {}
+    const vInclude: any[] = this.fxFullInclude()
+
+    const vIsStaff = pReq.rolId === 1 || pReq.rolId === 2
+    if (vIsStaff) {
+      if (pParam?.storeId) {
+        vWhere.storeId = Number(pParam.storeId)
+      }
+    } else if (pReq.rolId === 4) {
+      const vStoreIds = (
+        await modelStore.findAll({ where: { ownerId: pReq.id }, attributes: ['id'] })
+      ).map((s) => s.dataValues.id)
+      vWhere.storeId = vStoreIds.length ? vStoreIds : [-1]
+    } else if (pReq.typeUser === ETypeUser.driver) {
+      const vTripInclude = vInclude.find((i) => i.as === 'trip')
+      vTripInclude.required = true
+      vTripInclude.where = { driverId: pReq.id }
+    } else {
+      vWhere.customerId = pReq.id
+    }
+
+    if (pParam?.status) {
+      vWhere.status = pParam.status
+    }
+
+    const vStatement: FindOptions = {
+      where: vWhere,
+      include: vInclude,
+      order: [['createdAt', 'DESC']],
+    }
+    fxPaginate(pParam, vStatement)
+
+    const vRows = await modelMarketplaceOrder.findAll(vStatement)
+    if (Number(pParam?.pag)) {
+      return fxReponseServices(pParam, vStatement, 'MarketplaceOrder', vRows)
+    }
+    return vRows
   }
 }
 

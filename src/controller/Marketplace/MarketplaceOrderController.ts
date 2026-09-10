@@ -63,6 +63,46 @@ class MarketplaceOrderController {
       pNext(error)
     }
   }
+
+  // [Orden 8/8] Detalle de un pedido (con scoping por rol).
+  async show(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vId = Number(pReq.query.id)
+      if (!vId) {
+        return pRes.status(400).send(fxErrorResponse(400, null, 'id es requerido'))
+      }
+      const vResponse = await ClassMarketplaceOrderService.showScoped(vId, {
+        id: vAuth.id,
+        rolId: vAuth.rolId,
+        typeUser: vAuth.typeUser,
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
+  // [Orden 8/8] Listado paginado, con la vista que corresponde a quien pregunta.
+  async all(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vResponse = await ClassMarketplaceOrderService.list(pReq.query, {
+        id: vAuth.id,
+        rolId: vAuth.rolId,
+        typeUser: vAuth.typeUser,
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
 }
 
 export default new MarketplaceOrderController()

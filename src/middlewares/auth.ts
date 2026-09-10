@@ -5,6 +5,10 @@ export function authMiddleware(role: string) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (role === 'user') {
       next()
+    } else if (role === 'authenticated' && req.auth) {
+      // Cualquier usuario logueado - el endpoint hace el scoping fino por rol (ej. los listados
+      // de Marketplace: cliente ve los suyos, comercio los suyos, conductor el asignado, etc).
+      next()
     } else if (
       req.auth &&
       role === 'client' &&

@@ -10,5 +10,8 @@ router.route('/store').post(authMiddleware('client'), controller.create)
 router.route('/confirm').post(authMiddleware('store'), controller.confirm)
 // [Orden 7/8] El comercio cancela el pedido.
 router.route('/cancel').post(authMiddleware('store'), controller.cancel)
+// [Orden 8/8] Listado y detalle - cualquier usuario logueado; el service hace el scoping por rol.
+router.route('/all').get(authMiddleware('authenticated'), controller.all)
+router.route('/show').get(authMiddleware('authenticated'), controller.show)
 
 export default router
