@@ -266,6 +266,12 @@ paths:
   /api/auth/login:
     post:
       summary: Login con email y contraseña (usuarios administrativos/staff)
+      description: >
+        Sesion unica para CONDUCTORES (QA-03, "gana el ultimo"): si un conductor se loguea mientras
+        tenia otra sesion activa en otro dispositivo, la nueva sesion la desplaza - al dispositivo
+        viejo le llega un evento de socket 'sessionTakenOver' y su token deja de ser valido en el
+        siguiente request (HTTP y socket). Para pasajeros/staff/admin/tienda no hay limite, pueden
+        tener varias sesiones. Aplica igual a /auth/verifiedUserCode.
       tags:
         - Auth
       requestBody:

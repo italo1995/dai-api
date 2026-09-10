@@ -64,11 +64,22 @@ paths:
           name: pag
           schema:
             type: number
+        - description: Page size (default 10)
+          in: query
+          name: limit
+          schema:
+            type: number
         - description: The keyword to filter by name
           in: query
           name: search
           schema:
             type: string
+        - description: 'Filtra por estado de la recarga (1=APPROVED, 2=PENDING, 3=DECLINE). Usado por el badge de recargas pendientes del panel admin (status=2)'
+          in: query
+          name: status
+          schema:
+            type: number
+            enum: [1, 2, 3]
       responses:
         '200':
           content:
