@@ -42,6 +42,8 @@ export interface IMarketplaceOrderAttributes {
   deliveryLat?: number | null
   deliveryLon?: number | null
   deliveryAddress?: string | null
+  // Motivo de cancelacion que da el comercio ([Orden 7/8]).
+  cancellationReason?: string | null
   notes?: string | null
   createdAt?: Date
   updatedAt?: Date
@@ -159,6 +161,12 @@ export const vMarketplaceOrderModelAttributes: SequelizeAttributes<IMarketplaceO
   deliveryAddress: {
     type: DataTypes.STRING,
     field: 'delivery_address',
+    allowNull: true,
+    defaultValue: null,
+  },
+  cancellationReason: {
+    type: DataTypes.STRING,
+    field: 'cancellation_reason',
     allowNull: true,
     defaultValue: null,
   },

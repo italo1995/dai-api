@@ -8,5 +8,7 @@ const router = express.Router()
 router.route('/store').post(authMiddleware('client'), controller.create)
 // [Orden 3/8] El comercio confirma el pedido y fija el tiempo de preparacion.
 router.route('/confirm').post(authMiddleware('store'), controller.confirm)
+// [Orden 7/8] El comercio cancela el pedido.
+router.route('/cancel').post(authMiddleware('store'), controller.cancel)
 
 export default router

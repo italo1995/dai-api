@@ -45,6 +45,24 @@ class MarketplaceOrderController {
       pNext(error)
     }
   }
+
+  // [Orden 7/8] El comercio cancela el pedido (el cliente no puede).
+  async cancel(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vData = pReq.only(['orderId', 'reason'])
+      const vResponse = await ClassMarketplaceOrderService.cancel(vAuth.id, vAuth.rolId, {
+        orderId: Number(vData.orderId),
+        reason: vData.reason ?? null,
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Pedido cancelado'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
 }
 
 export default new MarketplaceOrderController()

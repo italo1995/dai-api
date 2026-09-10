@@ -20,11 +20,16 @@ import sequelize, {
   modelMarketplaceOrderItemModifier,
   modelStore,
   modelStoreProduct,
+  modelTrip,
 } from '../../models'
 import { EMarketplaceOrderStatus, type IMarketplaceOrderInstance } from '../../models/Marketplace/MarketplaceOrderModel'
+import { EStatusTrip } from '../../models/Trip/TripModel'
+import { EStatusDriver } from '../../models/User/UserModel'
 import ClassCartService from '../Cart/CartService'
 import ClassUserService from '../User/UserService'
+import ClassAuthService from '../User/AuthService'
 import NotificationService from '../../controller/fcmPushController'
+import { SocketService } from '../../ws'
 
 // Regla de negocio (ARQUITECTURA_MARKETPLACE.md seccion 3): si el pedido tarda menos de este
 // umbral en prepararse, se despacha de una; si tarda mas, la busqueda de conductor se difiere
@@ -273,6 +278,160 @@ class MarketplaceOrderService {
       }
     } catch (error) {
       console.log('MarketplaceOrderService.confirm: fallo el push al cliente', error)
+    }
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // [Orden 7/8] Cancelacion por el COMERCIO (el cliente no puede - definido en el PDF de
+  // requerimientos). Un dueño (rolId 4) solo cancela pedidos de su tienda; admin/operador
+  // (1/2) cualquiera. Se permite hasta CONDUCTOR_ASIGNADO inclusive - una vez que el repartidor
+  // recogio el pedido (PEDIDO_RECOGIDO) ya no. Revierte inventario, contador de ventas y uso de
+  // cupon; anula el viaje y libera al repartidor si habia; avisa al cliente (y al repartidor si
+  // estaba asignado).
+  async cancel(
+    pUserId: string,
+    pRolId: number,
+    pData: { orderId: number; reason?: string | null }
+  ): Promise<IMarketplaceOrderInstance> {
+    if (!pData?.orderId) {
+      throw new MarketplaceOrderError('orderId es requerido')
+    }
+    const vOrder = await modelMarketplaceOrder.findByPk(pData.orderId, {
+      include: [{ model: modelMarketplaceOrderItem, as: 'items' }],
+    })
+    if (!vOrder) {
+      throw new MarketplaceOrderError('El pedido no existe', 404)
+    }
+
+    const vIsPlatformStaff = pRolId === 1 || pRolId === 2
+    if (!vIsPlatformStaff) {
+      const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+      if (!vStore || vStore.dataValues.ownerId !== pUserId) {
+        throw new MarketplaceOrderError('No podes cancelar pedidos de otra tienda', 403)
+      }
+    }
+
+    const vCancellable: string[] = [
+      EMarketplaceOrderStatus.PENDIENTE_CONFIRMACION,
+      EMarketplaceOrderStatus.PREPARANDO,
+      EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+      EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO,
+    ]
+    if (!vCancellable.includes(vOrder.dataValues.status)) {
+      throw new MarketplaceOrderError(
+        `El pedido ya no se puede cancelar (estado actual: ${vOrder.dataValues.status})`,
+        409
+      )
+    }
+
+    const vItems: any[] = (vOrder as any).dataValues.items ?? []
+    const vTripId = vOrder.dataValues.tripId
+    let vFreedDriverId: string | null = null
+
+    await sequelize.transaction(async (pTransaction) => {
+      // Revertir inventario + contador de ventas de los productos con inventario.
+      for (const vItem of vItems) {
+        const vProduct = await modelStoreProduct.findByPk(vItem.dataValues.productId, {
+          transaction: pTransaction,
+        })
+        if (!vProduct) {
+          continue
+        }
+        const vUpdate: Record<string, any> = {
+          timesSold: Math.max(0, (vProduct.dataValues.timesSold ?? 0) - vItem.dataValues.quantity),
+        }
+        if (
+          vProduct.dataValues.isInventoryable &&
+          vProduct.dataValues.stockQuantity !== null &&
+          vProduct.dataValues.stockQuantity !== undefined
+        ) {
+          vUpdate.stockQuantity = vProduct.dataValues.stockQuantity + vItem.dataValues.quantity
+          // Si se habia auto-marcado no disponible al llegar a 0, ahora vuelve a haber stock.
+          if (vProduct.dataValues.isAvailable === false && vUpdate.stockQuantity > 0) {
+            vUpdate.isAvailable = true
+          }
+        }
+        await vProduct.update(vUpdate, { transaction: pTransaction })
+      }
+
+      // Devolver el uso del cupon.
+      if (vOrder.dataValues.couponId) {
+        const vCoupon = await modelCoupon.findByPk(vOrder.dataValues.couponId, { transaction: pTransaction })
+        if (vCoupon) {
+          await vCoupon.update(
+            { usageCount: Math.max(0, (vCoupon.dataValues.usageCount ?? 0) - 1) },
+            { transaction: pTransaction }
+          )
+        }
+      }
+
+      // Anular el viaje si existe y todavia esta activo, y liberar al repartidor.
+      if (vTripId) {
+        const vTrip = await modelTrip.findByPk(vTripId, { transaction: pTransaction })
+        if (
+          vTrip &&
+          vTrip.dataValues.status !== EStatusTrip.FINALIZADO &&
+          vTrip.dataValues.status !== EStatusTrip.ANULADO &&
+          vTrip.dataValues.status !== EStatusTrip.CANCELADO
+        ) {
+          await vTrip.update({ status: EStatusTrip.ANULADO }, { transaction: pTransaction })
+          if (vTrip.dataValues.driverId) {
+            vFreedDriverId = vTrip.dataValues.driverId
+          }
+        }
+      }
+
+      await vOrder.update(
+        {
+          status: EMarketplaceOrderStatus.CANCELADO,
+          cancellationReason: pData.reason ?? null,
+        },
+        { transaction: pTransaction }
+      )
+    })
+
+    // Fuera de la transaccion: liberar al repartidor y avisar (best-effort).
+    if (vFreedDriverId) {
+      await ClassAuthService.updateSocket({ id: vFreedDriverId, statusDriver: EStatusDriver.ACTIVE })
+    }
+    try {
+      const vPayload = {
+        orderId: vOrder.dataValues.id,
+        tripId: vTripId ?? null,
+        reason: pData.reason ?? null,
+      }
+      const vClient = await ClassAuthService.show(vOrder.dataValues.customerId)
+      if (vClient?.dataValues.socketId) {
+        SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderCancelled', vPayload)
+      }
+      if (vClient?.dataValues.tokenPush) {
+        await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
+          title: 'Pedido cancelado',
+          body: pData.reason
+            ? `El comercio cancelo tu pedido: ${pData.reason}`
+            : 'El comercio cancelo tu pedido. Si tenes dudas, contactanos.',
+          data: JSON.stringify(vPayload),
+        })
+      }
+      if (vFreedDriverId) {
+        const vDriver = await ClassAuthService.show(vFreedDriverId)
+        if (vDriver?.dataValues.socketId) {
+          SocketService.io.to(vDriver.dataValues.socketId).emit('marketplaceOrderCancelled', vPayload)
+        }
+        if (vDriver?.dataValues.tokenPush) {
+          await NotificationService.sendNotification([vDriver.dataValues.tokenPush], {
+            title: 'Pedido cancelado',
+            body: 'El comercio cancelo un pedido que tenias asignado. Ya estas disponible para otro.',
+            data: JSON.stringify(vPayload),
+          })
+        }
+      }
+      // Si estaba en BUSCANDO_CONDUCTOR, algunos repartidores lo tienen en pantalla sin haberlo
+      // aceptado - broadcast para que lo saquen (el que no lo tenia lo ignora).
+      SocketService.io.emit('marketplaceOrderTaken', { tripId: vTripId ?? null, orderId: vOrder.dataValues.id })
+    } catch (error) {
+      console.log('MarketplaceOrderService.cancel: fallo avisando', error)
     }
 
     return this.showById(vOrder.dataValues.id)
