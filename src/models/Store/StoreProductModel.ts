@@ -14,6 +14,9 @@ export interface IStoreProductAttributes {
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number | null
+  // Estadistica siempre creciente (ventas acumuladas), aparte del inventario. Se incrementa al
+  // crear un pedido desde el carrito ([Orden 2/8]).
+  timesSold?: number
   // precio promocional (null = sin promo activa). Se puede borrar mandando null - vuelve a
   // regir 'price'. promoEndsAt es opcional - si no se manda, la promo queda activa hasta que se
   // borre promoPrice a mano
@@ -122,6 +125,12 @@ export const vStoreProductModelAttributes: SequelizeAttributes<IStoreProductAttr
     field: 'stock_quantity',
     allowNull: true,
     defaultValue: null,
+  },
+  timesSold: {
+    type: DataTypes.INTEGER,
+    field: 'times_sold',
+    allowNull: false,
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,

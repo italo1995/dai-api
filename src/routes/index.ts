@@ -51,6 +51,7 @@ import StoreFavoriteRoute from './Store/StoreFavoriteRoute'
 import StoreProductModifierGroupRoute from './Store/StoreProductModifierGroupRoute'
 import CartRoute from './Cart/CartRoute'
 import CouponRoute from './Coupon/CouponRoute'
+import MarketplaceOrderRoute from './Marketplace/MarketplaceOrderRoute'
 import StoreCurrencyRoute from './Store/StoreCurrencyRoute'
 import StorePaymentMethodRoute from './Store/StorePaymentMethodRoute'
 import ErrorReportingRoute from './ErrorReportingRoute'
@@ -109,6 +110,7 @@ router.use('/storeFavorite', StoreFavoriteRoute)
 router.use('/storeProductModifierGroup', StoreProductModifierGroupRoute)
 router.use('/cart', CartRoute)
 router.use('/coupon', CouponRoute)
+router.use('/marketplace/order', MarketplaceOrderRoute)
 router.use('/storeCurrency', StoreCurrencyRoute)
 router.use('/storePaymentMethod', StorePaymentMethodRoute)
 router.use('/errorReporting', ErrorReportingRoute)
