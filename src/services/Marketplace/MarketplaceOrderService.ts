@@ -1,10 +1,14 @@
 /*
 - File: MarketplaceOrderService.ts
-- Purpose: [Orden 2/8] Convertir el carrito activo del cliente en un pedido real. Reusa todo el
-  calculo de CartService.show() (items, precios+modificadores, cupon/descuento) pero CONGELA el
-  resultado en marketplace_orders/_items/_item_modifiers: si el catalogo cambia de precio
-  despues, el pedido ya hecho no se toca. Ademas descuenta inventario, incrementa el contador de
-  ventas, gasta el uso del cupon y vacia el carrito - todo en una sola transaccion.
+- Purpose:
+  [Orden 2/8] createFromCart: convertir el carrito activo del cliente en un pedido real. Reusa
+  todo el calculo de CartService.show() pero CONGELA el resultado en
+  marketplace_orders/_items/_item_modifiers, descuenta inventario, incrementa times_sold, gasta
+  el cupon y vacia el carrito - todo en una transaccion.
+  [Orden 3/8] confirm: el comercio confirma el pedido y fija prepTimeMinutes. Calcula readyAt y
+  dispatchAt segun la regla de negocio (<20 min = despacho inmediato, >=20 = diferido 15 min
+  antes de readyAt). Avisa al cliente. NO crea el viaje ni busca conductor - eso lo hacen las
+  tareas 4/8 (scheduler) y 5/8 (asignacion), que leen dispatchAt/status de aca.
 */
 import sequelize, {
   modelCart,
@@ -21,6 +25,13 @@ import { EMarketplaceOrderStatus, type IMarketplaceOrderInstance } from '../../m
 import ClassCartService from '../Cart/CartService'
 import ClassUserService from '../User/UserService'
 import NotificationService from '../../controller/fcmPushController'
+
+// Regla de negocio (ARQUITECTURA_MARKETPLACE.md seccion 3): si el pedido tarda menos de este
+// umbral en prepararse, se despacha de una; si tarda mas, la busqueda de conductor se difiere
+// para arrancar DISPATCH_LEAD_MINUTES antes de que este listo.
+const IMMEDIATE_DISPATCH_THRESHOLD_MIN = 20
+const DISPATCH_LEAD_MINUTES = 15
+const MAX_PREP_TIME_MIN = 60
 
 export class MarketplaceOrderError extends Error {
   code: number
@@ -177,6 +188,76 @@ class MarketplaceOrderService {
       }
     } catch (error) {
       console.log('MarketplaceOrderService.createFromCart: fallo el push al comercio', error)
+    }
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // [Orden 3/8] El comercio confirma el pedido y fija el tiempo de preparacion. pRolId permite
+  // que un admin/operador (rolId 1/2) confirme en nombre del comercio; un dueño (rolId 4) solo
+  // puede confirmar pedidos de SU tienda.
+  async confirm(
+    pUserId: string,
+    pRolId: number,
+    pData: { orderId: number; prepTimeMinutes: number }
+  ): Promise<IMarketplaceOrderInstance> {
+    if (!pData?.orderId) {
+      throw new MarketplaceOrderError('orderId es requerido')
+    }
+    const vPrep = Number(pData.prepTimeMinutes)
+    if (!Number.isInteger(vPrep) || vPrep < 0 || vPrep > MAX_PREP_TIME_MIN) {
+      throw new MarketplaceOrderError(
+        `prepTimeMinutes debe ser un entero entre 0 y ${MAX_PREP_TIME_MIN}`
+      )
+    }
+
+    const vOrder = await modelMarketplaceOrder.findByPk(pData.orderId)
+    if (!vOrder) {
+      throw new MarketplaceOrderError('El pedido no existe', 404)
+    }
+    if (vOrder.dataValues.status !== EMarketplaceOrderStatus.PENDIENTE_CONFIRMACION) {
+      throw new MarketplaceOrderError(
+        `El pedido no esta pendiente de confirmacion (estado actual: ${vOrder.dataValues.status})`,
+        409
+      )
+    }
+
+    const vIsPlatformStaff = pRolId === 1 || pRolId === 2
+    if (!vIsPlatformStaff) {
+      const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+      if (!vStore || vStore.dataValues.ownerId !== pUserId) {
+        throw new MarketplaceOrderError('No podes confirmar pedidos de otra tienda', 403)
+      }
+    }
+
+    const vNow = new Date()
+    const vReadyAt = new Date(vNow.getTime() + vPrep * 60 * 1000)
+    // <20 min -> despacho inmediato (dispatchAt = ahora). >=20 -> diferido: arrancar la busqueda
+    // DISPATCH_LEAD_MINUTES antes de que este listo. El scheduler (4/8) mira status=PREPARANDO +
+    // dispatchAt<=now; para el caso inmediato, 5/8 disparara la asignacion directo desde aca.
+    const vDispatchAt =
+      vPrep < IMMEDIATE_DISPATCH_THRESHOLD_MIN
+        ? vNow
+        : new Date(vReadyAt.getTime() - DISPATCH_LEAD_MINUTES * 60 * 1000)
+
+    await vOrder.update({
+      status: EMarketplaceOrderStatus.PREPARANDO,
+      prepTimeMinutes: vPrep,
+      readyAt: vReadyAt,
+      dispatchAt: vDispatchAt,
+    })
+
+    try {
+      const vCustomer = await ClassUserService.show({ id: vOrder.dataValues.customerId })
+      if (vCustomer?.dataValues.tokenPush) {
+        await NotificationService.sendNotification([vCustomer.dataValues.tokenPush], {
+          title: 'Pedido confirmado',
+          body: `El comercio esta preparando tu pedido - estara listo en ~${vPrep} min. ¡Eso es DAI!`,
+          data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+        })
+      }
+    } catch (error) {
+      console.log('MarketplaceOrderService.confirm: fallo el push al cliente', error)
     }
 
     return this.showById(vOrder.dataValues.id)

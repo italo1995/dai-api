@@ -15,7 +15,13 @@ export function authMiddleware(role: string) {
       next()
     } else if (req.auth && role === 'operator' && (req.auth.rolId === 2 || req.auth.rolId === 1)) {
       next()
-    } else if (req.auth && role === 'store' && req.auth.rolId === 4) {
+    } else if (
+      req.auth &&
+      role === 'store' &&
+      (req.auth.rolId === 4 || req.auth.rolId === 1 || req.auth.rolId === 2)
+    ) {
+      // El dueño (4) y ademas admin/operador (1/2) - la validacion fina de "es TU tienda" la
+      // hace cada endpoint (ej. MarketplaceOrderService.confirm chequea store.ownerId).
       next()
     } else {
       return res
