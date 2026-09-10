@@ -1,0 +1,350 @@
+components:
+  schemas:
+    MarketplaceOrderItemModifier:
+      type: object
+      description: Modificador de un item, CONGELADO al momento de la compra (nombre y precio no se recalculan si el catalogo cambia despues)
+      properties:
+        id:
+          type: number
+        orderItemId:
+          type: number
+        modifierId:
+          type: number
+        name:
+          type: string
+        extraPrice:
+          type: number
+        quantity:
+          type: number
+    MarketplaceOrderItem:
+      type: object
+      description: Item del pedido, CONGELADO. productName/unitPrice/subtotal quedan tal cual estaban al crear el pedido - productId es solo referencia informativa
+      properties:
+        id:
+          type: number
+        orderId:
+          type: number
+        productId:
+          type: number
+        productName:
+          type: string
+        quantity:
+          type: number
+        unitPrice:
+          type: number
+          description: Precio de una unidad YA con modificadores incluidos
+        subtotal:
+          type: number
+          description: unitPrice * quantity
+        notes:
+          type: string
+          nullable: true
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketplaceOrderItemModifier'
+    MarketplaceOrder:
+      type: object
+      properties:
+        id:
+          type: number
+        storeId:
+          type: number
+        customerId:
+          type: string
+        tripId:
+          type: number
+          nullable: true
+          description: null hasta que arranca la busqueda de conductor. Se completa al despachar el pedido
+        status:
+          type: string
+          enum:
+            - pendiente de confirmacion
+            - preparando pedido
+            - buscando conductor
+            - conductor asignado
+            - pedido recogido
+            - pedido entregado
+            - cancelado
+          description: 'Estado de NEGOCIO del pedido (distinto del status del trip, que es solo transporte)'
+        currencyId:
+          type: number
+          nullable: true
+        couponId:
+          type: number
+          nullable: true
+        discount:
+          type: number
+        deliveryFee:
+          type: number
+          description: 'Fee de envio de la plataforma. Hoy siempre 0 (el calculo real es una tarea posterior)'
+        prepTimeMinutes:
+          type: number
+          nullable: true
+          description: Minutos declarados por el comercio al confirmar (0-60). null hasta que confirma
+        readyAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Cuando el pedido va a estar listo = hora de confirmacion + prepTimeMinutes'
+        dispatchAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Cuando arranca la busqueda de conductor. prepTimeMinutes < 20 -> ahora; >= 20 -> readyAt - 15min. El scheduler lo mira para despachar'
+        deliveryLat:
+          type: number
+          nullable: true
+          description: Destino de la entrega (el origen es la tienda). Obligatorio al crear el pedido
+        deliveryLon:
+          type: number
+          nullable: true
+        deliveryAddress:
+          type: string
+          nullable: true
+        cancellationReason:
+          type: string
+          nullable: true
+          description: Motivo que dio el comercio al cancelar
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketplaceOrderItem'
+        store:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            logo:
+              type: string
+              nullable: true
+            type:
+              type: string
+              enum:
+                - food
+                - market
+            lat:
+              type: number
+              nullable: true
+            lon:
+              type: number
+              nullable: true
+        customer:
+          type: object
+          nullable: true
+          description: 'Solo en /show y /all'
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            phoneCode:
+              type: string
+            phoneNumber:
+              type: string
+        trip:
+          type: object
+          nullable: true
+          description: 'El viaje asociado (null hasta que se despacha). Solo en /show y /all'
+paths:
+  /api/marketplace/order/store:
+    post:
+      summary: '[Cliente] Convierte el carrito activo en un pedido'
+      description: >
+        Toma el carrito del usuario (mismo calculo que cart/show) y lo CONGELA en el pedido:
+        precios, modificadores, moneda, cupon y descuento quedan tal cual estaban. Ademas: descuenta
+        stockQuantity de los productos con inventario (los marca no disponibles al llegar a 0),
+        incrementa timesSold de todos, gasta el uso del cupon, y VACIA el carrito. Todo en una
+        transaccion. Manda push al dueno de la tienda.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - deliveryLat
+                - deliveryLon
+              properties:
+                deliveryLat:
+                  type: number
+                  description: A donde va la entrega. Se usa como destino del viaje al despachar
+                deliveryLon:
+                  type: number
+                deliveryAddress:
+                  type: string
+                  description: Opcional, texto libre para mostrar
+      responses:
+        '200':
+          description: Pedido creado (status 'pendiente de confirmacion')
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '400':
+          description: 'Carrito vacio, o con items no disponibles, o cupon ya no valido, o sin stock suficiente, o falta deliveryLat/deliveryLon'
+  /api/marketplace/order/confirm:
+    post:
+      summary: '[Comercio] Confirma el pedido y fija el tiempo de preparacion'
+      description: >
+        Solo desde 'pendiente de confirmacion'. Calcula readyAt (ahora + prepTimeMinutes) y
+        dispatchAt (prepTimeMinutes < 20 -> ahora; >= 20 -> readyAt - 15min). El pedido pasa a
+        'preparando pedido'. NO crea el viaje ni busca conductor todavia (eso lo hace el scheduler).
+        Push al cliente con el tiempo estimado.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+                - prepTimeMinutes
+              properties:
+                orderId:
+                  type: number
+                prepTimeMinutes:
+                  type: number
+                  description: Entero 0-60
+      responses:
+        '200':
+          description: Pedido confirmado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '400':
+          description: prepTimeMinutes fuera de rango (0-60) o no entero
+        '403':
+          description: Un dueno (rolId 4) intento confirmar un pedido de otra tienda
+        '409':
+          description: El pedido no esta 'pendiente de confirmacion' (ya se confirmo o cancelo)
+  /api/marketplace/order/cancel:
+    post:
+      summary: '[Comercio] Cancela el pedido (el cliente NO puede)'
+      description: >
+        Solo el comercio (dueno rolId 4 de esa tienda, o admin/operador). Se permite cancelar hasta
+        'conductor asignado' inclusive; desde 'pedido recogido' en adelante -> 409. Revierte
+        inventario (stockQuantity y isAvailable), el contador timesSold y el uso del cupon; anula el
+        viaje si estaba activo y libera al repartidor asignado. Push + socket 'marketplaceOrderCancelled'
+        al cliente (y al repartidor si habia).
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: number
+                reason:
+                  type: string
+                  description: Opcional, se muestra al cliente en el aviso
+      responses:
+        '200':
+          description: Pedido cancelado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '403':
+          description: No es el dueno de esa tienda ni admin/operador
+        '409':
+          description: El pedido ya no se puede cancelar (recogido, entregado o ya cancelado)
+  /api/marketplace/order/all:
+    get:
+      summary: 'Listado de pedidos, con la vista que corresponde a quien pregunta'
+      description: >
+        Cualquier usuario logueado. El scoping lo hace el server: el cliente ve sus pedidos, el
+        repartidor los que tiene asignados, el dueno de comercio los de sus tiendas, admin/operador
+        todos (con filtro opcional storeId). Filtro comun opcional: status. Paginacion con pag +
+        limit (mismo patron que el resto de la API).
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: pag
+          schema:
+            type: number
+          description: Si se manda, la respuesta viene paginada (total/totalPage/actualPage/data). Si no, array plano
+        - in: query
+          name: limit
+          schema:
+            type: number
+            default: 10
+        - in: query
+          name: status
+          schema:
+            type: string
+          description: 'Filtra por estado (ej: "preparando pedido")'
+        - in: query
+          name: storeId
+          schema:
+            type: number
+          description: 'Solo lo usa admin/operador - filtra por tienda'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/MarketplaceOrder'
+                  - type: object
+                    properties:
+                      total:
+                        type: number
+                      totalPage:
+                        type: number
+                      actualPage:
+                        type: number
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MarketplaceOrder'
+  /api/marketplace/order/show:
+    get:
+      summary: 'Detalle de un pedido (con scoping por rol)'
+      description: 'Devuelve el pedido completo (items + modificadores + store + customer + trip). 403 si al que pregunta no le corresponde ese pedido'
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '403':
+          description: El pedido no es del cliente, ni de su tienda, ni le fue asignado (y no es admin/operador)
+        '404':
+          description: El pedido no existe

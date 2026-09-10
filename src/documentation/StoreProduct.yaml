@@ -41,6 +41,9 @@ components:
         stockQuantity:
           type: number
           nullable: true
+        timesSold:
+          type: number
+          description: 'Ventas acumuladas del producto (estadistica siempre creciente, aparte del inventario). Se incrementa al crear un pedido de Marketplace y se revierte si el comercio lo cancela.'
         modifierGroups:
           type: array
           items:
