@@ -1,10 +1,12 @@
 // Importamos el paquete socket.io
 import { Server as webSocketServer } from 'socket.io'
+import { Op } from 'sequelize'
 import ClassAuthService from './services/User/AuthService'
 import jwt from 'jsonwebtoken'
 import AppConfig from './config/AppConfig'
-import { modelUser } from './models'
+import { modelUser, modelTrip, modelMarketplaceOrder } from './models'
 import { EStatusDriver, type IUserInstance } from './models/User/UserModel'
+import { EMarketplaceOrderStatus } from './models/Marketplace/MarketplaceOrderModel'
 import ClassTripService from './services/Trip/TripService'
 import { EStatusTrip, ETypeService, type ITripInstance } from './models/Trip/TripModel'
 import type {
@@ -543,6 +545,81 @@ export class SocketService {
         const req: IDataError = {
           body: data,
           url: 'acceptTripOffer',
+          headers: socket.headers,
+          userId: auth?.id || user?.id,
+        }
+        ErrorReportingService.errorCreatedReporting(req, error)
+      }
+    })
+
+    // [Orden 5/8] Marketplace: NO hay subasta. El primer repartidor que acepta se queda el
+    // pedido, via un UPDATE atomico (WHERE driver_id IS NULL AND status = PENDIENTE) - si afecta
+    // 0 filas, otro llego primero. Evita la carrera del acceptTripOffer normal (que lee estado y
+    // recien despues actualiza).
+    socket.on('acceptMarketplaceOrder', async (data: { tripId: number }) => {
+      try {
+        const vDriverId = auth?.id || user?.id
+        if (!vDriverId || !data?.tripId) {
+          socket.emit('marketplaceOrderTaken', { tripId: data?.tripId, reason: 'sin_auth' })
+          return
+        }
+        const [vClaimed] = await modelTrip.update(
+          { driverId: vDriverId, status: EStatusTrip.ACEPTADO },
+          {
+            where: {
+              id: data.tripId,
+              driverId: { [Op.is]: null } as any, // "driver_id IS NULL" - guard de la carrera
+              status: EStatusTrip.PENDIENTE,
+              typeService: ETypeService.MARKETPLACE,
+            },
+          }
+        )
+        if (vClaimed !== 1) {
+          // Otro repartidor llego primero (o el viaje ya no esta buscando).
+          socket.emit('marketplaceOrderTaken', { tripId: data.tripId })
+          return
+        }
+
+        await modelMarketplaceOrder.update(
+          { status: EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO },
+          { where: { tripId: data.tripId } }
+        )
+        await ClassAuthService.updateSocket({ id: vDriverId, statusDriver: EStatusDriver.BUSSY })
+
+        const vTrip = await modelTrip.findByPk(data.tripId)
+        const vDriver = await ClassUserService.show({ id: vDriverId, isDriver: true })
+        const vOrder = await modelMarketplaceOrder.findOne({ where: { tripId: data.tripId } })
+
+        // Avisar al cliente que ya tiene repartidor.
+        if (vOrder?.dataValues.customerId) {
+          const vClient = await ClassAuthService.show(vOrder.dataValues.customerId)
+          const vAssignedPayload = {
+            orderId: vOrder.dataValues.id,
+            tripId: data.tripId,
+            trip: vTrip,
+            driver: vDriver,
+          }
+          if (vClient?.dataValues.socketId) {
+            SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderAssigned', vAssignedPayload)
+          }
+          if (vClient?.dataValues.tokenPush) {
+            await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
+              title: 'Repartidor en camino',
+              body: 'Un repartidor tomo tu pedido y va para el comercio. ¡Eso es DAI!',
+              data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+            })
+          }
+        }
+
+        // Sacarle el pedido de la pantalla al resto de repartidores (cada cliente ignora el
+        // evento si no tenia ese tripId abierto).
+        socket.broadcast.emit('marketplaceOrderTaken', { tripId: data.tripId })
+
+        socket.emit('acceptMarketplaceOrder', { ok: true, tripId: data.tripId, trip: vTrip })
+      } catch (error) {
+        const req: IDataError = {
+          body: data,
+          url: 'acceptMarketplaceOrder',
           headers: socket.headers,
           userId: auth?.id || user?.id,
         }

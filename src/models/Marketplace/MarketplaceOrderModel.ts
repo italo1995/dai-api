@@ -37,6 +37,11 @@ export interface IMarketplaceOrderAttributes {
   prepTimeMinutes?: number | null
   readyAt?: Date | null
   dispatchAt?: Date | null
+  // Destino de la entrega (el origen es la tienda). Se captura al crear el pedido ([Orden 2/8])
+  // y se usa como endRoute del viaje al despachar ([Orden 5/8]).
+  deliveryLat?: number | null
+  deliveryLon?: number | null
+  deliveryAddress?: string | null
   notes?: string | null
   createdAt?: Date
   updatedAt?: Date
@@ -136,6 +141,24 @@ export const vMarketplaceOrderModelAttributes: SequelizeAttributes<IMarketplaceO
   dispatchAt: {
     type: DataTypes.DATE,
     field: 'dispatch_at',
+    allowNull: true,
+    defaultValue: null,
+  },
+  deliveryLat: {
+    type: DataTypes.DOUBLE,
+    field: 'delivery_lat',
+    allowNull: true,
+    defaultValue: null,
+  },
+  deliveryLon: {
+    type: DataTypes.DOUBLE,
+    field: 'delivery_lon',
+    allowNull: true,
+    defaultValue: null,
+  },
+  deliveryAddress: {
+    type: DataTypes.STRING,
+    field: 'delivery_address',
     allowNull: true,
     defaultValue: null,
   },

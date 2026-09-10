@@ -42,8 +42,20 @@ export class MarketplaceOrderError extends Error {
   }
 }
 
+interface ICreateOrderInput {
+  deliveryLat: number
+  deliveryLon: number
+  deliveryAddress?: string | null
+}
+
 class MarketplaceOrderService {
-  async createFromCart(pUserId: string): Promise<IMarketplaceOrderInstance> {
+  async createFromCart(pUserId: string, pDelivery: ICreateOrderInput): Promise<IMarketplaceOrderInstance> {
+    const vLat = Number(pDelivery?.deliveryLat)
+    const vLon = Number(pDelivery?.deliveryLon)
+    if (!Number.isFinite(vLat) || !Number.isFinite(vLon)) {
+      throw new MarketplaceOrderError('Falta la ubicacion de entrega (deliveryLat / deliveryLon)')
+    }
+
     const vCart = await ClassCartService.show(pUserId)
 
     if (!vCart.items.length || !vCart.storeId) {
@@ -91,6 +103,9 @@ class MarketplaceOrderService {
           couponId: vCart.coupon?.id ?? null,
           discount: vCart.discount,
           deliveryFee: 0,
+          deliveryLat: vLat,
+          deliveryLon: vLon,
+          deliveryAddress: pDelivery?.deliveryAddress ?? null,
         },
         { transaction: pTransaction }
       )
