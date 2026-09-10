@@ -14,6 +14,7 @@ import routes from './routes'
 import { ValidationError } from 'sequelize'
 import { modelErrorReporting, modelUser } from './models'
 import type { IUserInstance } from './models/User/UserModel'
+import ClassMarketplaceDispatchService from './services/Marketplace/MarketplaceDispatchService'
 export class Server {
   private app: Express
   private upload = multer()
@@ -28,6 +29,13 @@ export class Server {
     this.socket()
     this.errorReporting()
     this.startSwagger()
+    this.startMarketplaceDispatcher()
+  }
+
+  // [Orden 4/8] Worker de polling que dispara la busqueda de conductor de los pedidos de
+  // Marketplace cuando llega su dispatchAt (ver MarketplaceDispatchService).
+  private startMarketplaceDispatcher(): void {
+    ClassMarketplaceDispatchService.startScheduler()
   }
 
   configuration() {
