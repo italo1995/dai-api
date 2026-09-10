@@ -627,6 +627,135 @@ export class SocketService {
       }
     })
 
+    // [Orden 6/8] Ciclo del repartidor en un pedido de Marketplace. Eventos propios (no se
+    // reusa driverInPlace/completedService, que son del flujo de viajes normal) pero mismo
+    // patron. El estado fino vive en marketplace_orders; el trip usa los estados de transporte
+    // de siempre (INPLACE = repartidor con el pedido en mano, FINALIZADO = entregado).
+    const fxLoadMarketplaceTrip = async (pTripId: number) => {
+      const vDriverId = auth?.id || user?.id
+      if (!vDriverId || !pTripId) {
+        return null
+      }
+      const vTrip = await modelTrip.findByPk(pTripId)
+      if (
+        !vTrip ||
+        vTrip.dataValues.typeService !== ETypeService.MARKETPLACE ||
+        vTrip.dataValues.driverId !== vDriverId
+      ) {
+        return null
+      }
+      const vOrder = await modelMarketplaceOrder.findOne({ where: { tripId: pTripId } })
+      if (!vOrder) {
+        return null
+      }
+      return { vTrip, vOrder, vDriverId }
+    }
+
+    // El repartidor recogio el pedido en el comercio - ya va en camino al cliente.
+    socket.on('marketplaceOrderPickedUp', async (data: { tripId: number }) => {
+      try {
+        const vCtx = await fxLoadMarketplaceTrip(data?.tripId)
+        if (!vCtx) {
+          return
+        }
+        if (vCtx.vOrder.dataValues.status !== EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO) {
+          socket.emit('marketplaceOrderPickedUp', { ok: false, tripId: data.tripId, reason: 'estado_invalido' })
+          return
+        }
+        await vCtx.vOrder.update({ status: EMarketplaceOrderStatus.PEDIDO_RECOGIDO })
+        await modelTrip.update({ status: EStatusTrip.INPLACE }, { where: { id: data.tripId } })
+
+        const vClient = await ClassAuthService.show(vCtx.vOrder.dataValues.customerId)
+        const vPayload = { orderId: vCtx.vOrder.dataValues.id, tripId: data.tripId }
+        if (vClient?.dataValues.socketId) {
+          SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderPickedUp', vPayload)
+        }
+        if (vClient?.dataValues.tokenPush) {
+          await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
+            title: 'Tu pedido va en camino',
+            body: 'El repartidor ya recogio tu pedido y va para alla. ¡Eso es DAI!',
+            data: JSON.stringify(vPayload),
+          })
+        }
+        socket.emit('marketplaceOrderPickedUp', { ok: true, tripId: data.tripId })
+      } catch (error) {
+        const req: IDataError = {
+          body: data,
+          url: 'marketplaceOrderPickedUp',
+          headers: socket.headers,
+          userId: auth?.id || user?.id,
+        }
+        ErrorReportingService.errorCreatedReporting(req, error)
+      }
+    })
+
+    // El repartidor entrego el pedido al cliente - fin del ciclo.
+    socket.on('marketplaceOrderDelivered', async (data: { tripId: number }) => {
+      try {
+        const vCtx = await fxLoadMarketplaceTrip(data?.tripId)
+        if (!vCtx) {
+          return
+        }
+        if (vCtx.vOrder.dataValues.status === EMarketplaceOrderStatus.ENTREGADO) {
+          socket.emit('marketplaceOrderDelivered', { ok: true, tripId: data.tripId })
+          return
+        }
+        if (vCtx.vOrder.dataValues.status !== EMarketplaceOrderStatus.PEDIDO_RECOGIDO) {
+          socket.emit('marketplaceOrderDelivered', { ok: false, tripId: data.tripId, reason: 'estado_invalido' })
+          return
+        }
+
+        // Comision del repartidor: SOLO sobre el fee de envio (deliveryFee), nunca sobre el
+        // total del pedido - el precio de la comida/productos no es de la plataforma (ver
+        // riesgo 5 de ARQUITECTURA_MARKETPLACE.md). Hoy deliveryFee=0 -> comision 0, pero el
+        // calculo ya queda apuntado al valor correcto.
+        const vPercentageParameter = await CompanyParameterService.showByName('percentage')
+        const vPercentage: number = Number(vPercentageParameter?.dataValues?.value) || 10
+        const vDeliveryFee = Number(vCtx.vOrder.dataValues.deliveryFee) || 0
+        const vFeeInPrincipal = await CurrencyService.convertToPrincipal({
+          currencyId: Number(vCtx.vOrder.dataValues.currencyId),
+          amount: vDeliveryFee,
+        })
+        const vCommission = (vFeeInPrincipal * vPercentage) / 100
+
+        await vCtx.vOrder.update({ status: EMarketplaceOrderStatus.ENTREGADO })
+        await modelTrip.update({ status: EStatusTrip.FINALIZADO }, { where: { id: data.tripId } })
+        await DriverReportService.updatedOrCreate({
+          userId: vCtx.vDriverId,
+          amount: vCommission,
+          quantity: 1,
+        })
+        await ClassAuthService.updateSocket({
+          id: vCtx.vDriverId,
+          statusDriver: EStatusDriver.ACTIVE,
+          discount: vCommission,
+        })
+
+        const vClient = await ClassAuthService.show(vCtx.vOrder.dataValues.customerId)
+        const vTripFull = await modelTrip.findByPk(data.tripId)
+        const vPayload = { orderId: vCtx.vOrder.dataValues.id, tripId: data.tripId, trip: vTripFull }
+        if (vClient?.dataValues.socketId) {
+          SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderDelivered', vPayload)
+        }
+        if (vClient?.dataValues.tokenPush) {
+          await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
+            title: 'Pedido entregado',
+            body: 'Tu pedido fue entregado. ¡Gracias por usar DAI!',
+            data: JSON.stringify(vPayload),
+          })
+        }
+        socket.emit('marketplaceOrderDelivered', { ok: true, tripId: data.tripId })
+      } catch (error) {
+        const req: IDataError = {
+          body: data,
+          url: 'marketplaceOrderDelivered',
+          headers: socket.headers,
+          userId: auth?.id || user?.id,
+        }
+        ErrorReportingService.errorCreatedReporting(req, error)
+      }
+    })
+
     socket.on('driverInPlace', async (data: { tripId: number }) => {
       try {
         const vTrip = await ClassTripService.show({
