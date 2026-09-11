@@ -601,6 +601,13 @@ export class SocketService {
           }
           if (vClient?.dataValues.socketId) {
             SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderAssigned', vAssignedPayload)
+            SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+              orderId: vOrder.dataValues.id,
+              status: EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO,
+              tripId: data.tripId,
+              driver: vDriver,
+              trip: vTrip,
+            })
           }
           if (vClient?.dataValues.tokenPush) {
             await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
@@ -669,6 +676,14 @@ export class SocketService {
         const vPayload = { orderId: vCtx.vOrder.dataValues.id, tripId: data.tripId }
         if (vClient?.dataValues.socketId) {
           SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderPickedUp', vPayload)
+          const vDriver = await ClassUserService.show({ id: vCtx.vDriverId, isDriver: true })
+          SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+            orderId: vCtx.vOrder.dataValues.id,
+            status: EMarketplaceOrderStatus.PEDIDO_RECOGIDO,
+            tripId: data.tripId,
+            driver: vDriver,
+            trip: vCtx.vTrip,
+          })
         }
         if (vClient?.dataValues.tokenPush) {
           await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
@@ -736,6 +751,13 @@ export class SocketService {
         const vPayload = { orderId: vCtx.vOrder.dataValues.id, tripId: data.tripId, trip: vTripFull }
         if (vClient?.dataValues.socketId) {
           SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderDelivered', vPayload)
+          SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+            orderId: vCtx.vOrder.dataValues.id,
+            status: EMarketplaceOrderStatus.ENTREGADO,
+            tripId: data.tripId,
+            driver: await ClassUserService.show({ id: vCtx.vDriverId, isDriver: true }),
+            trip: vTripFull,
+          })
         }
         if (vClient?.dataValues.tokenPush) {
           await NotificationService.sendNotification([vClient.dataValues.tokenPush], {

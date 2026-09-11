@@ -17,6 +17,13 @@ export enum EMarketplaceOrderStatus {
   CANCELADO = 'cancelado',
 }
 
+// Que vehiculo debe usar el repartidor para esta entrega - lo elige el cliente al pedir, no se
+// infiere del store ni del driver (un mismo repartidor puede tener moto y auto habilitados).
+export enum EMarketplaceOrderVehicle {
+  MOTO = 'moto',
+  CARRO = 'carro',
+}
+
 export interface IMarketplaceOrderAttributes {
   id: number
   storeId: number
@@ -44,6 +51,13 @@ export interface IMarketplaceOrderAttributes {
   deliveryAddress?: string | null
   // Motivo de cancelacion que da el comercio ([Orden 7/8]).
   cancellationReason?: string | null
+  // Que vehiculo pidio el cliente para la entrega - lo manda la app al crear el pedido.
+  vehicle: EMarketplaceOrderVehicle
+  // Metodo de pago elegido de entre los configurados por la tienda (store_payment_methods).
+  paymentMethodId?: number | null
+  // Punto de referencia para ubicar la entrega - texto libre y/o foto, ambos opcionales.
+  referencePointText?: string | null
+  referencePhoto?: string | null
   notes?: string | null
   createdAt?: Date
   updatedAt?: Date
@@ -170,6 +184,34 @@ export const vMarketplaceOrderModelAttributes: SequelizeAttributes<IMarketplaceO
     allowNull: true,
     defaultValue: null,
   },
+  vehicle: {
+    type: DataTypes.STRING,
+    field: 'vehicle',
+    allowNull: false,
+    defaultValue: EMarketplaceOrderVehicle.MOTO,
+  },
+  paymentMethodId: {
+    type: DataTypes.INTEGER,
+    field: 'payment_method_id',
+    allowNull: true,
+    defaultValue: null,
+    references: {
+      model: { tableName: 'store_payment_methods' },
+      key: 'id',
+    },
+  },
+  referencePointText: {
+    type: DataTypes.STRING,
+    field: 'reference_point_text',
+    allowNull: true,
+    defaultValue: null,
+  },
+  referencePhoto: {
+    type: DataTypes.STRING,
+    field: 'reference_photo',
+    allowNull: true,
+    defaultValue: null,
+  },
   notes: {
     type: DataTypes.STRING,
     field: 'notes',
@@ -210,7 +252,7 @@ export function fxMarketplaceOrderFactory(sequelize: Sequelize) {
   )
 
   vMarketplaceOrder.associate = function (models: ModelRegistry) {
-    const { modelMarketplaceOrder, modelMarketplaceOrderItem, modelStore, modelUser, modelTrip, modelCurrency, modelCoupon } = models
+    const { modelMarketplaceOrder, modelMarketplaceOrderItem, modelStore, modelUser, modelTrip, modelCurrency, modelCoupon, modelStorePaymentMethod } = models
     modelMarketplaceOrder.hasMany(modelMarketplaceOrderItem, {
       sourceKey: 'id',
       foreignKey: 'orderId',
@@ -240,6 +282,11 @@ export function fxMarketplaceOrderFactory(sequelize: Sequelize) {
       sourceKey: 'couponId',
       foreignKey: 'id',
       as: 'coupon',
+    })
+    modelMarketplaceOrder.hasOne(modelStorePaymentMethod, {
+      sourceKey: 'paymentMethodId',
+      foreignKey: 'id',
+      as: 'paymentMethod',
     })
   }
 

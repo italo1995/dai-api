@@ -20,15 +20,21 @@ import sequelize, {
   modelMarketplaceOrderItem,
   modelMarketplaceOrderItemModifier,
   modelStore,
+  modelStorePaymentMethod,
   modelStoreProduct,
   modelTrip,
   modelUser,
 } from '../../models'
-import { EMarketplaceOrderStatus, type IMarketplaceOrderInstance } from '../../models/Marketplace/MarketplaceOrderModel'
+import {
+  EMarketplaceOrderStatus,
+  EMarketplaceOrderVehicle,
+  type IMarketplaceOrderInstance,
+} from '../../models/Marketplace/MarketplaceOrderModel'
 import { EStatusTrip } from '../../models/Trip/TripModel'
 import { EStatusDriver } from '../../models/User/UserModel'
 import { ETypeUser } from '../../types/User'
 import { fxPaginate, fxReponseServices } from '../../utils/query'
+import { moveImages } from '../../utils/helpers'
 import ClassCartService from '../Cart/CartService'
 import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
@@ -62,6 +68,10 @@ interface ICreateOrderInput {
   deliveryLat: number
   deliveryLon: number
   deliveryAddress?: string | null
+  vehicle: EMarketplaceOrderVehicle
+  paymentMethodId: number
+  referencePointText?: string | null
+  referencePhoto?: string | null
 }
 
 class MarketplaceOrderService {
@@ -72,10 +82,26 @@ class MarketplaceOrderService {
       throw new MarketplaceOrderError('Falta la ubicacion de entrega (deliveryLat / deliveryLon)')
     }
 
+    const vVehicle = pDelivery?.vehicle
+    if (!Object.values(EMarketplaceOrderVehicle).includes(vVehicle as EMarketplaceOrderVehicle)) {
+      throw new MarketplaceOrderError(`vehicle debe ser uno de: ${Object.values(EMarketplaceOrderVehicle).join(', ')}`)
+    }
+    const vPaymentMethodId = Number(pDelivery?.paymentMethodId)
+    if (!vPaymentMethodId) {
+      throw new MarketplaceOrderError('paymentMethod es requerido')
+    }
+
     const vCart = await ClassCartService.show(pUserId)
 
     if (!vCart.items.length || !vCart.storeId) {
       throw new MarketplaceOrderError('Tu carrito esta vacio')
+    }
+
+    const vPaymentMethod = await modelStorePaymentMethod.findOne({
+      where: { id: vPaymentMethodId, storeId: vCart.storeId, isActive: true },
+    })
+    if (!vPaymentMethod) {
+      throw new MarketplaceOrderError('Ese metodo de pago no existe para esta tienda')
     }
     const vUnavailable = vCart.items.filter((pItem) => pItem.unavailable)
     if (vUnavailable.length) {
@@ -109,6 +135,11 @@ class MarketplaceOrderService {
       }
     }
 
+    const vReferencePhoto =
+      pDelivery?.referencePhoto && pDelivery.referencePhoto.includes('temp')
+        ? await moveImages(pDelivery.referencePhoto)
+        : pDelivery?.referencePhoto ?? null
+
     const vOrder = await sequelize.transaction(async (pTransaction) => {
       const vNewOrder = await modelMarketplaceOrder.create(
         {
@@ -122,6 +153,10 @@ class MarketplaceOrderService {
           deliveryLat: vLat,
           deliveryLon: vLon,
           deliveryAddress: pDelivery?.deliveryAddress ?? null,
+          vehicle: vVehicle as EMarketplaceOrderVehicle,
+          paymentMethodId: vPaymentMethod.dataValues.id,
+          referencePointText: pDelivery?.referencePointText ?? null,
+          referencePhoto: vReferencePhoto,
         },
         { transaction: pTransaction }
       )
@@ -280,6 +315,15 @@ class MarketplaceOrderService {
 
     try {
       const vCustomer = await ClassUserService.show({ id: vOrder.dataValues.customerId })
+      if (vCustomer?.dataValues.socketId) {
+        SocketService.io.to(vCustomer.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+          orderId: vOrder.dataValues.id,
+          status: EMarketplaceOrderStatus.PREPARANDO,
+          tripId: null,
+          driver: null,
+          trip: null,
+        })
+      }
       if (vCustomer?.dataValues.tokenPush) {
         await NotificationService.sendNotification([vCustomer.dataValues.tokenPush], {
           title: 'Pedido confirmado',
@@ -288,7 +332,7 @@ class MarketplaceOrderService {
         })
       }
     } catch (error) {
-      console.log('MarketplaceOrderService.confirm: fallo el push al cliente', error)
+      console.log('MarketplaceOrderService.confirm: fallo avisando al cliente', error)
     }
 
     return this.showById(vOrder.dataValues.id)
@@ -415,6 +459,14 @@ class MarketplaceOrderService {
       const vClient = await ClassAuthService.show(vOrder.dataValues.customerId)
       if (vClient?.dataValues.socketId) {
         SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderCancelled', vPayload)
+        SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+          orderId: vOrder.dataValues.id,
+          status: EMarketplaceOrderStatus.CANCELADO,
+          tripId: vTripId ?? null,
+          driver: null,
+          trip: null,
+          reason: pData.reason ?? null,
+        })
       }
       if (vClient?.dataValues.tokenPush) {
         await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
@@ -468,6 +520,7 @@ class MarketplaceOrderService {
       { model: modelStore, as: 'store', attributes: ['id', 'name', 'logo', 'type', 'lat', 'lon'] },
       { model: modelUser, as: 'customer', attributes: ['id', 'name', 'phoneCode', 'phoneNumber'] },
       { model: modelTrip, as: 'trip', required: false },
+      { model: modelStorePaymentMethod, as: 'paymentMethod', required: false },
     ]
   }
 

@@ -106,6 +106,39 @@ components:
           type: string
           nullable: true
           description: Motivo que dio el comercio al cancelar
+        vehicle:
+          type: string
+          enum:
+            - moto
+            - carro
+          description: Vehiculo pedido para la entrega. Obligatorio al crear el pedido
+        paymentMethodId:
+          type: number
+          nullable: true
+          description: 'Id de uno de los store_payment_methods activos de la tienda. Obligatorio al crear el pedido'
+        paymentMethod:
+          type: object
+          nullable: true
+          description: 'Resuelto (mismo objeto que StorePaymentMethod) - ver StorePaymentMethod.yaml. Incluido en /show y /all'
+          properties:
+            id:
+              type: number
+            type:
+              type: string
+            label:
+              type: string
+              nullable: true
+            currencyId:
+              type: number
+              nullable: true
+        referencePointText:
+          type: string
+          nullable: true
+          description: Punto de referencia en texto libre para que el repartidor ubique la entrega (opcional)
+        referencePhoto:
+          type: string
+          nullable: true
+          description: Foto del punto de referencia (opcional). Se sube antes por /api/file/upload y se manda el path 'temp/...' devuelto
         items:
           type: array
           items:
@@ -172,6 +205,8 @@ paths:
               required:
                 - deliveryLat
                 - deliveryLon
+                - vehicle
+                - paymentMethodId
               properties:
                 deliveryLat:
                   type: number
@@ -181,6 +216,20 @@ paths:
                 deliveryAddress:
                   type: string
                   description: Opcional, texto libre para mostrar
+                vehicle:
+                  type: string
+                  enum:
+                    - moto
+                    - carro
+                paymentMethodId:
+                  type: number
+                  description: Id de un store_payment_method ACTIVO de la tienda del carrito (400 si no existe o es de otra tienda)
+                referencePointText:
+                  type: string
+                  description: Opcional, texto libre
+                referencePhoto:
+                  type: string
+                  description: Opcional. Subir antes por POST /api/file/upload (campo 'images') y mandar el path 'temp/...' que devuelve
       responses:
         '200':
           description: Pedido creado (status 'pendiente de confirmacion')
@@ -189,7 +238,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MarketplaceOrder'
         '400':
-          description: 'Carrito vacio, o con items no disponibles, o cupon ya no valido, o sin stock suficiente, o falta deliveryLat/deliveryLon'
+          description: 'Carrito vacio, o con items no disponibles, o cupon ya no valido, o sin stock suficiente, o falta deliveryLat/deliveryLon, o vehicle invalido, o paymentMethodId faltante/inexistente/de otra tienda'
   /api/marketplace/order/confirm:
     post:
       summary: '[Comercio] Confirma el pedido y fija el tiempo de preparacion'

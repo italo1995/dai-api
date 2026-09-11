@@ -26,6 +26,7 @@ import sequelize, {
 import { EMarketplaceOrderStatus } from '../../models/Marketplace/MarketplaceOrderModel'
 import { EStatusTrip, ETypeService } from '../../models/Trip/TripModel'
 import ClassUserService from '../User/UserService'
+import ClassAuthService from '../User/AuthService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
 
@@ -83,7 +84,7 @@ class MarketplaceDispatchService {
           tripId: null,
           dispatchAt: { [Op.lte]: new Date() },
         },
-        attributes: ['id'],
+        attributes: ['id', 'customerId'],
       })
       for (const vOrder of vDueOrders) {
         const vOrderId = vOrder.dataValues.id
@@ -101,6 +102,20 @@ class MarketplaceDispatchService {
           }
         )
         if (vClaimed === 1) {
+          try {
+            const vCustomer = await ClassAuthService.show(vOrder.dataValues.customerId)
+            if (vCustomer?.dataValues.socketId) {
+              SocketService.io.to(vCustomer.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+                orderId: vOrderId,
+                status: EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+                tripId: null,
+                driver: null,
+                trip: null,
+              })
+            }
+          } catch (error) {
+            console.log(`[marketplace-dispatch] orden ${vOrderId}: fallo avisando al cliente`, error)
+          }
           await this.dispatchClaimedOrder(vOrderId)
         }
       }

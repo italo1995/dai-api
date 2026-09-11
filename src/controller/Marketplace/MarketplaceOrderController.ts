@@ -13,11 +13,23 @@ class MarketplaceOrderController {
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vAuth: any = (pReq as any).auth
-      const vData = pReq.only(['deliveryLat', 'deliveryLon', 'deliveryAddress'])
+      const vData = pReq.only([
+        'deliveryLat',
+        'deliveryLon',
+        'deliveryAddress',
+        'vehicle',
+        'paymentMethodId',
+        'referencePointText',
+        'referencePhoto',
+      ])
       const vResponse = await ClassMarketplaceOrderService.createFromCart(vAuth.id, {
         deliveryLat: Number(vData.deliveryLat),
         deliveryLon: Number(vData.deliveryLon),
         deliveryAddress: vData.deliveryAddress ?? null,
+        vehicle: vData.vehicle,
+        paymentMethodId: Number(vData.paymentMethodId),
+        referencePointText: vData.referencePointText ?? null,
+        referencePhoto: vData.referencePhoto ?? null,
       })
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Pedido creado'))
     } catch (error) {
