@@ -98,10 +98,10 @@ class CartService {
       const vSelectedInGroup = vNormalized.filter((pSelection) => vGroupModifierIds.has(pSelection.modifierId))
       const vMinRequired = vGroupData.required ? Math.max(1, vGroupData.minSelections) : vGroupData.minSelections
       if (vSelectedInGroup.length < vMinRequired) {
-        throw new CartError(`Debes elegir al menos ${vMinRequired} opcion(es) de "${vGroupData.name}"`)
+        throw new CartError(`Debes elegir al menos ${vMinRequired} opción(es) de "${vGroupData.name}"`)
       }
       if (vGroupData.maxSelections && vSelectedInGroup.length > vGroupData.maxSelections) {
-        throw new CartError(`Podes elegir como maximo ${vGroupData.maxSelections} opcion(es) de "${vGroupData.name}"`)
+        throw new CartError(`Puedes elegir como máximo ${vGroupData.maxSelections} opción(es) de "${vGroupData.name}"`)
       }
     }
     return vNormalized

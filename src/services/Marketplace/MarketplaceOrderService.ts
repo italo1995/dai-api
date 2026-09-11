@@ -292,7 +292,7 @@ class MarketplaceOrderService {
     if (!vIsPlatformStaff) {
       const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
       if (!vStore || vStore.dataValues.ownerId !== pUserId) {
-        throw new MarketplaceOrderError('No podes confirmar pedidos de otra tienda', 403)
+        throw new MarketplaceOrderError('No puedes confirmar pedidos de otra tienda', 403)
       }
     }
 
@@ -363,7 +363,7 @@ class MarketplaceOrderService {
     if (!vIsPlatformStaff) {
       const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
       if (!vStore || vStore.dataValues.ownerId !== pUserId) {
-        throw new MarketplaceOrderError('No podes cancelar pedidos de otra tienda', 403)
+        throw new MarketplaceOrderError('No puedes cancelar pedidos de otra tienda', 403)
       }
     }
 
@@ -473,7 +473,7 @@ class MarketplaceOrderService {
           title: 'Pedido cancelado',
           body: pData.reason
             ? `El comercio cancelo tu pedido: ${pData.reason}`
-            : 'El comercio cancelo tu pedido. Si tenes dudas, contactanos.',
+            : 'El comercio canceló tu pedido. Si tienes dudas, contáctanos.',
           data: JSON.stringify(vPayload),
         })
       }
@@ -542,7 +542,7 @@ class MarketplaceOrderService {
     if (vStore?.dataValues.ownerId === pReq.id) {
       return vOrder
     }
-    throw new MarketplaceOrderError('No tenes acceso a este pedido', 403)
+    throw new MarketplaceOrderError('No tienes acceso a este pedido', 403)
   }
 
   // [Orden 8/8] Listado paginado con la vista que corresponde a quien pregunta:

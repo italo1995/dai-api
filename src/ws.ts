@@ -840,7 +840,7 @@ export class SocketService {
             if (vClient?.dataValues.tokenPush) {
               const notificationData = {
                 title: 'Voy llegando',
-                body: 'Esperame afuera',
+                body: 'Espérame afuera',
               }
               await NotificationService.sendNotification(
                 [vClient.dataValues.tokenPush],

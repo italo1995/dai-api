@@ -79,7 +79,7 @@ async function notifyDisplacedDevice(pSocketId: string | null, pTokenPush: strin
   if (pTokenPush) {
     await NotificationService.sendNotification([pTokenPush], {
       title: 'Se inició sesión en otro dispositivo',
-      body: 'Si fuiste vos, no hace falta hacer nada. Si no fuiste vos, contáctanos.',
+      body: 'Si fuiste tú, no tienes que hacer nada. Si no reconoces este acceso, contáctanos.',
     })
   }
   if (pSocketId) {
