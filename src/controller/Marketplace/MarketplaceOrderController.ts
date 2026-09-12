@@ -76,6 +76,59 @@ class MarketplaceOrderController {
     }
   }
 
+  // El CLIENTE cancela (si el pedido todavia no lo confirmo la tienda) o solicita cancelar (si ya
+  // lo confirmo) su propio pedido. El service decide cual de los dos segun el status actual.
+  async cancelByClient(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vData = pReq.only(['orderId', 'reason'])
+      const vResponse = await ClassMarketplaceOrderService.cancelByClient(vAuth.id, {
+        orderId: Number(vData.orderId),
+        reason: vData.reason ?? null,
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
+  // La tienda (o admin/operador) acepta la solicitud de cancelacion del cliente.
+  async acceptCancelRequest(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vData = pReq.only(['orderId'])
+      const vResponse = await ClassMarketplaceOrderService.acceptCancelRequest(vAuth.id, vAuth.rolId, {
+        orderId: Number(vData.orderId),
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Solicitud aceptada'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
+  // La tienda (o admin/operador) rechaza la solicitud de cancelacion del cliente.
+  async rejectCancelRequest(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vData = pReq.only(['orderId'])
+      const vResponse = await ClassMarketplaceOrderService.rejectCancelRequest(vAuth.id, vAuth.rolId, {
+        orderId: Number(vData.orderId),
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Solicitud rechazada'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
   // [Orden 8/8] Detalle de un pedido (con scoping por rol).
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {

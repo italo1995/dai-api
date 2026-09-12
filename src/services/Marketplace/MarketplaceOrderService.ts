@@ -40,7 +40,7 @@ import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
-import { PushMessages } from '../../constants/pushMessages'
+import { PushMessages, type IPushMessage } from '../../constants/pushMessages'
 
 // Quien pide un listado / detalle - se usa para el scoping por rol ([Orden 8/8]).
 export interface IOrderRequester {
@@ -337,12 +337,12 @@ class MarketplaceOrderService {
     return this.showById(vOrder.dataValues.id)
   }
 
-  // [Orden 7/8] Cancelacion por el COMERCIO (el cliente no puede - definido en el PDF de
-  // requerimientos). Un dueño (rolId 4) solo cancela pedidos de su tienda; admin/operador
-  // (1/2) cualquiera. Se permite hasta CONDUCTOR_ASIGNADO inclusive - una vez que el repartidor
-  // recogio el pedido (PEDIDO_RECOGIDO) ya no. Revierte inventario, contador de ventas y uso de
-  // cupon; anula el viaje y libera al repartidor si habia; avisa al cliente (y al repartidor si
-  // estaba asignado).
+  // [Orden 7/8] Cancelacion por el COMERCIO (definido en el PDF de requerimientos original, antes
+  // de que el cliente tuviera su propio flujo - ver cancelByClient). Un dueño (rolId 4) solo
+  // cancela pedidos de su tienda; admin/operador (1/2) cualquiera. Se permite hasta
+  // CONDUCTOR_ASIGNADO inclusive - una vez que el repartidor recogio el pedido (PEDIDO_RECOGIDO)
+  // ya no. Un pedido en CANCELACION_SOLICITADA tampoco entra aca - la tienda tiene que resolver
+  // esa solicitud con acceptCancelRequest/rejectCancelRequest, no cancelarla por este lado.
   async cancel(
     pUserId: string,
     pRolId: number,
@@ -380,12 +380,215 @@ class MarketplaceOrderService {
     }
 
     const vItems: any[] = (vOrder as any).dataValues.items ?? []
-    const vTripId = vOrder.dataValues.tripId
+    const vFreedDriverId = await this.fxApplyCancellation(vOrder, vItems, pData.reason ?? null)
+    await this.fxNotifyCancellation(vOrder, pData.reason ?? null, vFreedDriverId, PushMessages.pedidoCanceladoCliente(pData.reason))
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // Cancelacion iniciada por el CLIENTE (pedido de los jefes de Italo, 2026-09-11): si el pedido
+  // todavia no lo confirmo la tienda, no hay nada "pagado" en la practica (son metodos de pago
+  // manuales, no hay pasarela) - se cancela directo, mismo efecto que cancel(). Si ya lo confirmo
+  // (preparando/buscando conductor/conductor asignado), el cliente no puede cancelarlo el mismo -
+  // queda en CANCELACION_SOLICITADA hasta que la tienda o un admin lo acepte o lo rechace. Desde
+  // PEDIDO_RECOGIDO en adelante ya no se puede ni solicitar (mismo corte que usan apps como Uber
+  // Eats/Rappi: una vez que el repartidor tiene el pedido en mano, ya no es autoservicio).
+  async cancelByClient(
+    pUserId: string,
+    pData: { orderId: number; reason?: string | null }
+  ): Promise<IMarketplaceOrderInstance> {
+    if (!pData?.orderId) {
+      throw new MarketplaceOrderError('orderId es requerido')
+    }
+    const vOrder = await modelMarketplaceOrder.findByPk(pData.orderId, {
+      include: [{ model: modelMarketplaceOrderItem, as: 'items' }],
+    })
+    if (!vOrder) {
+      throw new MarketplaceOrderError('El pedido no existe', 404)
+    }
+    if (vOrder.dataValues.customerId !== pUserId) {
+      throw new MarketplaceOrderError('No puedes cancelar el pedido de otro cliente', 403)
+    }
+
+    if (vOrder.dataValues.status === EMarketplaceOrderStatus.PENDIENTE_CONFIRMACION) {
+      const vItems: any[] = (vOrder as any).dataValues.items ?? []
+      await this.fxApplyCancellation(vOrder, vItems, pData.reason ?? null)
+      try {
+        const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+        if (vStore?.dataValues.ownerId) {
+          const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
+          if (vOwner?.dataValues.tokenPush) {
+            await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+              ...PushMessages.pedidoCanceladoPorClienteSinPagar(),
+              data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+            })
+          }
+        }
+      } catch (error) {
+        console.log('MarketplaceOrderService.cancelByClient: fallo avisando a la tienda', error)
+      }
+      return this.showById(vOrder.dataValues.id)
+    }
+
+    const vRequestable: string[] = [
+      EMarketplaceOrderStatus.PREPARANDO,
+      EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+      EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO,
+    ]
+    if (!vRequestable.includes(vOrder.dataValues.status)) {
+      throw new MarketplaceOrderError(
+        `El pedido ya no se puede cancelar ni solicitar su cancelacion (estado actual: ${vOrder.dataValues.status})`,
+        409
+      )
+    }
+
+    const vPreviousStatus = vOrder.dataValues.status
+    await vOrder.update({
+      previousStatus: vPreviousStatus,
+      status: EMarketplaceOrderStatus.CANCELACION_SOLICITADA,
+      cancelRequestReason: pData.reason ?? null,
+      cancelRequestedAt: new Date(),
+    })
+
+    try {
+      const vClient = await ClassAuthService.show(pUserId)
+      if (vClient?.dataValues.socketId) {
+        SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+          orderId: vOrder.dataValues.id,
+          status: EMarketplaceOrderStatus.CANCELACION_SOLICITADA,
+          tripId: vOrder.dataValues.tripId ?? null,
+          driver: null,
+          trip: null,
+        })
+      }
+      const vRecipients: string[] = []
+      const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+      if (vStore?.dataValues.ownerId) {
+        const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
+        if (vOwner?.dataValues.tokenPush) {
+          vRecipients.push(vOwner.dataValues.tokenPush)
+        }
+      }
+      const vAdmins = await ClassUserService.allUserAdmin()
+      vRecipients.push(...vAdmins.map((pAdmin: any) => pAdmin.tokenPush).filter(Boolean))
+      if (vRecipients.length) {
+        await NotificationService.sendNotification(vRecipients, {
+          ...PushMessages.solicitudCancelacionRecibida(),
+          data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+        })
+      }
+    } catch (error) {
+      console.log('MarketplaceOrderService.cancelByClient: fallo avisando la solicitud', error)
+    }
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // La tienda (dueño de esa tienda, o admin/operador) acepta la solicitud de cancelacion del
+  // cliente: mismo efecto que cancel() (revierte inventario/cupon, anula viaje, libera
+  // repartidor), pero el motivo que queda registrado es el que dio el CLIENTE al pedirla, y el
+  // aviso al cliente es distinto (le avisa que van a coordinar el reembolso, no que "la tienda
+  // canceló tu pedido" sin mas contexto).
+  async acceptCancelRequest(pUserId: string, pRolId: number, pData: { orderId: number }): Promise<IMarketplaceOrderInstance> {
+    if (!pData?.orderId) {
+      throw new MarketplaceOrderError('orderId es requerido')
+    }
+    const vOrder = await modelMarketplaceOrder.findByPk(pData.orderId, {
+      include: [{ model: modelMarketplaceOrderItem, as: 'items' }],
+    })
+    if (!vOrder) {
+      throw new MarketplaceOrderError('El pedido no existe', 404)
+    }
+
+    const vIsPlatformStaff = pRolId === 1 || pRolId === 2
+    if (!vIsPlatformStaff) {
+      const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+      if (!vStore || vStore.dataValues.ownerId !== pUserId) {
+        throw new MarketplaceOrderError('No puedes resolver solicitudes de otra tienda', 403)
+      }
+    }
+    if (vOrder.dataValues.status !== EMarketplaceOrderStatus.CANCELACION_SOLICITADA) {
+      throw new MarketplaceOrderError(
+        `Este pedido no tiene una solicitud de cancelacion pendiente (estado actual: ${vOrder.dataValues.status})`,
+        409
+      )
+    }
+
+    const vItems: any[] = (vOrder as any).dataValues.items ?? []
+    const vReason = vOrder.dataValues.cancelRequestReason ?? null
+    const vFreedDriverId = await this.fxApplyCancellation(vOrder, vItems, vReason)
+    await this.fxNotifyCancellation(vOrder, vReason, vFreedDriverId, PushMessages.solicitudCancelacionAceptada())
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // La tienda (o admin/operador) rechaza la solicitud: el pedido vuelve al estado que tenia antes
+  // de que el cliente la pidiera y sigue su curso normal - no revierte nada (nunca se llego a
+  // tocar inventario/cupon/viaje, la solicitud solo pauso el status).
+  async rejectCancelRequest(pUserId: string, pRolId: number, pData: { orderId: number }): Promise<IMarketplaceOrderInstance> {
+    if (!pData?.orderId) {
+      throw new MarketplaceOrderError('orderId es requerido')
+    }
+    const vOrder = await modelMarketplaceOrder.findByPk(pData.orderId)
+    if (!vOrder) {
+      throw new MarketplaceOrderError('El pedido no existe', 404)
+    }
+
+    const vIsPlatformStaff = pRolId === 1 || pRolId === 2
+    if (!vIsPlatformStaff) {
+      const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+      if (!vStore || vStore.dataValues.ownerId !== pUserId) {
+        throw new MarketplaceOrderError('No puedes resolver solicitudes de otra tienda', 403)
+      }
+    }
+    if (vOrder.dataValues.status !== EMarketplaceOrderStatus.CANCELACION_SOLICITADA) {
+      throw new MarketplaceOrderError(
+        `Este pedido no tiene una solicitud de cancelacion pendiente (estado actual: ${vOrder.dataValues.status})`,
+        409
+      )
+    }
+
+    const vRestoredStatus = (vOrder.dataValues.previousStatus as EMarketplaceOrderStatus) || EMarketplaceOrderStatus.PREPARANDO
+    await vOrder.update({ status: vRestoredStatus, previousStatus: null })
+
+    try {
+      const vClient = await ClassAuthService.show(vOrder.dataValues.customerId)
+      if (vClient?.dataValues.socketId) {
+        SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+          orderId: vOrder.dataValues.id,
+          status: vRestoredStatus,
+          tripId: vOrder.dataValues.tripId ?? null,
+          driver: null,
+          trip: null,
+        })
+      }
+      if (vClient?.dataValues.tokenPush) {
+        await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
+          ...PushMessages.solicitudCancelacionRechazada(),
+          data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+        })
+      }
+    } catch (error) {
+      console.log('MarketplaceOrderService.rejectCancelRequest: fallo avisando al cliente', error)
+    }
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // Logica compartida entre cancel() y acceptCancelRequest(): revierte inventario/timesSold de
+  // los productos del pedido, devuelve el uso del cupon, anula el viaje si existia y libera al
+  // repartidor asignado. Deja el pedido en CANCELADO. Devuelve el driverId liberado (o null) para
+  // que el llamador avise fuera de la transaccion.
+  private async fxApplyCancellation(
+    pOrder: IMarketplaceOrderInstance,
+    pItems: any[],
+    pReason: string | null
+  ): Promise<string | null> {
+    const vTripId = pOrder.dataValues.tripId
     let vFreedDriverId: string | null = null
 
     await sequelize.transaction(async (pTransaction) => {
-      // Revertir inventario + contador de ventas de los productos con inventario.
-      for (const vItem of vItems) {
+      for (const vItem of pItems) {
         const vProduct = await modelStoreProduct.findByPk(vItem.dataValues.productId, {
           transaction: pTransaction,
         })
@@ -401,7 +604,6 @@ class MarketplaceOrderService {
           vProduct.dataValues.stockQuantity !== undefined
         ) {
           vUpdate.stockQuantity = vProduct.dataValues.stockQuantity + vItem.dataValues.quantity
-          // Si se habia auto-marcado no disponible al llegar a 0, ahora vuelve a haber stock.
           if (vProduct.dataValues.isAvailable === false && vUpdate.stockQuantity > 0) {
             vUpdate.isAvailable = true
           }
@@ -409,9 +611,8 @@ class MarketplaceOrderService {
         await vProduct.update(vUpdate, { transaction: pTransaction })
       }
 
-      // Devolver el uso del cupon.
-      if (vOrder.dataValues.couponId) {
-        const vCoupon = await modelCoupon.findByPk(vOrder.dataValues.couponId, { transaction: pTransaction })
+      if (pOrder.dataValues.couponId) {
+        const vCoupon = await modelCoupon.findByPk(pOrder.dataValues.couponId, { transaction: pTransaction })
         if (vCoupon) {
           await vCoupon.update(
             { usageCount: Math.max(0, (vCoupon.dataValues.usageCount ?? 0) - 1) },
@@ -420,7 +621,6 @@ class MarketplaceOrderService {
         }
       }
 
-      // Anular el viaje si existe y todavia esta activo, y liberar al repartidor.
       if (vTripId) {
         const vTrip = await modelTrip.findByPk(vTripId, { transaction: pTransaction })
         if (
@@ -436,45 +636,56 @@ class MarketplaceOrderService {
         }
       }
 
-      await vOrder.update(
+      await pOrder.update(
         {
           status: EMarketplaceOrderStatus.CANCELADO,
-          cancellationReason: pData.reason ?? null,
+          cancellationReason: pReason,
+          previousStatus: null,
         },
         { transaction: pTransaction }
       )
     })
 
-    // Fuera de la transaccion: liberar al repartidor y avisar (best-effort).
     if (vFreedDriverId) {
       await ClassAuthService.updateSocket({ id: vFreedDriverId, statusDriver: EStatusDriver.ACTIVE })
     }
+    return vFreedDriverId
+  }
+
+  // Avisos post-cancelacion compartidos entre cancel() y acceptCancelRequest() - lo unico que
+  // cambia entre esos dos casos es el mensaje que recibe el cliente.
+  private async fxNotifyCancellation(
+    pOrder: IMarketplaceOrderInstance,
+    pReason: string | null,
+    pFreedDriverId: string | null,
+    pClientMessage: IPushMessage
+  ): Promise<void> {
     try {
       const vPayload = {
-        orderId: vOrder.dataValues.id,
-        tripId: vTripId ?? null,
-        reason: pData.reason ?? null,
+        orderId: pOrder.dataValues.id,
+        tripId: pOrder.dataValues.tripId ?? null,
+        reason: pReason,
       }
-      const vClient = await ClassAuthService.show(vOrder.dataValues.customerId)
+      const vClient = await ClassAuthService.show(pOrder.dataValues.customerId)
       if (vClient?.dataValues.socketId) {
         SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderCancelled', vPayload)
         SocketService.io.to(vClient.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
-          orderId: vOrder.dataValues.id,
+          orderId: pOrder.dataValues.id,
           status: EMarketplaceOrderStatus.CANCELADO,
-          tripId: vTripId ?? null,
+          tripId: pOrder.dataValues.tripId ?? null,
           driver: null,
           trip: null,
-          reason: pData.reason ?? null,
+          reason: pReason,
         })
       }
       if (vClient?.dataValues.tokenPush) {
         await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
-          ...PushMessages.pedidoCanceladoCliente(pData.reason),
+          ...pClientMessage,
           data: JSON.stringify(vPayload),
         })
       }
-      if (vFreedDriverId) {
-        const vDriver = await ClassAuthService.show(vFreedDriverId)
+      if (pFreedDriverId) {
+        const vDriver = await ClassAuthService.show(pFreedDriverId)
         if (vDriver?.dataValues.socketId) {
           SocketService.io.to(vDriver.dataValues.socketId).emit('marketplaceOrderCancelled', vPayload)
         }
@@ -487,12 +698,10 @@ class MarketplaceOrderService {
       }
       // Si estaba en BUSCANDO_CONDUCTOR, algunos repartidores lo tienen en pantalla sin haberlo
       // aceptado - broadcast para que lo saquen (el que no lo tenia lo ignora).
-      SocketService.io.emit('marketplaceOrderTaken', { tripId: vTripId ?? null, orderId: vOrder.dataValues.id })
+      SocketService.io.emit('marketplaceOrderTaken', { tripId: pOrder.dataValues.tripId ?? null, orderId: pOrder.dataValues.id })
     } catch (error) {
-      console.log('MarketplaceOrderService.cancel: fallo avisando', error)
+      console.log('MarketplaceOrderService: fallo avisando la cancelacion', error)
     }
-
-    return this.showById(vOrder.dataValues.id)
   }
 
   async showById(pOrderId: number): Promise<IMarketplaceOrderInstance> {

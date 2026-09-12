@@ -15,6 +15,11 @@ export enum EMarketplaceOrderStatus {
   PEDIDO_RECOGIDO = 'pedido recogido',
   ENTREGADO = 'pedido entregado',
   CANCELADO = 'cancelado',
+  // El cliente pidio cancelar un pedido YA confirmado (ya "pagado" en la practica, ver
+  // cancelByClient en MarketplaceOrderService) - pausa el pedido (el scheduler de despacho lo
+  // ignora porque ya no matchea status=PREPARANDO/BUSCANDO_CONDUCTOR) hasta que la tienda/admin
+  // lo acepte (-> CANCELADO) o lo rechace (-> vuelve a previousStatus).
+  CANCELACION_SOLICITADA = 'cancelacion solicitada',
 }
 
 // Que vehiculo debe usar el repartidor para esta entrega - lo elige el cliente al pedir, no se
@@ -58,6 +63,11 @@ export interface IMarketplaceOrderAttributes {
   // Punto de referencia para ubicar la entrega - texto libre y/o foto, ambos opcionales.
   referencePointText?: string | null
   referencePhoto?: string | null
+  // Solo se usan mientras status = CANCELACION_SOLICITADA (o quedan de una solicitud ya resuelta,
+  // como historial). previousStatus es a donde vuelve el pedido si la tienda/admin rechaza.
+  previousStatus?: EMarketplaceOrderStatus | null
+  cancelRequestReason?: string | null
+  cancelRequestedAt?: Date | null
   notes?: string | null
   createdAt?: Date
   updatedAt?: Date
@@ -209,6 +219,24 @@ export const vMarketplaceOrderModelAttributes: SequelizeAttributes<IMarketplaceO
   referencePhoto: {
     type: DataTypes.STRING,
     field: 'reference_photo',
+    allowNull: true,
+    defaultValue: null,
+  },
+  previousStatus: {
+    type: DataTypes.STRING,
+    field: 'previous_status',
+    allowNull: true,
+    defaultValue: null,
+  },
+  cancelRequestReason: {
+    type: DataTypes.STRING,
+    field: 'cancel_request_reason',
+    allowNull: true,
+    defaultValue: null,
+  },
+  cancelRequestedAt: {
+    type: DataTypes.DATE,
+    field: 'cancel_requested_at',
     allowNull: true,
     defaultValue: null,
   },

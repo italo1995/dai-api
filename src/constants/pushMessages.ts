@@ -152,4 +152,20 @@ export const PushMessages = {
     title: 'Nuevo pedido para repartir',
     body: `${pStoreName || 'Un comercio'} tiene un pedido listo. ¡Eso es DAI!`,
   }),
+  pedidoCanceladoPorClienteSinPagar: (): IPushMessage => ({
+    title: 'Pedido cancelado',
+    body: 'El cliente canceló el pedido antes de que lo confirmaras.',
+  }),
+  solicitudCancelacionRecibida: (): IPushMessage => ({
+    title: 'Solicitud de cancelación',
+    body: 'El cliente pidió cancelar un pedido ya confirmado. Revísalo en el panel para aceptar o rechazar.',
+  }),
+  solicitudCancelacionAceptada: (): IPushMessage => ({
+    title: 'Tu solicitud fue aceptada',
+    body: 'La tienda va a coordinar contigo el reembolso por mensaje o llamada.',
+  }),
+  solicitudCancelacionRechazada: (): IPushMessage => ({
+    title: 'Tu solicitud fue rechazada',
+    body: 'Tu pedido sigue en curso con normalidad.',
+  }),
 }

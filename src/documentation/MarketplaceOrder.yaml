@@ -66,7 +66,12 @@ components:
             - pedido recogido
             - pedido entregado
             - cancelado
-          description: 'Estado de NEGOCIO del pedido (distinto del status del trip, que es solo transporte)'
+            - cancelacion solicitada
+          description: >-
+            Estado de NEGOCIO del pedido (distinto del status del trip, que es solo transporte).
+            'cancelacion solicitada' es transitorio: lo pidio el cliente sobre un pedido ya
+            confirmado (ver /cancelByClient) y esta pausado hasta que la tienda/admin lo acepte
+            (-> cancelado) o lo rechace (-> vuelve a previousStatus)
         currencyId:
           type: number
           nullable: true
@@ -139,6 +144,18 @@ components:
           type: string
           nullable: true
           description: Foto del punto de referencia (opcional). Se sube antes por /api/file/upload y se manda el path 'temp/...' devuelto
+        previousStatus:
+          type: string
+          nullable: true
+          description: 'Solo tiene valor mientras status = cancelacion solicitada: a que estado vuelve el pedido si se rechaza la solicitud'
+        cancelRequestReason:
+          type: string
+          nullable: true
+          description: Motivo que dio el CLIENTE al solicitar la cancelacion (distinto de cancellationReason, que es el motivo de la tienda)
+        cancelRequestedAt:
+          type: string
+          format: date-time
+          nullable: true
         items:
           type: array
           items:
@@ -281,10 +298,12 @@ paths:
           description: El pedido no esta 'pendiente de confirmacion' (ya se confirmo o cancelo)
   /api/marketplace/order/cancel:
     post:
-      summary: '[Comercio] Cancela el pedido (el cliente NO puede)'
+      summary: '[Comercio] Cancela el pedido directamente (el cliente usa /cancelByClient)'
       description: >
         Solo el comercio (dueno rolId 4 de esa tienda, o admin/operador). Se permite cancelar hasta
-        'conductor asignado' inclusive; desde 'pedido recogido' en adelante -> 409. Revierte
+        'conductor asignado' inclusive; desde 'pedido recogido' en adelante -> 409. Un pedido en
+        'cancelacion solicitada' TAMPOCO se puede cancelar por aca (409) - esa solicitud del
+        cliente se resuelve con /cancelRequest/accept o /cancelRequest/reject. Revierte
         inventario (stockQuantity y isAvailable), el contador timesSold y el uso del cupon; anula el
         viaje si estaba activo y libera al repartidor asignado. Push + socket 'marketplaceOrderCancelled'
         al cliente (y al repartidor si habia).
@@ -316,7 +335,122 @@ paths:
         '403':
           description: No es el dueno de esa tienda ni admin/operador
         '409':
-          description: El pedido ya no se puede cancelar (recogido, entregado o ya cancelado)
+          description: El pedido ya no se puede cancelar (recogido, entregado, ya cancelado, o con una solicitud de cancelacion pendiente)
+  /api/marketplace/order/cancelByClient:
+    post:
+      summary: '[Cliente] Cancela (si no esta confirmado) o solicita cancelar (si ya esta confirmado) su propio pedido'
+      description: >
+        El CLIENTE (dueño del pedido, rolId cliente) llama siempre a este mismo endpoint - el
+        server decide internamente que hacer segun el status actual, la app no necesita saber la
+        maquina de estados:
+        - Si el pedido esta en 'pendiente de confirmacion' (la tienda todavia no lo reviso - en la
+          practica, no hay nada "pagado" con metodos de pago manuales): se cancela DIRECTO, mismo
+          efecto que /cancel del comercio. Avisa a la tienda.
+        - Si ya esta en 'preparando pedido', 'buscando conductor' o 'conductor asignado' (ya
+          confirmado): NO se cancela - el pedido pasa a 'cancelacion solicitada' (queda pausado,
+          el scheduler de despacho lo ignora) y se avisa a la tienda y a todo admin/operador para
+          que la revisen. El reembolso se coordina aparte, por mensaje o llamada, no lo hace el
+          sistema.
+        - Desde 'pedido recogido' en adelante (o si ya esta cancelado / ya hay una solicitud
+          pendiente) -> 409, ni se puede cancelar ni solicitar.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: number
+                reason:
+                  type: string
+                  description: Opcional. Si no esta confirmado, es el motivo de cancelacion; si ya esta confirmado, es el motivo de la solicitud (cancelRequestReason)
+      responses:
+        '200':
+          description: Pedido cancelado directo, o solicitud de cancelacion registrada - revisar el campo status de la respuesta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '403':
+          description: El pedido no es de este cliente
+        '409':
+          description: El pedido ya no se puede cancelar ni solicitar su cancelacion (recogido, entregado, cancelado, o ya hay una solicitud pendiente)
+  /api/marketplace/order/cancelRequest/accept:
+    post:
+      summary: '[Comercio] Acepta la solicitud de cancelacion del cliente'
+      description: >
+        Solo el comercio (dueno de esa tienda, o admin/operador). El pedido tiene que estar en
+        'cancelacion solicitada' (409 si no). Mismo efecto que /cancel (revierte inventario/cupon,
+        anula viaje, libera repartidor) pero el motivo que queda registrado en cancellationReason
+        es el que dio el CLIENTE al pedirla (cancelRequestReason). Avisa al cliente que la
+        aceptaron y que van a coordinar el reembolso aparte.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: number
+      responses:
+        '200':
+          description: Pedido cancelado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '403':
+          description: No es el dueno de esa tienda ni admin/operador
+        '409':
+          description: 'El pedido no tiene una solicitud de cancelacion pendiente (status != cancelacion solicitada)'
+  /api/marketplace/order/cancelRequest/reject:
+    post:
+      summary: '[Comercio] Rechaza la solicitud de cancelacion del cliente'
+      description: >
+        Solo el comercio (dueno de esa tienda, o admin/operador). El pedido tiene que estar en
+        'cancelacion solicitada' (409 si no). Vuelve al status que tenia antes de la solicitud
+        (previousStatus) - no revierte nada porque nunca se llego a tocar inventario/cupon/viaje.
+        Avisa al cliente que la rechazaron y que su pedido sigue en curso.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: number
+      responses:
+        '200':
+          description: Pedido restaurado a su estado anterior
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '403':
+          description: No es el dueno de esa tienda ni admin/operador
+        '409':
+          description: 'El pedido no tiene una solicitud de cancelacion pendiente (status != cancelacion solicitada)'
   /api/marketplace/order/all:
     get:
       summary: 'Listado de pedidos, con la vista que corresponde a quien pregunta'
