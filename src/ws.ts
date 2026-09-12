@@ -31,6 +31,7 @@ import { ETypeUser } from './types/User'
 import CompanyParameterService from './services/web/CompanyParameterService'
 import DriverReportService from './services/User/DriverReportService'
 import CurrencyService from './services/Payments/CurrencyService'
+import { PushMessages } from './constants/pushMessages'
 // Cada cuanto se vuelve a calcular "viajes cercanos" para un conductor sin viaje activo.
 // Evita repetir busquedas pesadas en cada tick de 'coords' (cada pocos segundos) mientras
 // el conductor esta quieto/inactivo.
@@ -486,14 +487,9 @@ export class SocketService {
         const vDriverSocketId = JSON.parse(JSON.stringify(vTripOffer))
         if (vDriver?.dataValues.tokenPush && vTripOffer?.dataValues.clientId) {
           const vClient: IUserInstance | null = await ClassAuthService.show(vTripOffer.dataValues.clientId)
-          const text = vTrip?.dataValues.typeService === ETypeService.DELIVERY ? 'te ha seleccionado como repartidor' : 'te ha seleccionado como repartidor'
-          const notificationData = {
-            title: `${vClient?.dataValues.name} ${text}`,
-            body: 'Dirígete al destino. ¡Eso es DAI!',
-          }
           await NotificationService.sendNotification(
             [vDriver.dataValues.tokenPush],
-            notificationData
+            PushMessages.driverSeleccionado(vClient?.dataValues.name)
           )
         }
         try {
@@ -611,8 +607,7 @@ export class SocketService {
           }
           if (vClient?.dataValues.tokenPush) {
             await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
-              title: 'Repartidor en camino',
-              body: 'Un repartidor tomo tu pedido y va para el comercio. ¡Eso es DAI!',
+              ...PushMessages.repartidorEnCamino(),
               data: JSON.stringify({ orderId: vOrder.dataValues.id }),
             })
           }
@@ -687,8 +682,7 @@ export class SocketService {
         }
         if (vClient?.dataValues.tokenPush) {
           await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
-            title: 'Tu pedido va en camino',
-            body: 'El repartidor ya recogio tu pedido y va para alla. ¡Eso es DAI!',
+            ...PushMessages.pedidoEnCamino(),
             data: JSON.stringify(vPayload),
           })
         }
@@ -761,8 +755,7 @@ export class SocketService {
         }
         if (vClient?.dataValues.tokenPush) {
           await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
-            title: 'Pedido entregado',
-            body: 'Tu pedido fue entregado. ¡Gracias por usar DAI!',
+            ...PushMessages.pedidoEntregado(),
             data: JSON.stringify(vPayload),
           })
         }
@@ -798,13 +791,9 @@ export class SocketService {
               await SocketService.io.to(vClient?.dataValues.socketId).emit('driverInPlace', vTrip)
             }
             if (vClient?.dataValues.tokenPush) {
-              const notificationData = {
-                title: 'Ya llegue',
-                body: 'Te estoy esperando',
-              }
               await NotificationService.sendNotification(
                 [vClient.dataValues.tokenPush],
-                notificationData
+                PushMessages.driverEnElSitio()
               )
             }
           }
@@ -838,13 +827,9 @@ export class SocketService {
               await SocketService.io.to(vClient?.dataValues.socketId).emit('driverIsNear', vTrip)
             }
             if (vClient?.dataValues.tokenPush) {
-              const notificationData = {
-                title: 'Voy llegando',
-                body: 'Espérame afuera',
-              }
               await NotificationService.sendNotification(
                 [vClient.dataValues.tokenPush],
-                notificationData
+                PushMessages.driverEstaCerca()
               )
             }
           }
@@ -909,13 +894,9 @@ export class SocketService {
                 .emit('completedService', vTrip)
             }
             if (vClient?.dataValues.tokenPush) {
-              const notificationData = {
-                title: 'Actualizacion de tu viaje',
-                body: 'Tu viaje ha finalizado',
-              }
               await NotificationService.sendNotification(
                 [vClient.dataValues.tokenPush],
-                notificationData
+                PushMessages.viajeFinalizado()
               )
             }
           }

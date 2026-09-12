@@ -70,6 +70,7 @@ import NotificationService from '../fcmPushController'
 import TripService from '../../services/Trip/TripService'
 import StaffViewService from '../../services/web/StaffViewService'
 import { SocketService } from '../../ws'
+import { PushMessages } from '../../constants/pushMessages'
 
 // QA-03: aviso al dispositivo desplazado cuando un conductor se loguea en otro ("gana el
 // ultimo"). Standalone (no metodo de clase) porque las rutas llaman a 'controller.login' como
@@ -77,10 +78,7 @@ import { SocketService } from '../../ws'
 // dispositivo viejo no tiene push token o no esta conectado, igual se intenta el otro canal.
 async function notifyDisplacedDevice(pSocketId: string | null, pTokenPush: string | null): Promise<void> {
   if (pTokenPush) {
-    await NotificationService.sendNotification([pTokenPush], {
-      title: 'Se inició sesión en otro dispositivo',
-      body: 'Si fuiste tú, no tienes que hacer nada. Si no reconoces este acceso, contáctanos.',
-    })
+    await NotificationService.sendNotification([pTokenPush], PushMessages.sesionEnOtroDispositivo())
   }
   if (pSocketId) {
     SocketService.io.to(pSocketId).emit('sessionTakenOver', {})
@@ -298,13 +296,9 @@ class AuthController {
           const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush)
           if (vData?.typeUser === ETypeUser.driver) {
             if (pushIds.length) {
-              const notificationData = {
-                title: 'Hay un nuevo candidato para conductor.',
-                body: ' Por favor recuerda verificarlo. ¡Eso es DAI!.',
-              }
               await NotificationService.sendNotification(
                 pushIds,
-                notificationData
+                PushMessages.nuevoCandidatoConductor()
               )
             }
           }
@@ -314,13 +308,9 @@ class AuthController {
           const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush)
           if (vData?.typeUser === ETypeUser.driver) {
             if (pushIds.length) {
-              const notificationData = {
-                title: `${vUserDB.dataValues.name} editó su información`,
-                body: 'Por favor recuerda verificarlo. ¡Eso es DAI!.',
-              }
               await NotificationService.sendNotification(
                 pushIds,
-                notificationData
+                PushMessages.candidatoConductorEditoInfo(vUserDB.dataValues.name)
               )
             }
           }
@@ -410,10 +400,7 @@ class AuthController {
       const admin = await ClassUserService.allUserAdmin()
       const pushIds: any[] = admin.map((vAdmin: any) => vAdmin.tokenPush).filter(Boolean)
       if (pushIds.length) {
-        await NotificationService.sendNotification(pushIds, {
-          title: 'Nueva tienda registrada',
-          body: `${vUser.dataValues?.name || 'Un nuevo comercio'} se registró y espera aprobación.`,
-        })
+        await NotificationService.sendNotification(pushIds, PushMessages.nuevaTiendaRegistrada(vUser.dataValues?.name))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vUserData, 'Registrado'))
     } catch (error: any) {
@@ -509,14 +496,12 @@ class AuthController {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       if (vUserDB?.tokenPush) {
-        const notificationData = {
-          title: 'Usuario verificado',
-          body: 'tu usuario ha sido verificado',
+        await NotificationService.sendNotification([vUserDB?.tokenPush], {
+          ...PushMessages.usuarioVerificado(),
           data: JSON.stringify({
             verifiedDriver: true,
           }),
-        }
-        await NotificationService.sendNotification([vUserDB?.tokenPush], notificationData)
+        })
         await fxSendMessage(vUserDB)
       }
       const vResponse = {

@@ -16,6 +16,7 @@ import ClassVerifyService from '../../services/User/VerifyService'
 import { EStatusVerify } from '../../models/User/VerifyModel'
 import TripService from '../../services/Trip/TripService'
 import NotificationService from '../fcmPushController'
+import { PushMessages } from '../../constants/pushMessages'
 
 class UserController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -153,14 +154,10 @@ class UserController {
           isDriver: true,
         })
         if (vData.verifiedDriver && !vUserDB?.dataValues?.verifiedDriver && vUserDB?.dataValues?.tokenPush) {
-          const notificationData = {
-            title: 'Usuario activado',
-            body: 'Ya puedes comenzar a usar DAI, te esperamos',
-          }
           await NotificationService.sendNotification(
             [vUserDB.dataValues.tokenPush],
-            notificationData
-          ) 
+            PushMessages.usuarioActivado()
+          )
         }
       }
       const vResponse: IUserInstance | null = await ClassUser.update(vData)

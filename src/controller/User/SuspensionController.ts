@@ -27,6 +27,7 @@ import { ETypeTime, type ISuspensionInstance } from '../../models/User/Suspensio
 import { modelUser } from '../../models'
 import { addYears, addHours } from 'date-fns'
 import NotificationService from '../fcmPushController'
+import { PushMessages } from '../../constants/pushMessages'
 
 class SuspensionController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -140,13 +141,9 @@ class SuspensionController {
       //   })
       // }
       if (user?.dataValues.tokenPush) {
-        const notificationData = {
-          title: '¡Tu cuenta ha sido suspendida!',
-          body: `${vData.reason}, hasta: ${vResponse.end.toLocaleString()}, Contacta a un operador para aclarar tus dudas.`,
-        }
         await NotificationService.sendNotification(
           [user.dataValues.tokenPush],
-          notificationData
+          PushMessages.cuentaSuspendida(vData.reason, vResponse.end.toLocaleString())
         )
       }
       const message = `La suspensión del conductor fue generada hasta ${vResponse.end.toLocaleString()}`
@@ -189,13 +186,9 @@ class SuspensionController {
       //   })
       // }
       if (user?.dataValues.tokenPush) {
-        const notificationData = {
-          title: '¡Tu cuenta ha sido habilitada!',
-          body: 'Ya puedes trabajar con nosotros nuevamente ¡Eso es DAI!',
-        }
         await NotificationService.sendNotification(
           [user.dataValues.tokenPush],
-          notificationData
+          PushMessages.cuentaHabilitada()
         )
       }
       if (vData?.id) {

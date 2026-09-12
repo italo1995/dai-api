@@ -40,6 +40,7 @@ import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
+import { PushMessages } from '../../constants/pushMessages'
 
 // Quien pide un listado / detalle - se usa para el scoping por rol ([Orden 8/8]).
 export interface IOrderRequester {
@@ -246,8 +247,7 @@ class MarketplaceOrderService {
         const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
         if (vOwner?.dataValues.tokenPush) {
           await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
-            title: 'Nuevo pedido',
-            body: 'Tienes un pedido nuevo por confirmar. ¡Eso es DAI!',
+            ...PushMessages.nuevoPedidoParaConfirmar(),
             data: JSON.stringify({ orderId: vOrder.dataValues.id }),
           })
         }
@@ -326,8 +326,7 @@ class MarketplaceOrderService {
       }
       if (vCustomer?.dataValues.tokenPush) {
         await NotificationService.sendNotification([vCustomer.dataValues.tokenPush], {
-          title: 'Pedido confirmado',
-          body: `El comercio esta preparando tu pedido - estara listo en ~${vPrep} min. ¡Eso es DAI!`,
+          ...PushMessages.pedidoConfirmado(vPrep),
           data: JSON.stringify({ orderId: vOrder.dataValues.id }),
         })
       }
@@ -470,10 +469,7 @@ class MarketplaceOrderService {
       }
       if (vClient?.dataValues.tokenPush) {
         await NotificationService.sendNotification([vClient.dataValues.tokenPush], {
-          title: 'Pedido cancelado',
-          body: pData.reason
-            ? `El comercio cancelo tu pedido: ${pData.reason}`
-            : 'El comercio canceló tu pedido. Si tienes dudas, contáctanos.',
+          ...PushMessages.pedidoCanceladoCliente(pData.reason),
           data: JSON.stringify(vPayload),
         })
       }
@@ -484,8 +480,7 @@ class MarketplaceOrderService {
         }
         if (vDriver?.dataValues.tokenPush) {
           await NotificationService.sendNotification([vDriver.dataValues.tokenPush], {
-            title: 'Pedido cancelado',
-            body: 'El comercio cancelo un pedido que tenias asignado. Ya estas disponible para otro.',
+            ...PushMessages.pedidoCanceladoDriver(),
             data: JSON.stringify(vPayload),
           })
         }

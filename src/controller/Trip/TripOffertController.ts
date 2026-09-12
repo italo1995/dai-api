@@ -30,6 +30,7 @@ import ClassTripService from '../../services/Trip/TripService'
 import { ETypeUser } from '../../types/User'
 import type { ITripInstance } from '../../models/Trip/TripModel'
 import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
+import { PushMessages } from '../../constants/pushMessages'
 
 class TripOffertController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -149,12 +150,10 @@ class TripOffertController {
           duration: vData.duration,
           distance: vData.distance,
         }
-        const notificationData = {
-          title: '¡Tienes una oferta!',
-          body: 'Confirma  para iniciar tu viaje. ¡Eso es DAI!',
+        await NotificationService.sendNotification([tokenPush], {
+          ...PushMessages.nuevaOfertaParaCliente(),
           data: JSON.stringify(VnotificationDataDriver),
-        }
-        await NotificationService.sendNotification([tokenPush], notificationData)
+        })
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {

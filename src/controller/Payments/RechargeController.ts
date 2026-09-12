@@ -13,6 +13,7 @@ import CurrencyService from '../../services/Payments/CurrencyService'
 import NotificationService from '../fcmPushController'
 import { ETypeUser } from '../../types/User'
 import { SocketService } from '../../ws'
+import { PushMessages } from '../../constants/pushMessages'
 
 export const recharge = {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -87,13 +88,9 @@ export const recharge = {
           const admin = await ClassUserService.allUserAdmin()
           const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush)
           if (pushIds.length) {
-            const notificationData = {
-              title: 'Tienes recargas pendientes por aprobar.',
-              body: 'Por favor, recuerda revisarlas. ¡Eso es DAI!',
-            }
             await NotificationService.sendNotification(
               pushIds,
-              notificationData
+              PushMessages.recargasPendientesPorAprobar()
             )
           }
         } else {
@@ -122,11 +119,7 @@ export const recharge = {
         const socketIds: any[] = admin.map((vUser: any) => vUser.socketId).filter(Boolean)
         const pushIds: any[] = admin.map((vUser: any) => vUser.tokenPush).filter(Boolean)
         if (pushIds.length) {
-          const notificationData = {
-            title: 'Nueva recarga pendiente por aprobar',
-            body: `${user.user || 'Un usuario'} envió un comprobante - revísalo en el panel. ¡Eso es DAI!`,
-          }
-          await NotificationService.sendNotification(pushIds, notificationData)
+          await NotificationService.sendNotification(pushIds, PushMessages.nuevaRecargaPendiente(user.user))
         }
         if (socketIds.length) {
           SocketService.io.to(socketIds).emit('newRecharge', vResponse)
@@ -183,13 +176,9 @@ export const recharge = {
           id: oldRecharge?.dataValues.userId
         })
         if (vClient?.dataValues.tokenPush && vClient.dataValues.typeUser === ETypeUser.driver) {
-          const notificationData = {
-            title: '¡Tu recarga no fue aprobada!',
-            body: 'Verifica e inténtalo de nuevo. ¡Eso es DAI!.',
-          }
           await NotificationService.sendNotification(
             [vClient.dataValues.tokenPush],
-            notificationData
+            PushMessages.recargaNoAprobada()
           )
         }
       }
@@ -205,13 +194,9 @@ export const recharge = {
             id: oldRecharge?.dataValues.userId
           })
           if (vClient?.dataValues.tokenPush && vClient.dataValues.typeUser === ETypeUser.driver) {
-            const notificationData = {
-              title: '¡Tu recarga fue aprobada!',
-              body: 'Ya puedes iniciar tus viajes. ¡Eso es DAI!.',
-            }
             await NotificationService.sendNotification(
               [vClient.dataValues.tokenPush],
-              notificationData
+              PushMessages.recargaAprobada()
             )
           }
         }

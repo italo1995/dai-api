@@ -26,6 +26,7 @@ import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 import { EStatusVerify, type IVerifyInstance } from '../../models/User/VerifyModel'
 import { modelUser } from '../../models'
 import NotificationService from '../fcmPushController'
+import { PushMessages } from '../../constants/pushMessages'
 
 class VerifyController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -76,13 +77,9 @@ class VerifyController {
         user.verifiedDriver = false
         await user.save()
         if (user?.dataValues.tokenPush) {
-          const notificationData = {
-            title: 'Tu solicitud  ha sido rechazada',
-            body: `${vData.reason}. Verifica tu información e inténtalo de nuevo.`,
-          }
           await NotificationService.sendNotification(
             [user.dataValues.tokenPush],
-            notificationData
+            PushMessages.solicitudRechazada(vData.reason)
           )
         }
       }
@@ -105,13 +102,9 @@ class VerifyController {
             await user.save()
             if (user?.dataValues.tokenPush) {
               console.log('tiene token push')
-              const notificationData = {
-                title: 'Tu verificación ha sido exitosa',
-                body: ' Iniciemos juntos este viaje. ¡Eso es DAI!',
-              }
               await NotificationService.sendNotification(
                 [user.dataValues.tokenPush],
-                notificationData
+                PushMessages.verificacionExitosa()
               )
             }
           }
@@ -133,13 +126,9 @@ class VerifyController {
         }
         if (user?.dataValues.tokenPush) {
           console.log('tiene token push')
-          const notificationData = {
-            title: 'Usuario activado',
-            body: 'Ya puedes comenzar a usar DAI, te esperamos',
-          }
           await NotificationService.sendNotification(
             [user.dataValues.tokenPush],
-            notificationData
+            PushMessages.usuarioActivado()
           )
           console.log('deberia notificar')
         }

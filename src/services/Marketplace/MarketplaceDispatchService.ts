@@ -29,6 +29,7 @@ import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
+import { PushMessages } from '../../constants/pushMessages'
 
 const DEFAULT_INTERVAL_MS = 30_000
 const MIN_INTERVAL_MS = 5_000
@@ -248,8 +249,7 @@ class MarketplaceDispatchService {
       }
       if (vPushIds.length) {
         await NotificationService.sendNotification(vPushIds, {
-          title: 'Nuevo pedido para repartir',
-          body: `${vStore.dataValues.name} tiene un pedido listo. ¡Eso es DAI!`,
+          ...PushMessages.nuevoPedidoParaRepartir(vStore.dataValues.name),
           data: JSON.stringify(vPayload),
         })
       }

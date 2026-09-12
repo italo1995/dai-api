@@ -55,6 +55,7 @@ import ClassTripCancellationOptionService from '../../services/Trip/TripCancella
 import ClassAuthService from '../../services/User/AuthService'
 import { EStatusDriver } from '../../models/User/UserModel'
 import RangePriceService from '../../services/Locations/RangePriceService'
+import { PushMessages } from '../../constants/pushMessages'
 class TripController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
@@ -409,14 +410,11 @@ class TripController {
       }
       const vTripOne: ITripInstance | null = await ClassTripService.show(vParamTripShow)
       if (vTripOne) {
-        // const ClassSendNotification = new NotificationService()
-        const notificationData = {
-          title: 'Nuevo viaje',
-          body: 'Un nuevo viaje cerca de ti',
-          data: JSON.stringify(vTripOne),
-        }
         if (tokenPushs.length) {
-          await NotificationService.sendNotification(tokenPushs, notificationData)
+          await NotificationService.sendNotification(tokenPushs, {
+            ...PushMessages.nuevoViajeCerca(),
+            data: JSON.stringify(vTripOne),
+          })
         }
       }
       if (socketIds.length) {
@@ -491,8 +489,7 @@ class TripController {
           const vOfferDriver = (vOffer as any).driver
           if (vOfferDriver?.tokenPush) {
             await NotificationService.sendNotification([vOfferDriver.tokenPush], {
-              title: 'El pasajero actualizó el precio',
-              body: 'Revisa el nuevo monto del viaje. ¡Eso es DAI!',
+              ...PushMessages.precioActualizado(),
               data: JSON.stringify(vResponse),
             })
           }
@@ -572,13 +569,9 @@ class TripController {
           // desconectado/reconectando en ese momento, no se enteraba de la cancelacion ni por
           // push ni por socket, y podia completar un viaje ya cancelado, ver QA-01).
           if (vDriver?.dataValues.tokenPush) {
-            const notificationData = {
-              title: 'Tu pasajero ha cancelado el servicio',
-              body: '¡Gracias por tu disposición!. Es momento de tomar otro viaje',
-            }
             await NotificationService.sendNotification(
               [vDriver.dataValues.tokenPush],
-              notificationData
+              PushMessages.pasajeroCancelo()
             )
           }
           if (vDriver?.dataValues.socketId) {
@@ -588,13 +581,9 @@ class TripController {
         if (pReq.auth.typeUser === ETypeUser.driver && vResponse?.dataValues.userId) {
           const vClient = await ClassUserService.show({ id: vResponse.dataValues.userId })
           if (vClient?.dataValues.tokenPush) {
-            const notificationData = {
-              title: 'Tu conductor ha cancelado el servicio',
-              body: 'Si tienes alguna duda, contacta a un operador',
-            }
             await NotificationService.sendNotification(
               [vClient.dataValues.tokenPush],
-              notificationData
+              PushMessages.conductorCancelo()
             )
           }
           if (vClient?.dataValues.socketId) {
@@ -639,14 +628,11 @@ class TripController {
           const vTripOne: ITripInstance | null = await ClassTripService.show(vParamTripShow)
 
           if (vTripOne) {
-            // const ClassSendNotification = new NotificationService()
-            const notificationData = {
-              title: 'Nuevo viaje',
-              body: 'Un nuevo viaje cerca de ti',
-              data: JSON.stringify(vTripOne),
-            }
             if (tokenPushs.length) {
-              await NotificationService.sendNotification(tokenPushs, notificationData)
+              await NotificationService.sendNotification(tokenPushs, {
+                ...PushMessages.nuevoViajeCerca(),
+                data: JSON.stringify(vTripOne),
+              })
             }
           }
           if (socketIds.length) {
@@ -727,13 +713,9 @@ class TripController {
       if (driverId) {
         const dirver = await ClassUserService.show({ id: driverId })
         if (dirver?.dataValues.tokenPush) {
-          const notificationData = {
-            title: 'Tu servicio ha sido anulado',
-            body: ' Por nuestro administrador, contactanos para aclarar dudas.',
-          }
           await NotificationService.sendNotification(
             [dirver.dataValues.tokenPush],
-            notificationData
+            PushMessages.servicioAnuladoPorAdmin()
           )
         }
         if (dirver?.dataValues?.socketId) {
@@ -745,13 +727,9 @@ class TripController {
       if (clientId) {
         const client = await ClassUserService.show({ id: clientId })
         if (client?.dataValues.tokenPush) {
-          const notificationData = {
-            title: 'Tu servicio ha sido anulado',
-            body: ' Por nuestro administrador, contactanos para aclarar dudas.',
-          }
           await NotificationService.sendNotification(
             [client.dataValues.tokenPush],
-            notificationData
+            PushMessages.servicioAnuladoPorAdmin()
           )
         }
         if (client?.dataValues?.socketId) {
