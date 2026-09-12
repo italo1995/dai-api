@@ -7,6 +7,8 @@ export interface IStorePaymentMethodInput {
   type: EStorePaymentMethodType
   label?: string | null
   currencyId?: number | null
+  iconId?: number | null
+  customIcon?: string | null
   isActive?: boolean
   createdAt?: Date
   updatedAt?: Date

@@ -24,6 +24,12 @@ export interface IStorePaymentMethodAttributes {
   // referencia store_currencies - es la moneda base (tabla currencies), independiente de si la
   // tienda declaro esa moneda como aceptada ahi.
   currencyId?: number | null
+  // Icono generico elegido de la libreria (media_library_items, type='payment_method') - null si
+  // la tienda subio uno propio (customIcon) o si no eligio ninguno.
+  iconId?: number | null
+  // Icono propio de esta tienda para este metodo puntual, alternativa a iconId (uno u otro, no
+  // los dos - eso lo resuelve el form del panel, no el modelo).
+  customIcon?: string | null
   isActive?: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -76,6 +82,24 @@ export const vStorePaymentMethodModelAttributes: SequelizeAttributes<IStorePayme
       key: 'id',
     },
   },
+  iconId: {
+    type: DataTypes.INTEGER,
+    field: 'icon_id',
+    allowNull: true,
+    defaultValue: null,
+    references: {
+      model: {
+        tableName: 'media_library_items',
+      },
+      key: 'id',
+    },
+  },
+  customIcon: {
+    type: DataTypes.STRING,
+    field: 'custom_icon',
+    allowNull: true,
+    defaultValue: null,
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     field: 'is_active',
@@ -116,7 +140,7 @@ export function fxStorePaymentMethodFactory(sequelize: Sequelize) {
   )
 
   vStorePaymentMethod.associate = function (models: ModelRegistry) {
-    const { modelStorePaymentMethod, modelStore, modelCurrency } = models
+    const { modelStorePaymentMethod, modelStore, modelCurrency, modelMediaLibraryItem } = models
     modelStorePaymentMethod.hasOne(modelStore, {
       sourceKey: 'storeId',
       foreignKey: 'id',
@@ -126,6 +150,11 @@ export function fxStorePaymentMethodFactory(sequelize: Sequelize) {
       sourceKey: 'currencyId',
       foreignKey: 'id',
       as: 'currency',
+    })
+    modelStorePaymentMethod.hasOne(modelMediaLibraryItem, {
+      sourceKey: 'iconId',
+      foreignKey: 'id',
+      as: 'icon',
     })
   }
 

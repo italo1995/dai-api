@@ -62,6 +62,7 @@ import { fxStoreBusinessCategoryFactory } from './Store/StoreBusinessCategoryMod
 import { fxStoreRatingFactory } from './Store/StoreRatingModel'
 import { fxStoreFavoriteFactory } from './Store/StoreFavoriteModel'
 import { fxStoreProductModifierGroupFactory } from './Store/StoreProductModifierGroupModel'
+import { fxMediaLibraryItemFactory } from './Media/MediaLibraryItemModel'
 import { fxStoreProductModifierFactory } from './Store/StoreProductModifierModel'
 import { fxStoreProductImageFactory } from './Store/StoreProductImageModel'
 import { fxCartFactory } from './Cart/CartModel'
@@ -133,6 +134,7 @@ export const modelStoreDepartment = fxStoreDepartmentFactory(sequelize)
 export const modelStoreCategory = fxStoreCategoryFactory(sequelize)
 export const modelStoreProductCategory = fxStoreProductCategoryFactory(sequelize)
 export const modelStoreCurrency = fxStoreCurrencyFactory(sequelize)
+export const modelMediaLibraryItem = fxMediaLibraryItemFactory(sequelize)
 export const modelStorePaymentMethod = fxStorePaymentMethodFactory(sequelize)
 export const modelBusinessCategory = fxBusinessCategoryFactory(sequelize)
 export const modelStoreBusinessCategory = fxStoreBusinessCategoryFactory(sequelize)
@@ -203,6 +205,7 @@ const models = {
   modelStoreCategory,
   modelStoreProductCategory,
   modelStoreCurrency,
+  modelMediaLibraryItem,
   modelStorePaymentMethod,
   modelBusinessCategory,
   modelStoreBusinessCategory,

@@ -17,7 +17,7 @@
 */
 import { type FindOptions } from 'sequelize'
 import type { IStorePaymentMethodInstance } from '../../models/Store/StorePaymentMethodModel'
-import { modelStorePaymentMethod, modelCurrency } from '../../models'
+import { modelStorePaymentMethod, modelCurrency, modelMediaLibraryItem } from '../../models'
 import type { IStorePaymentMethodInput, IResponseAllStorePaymentMethod } from '../../types/StorePaymentMethod'
 import { fxOrderNameId, fxPaginate, fxSearchILike, fxReponseServices } from '../../utils/query'
 
@@ -27,6 +27,14 @@ const vCurrencyInclude = {
   model: modelCurrency,
   as: 'currency',
   attributes: ['id', 'name', 'symbol'],
+}
+
+// Icono generico elegido de la libreria, ya resuelto - si iconId es null esto viene null y el
+// consumidor usa customIcon en su lugar (ver StorePaymentMethodModel).
+const vIconInclude = {
+  model: modelMediaLibraryItem,
+  as: 'icon',
+  attributes: ['id', 'name', 'image'],
 }
 
 class StorePaymentMethodService {
@@ -39,7 +47,7 @@ class StorePaymentMethodService {
     try {
       const vResponse: IStorePaymentMethodInstance | null = await modelStorePaymentMethod.findOne({
         where: { id: pId },
-        include: [vCurrencyInclude],
+        include: [vCurrencyInclude, vIconInclude],
       })
       return vResponse
     } catch (error) {
@@ -51,7 +59,7 @@ class StorePaymentMethodService {
     try {
       const vResponse: IStorePaymentMethodInstance[] = await modelStorePaymentMethod.findAll({
         where: { storeId: pStoreId },
-        include: [vCurrencyInclude],
+        include: [vCurrencyInclude, vIconInclude],
       })
       return vResponse
     } catch (error) {
@@ -68,7 +76,7 @@ class StorePaymentMethodService {
       if (pParam?.storeId) {
         whereStatement.where = { ...whereStatement.where, storeId: Number(pParam.storeId) }
       }
-      whereStatement.include = [vCurrencyInclude]
+      whereStatement.include = [vCurrencyInclude, vIconInclude]
       const vResponse: IStorePaymentMethodInstance[] = await modelStorePaymentMethod.findAll(whereStatement)
       if (Number(pParam?.pag)) {
         const vResponsePaginate: IResponseAllStorePaymentMethod = await fxReponseServices(

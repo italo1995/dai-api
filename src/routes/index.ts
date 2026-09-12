@@ -46,6 +46,7 @@ import StoreProductRoute from './Store/StoreProductRoute'
 import StoreDepartmentRoute from './Store/StoreDepartmentRoute'
 import StoreCategoryRoute from './Store/StoreCategoryRoute'
 import BusinessCategoryRoute from './Store/BusinessCategoryRoute'
+import MediaLibraryItemRoute from './Media/MediaLibraryItemRoute'
 import StoreRatingRoute from './Store/StoreRatingRoute'
 import StoreFavoriteRoute from './Store/StoreFavoriteRoute'
 import StoreProductModifierGroupRoute from './Store/StoreProductModifierGroupRoute'
@@ -105,6 +106,7 @@ router.use('/storeProduct', StoreProductRoute)
 router.use('/storeDepartment', StoreDepartmentRoute)
 router.use('/storeCategory', StoreCategoryRoute)
 router.use('/businessCategory', BusinessCategoryRoute)
+router.use('/mediaLibraryItem', MediaLibraryItemRoute)
 router.use('/storeRating', StoreRatingRoute)
 router.use('/storeFavorite', StoreFavoriteRoute)
 router.use('/storeProductModifierGroup', StoreProductModifierGroupRoute)

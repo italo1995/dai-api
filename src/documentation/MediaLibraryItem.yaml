@@ -1,0 +1,153 @@
+components:
+  schemas:
+    MediaLibraryItem:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+          description: 'Nombre visible (ej: "Nequi", "Bancolombia")'
+        image:
+          type: string
+          description: Path de la imagen, subida antes por POST /api/file/upload (se manda el path 'temp/...' devuelto)
+        type:
+          type: string
+          description: >-
+            Texto libre - hoy solo se usa 'payment_method' (iconos para StorePaymentMethod), pero
+            la idea es reusar esta misma tabla como libreria de medios general mas adelante sin
+            necesitar una migracion nueva por cada uso
+        isActive:
+          type: boolean
+          default: true
+          description: Los items inactivos no aparecen en /all (salvo que se pida ?includeInactive=true) - se usa para retirar un icono sin borrar el historial de quien ya lo tiene elegido
+paths:
+  /api/mediaLibraryItem/show:
+    get:
+      summary: Trae un item de la libreria por id
+      tags:
+        - MediaLibraryItem
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+  /api/mediaLibraryItem/all:
+    get:
+      summary: Lista los items de la libreria (para poblar un selector, ej. iconos de metodo de pago)
+      description: Publico. Por defecto solo devuelve isActive=true
+      tags:
+        - MediaLibraryItem
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: "Filtra por tipo de libreria (ej: 'payment_method')"
+        - in: query
+          name: includeInactive
+          schema:
+            type: boolean
+          description: Si es true, incluye tambien los items inactivos
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaLibraryItem'
+  /api/mediaLibraryItem/allAdmin:
+    get:
+      summary: Lista para el panel admin (paginada/buscable)
+      tags:
+        - MediaLibraryItem
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+  /api/mediaLibraryItem/store:
+    post:
+      summary: '[Admin/operador] Crea un icono/imagen generico'
+      tags:
+        - MediaLibraryItem
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - image
+                - type
+              properties:
+                name:
+                  type: string
+                image:
+                  type: string
+                  description: Path 'temp/...' devuelto por /api/file/upload
+                type:
+                  type: string
+                isActive:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: No es admin/operador
+  /api/mediaLibraryItem/update:
+    post:
+      summary: '[Admin/operador] Actualiza un icono/imagen generico'
+      tags:
+        - MediaLibraryItem
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaLibraryItem'
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: No es admin/operador
+  /api/mediaLibraryItem/delete:
+    post:
+      summary: '[Admin/operador] Elimina (soft delete) un icono/imagen generico'
+      description: 'No revierte los metodos de pago que ya lo tenian elegido (iconId) - siguen apuntando al mismo registro, solo deja de listarse en /all'
+      tags:
+        - MediaLibraryItem
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: No es admin/operador
+tags:
+  - name: MediaLibraryItem
+    description: >-
+      Libreria de iconos/imagenes genericos que administra admin/operador. Hoy se usa para los
+      iconos de StorePaymentMethod (type='payment_method'); pensada para reusarse como libreria de
+      medios general mas adelante.

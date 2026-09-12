@@ -41,6 +41,27 @@ components:
               type: string
             symbol:
               type: string
+        iconId:
+          type: number
+          nullable: true
+          description: 'Id de un icono generico de la libreria (ver MediaLibraryItem.yaml, type=payment_method). Alternativa a customIcon - se usa uno u otro'
+        icon:
+          type: object
+          nullable: true
+          description: Icono generico ya resuelto (id, name, image) - incluido en show/all/allAdmin. null si no eligio ninguno o si subio uno propio (customIcon)
+          properties:
+            id:
+              type: number
+            name:
+              type: string
+            image:
+              type: string
+        customIcon:
+          type: string
+          nullable: true
+          description: >-
+            Icono propio de esta tienda para este metodo puntual (no generico) - alternativa a
+            iconId. Se sube antes por POST /api/file/upload y se manda el path 'temp/...' devuelto
         isActive:
           type: boolean
 paths:
@@ -117,6 +138,14 @@ paths:
                 currencyId:
                   type: number
                   nullable: true
+                iconId:
+                  type: number
+                  nullable: true
+                  description: 'Id de un icono generico de la libreria (ver MediaLibraryItem.yaml). No mandar junto con customIcon'
+                customIcon:
+                  type: string
+                  nullable: true
+                  description: "Path 'temp/...' de un icono propio, subido antes por /api/file/upload. No mandar junto con iconId"
                 isActive:
                   type: boolean
                   default: true
