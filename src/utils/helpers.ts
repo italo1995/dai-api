@@ -49,6 +49,70 @@ export const fxGenerateAccessToken = (
   return accessToken
 }
 
+// Cotizacion de delivery firmada (ver MarketplaceOrderService.getQuote/createFromCart): el fee se
+// calcula una sola vez con la distancia real de Google y viaja adentro del JWT, asi el cliente no
+// puede alterarlo ni reusarlo para otra tienda/direccion - order/store solo confia en lo que esta
+// firmado aca, nunca en lo que mande el body.
+const QUOTE_TOKEN_TTL = '10m'
+
+export const fxGenerateQuoteToken = (payload: Record<string, any>): string => {
+  return jwt.sign(payload, AppConfig.SECRET_KEY as Secret, { expiresIn: QUOTE_TOKEN_TTL })
+}
+
+export const fxVerifyQuoteToken = (token: string): Record<string, any> | null => {
+  try {
+    return jwt.verify(token, AppConfig.SECRET_KEY as Secret) as Record<string, any>
+  } catch {
+    return null
+  }
+}
+
+// Distancia real de carretera (no en linea recta) entre dos puntos, via Google Distance Matrix -
+// llamada HTTP directa, sin navegador. Usada para el delivery fee (ver
+// MarketplaceOrderService.getQuote). Lanza un Error con mensaje claro si falta la key o Google no
+// puede resolver una ruta - el caller decide como mostrarlo.
+export const fxGetRoadDistanceKm = async (
+  pOrigin: { lat: number; lon: number },
+  pDestination: { lat: number; lon: number }
+): Promise<number> => {
+  if (!AppConfig.GOOGLE_MAPS_SERVER_KEY) {
+    throw new Error('Falta configurar GOOGLE_MAPS_SERVER_KEY en el servidor')
+  }
+  const vParams = new URLSearchParams({
+    origins: `${pOrigin.lat},${pOrigin.lon}`,
+    destinations: `${pDestination.lat},${pDestination.lon}`,
+    mode: 'driving',
+    units: 'metric',
+    key: AppConfig.GOOGLE_MAPS_SERVER_KEY,
+  })
+  const vRes = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?${vParams}`)
+  const vJson: any = await vRes.json()
+  const vElement = vJson?.rows?.[0]?.elements?.[0]
+  if (vJson.status !== 'OK' || !vElement || vElement.status !== 'OK') {
+    throw new Error(
+      `No se pudo calcular la distancia de entrega (Google: ${vElement?.status || vJson.status})`
+    )
+  }
+  return vElement.distance.value / 1000
+}
+
+// Distancia en linea recta (Haversine), en JS - a diferencia de fxGetRoadDistanceKm (Google, para
+// cobrar un delivery), esta es para filtrar/ordenar candidatos por cercania, donde la precision de
+// "distancia real de calle" no hace falta y llamar a Google por cada chequeo seria un gasto inutil.
+export const fxHaversineKm = (
+  pFrom: { lat: number; lon: number },
+  pTo: { lat: number; lon: number }
+): number => {
+  const vToRad = (pDeg: number) => (pDeg * Math.PI) / 180
+  const vEarthRadiusKm = 6371
+  const vDLat = vToRad(pTo.lat - pFrom.lat)
+  const vDLon = vToRad(pTo.lon - pFrom.lon)
+  const vA =
+    Math.sin(vDLat / 2) ** 2 +
+    Math.cos(vToRad(pFrom.lat)) * Math.cos(vToRad(pTo.lat)) * Math.sin(vDLon / 2) ** 2
+  return vEarthRadiusKm * 2 * Math.atan2(Math.sqrt(vA), Math.sqrt(1 - vA))
+}
+
 export const fxGenerateCode = () => {
   let code = ''
   for (let i = 0; i < 4; i++) {

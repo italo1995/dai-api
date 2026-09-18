@@ -21,6 +21,8 @@ export interface IStoreProductInput {
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number
+  // Volumen del producto (unidad libre, ej: un tequeno 5, una torta 30) - ver StoreProductModel
+  volume?: number | null
   createdAt?: Date
   updatedAt?: Date
   deletedAt?: Date
@@ -45,6 +47,9 @@ export interface IStoreProductPublic {
   image?: string | null
   isInventoryable?: boolean
   stockQuantity?: number | null
+  // Volumen del producto (ver StoreProductModel) - sumar el de cada item (x quantity) para
+  // mandarlo a GET /marketplace/order/checkVolume
+  volume?: number | null
   department?: { id: number; name: string } | null
   categories?: { id: number; name: string }[]
   modifierGroups?: {

@@ -82,7 +82,7 @@ components:
           type: number
         deliveryFee:
           type: number
-          description: 'Fee de envio de la plataforma. Hoy siempre 0 (el calculo real es una tarea posterior)'
+          description: 'Calculado server-side en /order/quote (distancia real via Google + tarifa de RangePrice) y fijado al crear el pedido via el quoteToken firmado - nunca se acepta un valor suelto del cliente'
         prepTimeMinutes:
           type: number
           nullable: true
@@ -115,8 +115,8 @@ components:
           type: string
           enum:
             - moto
-            - carro
-          description: Vehiculo pedido para la entrega. Obligatorio al crear el pedido
+            - car
+          description: Vehiculo pedido para la entrega. Viene fijado adentro del quoteToken usado al crear el pedido
         paymentMethodId:
           type: number
           nullable: true
@@ -200,15 +200,54 @@ components:
           nullable: true
           description: 'El viaje asociado (null hasta que se despacha). Solo en /show y /all'
 paths:
-  /api/marketplace/order/store:
-    post:
-      summary: '[Cliente] Convierte el carrito activo en un pedido'
+  /api/marketplace/order/checkVolume:
+    get:
+      summary: '[Cliente] Pregunta si un volumen de carrito entra en moto'
       description: >
-        Toma el carrito del usuario (mismo calculo que cart/show) y lo CONGELA en el pedido:
-        precios, modificadores, moneda, cupon y descuento quedan tal cual estaban. Ademas: descuenta
-        stockQuantity de los productos con inventario (los marca no disponibles al llegar a 0),
-        incrementa timesSold de todos, gasta el uso del cupon, y VACIA el carrito. Todo en una
-        transaccion. Manda push al dueno de la tienda.
+        QA Sprint 3 #2/#6, fase B. La app suma el volumen de los productos del carrito
+        (StoreProduct.volume) y manda el total acá. El tope se lee de Parámetros de la
+        Empresa (name: 'motoMaxVolume', editable desde el panel admin, sin UI nueva). Si el
+        parámetro no existe, devuelve allowed=true (sin restricción) en vez de fallar. No
+        hay tope de volumen para carro todavía.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: volume
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Resultado del chequeo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allowed:
+                    type: boolean
+                    description: true = entra en moto, false = debe forzarse a carro
+                  maxVolume:
+                    type: number
+                    nullable: true
+                    description: El tope configurado (null si no hay ninguno configurado, en cuyo caso allowed siempre es true)
+        '400':
+          description: volume faltante o no es un numero valido
+  /api/marketplace/order/quote:
+    post:
+      summary: '[Cliente] Cotiza el delivery del carrito activo - no crea nada'
+      description: >
+        Paso previo a /order/store. Calcula la distancia real de carretera (Google Distance
+        Matrix, origen=tienda del carrito, destino=deliveryLat/deliveryLon) y el deliveryFee segun
+        la tarifa de RangePrice configurada para la zona de la tienda (isDelivery=true). Devuelve
+        el resumen para mostrar (productsTotal, discount, deliveryFee, grandTotal) mas un
+        quoteToken firmado (JWT, vence en 10 minutos) que /order/store exige para crear el pedido -
+        el deliveryFee nunca se acepta suelto del cliente, siempre sale de este token. Se puede
+        llamar las veces que haga falta (cambia direccion, cambia vehicle) sin efecto secundario
+        alguno - no toca el carrito ni crea nada.
       tags:
         - Marketplace Order
       security:
@@ -223,21 +262,77 @@ paths:
                 - deliveryLat
                 - deliveryLon
                 - vehicle
-                - paymentMethodId
               properties:
                 deliveryLat:
                   type: number
-                  description: A donde va la entrega. Se usa como destino del viaje al despachar
+                  description: A donde va la entrega. Se usa como destino para calcular la distancia
                 deliveryLon:
                   type: number
-                deliveryAddress:
-                  type: string
-                  description: Opcional, texto libre para mostrar
                 vehicle:
                   type: string
                   enum:
                     - moto
-                    - carro
+                    - car
+      responses:
+        '200':
+          description: Cotizacion calculada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productsTotal:
+                    type: number
+                  discount:
+                    type: number
+                  deliveryFee:
+                    type: number
+                  grandTotal:
+                    type: number
+                  distanceKm:
+                    type: number
+                    description: Distancia real de carretera, redondeada a 1 decimal
+                  currency:
+                    type: object
+                    nullable: true
+                  quoteToken:
+                    type: string
+                    description: JWT de 10 minutos - mandarlo tal cual en /order/store
+        '400':
+          description: 'Carrito vacio, con items no disponibles, cupon ya no valido, falta deliveryLat/deliveryLon, o vehicle invalido'
+        '500':
+          description: 'La tienda no tiene ubicacion configurada, no se pudo calcular la distancia (Google), o no hay tarifa de delivery configurada para la zona'
+  /api/marketplace/order/store:
+    post:
+      summary: '[Cliente] Convierte el carrito activo en un pedido'
+      description: >
+        Toma el carrito del usuario (mismo calculo que cart/show) y lo CONGELA en el pedido:
+        precios, modificadores, moneda, cupon y descuento quedan tal cual estaban. deliveryFee,
+        vehicle y las coordenadas de entrega salen del quoteToken (obtenido antes via
+        /order/quote), no del body. Ademas: descuenta stockQuantity de los productos con
+        inventario (los marca no disponibles al llegar a 0), incrementa timesSold de todos, gasta
+        el uso del cupon, y VACIA el carrito. Todo en una transaccion. Manda push al dueno de la
+        tienda.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quoteToken
+                - paymentMethodId
+              properties:
+                quoteToken:
+                  type: string
+                  description: El que devolvio /order/quote - vence a los 10 minutos, y debe ser de la misma tienda/moneda que el carrito actual
+                deliveryAddress:
+                  type: string
+                  description: Opcional, texto libre para mostrar (no afecta el calculo)
                 paymentMethodId:
                   type: number
                   description: Id de un store_payment_method ACTIVO de la tienda del carrito (400 si no existe o es de otra tienda)
@@ -255,7 +350,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MarketplaceOrder'
         '400':
-          description: 'Carrito vacio, o con items no disponibles, o cupon ya no valido, o sin stock suficiente, o falta deliveryLat/deliveryLon, o vehicle invalido, o paymentMethodId faltante/inexistente/de otra tienda'
+          description: 'Carrito vacio, o con items no disponibles, o cupon ya no valido, o sin stock suficiente, o quoteToken faltante/vencido/invalido, o el carrito cambio de tienda/moneda desde que se cotizo, o paymentMethodId faltante/inexistente/de otra tienda'
   /api/marketplace/order/confirm:
     post:
       summary: '[Comercio] Confirma el pedido y fija el tiempo de preparacion'
@@ -296,6 +391,41 @@ paths:
           description: Un dueno (rolId 4) intento confirmar un pedido de otra tienda
         '409':
           description: El pedido no esta 'pendiente de confirmacion' (ya se confirmo o cancelo)
+  /api/marketplace/order/markReady:
+    post:
+      summary: '[Comercio] Marca el pedido como listo antes de que se cumpla prepTimeMinutes'
+      description: >
+        Valido desde 'preparando pedido', 'buscando conductor' o 'conductor asignado'. Si todavia
+        no se despacho (preparando), fuerza la busqueda de conductor ya mismo en vez de esperar a
+        dispatchAt. Si ya hay un conductor asignado y en camino, solo le avisa por push que el
+        pedido esta listo. Recorta readyAt a ahora si el tiempo estimado todavia no se cumplia.
+        No hace nada si el pedido ya fue marcado como listo antes (idempotente).
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: number
+      responses:
+        '200':
+          description: Pedido marcado como listo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceOrder'
+        '403':
+          description: Un dueno (rolId 4) intento marcar un pedido de otra tienda
+        '409':
+          description: El pedido no esta en un estado marcable como listo
   /api/marketplace/order/cancel:
     post:
       summary: '[Comercio] Cancela el pedido directamente (el cliente usa /cancelByClient)'
@@ -451,6 +581,78 @@ paths:
           description: No es el dueno de esa tienda ni admin/operador
         '409':
           description: 'El pedido no tiene una solicitud de cancelacion pendiente (status != cancelacion solicitada)'
+  /api/marketplace/order/nearbyPending:
+    get:
+      summary: '[Repartidor] Pedidos buscando conductor cerca de su ubicacion actual'
+      description: >
+        Respaldo "pull" para cuando el aviso por socket ('newMarketplaceOrder') no le llega al
+        repartidor (reconexion, push perdido, app recien abierta). Usa exactamente el mismo
+        criterio de elegibilidad que el despacho automatico: el conductor tiene que estar activo
+        y verificado, y habilitado (dai_food / dai_market) para el tipo de cada tienda - si no
+        cumple, o no esta habilitado para ningun tipo, devuelve un array vacio en vez de error.
+        Solo devuelve pedidos en 'buscando conductor' (con viaje ya creado, sin conductor
+        asignado todavia) dentro del radio pedido.
+      tags:
+        - Marketplace Order
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: lat
+          required: true
+          schema:
+            type: number
+          description: Latitud actual del conductor
+        - in: query
+          name: lon
+          required: true
+          schema:
+            type: number
+          description: Longitud actual del conductor
+        - in: query
+          name: distance
+          required: false
+          schema:
+            type: number
+            default: 15
+          description: Radio de busqueda en km (default 15, igual que el despacho automatico)
+      responses:
+        '200':
+          description: Pedidos disponibles cerca, ordenados por distancia ascendente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orderId:
+                      type: number
+                    tripId:
+                      type: number
+                    store:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                        logo:
+                          type: string
+                          nullable: true
+                        type:
+                          type: string
+                          enum:
+                            - food
+                            - market
+                    deliveryFee:
+                      type: number
+                    distanceKm:
+                      type: number
+        '400':
+          description: Falta lat/lon o no son numeros validos
+        '403':
+          description: El que pregunta no es un conductor
   /api/marketplace/order/all:
     get:
       summary: 'Listado de pedidos, con la vista que corresponde a quien pregunta'

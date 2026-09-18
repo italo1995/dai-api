@@ -90,6 +90,7 @@ class StoreProductController {
         'isAvailable',
         'isInventoryable',
         'stockQuantity',
+        'volume',
       ])
       const vStoreId = Number(vData.storeId)
       if (!vStoreId || !(await fxCanManageStore(vAuth, vStoreId))) {
@@ -135,6 +136,7 @@ class StoreProductController {
         'isAvailable',
         'isInventoryable',
         'stockQuantity',
+        'volume',
       ])
       if (vData?.image && vData.image.includes('temp')) {
         vData.image = await moveImages(vData.image)

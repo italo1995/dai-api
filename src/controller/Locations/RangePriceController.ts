@@ -105,6 +105,14 @@ class RangePriceController {
       if (vData.name === ETypeRangePrice.DELIVERY) {
         vData.isDelivery = true
       }
+      if (vData.name === ETypeRangePrice.DELIVERYMOTODAI) {
+        vData.isDelivery = true
+        vData.isMoto = true
+      }
+      if (vData.name === ETypeRangePrice.DELIVERYCARRODAI) {
+        vData.isDelivery = true
+        vData.isCar = true
+      }
       const vResponse: IRangePriceInstance | null = await ClassRangePriceService.create(vData)
       if (!vResponse) {
         return pRes
@@ -151,6 +159,14 @@ class RangePriceController {
       }
       if (vData.name === ETypeRangePrice.DELIVERY) {
         vData.isDelivery = true
+      }
+      if (vData.name === ETypeRangePrice.DELIVERYMOTODAI) {
+        vData.isDelivery = true
+        vData.isMoto = true
+      }
+      if (vData.name === ETypeRangePrice.DELIVERYCARRODAI) {
+        vData.isDelivery = true
+        vData.isCar = true
       }
       const vResponse: IRangePriceInstance | null = await ClassRangePriceService.update(vData)
       if (!vResponse) {

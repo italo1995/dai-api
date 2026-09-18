@@ -168,4 +168,26 @@ export const PushMessages = {
     title: 'Tu solicitud fue rechazada',
     body: 'Tu pedido sigue en curso con normalidad.',
   }),
+  // La tienda marco el pedido como listo ANTES de que se cumpliera el tiempo estimado (Italo,
+  // 2026-09-18: "puede ser que lo tengan listo en menos tiempo, y no esta bien que esperen").
+  pedidoListoParaRecoger: (): IPushMessage => ({
+    title: 'Pedido listo',
+    body: 'El comercio ya tiene el pedido listo para que lo recojas. ¡Eso es DAI!',
+  }),
+  recordatorioPedidoSinAtender: (pMinutos: number): IPushMessage => ({
+    title: 'Pedido esperando',
+    body: `Tienes un pedido sin atender hace ${pMinutos} minutos. Revísalo en el panel.`,
+  }),
+  recordatorioSolicitudCancelacionSinAtender: (pMinutos: number): IPushMessage => ({
+    title: 'Solicitud de cancelación esperando',
+    body: `Hay una solicitud de cancelación sin resolver hace ${pMinutos} minutos.`,
+  }),
+  recordatorioTiempoPorCumplirTienda: (): IPushMessage => ({
+    title: 'El tiempo está por cumplirse',
+    body: 'Un pedido está por llegar al tiempo estimado de preparación. Marcalo como listo si ya terminó.',
+  }),
+  recordatorioTiempoPorCumplirConductor: (): IPushMessage => ({
+    title: 'El pedido estará listo pronto',
+    body: 'El pedido que vas a recoger está por cumplir su tiempo estimado de preparación.',
+  }),
 }

@@ -14,6 +14,10 @@ export interface IStoreProductAttributes {
   isAvailable?: boolean
   isInventoryable?: boolean
   stockQuantity?: number | null
+  // Volumen del producto (unidad libre - la define cada tienda/admin, ej: un tequeno 5, una torta
+  // 30 porque va con caja). QA Sprint 3 #2/#6: hoy es solo el dato, el tope por vehiculo (moto vs
+  // carro) todavia no esta implementado.
+  volume?: number | null
   // Estadistica siempre creciente (ventas acumuladas), aparte del inventario. Se incrementa al
   // crear un pedido desde el carrito ([Orden 2/8]).
   timesSold?: number
@@ -123,6 +127,12 @@ export const vStoreProductModelAttributes: SequelizeAttributes<IStoreProductAttr
   stockQuantity: {
     type: DataTypes.INTEGER,
     field: 'stock_quantity',
+    allowNull: true,
+    defaultValue: null,
+  },
+  volume: {
+    type: DataTypes.DOUBLE,
+    field: 'volume',
     allowNull: true,
     defaultValue: null,
   },

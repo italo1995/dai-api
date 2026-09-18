@@ -26,7 +26,7 @@ export enum EMarketplaceOrderStatus {
 // infiere del store ni del driver (un mismo repartidor puede tener moto y auto habilitados).
 export enum EMarketplaceOrderVehicle {
   MOTO = 'moto',
-  CARRO = 'carro',
+  CAR = 'car',
 }
 
 export interface IMarketplaceOrderAttributes {
@@ -49,6 +49,15 @@ export interface IMarketplaceOrderAttributes {
   prepTimeMinutes?: number | null
   readyAt?: Date | null
   dispatchAt?: Date | null
+  // La tienda marco "listo" antes de que se cumpliera prepTimeMinutes (Italo, 2026-09-18) -
+  // fuerza el despacho ya mismo en vez de esperar a dispatchAt/readyAt.
+  markedReadyAt?: Date | null
+  // Recordatorio (tienda + conductor asignado si hay uno) de que el tiempo estimado esta por
+  // cumplirse - se manda una sola vez por pedido.
+  readyReminderSentAt?: Date | null
+  // Ultimo recordatorio a la tienda de que tiene un pedido sin atender (pendiente de
+  // confirmacion / solicitud de cancelacion) - se repite cada 5 minutos mientras siga asi.
+  lastAttentionReminderAt?: Date | null
   // Destino de la entrega (el origen es la tienda). Se captura al crear el pedido ([Orden 2/8])
   // y se usa como endRoute del viaje al despachar ([Orden 5/8]).
   deliveryLat?: number | null
@@ -167,6 +176,24 @@ export const vMarketplaceOrderModelAttributes: SequelizeAttributes<IMarketplaceO
   dispatchAt: {
     type: DataTypes.DATE,
     field: 'dispatch_at',
+    allowNull: true,
+    defaultValue: null,
+  },
+  markedReadyAt: {
+    type: DataTypes.DATE,
+    field: 'marked_ready_at',
+    allowNull: true,
+    defaultValue: null,
+  },
+  readyReminderSentAt: {
+    type: DataTypes.DATE,
+    field: 'ready_reminder_sent_at',
+    allowNull: true,
+    defaultValue: null,
+  },
+  lastAttentionReminderAt: {
+    type: DataTypes.DATE,
+    field: 'last_attention_reminder_at',
     allowNull: true,
     defaultValue: null,
   },

@@ -33,7 +33,7 @@ const vCartItemInclude = [
   {
     model: modelStoreProduct,
     as: 'product',
-    attributes: ['id', 'name', 'image', 'price', 'promoPrice', 'promoEndsAt', 'isAvailable', 'storeId', 'currencyId'],
+    attributes: ['id', 'name', 'image', 'price', 'promoPrice', 'promoEndsAt', 'isAvailable', 'storeId', 'currencyId', 'volume'],
     include: [{ model: modelCurrency, as: 'currency', attributes: ['id', 'name', 'symbol'] }],
   },
   {
@@ -370,6 +370,7 @@ class CartService {
               price: vProduct.price,
               promoPrice: vProduct.promoPrice ?? null,
               isPromoActive: vProductPricing.isPromoActive,
+              volume: vProduct.volume ?? null,
             }
           : null,
         quantity: vItemData.quantity,

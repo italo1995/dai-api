@@ -24,7 +24,12 @@ export interface IRangePriceAttributes {
 export enum ETypeRangePrice {
   CARRODAI = 'Carro DAI',
   MOTODAI = 'Moto DAI',
+  // DELIVERY (generico, sin distinguir vehiculo) se mantiene por compatibilidad con tarifas ya
+  // configuradas - MarketplaceOrderService.getQuote cae acá si no encuentra la version especifica
+  // por vehiculo de abajo.
   DELIVERY = 'Delivery DAI',
+  DELIVERYMOTODAI = 'Delivery Moto DAI',
+  DELIVERYCARRODAI = 'Delivery Carro DAI',
   CIUDADACIUDAD = 'Ciudad a ciudad DAI',
 }
 interface IRangePriceCreationAttributes extends Optional<IRangePriceAttributes, 'id'> {}

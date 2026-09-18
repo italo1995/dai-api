@@ -26,6 +26,10 @@ const AppConfig = {
   // En false (o sin credenciales de Twilio) no se envia ningun SMS real: el mensaje se
   // imprime en la terminal y las funciones responden como si se hubiese enviado.
   TWILIO_ENABLED: process.env.TWILIO_ENABLED !== 'false',
+  // Server-side, NO es la misma key que usa payaWeb en el navegador (esa esta restringida por
+  // HTTP referrer y no sirve para llamadas server-to-server). Se usa solo para Distance Matrix
+  // (calculo de delivery fee, ver MarketplaceOrderService.getQuote).
+  GOOGLE_MAPS_SERVER_KEY: process.env.GOOGLE_MAPS_SERVER_KEY || '',
 }
 
 export default Object.freeze(AppConfig)

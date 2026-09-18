@@ -409,6 +409,12 @@ class AuthService implements IAuthService {
   async beginDriverSession(pUserId: string): Promise<IBeginDriverSessionResult | undefined> {
     const vUser: IUserInstance | null = await modelUser.findOne({ where: { id: pUserId } })
     if (vUser?.dataValues.typeUser !== ETypeUser.driver) {
+      // Si el usuario fue conductor antes y le quedo un activeSessionId viejo, limpiarlo aca -
+      // sino el nuevo token (sin sessionId, correcto para no-conductor) queda bloqueado para
+      // siempre por el chequeo QA-03 en verifyTokenUser, que no distingue el typeUser actual.
+      if (vUser?.dataValues.activeSessionId) {
+        await vUser.update({ activeSessionId: null })
+      }
       return undefined
     }
     const vPreviousSocketId = vUser.dataValues.socketId || null

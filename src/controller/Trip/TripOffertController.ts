@@ -28,7 +28,7 @@ import ClassUserService from '../../services/User/UserService'
 import NotificationService from '../fcmPushController'
 import ClassTripService from '../../services/Trip/TripService'
 import { ETypeUser } from '../../types/User'
-import type { ITripInstance } from '../../models/Trip/TripModel'
+import { EStatusTrip, type ITripInstance } from '../../models/Trip/TripModel'
 import ClassVehicleAdditionalService from '../../services/Vehicle/VehicleAdditionalService'
 import { PushMessages } from '../../constants/pushMessages'
 
@@ -89,6 +89,13 @@ class TripOffertController {
       const trip: ITripInstance | null = await ClassTripService.showId(vParamTrip)
       if (!trip) {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Trip no encontrado'))
+      }
+      // QA Sprint 3 #12: sin esto, un conductor podia ofertar (y notificarle al pasajero) sobre
+      // un viaje que ya estaba cancelado/anulado/finalizado/aceptado por otro conductor.
+      if (trip.dataValues?.status !== EStatusTrip.PENDIENTE) {
+        return pRes
+          .status(400)
+          .send(fxErrorResponse(400, null, 'Este viaje ya no esta disponible para ofertar'))
       }
       vData.clientId = trip.dataValues?.userId
       vData.status = ETripOffertStatus.ESPERA

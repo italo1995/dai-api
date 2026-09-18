@@ -400,7 +400,20 @@ class TripController {
         minAmount: Number(vData?.price),
         currencyId: vData.currencyId
       }
+      // Diagnostico QA #10 (monedas != dolar) - probo bien 2026-09-17, se deja instalado por si
+      // reaparece en produccion.
+      console.log('[QA-10-DEBUG] Trip creado :>>', {
+        tripId: vTripReponse.dataValues.id,
+        price: vData.price,
+        currencyId: vData.currencyId,
+        typeService: vData.typeService,
+        rangePriceEncontrado: !!vRangePrice,
+      })
       const vNearbyDrivers = await ClassUserService.NearbyDrivers(vParamNearbyDrivers)
+      console.log('[QA-10-DEBUG] socketIds/tokenPushs a notificar :>>', {
+        socketIds: vNearbyDrivers.map((vUser) => vUser.socketId),
+        tokenPushCount: vNearbyDrivers.filter((vUser) => vUser.dataValues.tokenPush).length,
+      })
       const socketIds: any[] = vNearbyDrivers.map((vUser) => vUser.socketId)
       const tokenPushs: any[] = vNearbyDrivers.map((vUser) => vUser.dataValues.tokenPush)
       const vParamTripShow = {

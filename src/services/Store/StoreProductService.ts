@@ -27,7 +27,7 @@ import { fxGetProductPricing } from '../../utils/helpers'
 // en all() como para achicar la respuesta de show() cuando quien pregunta no es el dueno ni admin.
 export const vStoreProductPublicFields = [
   'id', 'name', 'description', 'price', 'promoPrice', 'promoEndsAt', 'currencyId', 'image',
-  'isInventoryable', 'stockQuantity',
+  'isInventoryable', 'stockQuantity', 'volume',
 ] as const
 
 // include reutilizado por all()/show() para traer nombre de departamento y categorias sin que

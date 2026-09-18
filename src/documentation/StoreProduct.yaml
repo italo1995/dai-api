@@ -41,6 +41,10 @@ components:
         stockQuantity:
           type: number
           nullable: true
+        volume:
+          type: number
+          nullable: true
+          description: 'Volumen del producto, unidad libre que define cada tienda/admin (ej: un tequeno 5, una torta 30 porque va con caja). Hoy es solo informativo - el tope maximo por vehiculo (moto vs carro) todavia no esta implementado'
         timesSold:
           type: number
           description: 'Ventas acumuladas del producto (estadistica siempre creciente, aparte del inventario). Se incrementa al crear un pedido de Marketplace y se revierte si el comercio lo cancela.'

@@ -54,6 +54,9 @@ export interface ICartItemPublic {
     // en vez de price cuando esto es true, esto es solo para que la UI sepa si mostrar el
     // precio tachado/la etiqueta de oferta
     isPromoActive: boolean
+    // Volumen del producto (ver StoreProductModel) - sumar el de cada item (x quantity) para
+    // mandarlo a GET /marketplace/order/checkVolume
+    volume?: number | null
   } | null
   quantity: number
   notes?: string | null

@@ -10,23 +10,53 @@ import ClassMarketplaceOrderService, {
 import { fxSuccessResponse, fxErrorResponse } from '../../utils/helpers'
 
 class MarketplaceOrderController {
+  // Cotiza el delivery del carrito actual (distancia real via Google + tarifa por zona) y
+  // devuelve el resumen a mostrar mas un quoteToken firmado - no crea nada todavia.
+  async quote(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vData = pReq.only(['deliveryLat', 'deliveryLon', 'vehicle'])
+      const vResponse = await ClassMarketplaceOrderService.getQuote(vAuth.id, {
+        deliveryLat: Number(vData.deliveryLat),
+        deliveryLon: Number(vData.deliveryLon),
+        vehicle: vData.vehicle,
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
+  // QA Sprint 3 #2/#6: la app manda la suma de volumen del carrito, devolvemos si entra en moto.
+  async checkVolume(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vVolume = Number(pReq.input('volume'))
+      if (!Number.isFinite(vVolume) || vVolume < 0) {
+        return pRes.status(400).send(fxErrorResponse(400, null, 'volume debe ser un numero valido'))
+      }
+      const vResponse = await ClassMarketplaceOrderService.checkVolume(vVolume)
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      pNext(error)
+    }
+  }
+
   async create(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vAuth: any = (pReq as any).auth
       const vData = pReq.only([
-        'deliveryLat',
-        'deliveryLon',
+        'quoteToken',
         'deliveryAddress',
-        'vehicle',
         'paymentMethodId',
         'referencePointText',
         'referencePhoto',
       ])
       const vResponse = await ClassMarketplaceOrderService.createFromCart(vAuth.id, {
-        deliveryLat: Number(vData.deliveryLat),
-        deliveryLon: Number(vData.deliveryLon),
+        quoteToken: vData.quoteToken,
         deliveryAddress: vData.deliveryAddress ?? null,
-        vehicle: vData.vehicle,
         paymentMethodId: Number(vData.paymentMethodId),
         referencePointText: vData.referencePointText ?? null,
         referencePhoto: vData.referencePhoto ?? null,
@@ -50,6 +80,25 @@ class MarketplaceOrderController {
         prepTimeMinutes: Number(vData.prepTimeMinutes),
       })
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Pedido confirmado'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
+  // La tienda marca el pedido como listo ANTES de que se cumpla prepTimeMinutes (Italo,
+  // 2026-09-18) - fuerza el despacho ya mismo si todavia no arranco, o avisa al conductor
+  // asignado si ya esta en camino.
+  async markReady(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vData = pReq.only(['orderId'])
+      const vResponse = await ClassMarketplaceOrderService.markReady(vAuth.id, vAuth.rolId, {
+        orderId: Number(vData.orderId),
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Pedido marcado como listo'))
     } catch (error) {
       if (error instanceof MarketplaceOrderError) {
         return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
@@ -141,6 +190,25 @@ class MarketplaceOrderController {
         id: vAuth.id,
         rolId: vAuth.rolId,
         typeUser: vAuth.typeUser,
+      })
+      return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
+    } catch (error) {
+      if (error instanceof MarketplaceOrderError) {
+        return pRes.status(error.code).send(fxErrorResponse(error.code, null, error.message))
+      }
+      pNext(error)
+    }
+  }
+
+  // El repartidor consulta si hay algun pedido buscando conductor cerca de su ubicacion actual -
+  // respaldo "pull" para cuando el aviso por socket ("newMarketplaceOrder") no le llega.
+  async nearbyPending(pReq: Request, pRes: Response, pNext: NextFunction) {
+    try {
+      const vAuth: any = (pReq as any).auth
+      const vResponse = await ClassMarketplaceOrderService.nearbyPending(vAuth.id, {
+        lat: Number(pReq.query.lat),
+        lon: Number(pReq.query.lon),
+        distance: pReq.query.distance ? Number(pReq.query.distance) : undefined,
       })
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {

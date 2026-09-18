@@ -38,6 +38,10 @@ const MIN_INTERVAL_MS = 5_000
 const STUCK_CLAIM_MS = 2 * 60_000
 // Radio de busqueda de repartidores alrededor de la tienda (km).
 const DISPATCH_SEARCH_RADIUS_KM = 15
+// Cada cuanto se repite el recordatorio a la tienda de un pedido sin atender (Italo, 2026-09-18).
+const ATTENTION_REMINDER_INTERVAL_MS = 5 * 60_000
+// Con cuanta anticipacion a readyAt se manda el recordatorio de "el tiempo esta por cumplirse".
+const READY_REMINDER_LEAD_MS = 5 * 60_000
 
 class MarketplaceDispatchService {
   private _timer: NodeJS.Timeout | null = null
@@ -120,10 +124,144 @@ class MarketplaceDispatchService {
           await this.dispatchClaimedOrder(vOrderId)
         }
       }
+      await this.remindApproachingReadyTime()
+      await this.remindStaleAttentionOrders()
     } catch (error) {
       console.log('[marketplace-dispatch] error en el tick', error)
     } finally {
       this._running = false
+    }
+  }
+
+  // La tienda marco "listo" antes de tiempo (MarketplaceOrderService.markReady) - mismo reclamo
+  // atomico que usa el tick normal (WHERE status=PREPARANDO AND tripId IS NULL), asi nunca pisa
+  // mal un tick que este corriendo al mismo tiempo. Devuelve false si el pedido ya no estaba en
+  // condiciones de despacharse (alguien mas ya lo reclamo, o cambio de estado).
+  async forceDispatchIfPending(pOrderId: number): Promise<boolean> {
+    const [vClaimed] = await modelMarketplaceOrder.update(
+      { status: EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR },
+      {
+        where: {
+          id: pOrderId,
+          status: EMarketplaceOrderStatus.PREPARANDO,
+          tripId: null,
+        },
+      }
+    )
+    if (vClaimed !== 1) {
+      return false
+    }
+    try {
+      const vOrder = await modelMarketplaceOrder.findByPk(pOrderId)
+      if (vOrder?.dataValues.customerId) {
+        const vCustomer = await ClassAuthService.show(vOrder.dataValues.customerId)
+        if (vCustomer?.dataValues.socketId) {
+          SocketService.io.to(vCustomer.dataValues.socketId).emit('marketplaceOrderStatusUpdate', {
+            orderId: pOrderId,
+            status: EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+            tripId: null,
+            driver: null,
+            trip: null,
+          })
+        }
+      }
+    } catch (error) {
+      console.log(`[marketplace-dispatch] orden ${pOrderId}: fallo avisando al cliente (forceDispatch)`, error)
+    }
+    await this.dispatchClaimedOrder(pOrderId)
+    return true
+  }
+
+  // Recordatorio (Italo, 2026-09-18) mientras un pedido siga PENDIENTE_CONFIRMACION o
+  // CANCELACION_SOLICITADA sin que la tienda haga nada - se repite cada
+  // ATTENTION_REMINDER_INTERVAL_MS mientras siga sin resolverse (nunca deja de sonar solo).
+  private async remindStaleAttentionOrders(): Promise<void> {
+    const vCutoff = new Date(Date.now() - ATTENTION_REMINDER_INTERVAL_MS)
+    const vOrders = await modelMarketplaceOrder.findAll({
+      where: {
+        status: {
+          [Op.in]: [EMarketplaceOrderStatus.PENDIENTE_CONFIRMACION, EMarketplaceOrderStatus.CANCELACION_SOLICITADA],
+        },
+        [Op.or]: [
+          { lastAttentionReminderAt: null, createdAt: { [Op.lte]: vCutoff } },
+          { lastAttentionReminderAt: { [Op.lte]: vCutoff } },
+        ],
+      },
+    })
+    for (const vOrder of vOrders) {
+      try {
+        const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+        const vMinutos = Math.max(
+          1,
+          Math.round((Date.now() - new Date(vOrder.dataValues.createdAt as any).getTime()) / 60_000)
+        )
+        if (vStore?.dataValues.ownerId) {
+          const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
+          if (vOwner?.dataValues.tokenPush) {
+            const vMessage =
+              vOrder.dataValues.status === EMarketplaceOrderStatus.CANCELACION_SOLICITADA
+                ? PushMessages.recordatorioSolicitudCancelacionSinAtender(vMinutos)
+                : PushMessages.recordatorioPedidoSinAtender(vMinutos)
+            await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+              ...vMessage,
+              data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+            })
+          }
+        }
+        await vOrder.update({ lastAttentionReminderAt: new Date() })
+      } catch (error) {
+        console.log(`[marketplace-dispatch] orden ${vOrder.dataValues.id}: fallo recordatorio de atencion`, error)
+      }
+    }
+  }
+
+  // Recordatorio (Italo, 2026-09-18) de que el tiempo estimado de preparacion esta por cumplirse
+  // - a la tienda (por si todavia no marco el pedido como listo) y al conductor asignado si ya
+  // hay uno en camino. Se manda una sola vez por pedido (readyReminderSentAt).
+  private async remindApproachingReadyTime(): Promise<void> {
+    const vWindowEnd = new Date(Date.now() + READY_REMINDER_LEAD_MS)
+    const vOrders = await modelMarketplaceOrder.findAll({
+      where: {
+        status: {
+          [Op.in]: [
+            EMarketplaceOrderStatus.PREPARANDO,
+            EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+            EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO,
+          ],
+        },
+        markedReadyAt: null,
+        readyReminderSentAt: null,
+        readyAt: { [Op.ne]: null, [Op.lte]: vWindowEnd, [Op.gt]: new Date() },
+      },
+    })
+    for (const vOrder of vOrders) {
+      try {
+        const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+        if (vStore?.dataValues.ownerId) {
+          const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
+          if (vOwner?.dataValues.tokenPush) {
+            await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+              ...PushMessages.recordatorioTiempoPorCumplirTienda(),
+              data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+            })
+          }
+        }
+        if (vOrder.dataValues.status === EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO && vOrder.dataValues.tripId) {
+          const vTrip = await modelTrip.findByPk(vOrder.dataValues.tripId)
+          if (vTrip?.dataValues.driverId) {
+            const vDriver = await ClassUserService.show({ id: vTrip.dataValues.driverId, isDriver: true })
+            if (vDriver?.dataValues.tokenPush) {
+              await NotificationService.sendNotification([vDriver.dataValues.tokenPush], {
+                ...PushMessages.recordatorioTiempoPorCumplirConductor(),
+                data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+              })
+            }
+          }
+        }
+        await vOrder.update({ readyReminderSentAt: new Date() })
+      } catch (error) {
+        console.log(`[marketplace-dispatch] orden ${vOrder.dataValues.id}: fallo recordatorio de tiempo`, error)
+      }
     }
   }
 

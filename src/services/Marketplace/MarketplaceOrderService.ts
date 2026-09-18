@@ -10,7 +10,7 @@
   antes de readyAt). Avisa al cliente. NO crea el viaje ni busca conductor - eso lo hacen las
   tareas 4/8 (scheduler) y 5/8 (asignacion), que leen dispatchAt/status de aca.
 */
-import type { FindOptions } from 'sequelize'
+import { Op, type FindOptions } from 'sequelize'
 import sequelize, {
   modelCart,
   modelCartItem,
@@ -32,15 +32,25 @@ import {
 } from '../../models/Marketplace/MarketplaceOrderModel'
 import { EStatusTrip } from '../../models/Trip/TripModel'
 import { EStatusDriver } from '../../models/User/UserModel'
+import { ETypeStore } from '../../models/Store/StoreModel'
 import { ETypeUser } from '../../types/User'
 import { fxPaginate, fxReponseServices } from '../../utils/query'
-import { moveImages } from '../../utils/helpers'
+import {
+  moveImages,
+  fxGenerateQuoteToken,
+  fxVerifyQuoteToken,
+  fxGetRoadDistanceKm,
+  fxHaversineKm,
+} from '../../utils/helpers'
 import ClassCartService from '../Cart/CartService'
 import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
+import ClassRangePriceService from '../Locations/RangePriceService'
+import ClassCompanyParameterService from '../web/CompanyParameterService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
 import { PushMessages, type IPushMessage } from '../../constants/pushMessages'
+import ClassMarketplaceDispatchService from './MarketplaceDispatchService'
 
 // Quien pide un listado / detalle - se usa para el scoping por rol ([Orden 8/8]).
 export interface IOrderRequester {
@@ -55,6 +65,10 @@ export interface IOrderRequester {
 const IMMEDIATE_DISPATCH_THRESHOLD_MIN = 20
 const DISPATCH_LEAD_MINUTES = 15
 const MAX_PREP_TIME_MIN = 60
+// Radio por defecto de nearbyPending, en km - mismo valor que DISPATCH_SEARCH_RADIUS_KM en
+// MarketplaceDispatchService.ts (no se importa de ahi porque es privado a ese archivo; si cambia
+// uno, revisar el otro).
+const DEFAULT_NEARBY_ORDERS_RADIUS_KM = 15
 
 export class MarketplaceOrderError extends Error {
   code: number
@@ -65,28 +79,155 @@ export class MarketplaceOrderError extends Error {
   }
 }
 
-interface ICreateOrderInput {
+interface IGetQuoteInput {
   deliveryLat: number
   deliveryLon: number
-  deliveryAddress?: string | null
   vehicle: EMarketplaceOrderVehicle
+}
+
+// Lo que viaja firmado adentro del quoteToken - ver fxGenerateQuoteToken/fxVerifyQuoteToken.
+// order/store confia en estos valores, nunca en lo que el cliente mande suelto en el body.
+interface IQuoteTokenPayload {
+  storeId: number
+  deliveryLat: number
+  deliveryLon: number
+  vehicle: EMarketplaceOrderVehicle
+  deliveryFee: number
+  currencyId: number | null
+}
+
+interface ICreateOrderInput {
+  quoteToken: string
+  deliveryAddress?: string | null
   paymentMethodId: number
   referencePointText?: string | null
   referencePhoto?: string | null
 }
 
 class MarketplaceOrderService {
-  async createFromCart(pUserId: string, pDelivery: ICreateOrderInput): Promise<IMarketplaceOrderInstance> {
-    const vLat = Number(pDelivery?.deliveryLat)
-    const vLon = Number(pDelivery?.deliveryLon)
+  // [quote] Calcula el delivery fee UNA vez con la distancia real de Google (nunca con lo que
+  // mande el cliente) y lo devuelve firmado - order/store solo confia en ese token, no vuelve a
+  // recalcular ni acepta un fee/vehicle/coordenadas sueltos en el body. Ver conversacion con
+  // Italo 2026-09-12 (ARQUITECTURA_MARKETPLACE.md / MARKETPLACE_ENDPOINTS_APP.md seccion 2.1).
+  async getQuote(pUserId: string, pInput: IGetQuoteInput) {
+    const vLat = Number(pInput?.deliveryLat)
+    const vLon = Number(pInput?.deliveryLon)
     if (!Number.isFinite(vLat) || !Number.isFinite(vLon)) {
       throw new MarketplaceOrderError('Falta la ubicacion de entrega (deliveryLat / deliveryLon)')
     }
-
-    const vVehicle = pDelivery?.vehicle
+    const vVehicle = pInput?.vehicle
     if (!Object.values(EMarketplaceOrderVehicle).includes(vVehicle as EMarketplaceOrderVehicle)) {
       throw new MarketplaceOrderError(`vehicle debe ser uno de: ${Object.values(EMarketplaceOrderVehicle).join(', ')}`)
     }
+
+    const vCart = await ClassCartService.show(pUserId)
+    if (!vCart.items.length || !vCart.storeId) {
+      throw new MarketplaceOrderError('Tu carrito esta vacio')
+    }
+    if (vCart.items.some((pItem) => pItem.unavailable)) {
+      throw new MarketplaceOrderError(
+        'Hay productos que ya no estan disponibles - quitalos del carrito para poder pedir'
+      )
+    }
+    if (vCart.couponError) {
+      throw new MarketplaceOrderError(`El cupon ya no se puede aplicar: ${vCart.couponError}`)
+    }
+
+    const vStore = await modelStore.findByPk(vCart.storeId)
+    if (!vStore?.dataValues.lat || !vStore?.dataValues.lon) {
+      throw new MarketplaceOrderError('La tienda no tiene ubicacion configurada, no se puede calcular el delivery', 500)
+    }
+
+    let vDistanceKm: number
+    try {
+      vDistanceKm = await fxGetRoadDistanceKm(
+        { lat: vStore.dataValues.lat, lon: vStore.dataValues.lon },
+        { lat: vLat, lon: vLon }
+      )
+    } catch (error: any) {
+      throw new MarketplaceOrderError(error.message || 'No se pudo calcular la distancia de entrega', 500)
+    }
+
+    // Primero busca la tarifa especifica del vehiculo elegido (Delivery Moto DAI / Delivery Carro
+    // DAI - ver ETypeRangePrice) para que moto y carro puedan tener valores distintos. Si el
+    // admin todavia no configuro esa version especifica, cae a la generica "Delivery DAI" (mismo
+    // valor para cualquier vehiculo, como funcionaba antes) para no romper zonas ya configuradas.
+    const vLoc = {
+      cityId: vStore.dataValues.cityId ?? null,
+      regionId: vStore.dataValues.regionId ?? null,
+      countryId: vStore.dataValues.countryId ?? null,
+    }
+    const vRangePrice =
+      (await ClassRangePriceService.showPriceToId({
+        ...vLoc,
+        isCar: vVehicle === EMarketplaceOrderVehicle.CAR,
+        isMoto: vVehicle === EMarketplaceOrderVehicle.MOTO,
+        isDelivery: true,
+        isTravel: false,
+      })) ||
+      (await ClassRangePriceService.showPriceToId({
+        ...vLoc,
+        isCar: false,
+        isMoto: false,
+        isDelivery: true,
+        isTravel: false,
+      }))
+    if (!vRangePrice) {
+      throw new MarketplaceOrderError('No hay tarifa de delivery configurada para la zona de esta tienda', 500)
+    }
+
+    const vBaseKm = Number(vRangePrice.baseKilometer) || 0
+    const vBasePrice = Number(vRangePrice.basePrice) || 0
+    const vExtraKm = Number(vRangePrice.extraKilometer) || 0
+    const vExtraPrice = Number(vRangePrice.extraPrice) || 0
+    let vDeliveryFee = vBasePrice
+    if (vDistanceKm > vBaseKm) {
+      if (vExtraKm <= 0) {
+        throw new MarketplaceOrderError('La tarifa de delivery de esta zona esta mal configurada (extraKilometer)', 500)
+      }
+      vDeliveryFee += Math.ceil((vDistanceKm - vBaseKm) / vExtraKm) * vExtraPrice
+    }
+
+    const vTokenPayload: IQuoteTokenPayload = {
+      storeId: vCart.storeId,
+      deliveryLat: vLat,
+      deliveryLon: vLon,
+      vehicle: vVehicle as EMarketplaceOrderVehicle,
+      deliveryFee: vDeliveryFee,
+      currencyId: vCart.currency?.id ?? null,
+    }
+
+    return {
+      productsTotal: vCart.total,
+      discount: vCart.discount,
+      deliveryFee: vDeliveryFee,
+      grandTotal: vCart.grandTotal + vDeliveryFee,
+      distanceKm: Math.round(vDistanceKm * 10) / 10,
+      currency: vCart.currency,
+      quoteToken: fxGenerateQuoteToken(vTokenPayload),
+    }
+  }
+
+  // QA Sprint 3 #2/#6, fase B: Ricardo suma el volumen de los items del carrito del lado de la
+  // app y nos pregunta si esa suma entra en moto. El tope se lee de Parametros de la Empresa
+  // (name: 'motoMaxVolume', ver seeder) - si no esta configurado, se permite moto sin restriccion
+  // (fail-open, mismo criterio que 'percentage' en CompanyParameterService). No hay tope para
+  // carro todavia porque no se pidio.
+  async checkVolume(pVolume: number): Promise<{ allowed: boolean; maxVolume: number | null }> {
+    const vParameter = await ClassCompanyParameterService.showByName('motoMaxVolume')
+    const vMaxVolume = vParameter ? Number(vParameter.dataValues.value) : null
+    if (vMaxVolume === null || !Number.isFinite(vMaxVolume)) {
+      return { allowed: true, maxVolume: null }
+    }
+    return { allowed: pVolume <= vMaxVolume, maxVolume: vMaxVolume }
+  }
+
+  async createFromCart(pUserId: string, pDelivery: ICreateOrderInput): Promise<IMarketplaceOrderInstance> {
+    const vQuote = fxVerifyQuoteToken(pDelivery?.quoteToken) as (IQuoteTokenPayload & { exp: number }) | null
+    if (!vQuote) {
+      throw new MarketplaceOrderError('La cotizacion expiro o no es valida - volve a cotizar el delivery')
+    }
+
     const vPaymentMethodId = Number(pDelivery?.paymentMethodId)
     if (!vPaymentMethodId) {
       throw new MarketplaceOrderError('paymentMethod es requerido')
@@ -97,6 +238,13 @@ class MarketplaceOrderService {
     if (!vCart.items.length || !vCart.storeId) {
       throw new MarketplaceOrderError('Tu carrito esta vacio')
     }
+    if (vCart.storeId !== vQuote.storeId || (vCart.currency?.id ?? null) !== vQuote.currencyId) {
+      throw new MarketplaceOrderError('El carrito cambio desde que cotizaste el delivery - volve a cotizar')
+    }
+
+    const vLat = vQuote.deliveryLat
+    const vLon = vQuote.deliveryLon
+    const vVehicle = vQuote.vehicle
 
     const vPaymentMethod = await modelStorePaymentMethod.findOne({
       where: { id: vPaymentMethodId, storeId: vCart.storeId, isActive: true },
@@ -150,7 +298,7 @@ class MarketplaceOrderService {
           currencyId: vCart.currency?.id ?? null,
           couponId: vCart.coupon?.id ?? null,
           discount: vCart.discount,
-          deliveryFee: 0,
+          deliveryFee: vQuote.deliveryFee,
           deliveryLat: vLat,
           deliveryLon: vLon,
           deliveryAddress: pDelivery?.deliveryAddress ?? null,
@@ -251,6 +399,16 @@ class MarketplaceOrderService {
             data: JSON.stringify({ orderId: vOrder.dataValues.id }),
           })
         }
+        // Panel web de la tienda (payaWeb) - el push de arriba es solo para el celular del dueño,
+        // esto es lo que permite que la lista de ordenes en el navegador se actualice sola sin que
+        // alguien tenga que refrescar la pagina (ver paya_store_panel_ux_proposal.md).
+        if (vOwner?.dataValues.socketId) {
+          SocketService.io.to(vOwner.dataValues.socketId).emit('storeOrderEvent', {
+            kind: 'new_order',
+            orderId: vOrder.dataValues.id,
+            storeId: vOrder.dataValues.storeId,
+          })
+        }
       }
     } catch (error) {
       console.log('MarketplaceOrderService.createFromCart: fallo el push al comercio', error)
@@ -332,6 +490,79 @@ class MarketplaceOrderService {
       }
     } catch (error) {
       console.log('MarketplaceOrderService.confirm: fallo avisando al cliente', error)
+    }
+
+    return this.showById(vOrder.dataValues.id)
+  }
+
+  // La tienda dice "ya esta listo" ANTES de que se cumpla prepTimeMinutes (Italo, 2026-09-18:
+  // "puede ser que lo tengan listo en menos tiempo, y no esta bien que esperen ese tiempo").
+  // Si todavia no se despacho (PREPARANDO), fuerza la busqueda de conductor ya mismo en vez de
+  // esperar a dispatchAt. Si ya hay un conductor asignado y en camino a la tienda, solo le avisa
+  // que el pedido esta listo. Si ya esta en BUSCANDO_CONDUCTOR, no hay nada que forzar (ya se
+  // esta buscando) - solo queda el registro de markedReadyAt.
+  async markReady(
+    pUserId: string,
+    pRolId: number,
+    pData: { orderId: number }
+  ): Promise<IMarketplaceOrderInstance> {
+    if (!pData?.orderId) {
+      throw new MarketplaceOrderError('orderId es requerido')
+    }
+    const vOrder = await modelMarketplaceOrder.findByPk(pData.orderId)
+    if (!vOrder) {
+      throw new MarketplaceOrderError('El pedido no existe', 404)
+    }
+
+    const vIsPlatformStaff = pRolId === 1 || pRolId === 2
+    if (!vIsPlatformStaff) {
+      const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
+      if (!vStore || vStore.dataValues.ownerId !== pUserId) {
+        throw new MarketplaceOrderError('No puedes marcar pedidos de otra tienda', 403)
+      }
+    }
+
+    const vMarkableStatuses = [
+      EMarketplaceOrderStatus.PREPARANDO,
+      EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+      EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO,
+    ]
+    if (!vMarkableStatuses.includes(vOrder.dataValues.status)) {
+      throw new MarketplaceOrderError(
+        `Este pedido no se puede marcar como listo (estado actual: ${vOrder.dataValues.status})`,
+        409
+      )
+    }
+    if (vOrder.dataValues.markedReadyAt) {
+      return this.showById(vOrder.dataValues.id)
+    }
+
+    const vNow = new Date()
+    const vExistingReadyAt = vOrder.dataValues.readyAt
+    await vOrder.update({
+      markedReadyAt: vNow,
+      // Si el tiempo estimado todavia no se cumplia, se recorta a ahora - el cronometro del
+      // panel debe mostrar "listo" de inmediato, no seguir contando hasta el estimado original.
+      readyAt: vExistingReadyAt && vExistingReadyAt < vNow ? vExistingReadyAt : vNow,
+    })
+
+    if (vOrder.dataValues.status === EMarketplaceOrderStatus.PREPARANDO) {
+      await ClassMarketplaceDispatchService.forceDispatchIfPending(vOrder.dataValues.id)
+    } else if (vOrder.dataValues.status === EMarketplaceOrderStatus.CONDUCTOR_ASIGNADO && vOrder.dataValues.tripId) {
+      try {
+        const vTrip = await modelTrip.findByPk(vOrder.dataValues.tripId)
+        if (vTrip?.dataValues.driverId) {
+          const vDriver = await ClassUserService.show({ id: vTrip.dataValues.driverId, isDriver: true })
+          if (vDriver?.dataValues.tokenPush) {
+            await NotificationService.sendNotification([vDriver.dataValues.tokenPush], {
+              ...PushMessages.pedidoListoParaRecoger(),
+              data: JSON.stringify({ orderId: vOrder.dataValues.id }),
+            })
+          }
+        }
+      } catch (error) {
+        console.log('MarketplaceOrderService.markReady: fallo avisando al conductor', error)
+      }
     }
 
     return this.showById(vOrder.dataValues.id)
@@ -423,6 +654,13 @@ class MarketplaceOrderService {
               data: JSON.stringify({ orderId: vOrder.dataValues.id }),
             })
           }
+          if (vOwner?.dataValues.socketId) {
+            SocketService.io.to(vOwner.dataValues.socketId).emit('storeOrderEvent', {
+              kind: 'cancelled_by_client',
+              orderId: vOrder.dataValues.id,
+              storeId: vOrder.dataValues.storeId,
+            })
+          }
         }
       } catch (error) {
         console.log('MarketplaceOrderService.cancelByClient: fallo avisando a la tienda', error)
@@ -467,6 +705,13 @@ class MarketplaceOrderService {
         const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
         if (vOwner?.dataValues.tokenPush) {
           vRecipients.push(vOwner.dataValues.tokenPush)
+        }
+        if (vOwner?.dataValues.socketId) {
+          SocketService.io.to(vOwner.dataValues.socketId).emit('storeOrderEvent', {
+            kind: 'cancel_request',
+            orderId: vOrder.dataValues.id,
+            storeId: vOrder.dataValues.storeId,
+          })
         }
       }
       const vAdmins = await ClassUserService.allUserAdmin()
@@ -781,10 +1026,23 @@ class MarketplaceOrderService {
       vWhere.status = pParam.status
     }
 
+    // Prioridad clara (Italo, 2026-09-18): un pedido esperando confirmacion o con una solicitud
+    // de cancelacion sin resolver necesita atencion YA, sin importar que haya pedidos mas
+    // recientes despues - flotan arriba de la lista completa (no solo dentro de la pagina
+    // actual, por eso el ordenamiento va en la query y no en el cliente). Dentro de cada grupo
+    // de prioridad, el mas reciente sigue arriba.
+    const vPriorityStatuses = [
+      EMarketplaceOrderStatus.PENDIENTE_CONFIRMACION,
+      EMarketplaceOrderStatus.CANCELACION_SOLICITADA,
+    ]
+    // "status" a secas es ambiguo con join de por medio - el include trae "trip" (tabla trips),
+    // que tambien tiene su propia columna status (EStatusTrip). Hay que calificarla con la tabla.
+    const vPriorityCase = `CASE WHEN "MarketplaceOrder"."status" IN (${vPriorityStatuses.map((s) => `'${s}'`).join(', ')}) THEN 0 ELSE 1 END`
+
     const vStatement: FindOptions = {
       where: vWhere,
       include: vInclude,
-      order: [['createdAt', 'DESC']],
+      order: [[sequelize.literal(vPriorityCase), 'ASC'], ['createdAt', 'DESC']],
     }
     fxPaginate(pParam, vStatement)
 
@@ -793,6 +1051,115 @@ class MarketplaceOrderService {
       return fxReponseServices(pParam, vStatement, 'MarketplaceOrder', vRows)
     }
     return vRows
+  }
+
+  // Respaldo "pull" para cuando el aviso "newMarketplaceOrder" no le llega al repartidor por
+  // socket (reconexion, push perdido, app recien abierta, etc) - el conductor puede preguntar el
+  // mismo directamente "hay algo para mi cerca de aca" en vez de esperar a que le empujen algo.
+  // Usa EXACTAMENTE el mismo criterio de elegibilidad que el despacho automatico
+  // (MarketplaceDispatchService.dispatchClaimedOrder -> UserService.NearbyDrivers) para que un
+  // conductor nunca vea por acá algo que el despacho automático no le habría ofrecido: activo,
+  // verificado, y habilitado (dai_food/dai_market) para el tipo de la tienda del pedido.
+  async nearbyPending(
+    pDriverId: string,
+    pInput: { lat: number; lon: number; distance?: number | undefined }
+  ): Promise<
+    Array<{ orderId: number; tripId: number; store: any; deliveryFee: number; distanceKm: number }>
+  > {
+    const vLat = Number(pInput?.lat)
+    const vLon = Number(pInput?.lon)
+    if (!Number.isFinite(vLat) || !Number.isFinite(vLon)) {
+      throw new MarketplaceOrderError('Falta tu ubicacion actual (lat / lon)')
+    }
+    const vRadius = Number(pInput?.distance) || DEFAULT_NEARBY_ORDERS_RADIUS_KM
+
+    const vDriver = await modelUser.findByPk(pDriverId)
+    if (!vDriver) {
+      throw new MarketplaceOrderError('Conductor no encontrado', 404)
+    }
+    if (vDriver.dataValues.typeUser !== ETypeUser.driver) {
+      throw new MarketplaceOrderError('Este endpoint es solo para conductores', 403)
+    }
+
+    // Mismos requisitos que NearbyDrivers para el despacho automatico: si el conductor esta
+    // ocupado, inactivo o sin verificar, el despacho automatico tampoco lo habria avisado - no
+    // tiene sentido que la consulta manual le muestre algo que no podria tomar igual.
+    if (
+      vDriver.dataValues.statusDriver !== EStatusDriver.ACTIVE ||
+      !vDriver.dataValues.verifiedDriver
+    ) {
+      return []
+    }
+
+    const vEligibleTypes: string[] = []
+    if (vDriver.dataValues.daiFood) {
+      vEligibleTypes.push(ETypeStore.FOOD)
+    }
+    if (vDriver.dataValues.daiMarket) {
+      vEligibleTypes.push(ETypeStore.MARKET)
+    }
+    if (!vEligibleTypes.length) {
+      // No habilitado para ningun tipo de Marketplace - nada que mostrarle (ver
+      // ENTREGA_REPARTIDOR_PARA_RICARDO.md seccion 0, lo activa un admin, no la app).
+      return []
+    }
+
+    const vOrders = await modelMarketplaceOrder.findAll({
+      where: {
+        status: EMarketplaceOrderStatus.BUSCANDO_CONDUCTOR,
+        tripId: { [Op.ne]: null },
+      },
+      include: [
+        {
+          model: modelStore,
+          as: 'store',
+          required: true,
+          attributes: ['id', 'name', 'logo', 'type', 'lat', 'lon'],
+          where: { type: vEligibleTypes },
+        },
+        {
+          model: modelTrip,
+          as: 'trip',
+          required: true,
+          attributes: ['id'],
+          where: { status: EStatusTrip.PENDIENTE, driverId: { [Op.is]: null } as any },
+        },
+      ],
+    })
+
+    const vResult: Array<{
+      orderId: number
+      tripId: number
+      store: any
+      deliveryFee: number
+      distanceKm: number
+    }> = []
+    for (const vOrder of vOrders) {
+      const vStore: any = (vOrder as any).dataValues.store
+      const vStoreLat = Number(vStore?.dataValues?.lat)
+      const vStoreLon = Number(vStore?.dataValues?.lon)
+      if (!Number.isFinite(vStoreLat) || !Number.isFinite(vStoreLon)) {
+        continue
+      }
+      const vDistanceKm = fxHaversineKm({ lat: vLat, lon: vLon }, { lat: vStoreLat, lon: vStoreLon })
+      if (vDistanceKm >= vRadius) {
+        continue
+      }
+      vResult.push({
+        orderId: vOrder.dataValues.id,
+        tripId: vOrder.dataValues.tripId as number,
+        store: {
+          id: vStore.dataValues.id,
+          name: vStore.dataValues.name,
+          logo: vStore.dataValues.logo,
+          type: vStore.dataValues.type,
+        },
+        deliveryFee: vOrder.dataValues.deliveryFee,
+        distanceKm: Math.round(vDistanceKm * 10) / 10,
+      })
+    }
+    vResult.sort((pA, pB) => pA.distanceKm - pB.distanceKm)
+    return vResult
   }
 }
 
