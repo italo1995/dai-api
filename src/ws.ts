@@ -32,6 +32,7 @@ import CompanyParameterService from './services/web/CompanyParameterService'
 import DriverReportService from './services/User/DriverReportService'
 import CurrencyService from './services/Payments/CurrencyService'
 import { PushMessages } from './constants/pushMessages'
+import ClassUserDeviceService from './services/User/UserDeviceService'
 // Cada cuanto se vuelve a calcular "viajes cercanos" para un conductor sin viaje activo.
 // Evita repetir busquedas pesadas en cada tick de 'coords' (cada pocos segundos) mientras
 // el conductor esta quieto/inactivo.
@@ -101,6 +102,19 @@ export class SocketService {
     const vRolId = pAuth?.rolId ?? pAuth?.dataValues?.rolId
     if (vRolId === 1 || vRolId === 2) {
       SocketService.adminSocketIds.add(pSocketId)
+    }
+  }
+
+  // Multi-dispositivo (Italo, 2026-09-21): admin/operator/tienda (1/2/4) son las cuentas que se
+  // suelen compartir entre varias personas/dispositivos - se registra esta conexion en
+  // user_devices ademas de pisar users.socket_id como siempre, para que un segundo dispositivo
+  // conectandose no le corte el tiempo real al primero. Conductor/cliente quedan fuera a
+  // proposito (ya tienen su propio manejo de sesion unica o no lo necesitan).
+  private static registerFanoutDevice(pAuth: any, pSocketId: string): void {
+    const vRolId = pAuth?.rolId ?? pAuth?.dataValues?.rolId
+    const vUserId = pAuth?.id ?? pAuth?.dataValues?.id
+    if (vUserId && [1, 2, 4].includes(Number(vRolId))) {
+      void ClassUserDeviceService.registerSocket(vUserId, pSocketId)
     }
   }
   // Creamos un método estático initSocket que recibe el servidor http y crea el objeto io
@@ -181,6 +195,7 @@ export class SocketService {
       // Actualizamos el socket del usuario en la base de datos
       await ClassAuthService.updateSocket(user)
       SocketService.registerAdminSocket(auth, socketId)
+      SocketService.registerFanoutDevice(auth, socketId)
       // No se espera (no bloquea la conexion) - es un "mejor esfuerzo" de recuperar ofertas
       // que se pudieron haber perdido mientras el pasajero estaba sin señal.
       resyncMissedOffersOnConnect(socket, auth)
@@ -198,6 +213,7 @@ export class SocketService {
     socket.on('disconnect', async (_reason: any) => {
       console.log('disconnect', socketId)
       SocketService.adminSocketIds.delete(socketId)
+      void ClassUserDeviceService.removeSocket(socketId)
       try {
         const vUserId = auth?.id || user?.id
         if (vUserId) {
@@ -235,6 +251,7 @@ export class SocketService {
           if (user) {
             auth = user
             SocketService.registerAdminSocket(auth, socketId)
+            SocketService.registerFanoutDevice(auth, socketId)
           }
         }
       } catch (error) {

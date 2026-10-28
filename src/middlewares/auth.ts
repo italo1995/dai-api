@@ -12,7 +12,7 @@ export function authMiddleware(role: string) {
     } else if (
       req.auth &&
       role === 'client' &&
-      (req.auth.rolId === 3 || req.auth.rolId === 1 || req.auth.rolId === 2)
+      (req.auth.rolId === 3 || req.auth.rolId === 1 || req.auth.rolId === 2 || req.auth.rolId === 4)
     ) {
       next()
     } else if (req.auth && role === 'admin' && req.auth.rolId === 1) {

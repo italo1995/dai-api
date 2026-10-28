@@ -8,13 +8,23 @@ import { EStatusVerify } from '../../models/User/VerifyModel'
 import CompanyParameterService from '../web/CompanyParameterService'
 import CurrencyService from '../Payments/CurrencyService'
 import { SocketService } from '../../ws'
+import ClassUserDeviceService from './UserDeviceService'
+
+// Un "destinatario" admin/operator a avisar - ya no es necesariamente una fila de "users" (puede
+// ser una entrada sintetica por cada dispositivo adicional de user_devices, ver allUserAdmin).
+export interface IAdminNotifyTarget {
+  id: string
+  rolId: number
+  socketId: string | null
+  tokenPush: string | null
+}
 
 interface IUserService {
   NearbyDrivers(phoneNumber: string, phoneCode: string): Promise<IUserInstance[] | []>
   show(pParam: { id: string; isDriver?: boolean }): Promise<IUserInstance | null>
   all(pParam: any): Promise<IResponseAllUser | IUserInstance[]>
   operatorAll(): Promise<IUserInstance[]>
-  allUserAdmin(): Promise<IUserInstance[]>
+  allUserAdmin(): Promise<IAdminNotifyTarget[]>
 }
 export interface NearbyDriversParamTypes {
   lat: string
@@ -640,21 +650,43 @@ class UserService implements IUserService {
     }
   }
 
-  public async allUserAdmin(): Promise<IUserInstance[]> {
+  // Devuelve un "destinatario" por cada socketId/tokenPush vigente de cada admin/operator -
+  // multi-dispositivo (Italo, 2026-09-21): antes exigia socketId no nulo en la propia fila de
+  // "users" (dejaba afuera a cualquier admin sin un socket conectado en ESE momento, aunque
+  // tuviera token de push - un admin usando solo la app en background nunca recibia nada) y solo
+  // devolvia un socketId/tokenPush por admin (el ultimo dispositivo que lo piso). Ahora junta el
+  // valor viejo de la fila con todo lo que haya en user_devices y arma una entrada por cada
+  // socketId y cada tokenPush distintos - los llamadores existentes (que solo hacen
+  // `.map(x => x.tokenPush)` / `.map(x => x.socketId)`) siguen funcionando igual, sin cambios,
+  // simplemente ahora la lista puede traer mas de una entrada por admin.
+  public async allUserAdmin(): Promise<IAdminNotifyTarget[]> {
     try {
-      const whereStatement: FindOptions = {
-        attributes: ['id', 'rolId', 'socketId'],
-        where: {
-          rolId: {
-            [Op.or]: [1, 2]
-          },
-          socketId: {
-            [Op.not]: null
-          }
+      const vAdmins = await modelUser.findAll({
+        attributes: ['id', 'rolId', 'socketId', 'tokenPush'],
+        where: { rolId: { [Op.or]: [1, 2] } },
+      })
+      if (!vAdmins.length) return []
+      const vAdminIds = vAdmins.map((pAdmin) => pAdmin.dataValues.id)
+      const vDevices = await ClassUserDeviceService.allForUsers(vAdminIds)
+      const vTargets: IAdminNotifyTarget[] = []
+      for (const vAdmin of vAdmins) {
+        const vId = vAdmin.dataValues.id
+        const vOwnDevices = vDevices.filter((pDevice) => pDevice.userId === vId)
+        const vSocketIds = new Set<string>(
+          [vAdmin.dataValues.socketId, ...vOwnDevices.map((pDevice) => pDevice.socketId)].filter(Boolean) as string[]
+        )
+        const vTokenPushes = new Set<string>(
+          [vAdmin.dataValues.tokenPush, ...vOwnDevices.map((pDevice) => pDevice.tokenPush)].filter(Boolean) as string[]
+        )
+        const vRolId = Number(vAdmin.dataValues.rolId)
+        for (const vSocketId of vSocketIds) {
+          vTargets.push({ id: vId, rolId: vRolId, socketId: vSocketId, tokenPush: null })
+        }
+        for (const vTokenPush of vTokenPushes) {
+          vTargets.push({ id: vId, rolId: vRolId, socketId: null, tokenPush: vTokenPush })
         }
       }
-      const vResponse: IUserInstance[] = await modelUser.scope(['allAttributes', 'isDriverSuspended']).findAll(whereStatement)
-      return vResponse
+      return vTargets
     } catch (error) {
       throw error
     }

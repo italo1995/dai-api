@@ -190,6 +190,12 @@ class AuthService implements IAuthService {
     return vResponse
   }
 
+  // Solo para las cuentas demo de Google Play (ver controller/User/AuthController.ts): busca por
+  // numero sin importar el codigo de pais, porque users.phone_number es unico por si solo.
+  async showUserByPhoneNumber(pPhoneNumber: string): Promise<IUserInstance | null> {
+    return modelUser.findOne({ where: { phoneNumber: pPhoneNumber }, paranoid: false })
+  }
+
   async deleteUserNumber(pPhoneNumber: string): Promise<number | null> {
     const vResponse = await modelUserCode.destroy({
       where: {

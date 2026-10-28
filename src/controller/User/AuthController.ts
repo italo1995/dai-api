@@ -71,6 +71,8 @@ import TripService from '../../services/Trip/TripService'
 import StaffViewService from '../../services/web/StaffViewService'
 import { SocketService } from '../../ws'
 import { PushMessages } from '../../constants/pushMessages'
+import ClassUserDeviceService from '../../services/User/UserDeviceService'
+import { isReviewPhoneNumber, REVIEW_VERIFICATION_CODE } from '../../constants/reviewAccounts'
 
 // QA-03: aviso al dispositivo desplazado cuando un conductor se loguea en otro ("gana el
 // ultimo"). Standalone (no metodo de clase) porque las rutas llaman a 'controller.login' como
@@ -85,6 +87,16 @@ async function notifyDisplacedDevice(pSocketId: string | null, pTokenPush: strin
   }
 }
 
+// Cuentas demo de Google Play: el mismo telefono sirve con cualquier codigo de pais (58, 1, ...).
+// users.phone_number es unico, asi que no se puede tener una fila por pais - se normaliza el codigo
+// recibido al de la fila existente, antes de buscar usuario/codigo. Si la cuenta no existe (seeder
+// sin correr) no cambia nada.
+async function resolveReviewPhoneCode(pPhoneNumber: string, pPhoneCode: string): Promise<string> {
+  if (!isReviewPhoneNumber(pPhoneNumber)) return pPhoneCode
+  const vReviewUser = await ClassAuthService.showUserByPhoneNumber(pPhoneNumber)
+  return vReviewUser?.dataValues?.phoneCode ?? pPhoneCode
+}
+
 class AuthController {
   async registerOrCreateUserForNumber(
     pReq: Request,
@@ -97,6 +109,7 @@ class AuthController {
       const vHash: string = pReq.input('hash')
       const vUpdatePhoneNumber: boolean = pReq.input('updatePhoneNumber', 'json')
       vData.phoneNumber = vData?.phoneNumber.toString()
+      vData.phoneCode = await resolveReviewPhoneCode(vData.phoneNumber, vData.phoneCode)
       const vPhoneNumberExist: IUserInstance | null = await ClassAuthService.showUserNumber(
         vData.phoneNumber,
         vData.phoneCode
@@ -113,11 +126,12 @@ class AuthController {
       )
 
       const vPhoneNumberSend: string = `${vData.phoneCode}${vData.phoneNumber}`
-      const vCode: string | null = await fxTwilioSendCode(
-        vPhoneNumberSend,
-        vCodePhoneNumberExist || null,
-        vHash
-      )
+      // Cuentas demo de Google Play: codigo fijo, sin SMS. Solo si la cuenta ya existe (seeder).
+      const vIsReviewAccount =
+        !vUpdatePhoneNumber && !!vPhoneNumberExist && isReviewPhoneNumber(vData.phoneNumber)
+      const vCode: string | null = vIsReviewAccount
+        ? REVIEW_VERIFICATION_CODE
+        : await fxTwilioSendCode(vPhoneNumberSend, vCodePhoneNumberExist || null, vHash)
 
       let vUser: IUserInstance
       if (vUpdatePhoneNumber) {
@@ -141,7 +155,6 @@ class AuthController {
       const vResponse: any = fxSuccessResponse(200, { user: vUser }, 'Usuario registrado con exito')
       return pRes.status(200).send(vResponse)
     } catch (error) {
-      console.log('error :>> ', error)
       pNext(error)
     }
   }
@@ -149,8 +162,11 @@ class AuthController {
   async verifiedUserCode(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vCode: string = pReq.input('code')
-      const vphoneCode: string = pReq.input('phoneCode').toString()
       const vphoneNumber: string = pReq.input('phoneNumber').toString()
+      const vphoneCode: string = await resolveReviewPhoneCode(
+        vphoneNumber,
+        pReq.input('phoneCode').toString()
+      )
       const socketId: string | null = pReq.input('socketId')
         ? pReq.input('socketId').toString()
         : null
@@ -289,6 +305,13 @@ class AuthController {
         const vUserDB: IUserInstance | null = await ClassAuthService.update(vData)
         if (!vUserDB) {
           return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
+        }
+        // Multi-dispositivo (Italo, 2026-09-21): admin/operator/tienda son cuentas que se suelen
+        // compartir entre varias personas/dispositivos - se registra este token ademas de pisar
+        // users.token_push como siempre, para que un dispositivo nuevo registrando su token no le
+        // corte las notificaciones al que ya estaba. Ver UserDeviceService.ts.
+        if (vData.tokenPush && [1, 2, 4].includes(Number(vUserDB.dataValues.rolId))) {
+          void ClassUserDeviceService.registerPushToken(vUserId, vData.tokenPush)
         }
         if (vBeforeUserDB?.dataValues?.isNewUser) {
           const admin = await ClassUserService.allUserAdmin()
@@ -463,6 +486,31 @@ class AuthController {
         count: await TripService.countTrip(vUserDB.id, vUserDB.typeUser),
       }
       return pRes.status(200).send(fxSuccessResponse(200, { user: vResponse }))
+    } catch (error: any) {
+      pNext(error)
+    }
+  }
+
+  // Web Push (Italo, 2026-09-21): registra el token FCM que payaWeb obtiene del navegador
+  // (Notification API + service worker), separado de update() para no tener que mandar todo el
+  // perfil solo para esto. Mismo alcance que el resto del multi-dispositivo: admin/operator/tienda
+  // (rolId 1/2/4) - son las unicas cuentas con este panel.
+  async registerWebPushToken(
+    pReq: Request,
+    pRes: Response,
+    pNext: NextFunction
+  ): Promise<Response | undefined> {
+    try {
+      const vUserId: string = pReq.auth.id
+      const vTokenPush: string = pReq.input('tokenPush')
+      if (!vTokenPush) {
+        return pRes.status(400).send(fxErrorResponse(400, null, 'tokenPush es requerido'))
+      }
+      if (![1, 2, 4].includes(Number(pReq.auth.rolId))) {
+        return pRes.status(403).send(fxErrorResponse(403, null, 'No autorizado'))
+      }
+      await ClassUserDeviceService.registerPushToken(vUserId, vTokenPush)
+      return pRes.status(200).send(fxSuccessResponse(200, null, 'Token registrado'))
     } catch (error: any) {
       pNext(error)
     }

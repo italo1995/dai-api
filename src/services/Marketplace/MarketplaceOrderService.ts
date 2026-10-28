@@ -51,6 +51,7 @@ import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
 import { PushMessages, type IPushMessage } from '../../constants/pushMessages'
 import ClassMarketplaceDispatchService from './MarketplaceDispatchService'
+import ClassUserDeviceService from '../User/UserDeviceService'
 
 // Quien pide un listado / detalle - se usa para el scoping por rol ([Orden 8/8]).
 export interface IOrderRequester {
@@ -69,6 +70,22 @@ const MAX_PREP_TIME_MIN = 60
 // MarketplaceDispatchService.ts (no se importa de ahi porque es privado a ese archivo; si cambia
 // uno, revisar el otro).
 const DEFAULT_NEARBY_ORDERS_RADIUS_KM = 15
+
+
+// Avisos en tiempo real de pedidos de tienda (campana de payaWeb): ademas del dueno de la tienda,
+// los admins/operadores (rolId 1/2) reciben el mismo evento para ver pedidos de TODAS las tiendas
+// en la campana global del admin sin tener que abrir el Marketplace (2026-10-23).
+async function emitStoreOrderEvent(
+  pOwnerSocketIds: string[],
+  pPayload: { kind: string; orderId: number; storeId: number }
+): Promise<void> {
+  const vAdmins = await ClassUserService.allUserAdmin()
+  const vAdminSocketIds = vAdmins.map((pAdmin) => pAdmin.socketId).filter(Boolean) as string[]
+  const vTargets = [...new Set([...pOwnerSocketIds, ...vAdminSocketIds])]
+  if (vTargets.length) {
+    SocketService.io.to(vTargets).emit('storeOrderEvent', pPayload)
+  }
+}
 
 export class MarketplaceOrderError extends Error {
   code: number
@@ -393,8 +410,11 @@ class MarketplaceOrderService {
       const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
       if (vStore?.dataValues.ownerId) {
         const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
-        if (vOwner?.dataValues.tokenPush) {
-          await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+        // Multi-dispositivo (Italo, 2026-09-21): si el dueño tiene la cuenta abierta en mas de un
+        // dispositivo, les llega a TODOS - no solo al ultimo que se conecto/registro su token.
+        const vOwnerPushTokens = await ClassUserDeviceService.mergePushTokens(vStore.dataValues.ownerId, vOwner?.dataValues.tokenPush)
+        if (vOwnerPushTokens.length) {
+          await NotificationService.sendNotification(vOwnerPushTokens, {
             ...PushMessages.nuevoPedidoParaConfirmar(),
             data: JSON.stringify({ orderId: vOrder.dataValues.id }),
           })
@@ -402,13 +422,12 @@ class MarketplaceOrderService {
         // Panel web de la tienda (payaWeb) - el push de arriba es solo para el celular del dueño,
         // esto es lo que permite que la lista de ordenes en el navegador se actualice sola sin que
         // alguien tenga que refrescar la pagina (ver paya_store_panel_ux_proposal.md).
-        if (vOwner?.dataValues.socketId) {
-          SocketService.io.to(vOwner.dataValues.socketId).emit('storeOrderEvent', {
-            kind: 'new_order',
-            orderId: vOrder.dataValues.id,
-            storeId: vOrder.dataValues.storeId,
-          })
-        }
+        const vOwnerSocketIds = await ClassUserDeviceService.mergeSocketIds(vStore.dataValues.ownerId, vOwner?.dataValues.socketId)
+        await emitStoreOrderEvent(vOwnerSocketIds, {
+          kind: 'new_order',
+          orderId: vOrder.dataValues.id,
+          storeId: vOrder.dataValues.storeId,
+        })
       }
     } catch (error) {
       console.log('MarketplaceOrderService.createFromCart: fallo el push al comercio', error)
@@ -648,19 +667,19 @@ class MarketplaceOrderService {
         const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
         if (vStore?.dataValues.ownerId) {
           const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
-          if (vOwner?.dataValues.tokenPush) {
-            await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+          const vOwnerPushTokens = await ClassUserDeviceService.mergePushTokens(vStore.dataValues.ownerId, vOwner?.dataValues.tokenPush)
+          if (vOwnerPushTokens.length) {
+            await NotificationService.sendNotification(vOwnerPushTokens, {
               ...PushMessages.pedidoCanceladoPorClienteSinPagar(),
               data: JSON.stringify({ orderId: vOrder.dataValues.id }),
             })
           }
-          if (vOwner?.dataValues.socketId) {
-            SocketService.io.to(vOwner.dataValues.socketId).emit('storeOrderEvent', {
-              kind: 'cancelled_by_client',
-              orderId: vOrder.dataValues.id,
-              storeId: vOrder.dataValues.storeId,
-            })
-          }
+          const vOwnerSocketIds = await ClassUserDeviceService.mergeSocketIds(vStore.dataValues.ownerId, vOwner?.dataValues.socketId)
+          await emitStoreOrderEvent(vOwnerSocketIds, {
+            kind: 'cancelled_by_client',
+            orderId: vOrder.dataValues.id,
+            storeId: vOrder.dataValues.storeId,
+          })
         }
       } catch (error) {
         console.log('MarketplaceOrderService.cancelByClient: fallo avisando a la tienda', error)
@@ -703,16 +722,14 @@ class MarketplaceOrderService {
       const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
       if (vStore?.dataValues.ownerId) {
         const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
-        if (vOwner?.dataValues.tokenPush) {
-          vRecipients.push(vOwner.dataValues.tokenPush)
-        }
-        if (vOwner?.dataValues.socketId) {
-          SocketService.io.to(vOwner.dataValues.socketId).emit('storeOrderEvent', {
-            kind: 'cancel_request',
-            orderId: vOrder.dataValues.id,
-            storeId: vOrder.dataValues.storeId,
-          })
-        }
+        const vOwnerPushTokens = await ClassUserDeviceService.mergePushTokens(vStore.dataValues.ownerId, vOwner?.dataValues.tokenPush)
+        vRecipients.push(...vOwnerPushTokens)
+        const vOwnerSocketIds = await ClassUserDeviceService.mergeSocketIds(vStore.dataValues.ownerId, vOwner?.dataValues.socketId)
+        await emitStoreOrderEvent(vOwnerSocketIds, {
+          kind: 'cancel_request',
+          orderId: vOrder.dataValues.id,
+          storeId: vOrder.dataValues.storeId,
+        })
       }
       const vAdmins = await ClassUserService.allUserAdmin()
       vRecipients.push(...vAdmins.map((pAdmin: any) => pAdmin.tokenPush).filter(Boolean))

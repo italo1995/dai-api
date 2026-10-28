@@ -55,6 +55,7 @@ export interface IUserInputUpdate {
   rolId: number
   isNewUser: boolean
   dob: string
+  tokenPush?: string
 }
 
 export interface IUserUpdateSocket {

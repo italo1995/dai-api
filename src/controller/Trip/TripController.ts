@@ -56,6 +56,7 @@ import ClassAuthService from '../../services/User/AuthService'
 import { EStatusDriver } from '../../models/User/UserModel'
 import RangePriceService from '../../services/Locations/RangePriceService'
 import { PushMessages } from '../../constants/pushMessages'
+import ClassOfflineDriverAlertService from '../../services/User/OfflineDriverAlertService'
 class TripController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
@@ -433,6 +434,8 @@ class TripController {
       if (socketIds.length) {
         SocketService.io.to(socketIds).emit('newTrip', vTripOne)
       }
+      // Aviso aparte para conductores activos sin socket (no bloquea ni afecta lo de arriba).
+      ClassOfflineDriverAlertService.notifyNearbyOfflineDrivers(vParamNearbyDrivers)
       if (vNearbyDrivers.length < 10) {
         const vNearbyDriversJSON: any[] = JSON.parse(JSON.stringify(vNearbyDrivers))
         const existingCoords: any = vNearbyDriversJSON.map((driver) => [driver.lat, driver.lon])

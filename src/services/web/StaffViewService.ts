@@ -82,6 +82,17 @@ class staffViewService implements IstaffViewService {
     }
   }
 
+  // Editar una Asignacion: reemplaza sus modulos por la lista nueva (las filas de staff_views son
+  // solo la relacion, no hay historial que conservar).
+  async replaceForStaff(pStaffId: number, pViewIds: number[]): Promise<void> {
+    await modelStaffView.destroy({ where: { staffId: pStaffId } })
+    if (pViewIds.length) {
+      await modelStaffView.bulkCreate(
+        pViewIds.map((pViewId) => ({ staffId: pStaffId, viewId: pViewId }))
+      )
+    }
+  }
+
   async createMany(pData: staffViewAttributes[]): Promise<staffViewInstance[]> {
     try {
       const vResponse: staffViewInstance[] = await modelStaffView.bulkCreate(pData)

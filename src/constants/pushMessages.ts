@@ -47,6 +47,11 @@ export const PushMessages = {
     body: `${pStoreName || 'Un nuevo comercio'} se registró y espera aprobación.`,
   }),
 
+  nuevaTiendaPorAprobar: (pStoreName?: string | null): IPushMessage => ({
+    title: 'Tienda pendiente de aprobación',
+    body: `${pStoreName || 'Una tienda'} espera tu aprobación. ¡Eso es DAI!`,
+  }),
+
   // ===== Suspension de conductores =====
   cuentaSuspendida: (pReason: string, pUntil: string): IPushMessage => ({
     title: '¡Tu cuenta ha sido suspendida!',
@@ -79,6 +84,12 @@ export const PushMessages = {
   nuevoViajeCerca: (): IPushMessage => ({
     title: 'Nuevo viaje',
     body: 'Un nuevo viaje cerca de ti',
+  }),
+  // Aviso generico a conductores activos SIN socket (ver OfflineDriverAlertService): solo los
+  // invita a abrir la app, no lleva datos del servicio.
+  servicioCercaUltimaUbicacion: (): IPushMessage => ({
+    title: 'Hay un servicio cerca de tu última ubicación',
+    body: 'Abre la app y conéctate para verlo. ¡Eso es DAI!',
   }),
   precioActualizado: (): IPushMessage => ({
     title: 'El pasajero actualizó el precio',

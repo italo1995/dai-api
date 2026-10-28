@@ -27,6 +27,8 @@ import { EMarketplaceOrderStatus } from '../../models/Marketplace/MarketplaceOrd
 import { EStatusTrip, ETypeService } from '../../models/Trip/TripModel'
 import ClassUserService from '../User/UserService'
 import ClassAuthService from '../User/AuthService'
+import ClassUserDeviceService from '../User/UserDeviceService'
+import ClassOfflineDriverAlertService from '../User/OfflineDriverAlertService'
 import NotificationService from '../../controller/fcmPushController'
 import { SocketService } from '../../ws'
 import { PushMessages } from '../../constants/pushMessages'
@@ -197,12 +199,13 @@ class MarketplaceDispatchService {
         )
         if (vStore?.dataValues.ownerId) {
           const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
-          if (vOwner?.dataValues.tokenPush) {
+          const vOwnerPushTokens = await ClassUserDeviceService.mergePushTokens(vStore.dataValues.ownerId, vOwner?.dataValues.tokenPush)
+          if (vOwnerPushTokens.length) {
             const vMessage =
               vOrder.dataValues.status === EMarketplaceOrderStatus.CANCELACION_SOLICITADA
                 ? PushMessages.recordatorioSolicitudCancelacionSinAtender(vMinutos)
                 : PushMessages.recordatorioPedidoSinAtender(vMinutos)
-            await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+            await NotificationService.sendNotification(vOwnerPushTokens, {
               ...vMessage,
               data: JSON.stringify({ orderId: vOrder.dataValues.id }),
             })
@@ -239,8 +242,9 @@ class MarketplaceDispatchService {
         const vStore = await modelStore.findByPk(vOrder.dataValues.storeId)
         if (vStore?.dataValues.ownerId) {
           const vOwner = await ClassUserService.show({ id: vStore.dataValues.ownerId })
-          if (vOwner?.dataValues.tokenPush) {
-            await NotificationService.sendNotification([vOwner.dataValues.tokenPush], {
+          const vOwnerPushTokens = await ClassUserDeviceService.mergePushTokens(vStore.dataValues.ownerId, vOwner?.dataValues.tokenPush)
+          if (vOwnerPushTokens.length) {
+            await NotificationService.sendNotification(vOwnerPushTokens, {
               ...PushMessages.recordatorioTiempoPorCumplirTienda(),
               data: JSON.stringify({ orderId: vOrder.dataValues.id }),
             })
@@ -391,6 +395,16 @@ class MarketplaceDispatchService {
           data: JSON.stringify(vPayload),
         })
       }
+      // Aviso aparte para repartidores activos sin socket (no bloquea ni afecta lo de arriba).
+      ClassOfflineDriverAlertService.notifyNearbyOfflineDrivers({
+        lat: vStoreLat,
+        lon: vStoreLon,
+        distance: DISPATCH_SEARCH_RADIUS_KM,
+        typeService: ETypeService.MARKETPLACE,
+        storeType: vStore.dataValues.type,
+        minAmount: Number(vOrder.dataValues.deliveryFee) || 0,
+        currencyId: vOrder.dataValues.currencyId ?? null,
+      })
       console.log(
         `[marketplace-dispatch] orden ${pOrderId} -> viaje ${vTripId}, avisados ${vDrivers.length} repartidor(es)`
       )

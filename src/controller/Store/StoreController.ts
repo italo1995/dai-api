@@ -22,6 +22,10 @@ import ClassStoreService, { fxToPublicStore, fxGetFavoriteStoreIdSet } from '../
 import type { IStoreInput, IResponseAllStore, IResponseAllStorePublic } from '../../types/Store'
 import { fxSuccessResponse, fxErrorResponse, moveImages, fxIsStoreRole, fxIsAdminRole } from '../../utils/helpers'
 import type { IStoreInstance } from '../../models/Store/StoreModel'
+import ClassUserService from '../../services/User/UserService'
+import NotificationService from '../fcmPushController'
+import { SocketService } from '../../ws'
+import { PushMessages } from '../../constants/pushMessages'
 
 class StoreController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -109,6 +113,27 @@ class StoreController {
         vData.banner = await moveImages(vData.banner)
       }
       const vResponse: IStoreInstance = await ClassStoreService.create(vData)
+      // Una tienda creada por su dueno queda pendiente de aprobacion: se avisa a los admins/
+      // operadores (push + evento en vivo para la campana de payaWeb). Un fallo aca no debe tumbar
+      // la creacion de la tienda.
+      if (fxIsStoreRole(vAuth)) {
+        try {
+          const vAdmins = await ClassUserService.allUserAdmin()
+          const vPushIds = vAdmins.map((pAdmin) => pAdmin.tokenPush).filter(Boolean) as string[]
+          const vSocketIds = vAdmins.map((pAdmin) => pAdmin.socketId).filter(Boolean) as string[]
+          if (vPushIds.length) {
+            await NotificationService.sendNotification(
+              vPushIds,
+              PushMessages.nuevaTiendaPorAprobar(vResponse.dataValues?.name)
+            )
+          }
+          if (vSocketIds.length) {
+            SocketService.io.to(vSocketIds).emit('newStore', { id: vResponse.dataValues?.id })
+          }
+        } catch (error) {
+          console.log('StoreController.create: fallo avisando a los admins', error)
+        }
+      }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Correcto'))
     } catch (error) {
       pNext(error)

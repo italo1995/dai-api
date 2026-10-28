@@ -135,12 +135,20 @@ export const staff = {
   async update(pReq: Request, pRes: Response, pNext: NextFunction) {
     try {
       const vData: IStaffAttributes = pReq.only(['id', 'name'])
+      const vModules: any[] | null = pReq.input('modules', 'json')
 
       const vResponse: staffInstance | null = await staffService.update(vData)
       if (!vResponse) {
         return pRes
           .status(500)
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
+      }
+      // Si viene "modules" se reemplazan los modulos de la Asignacion (editar un rol existente).
+      if (Array.isArray(vModules)) {
+        await StaffViewService.replaceForStaff(
+          Number(vResponse.dataValues.id),
+          vModules.map((pModule) => Number(pModule))
+        )
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
     } catch (error) {

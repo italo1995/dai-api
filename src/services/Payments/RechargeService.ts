@@ -49,7 +49,18 @@ class rechargeService implements IrechargeService {
       if (pParam?.status) {
         whereStatement.where = {
           ...whereStatement.where,
-          status: Number(pParam.status)
+          status: Number(pParam.status),
+          // El modelo no es paranoid: una recarga borrada (deletedAt) seguia contando como
+          // pendiente en el contador y en la lista.
+          deletedAt: { [Op.is]: null }
+        }
+      }
+      // Distinguir recargas (1) de retiros (2): un retiro "pendiente" espera el codigo del
+      // usuario, no la revision de un admin, asi que no debe contar como recarga por revisar.
+      if (pParam?.type) {
+        whereStatement.where = {
+          ...whereStatement.where,
+          type: Number(pParam.type)
         }
       }
       if (pParam.filterDate) {

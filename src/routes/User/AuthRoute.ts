@@ -9,6 +9,8 @@ router.route('/phone').post(controller.registerOrCreateUserForNumber)
 
 router.route('/update').post(authMiddleware('client'), controller.update)
 
+router.route('/webPushToken').post(authMiddleware('client'), controller.registerWebPushToken)
+
 router.route('/me').get(authMiddleware('client'), controller.me)
 
 router.route('/register').post(controller.register)
