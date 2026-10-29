@@ -47,3 +47,40 @@ paths:
       summary: Returns a paginated list of captured server errors (admin panel, hidden route - see payaWeb menu-routing.module.ts 'errores')
       tags:
         - ErrorReporting
+  /api/errorReporting/app:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                message:
+                  type: string
+                  description: required - error message
+                stack:
+                  type: string
+                screen:
+                  type: string
+                  description: screen/route where it happened
+                platform:
+                  type: string
+                  description: android | ios
+                appVersion:
+                  type: string
+                device:
+                  type: string
+                extra:
+                  type: object
+                  description: any additional context (stored as JSON, truncated)
+              required:
+                - message
+      responses:
+        '200':
+          description: Error stored with type 'app' (userId taken from the token, if any)
+        '400':
+          description: message is missing
+        '429':
+          description: more than 30 reports per minute from the same user/IP
+      summary: Stores an error reported by the mobile app (public - Authorization header optional)
+      tags:
+        - ErrorReporting

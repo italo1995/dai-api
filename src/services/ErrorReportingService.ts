@@ -8,6 +8,26 @@ interface IDataError {
   body: any
   userId: string
 }
+
+// Error reportado por la app movil (POST /api/errorReporting/app, pedido por Ricardo 2026-10-29).
+export interface IAppErrorInput {
+  message: string
+  stack?: string
+  screen?: string
+  platform?: string
+  appVersion?: string
+  device?: string
+  extra?: any
+}
+
+// Cortes de longitud: el endpoint es publico (los errores pueden pasar antes del login), asi que
+// no se guarda cualquier tamano que mande el cliente.
+const APP_ERROR_MAX_MESSAGE = 1000
+const APP_ERROR_MAX_STACK = 8000
+const APP_ERROR_MAX_FIELD = 200
+const APP_ERROR_MAX_EXTRA = 4000
+const fxCut = (pValue: any, pMax: number): string | null =>
+  pValue === undefined || pValue === null ? null : String(pValue).slice(0, pMax)
 class ErrorReportingService {
   // Unica forma de ver los errores hasta ahora era conectandose directo a la base - esto le da
   // una vista al panel (ver ErrorReportingController.all / vista oculta en el admin). Busca por
@@ -51,6 +71,27 @@ class ErrorReportingService {
       }),
     }
     await modelErrorReporting.create(newErrorReporting)
+  }
+
+  // Misma tabla que los errores del servidor, con type 'app' para filtrarlos en el panel. No se
+  // guardan headers (traen el token del usuario).
+  async createFromApp(pData: IAppErrorInput, pUserId: string | null) {
+    const vExtra = pData.extra === undefined ? null : fxCut(JSON.stringify(pData.extra), APP_ERROR_MAX_EXTRA)
+    return modelErrorReporting.create({
+      type: 'app',
+      data: JSON.stringify({
+        screen: fxCut(pData.screen, APP_ERROR_MAX_FIELD),
+        platform: fxCut(pData.platform, APP_ERROR_MAX_FIELD),
+        appVersion: fxCut(pData.appVersion, APP_ERROR_MAX_FIELD),
+        device: fxCut(pData.device, APP_ERROR_MAX_FIELD),
+        extra: vExtra,
+        userId: pUserId,
+      }),
+      error: JSON.stringify({
+        message: fxCut(pData.message, APP_ERROR_MAX_MESSAGE),
+        stack: fxCut(pData.stack, APP_ERROR_MAX_STACK),
+      }),
+    })
   }
 }
 export default new ErrorReportingService()

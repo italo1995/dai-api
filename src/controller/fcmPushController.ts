@@ -43,6 +43,13 @@ class NotificationService {
                   sound: 'default', // O especifica el nombre de un archivo de sonido personalizado
                 },
               },
+              apns: {
+                payload: {
+                  aps: {
+                    sound: 'default',
+                  },
+                },
+              },
             }
             await this.messaging.send(notification)
           }

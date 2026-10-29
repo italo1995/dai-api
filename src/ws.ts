@@ -404,7 +404,11 @@ export class SocketService {
           if (vUser?.id) {
             await ClassAuthService.updateSocket(vUser)
           }
-          if (coords?.isDriver) {
+          // Solo con un conductor identificado en el socket: sin usuario (socket sin auth) no hay
+          // a quien actualizarle la ubicacion ni vehiculo con el que filtrar viajes, y antes esto
+          // terminaba en VehicleTypeService.show(undefined) -> "WHERE parameter \"id\" has invalid
+          // \"undefined\" value", el error que mas se repetia en error_reportings (2026-10-29).
+          if (coords?.isDriver && vUser?.id) {
             const vNow = Date.now()
             // Mientras el conductor esta inactivo (sin viaje), no hace falta recalcular
             // "viajes cercanos" en cada tick de ubicacion: se refresca a lo sumo cada
@@ -412,9 +416,9 @@ export class SocketService {
             if (vNow - vLastNearbySearchAt >= NEARBY_TRIPS_THROTTLE_MS) {
               vLastNearbySearchAt = vNow
               const vDriver = auth || user
-              const vVehicleType = await VehicleTypeService.show(
-                vDriver?.dataValues?.vehicleType || vDriver?.vehicleType
-              )
+              // Un conductor sin tipo de vehiculo cargado tambien llegaba aca con id undefined.
+              const vVehicleTypeId = vDriver?.dataValues?.vehicleType || vDriver?.vehicleType
+              const vVehicleType = vVehicleTypeId ? await VehicleTypeService.show(vVehicleTypeId) : null
               const vParamToRange = {
                 city: coords?.city || null,
                 region: coords?.region || null,
