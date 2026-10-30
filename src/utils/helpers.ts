@@ -151,6 +151,9 @@ export const moveImages = async (pName: string): Promise<string> => {
 // credenciales de Twilio configuradas.
 const fxSendSms = async (pTo: string, pBody: string): Promise<void> => {
   console.log('fxSendSms')
+  // Twilio exige E.164 ("+584247488462"). En users.phone_code hay filas con "+58" y otras con
+  // "58" (todas las tiendas, por ejemplo) - sin el "+" Twilio responde 21211 "Invalid 'To'".
+  pTo = `+${String(pTo).replace(/[^\d]/g, '')}`
   try {
     if (!AppConfig.TWILIO_ENABLED) {
       console.log('----- TWILIO_ENABLED=false: SMS simulado, no se envio -----')
