@@ -135,8 +135,13 @@ export class SocketService {
       connectionStateRecovery: {
         // the backup duration of the sessions and the packets
         maxDisconnectionDuration: 2 * 60 * 1000,
-        // whether to skip middlewares upon successful recovery
-        skipMiddlewares: true,
+        // false: un socket recuperado (reconexion < 2 min) vuelve a pasar por el middleware de
+        // abajo. Con true, socket.handshake.auth quedaba con lo que manda el cliente
+        // ({ token, pid, offset }) en vez del usuario verificado -> auth.id undefined (los errores
+        // de 'coords' sin usuario en error_reportings). La recuperacion de sesion y paquetes se
+        // mantiene: socket.io la hace antes de correr los middlewares. Detectado por Ricardo,
+        // 2026-10-29.
+        skipMiddlewares: false,
       },
     })
     // Usamos un middleware para verificar el token del usuario y adjuntarlo al handshake.
