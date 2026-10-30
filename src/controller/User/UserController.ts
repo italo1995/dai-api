@@ -17,6 +17,7 @@ import { EStatusVerify } from '../../models/User/VerifyModel'
 import TripService from '../../services/Trip/TripService'
 import NotificationService from '../fcmPushController'
 import { PushMessages } from '../../constants/pushMessages'
+import { STORE_ROL_ID } from '../../services/User/PasswordResetService'
 
 class UserController {
   async show(pReq: Request, pRes: Response, pNext: NextFunction) {
@@ -148,6 +149,54 @@ class UserController {
         'daiFood',
         'daiMarket',
       ])
+      // Correo y telefono desde Admin > Usuarios tienda (Italo, 2026-10-29). El telefono solo se
+      // edita aca para cuentas de tienda (rolId 4), que entran con correo y contraseña: el de
+      // clientes y conductores es su login por SMS, cambiarlo desde el panel les quitaria el acceso.
+      const vHasPhone = pReq.body?.phoneCode !== undefined || pReq.body?.phoneNumber !== undefined
+      if (vData?.id && (vHasPhone || vData.email !== undefined)) {
+        const vTarget: IUserInstance | null = await ClassUser.show({ id: String(vData.id) })
+        if (!vTarget) {
+          return pRes.status(404).send(fxErrorResponse(404, null, 'Usuario no encontrado'))
+        }
+        const vIsStore = Number(vTarget.dataValues.rolId) === STORE_ROL_ID
+        if (vHasPhone) {
+          if (!vIsStore) {
+            return pRes.status(400).send(fxErrorResponse(400, null, 'El teléfono de clientes y conductores no se puede cambiar desde el panel: es su acceso por SMS'))
+          }
+          // El codigo se acepta con "+" adelante (hay filas viejas guardadas asi) pero se guarda
+          // solo con digitos, como la mayoria.
+          const vPhoneCode = String(pReq.body.phoneCode ?? '').replace(/\s/g, '').replace(/^\+/, '')
+          const vPhoneNumber = String(pReq.body.phoneNumber ?? '').replace(/\s/g, '')
+          if (!vPhoneCode && !vPhoneNumber) {
+            vData.phoneCode = null as any
+            vData.phoneNumber = null as any
+          } else if (!/^\d{1,4}$/.test(vPhoneCode) || !/^\d{6,15}$/.test(vPhoneNumber)) {
+            return pRes.status(400).send(fxErrorResponse(400, null, 'El teléfono no es válido: usa solo dígitos en el código (máximo 4) y en el número (6 a 15)'))
+          } else {
+            if (await ClassUser.isFieldTaken('phoneNumber', vPhoneNumber, vTarget.dataValues.id)) {
+              return pRes.status(409).send(fxErrorResponse(409, null, 'Ese número ya está registrado en otra cuenta'))
+            }
+            vData.phoneCode = vPhoneCode
+            vData.phoneNumber = vPhoneNumber
+          }
+        }
+        if (vData.email !== undefined) {
+          const vEmail = String(vData.email ?? '').trim()
+          if (!vEmail) {
+            if (vIsStore) {
+              return pRes.status(400).send(fxErrorResponse(400, null, 'El correo es obligatorio: la tienda lo usa para iniciar sesión'))
+            }
+          } else {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(vEmail)) {
+              return pRes.status(400).send(fxErrorResponse(400, null, 'El correo no es válido'))
+            }
+            if (await ClassUser.isFieldTaken('email', vEmail, vTarget.dataValues.id)) {
+              return pRes.status(409).send(fxErrorResponse(409, null, 'Ese correo ya está registrado en otra cuenta'))
+            }
+            vData.email = vEmail
+          }
+        }
+      }
       if (vData.typeUser === ETypeUser.driver && vData?.id) {
         const vUserDB: IUserInstance | null = await ClassUser.show({
           id: vData.id,
@@ -167,7 +216,19 @@ class UserController {
           .send(fxErrorResponse(500, { user: null, token: null }, 'Ocurrio un error'))
       }
       return pRes.status(200).send(fxSuccessResponse(200, vResponse, 'Codigo verificado'))
-    } catch (error) {
+    } catch (error: any) {
+      // Respaldo si otra cuenta tomo el mismo correo/numero entre la verificacion y el update.
+      if (error?.name === 'SequelizeUniqueConstraintError') {
+        const vField = error?.errors?.[0]?.path
+        const vMessage = vField === 'phone_number' || vField === 'phoneNumber'
+          ? 'Ese número ya está registrado en otra cuenta'
+          : 'Ese correo ya está registrado en otra cuenta'
+        return pRes.status(409).send(fxErrorResponse(409, null, vMessage))
+      }
+      // El modelo tiene su propia regex de email, mas estricta que la de arriba.
+      if (error?.name === 'SequelizeValidationError' && error?.errors?.[0]?.path === 'email') {
+        return pRes.status(400).send(fxErrorResponse(400, null, 'El correo no es válido'))
+      }
       pNext(error)
     }
   }

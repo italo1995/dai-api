@@ -470,10 +470,10 @@ paths:
                   description: The password of the user
                   type: string
                 phoneCode:
-                  description: The phoneCode of the user
+                  description: Codigo de pais, solo digitos (se acepta con "+" y se guarda sin el). Solo para cuentas de tienda (rolId 4); para clientes y conductores responde 400, porque el telefono es su login por SMS. Vacio junto con phoneNumber borra el telefono.
                   type: string
                 phoneNumber:
-                  description: The phoneNumber of the user
+                  description: Numero, solo digitos (6 a 15). Solo para cuentas de tienda (rolId 4), igual que phoneCode. Responde 409 si otra cuenta ya lo usa.
                   type: string
                 regionId:
                   description: The regionId of the user
@@ -520,10 +520,6 @@ paths:
                   type: boolean
               required:
                 - id
-                - password
-                - phoneCode
-                - phoneNumber
-                - driverSuspendedTo
         required: true
       responses:
         '200':
@@ -532,6 +528,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: The user updated
+        '400':
+          description: Telefono o correo con formato invalido, correo vacio en una cuenta de tienda, o intento de cambiar el telefono de un cliente/conductor.
+        '404':
+          description: Usuario no encontrado (solo cuando se manda email o telefono).
+        '409':
+          description: El correo o el numero ya esta registrado en otra cuenta (incluidas las borradas).
       security:
         - BearerAuth: []
       summary: Update a User

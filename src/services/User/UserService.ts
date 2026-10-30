@@ -543,6 +543,22 @@ class UserService implements IUserService {
     }
   }
 
+  // true si otra cuenta (incluidas las borradas: el indice unico de la tabla tambien las cuenta)
+  // ya usa ese correo o numero. El correo se compara sin mayusculas, igual que la busqueda de la
+  // recuperacion de contraseña, para no dejar dos cuentas que solo difieran en eso.
+  async isFieldTaken(pField: 'email' | 'phoneNumber', pValue: string, pExceptId: string): Promise<boolean> {
+    const vColumn = pField === 'email' ? 'email' : 'phone_number'
+    const vMatch = pField === 'email'
+      ? Sequelize.where(Sequelize.fn('lower', Sequelize.col(vColumn)), pValue.toLowerCase())
+      : { phoneNumber: pValue }
+    const vExisting = await modelUser.findOne({
+      where: { [Op.and]: [vMatch, { id: { [Op.ne]: pExceptId } }] },
+      attributes: ['id'],
+      paranoid: false,
+    })
+    return !!vExisting
+  }
+
   async update(pData: IUserInput): Promise<IUserInstance | null> {
     try {
       if (pData?.id) {
