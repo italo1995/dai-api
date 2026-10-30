@@ -30,6 +30,10 @@ const AppConfig = {
   // HTTP referrer y no sirve para llamadas server-to-server). Se usa solo para Distance Matrix
   // (calculo de delivery fee, ver MarketplaceOrderService.getQuote).
   GOOGLE_MAPS_SERVER_KEY: process.env.GOOGLE_MAPS_SERVER_KEY || '',
+  // URL publica de payaWeb (sin "/" final), para armar el enlace de recuperacion de contraseña de
+  // tiendas (ver PasswordResetController.createLink). Si no esta, se usa el Origin del panel admin
+  // que lo pide.
+  WEB_URL: process.env.WEB_URL || '',
 }
 
 export default Object.freeze(AppConfig)
