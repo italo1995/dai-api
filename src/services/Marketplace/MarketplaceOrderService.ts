@@ -910,6 +910,7 @@ class MarketplaceOrderService {
 
     if (vFreedDriverId) {
       await ClassAuthService.updateSocket({ id: vFreedDriverId, statusDriver: EStatusDriver.ACTIVE })
+      SocketService.notifyDriverStatusChanged(vFreedDriverId, EStatusDriver.ACTIVE)
     }
     return vFreedDriverId
   }

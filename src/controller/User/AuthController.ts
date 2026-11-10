@@ -63,7 +63,7 @@ import {
   moveImages,
   fxSendMessage,
 } from '../../utils/helpers'
-import type { IUserInstance } from '../../models/User/UserModel'
+import { EStatusDriver, type IUserInstance } from '../../models/User/UserModel'
 import ClassDriverDetailService from '../../services/User/DriverDetailService'
 import ClassUserService from '../../services/User/UserService'
 import NotificationService from '../fcmPushController'
@@ -573,11 +573,17 @@ class AuthController {
         return pRes.status(500).send(fxErrorResponse(500, null, 'Ocurrio un error'))
       }
       if (vUserDB.dataValues.typeUser === ETypeUser.driver) {
-        const vUserDisconnect = await ClassAuthService.show(vUserDB.dataValues.id)
-        const admin = await ClassUserService.allUserAdmin()
-        const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
-        SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
-        console.log('Se emite userDisconnect')
+        // Mismos destinatarios que 'coordsDriver': todas las conexiones de admin vivas
+        // (SocketService.adminSocketIds), no users.socket_id de allUserAdmin() que solo
+        // guarda el ultimo dispositivo de cada admin.
+        const socketIds: string[] = [...SocketService.adminSocketIds]
+        if (socketIds.length) {
+          const vUserDisconnect = await ClassAuthService.show(vUserDB.dataValues.id)
+          SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
+          // ClassAuthService.disconnect() deja al conductor en INACTIVE.
+          SocketService.notifyDriverStatusChanged(vUserDB.dataValues.id, EStatusDriver.INACTIVE)
+          console.log('Se emite userDisconnect')
+        }
       }
       return pRes.status(200).send(fxSuccessResponse(200, true))
     } catch (error: any) {

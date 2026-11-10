@@ -551,6 +551,7 @@ class TripController {
             statusDriver: EStatusDriver.ACTIVE,
           }
           await ClassAuthService.updateSocket(updateDriver)
+          SocketService.notifyDriverStatusChanged(updateDriver.id, EStatusDriver.ACTIVE)
         }
         const vParamToRange = {
           cityId: vResponse?.dataValues.cityId || null,

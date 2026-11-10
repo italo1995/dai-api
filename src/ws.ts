@@ -83,6 +83,22 @@ async function resyncMissedOffersOnConnect(pSocket: any, pAuth: any): Promise<vo
   }
 }
 
+// Actualiza el statusDriver del usuario que la conexion tiene en memoria ('auth'/'user').
+// Ese objeto se carga una sola vez al conectar (modelUser.findByPk en verifyTokenUser) y 'coords'
+// lo reenvia tal cual a los admins en 'coordsDriver' - si nadie lo actualiza, el panel recibe el
+// estado de cuando el conductor abrio la app (bug de "Conductores activos": conductor disponible
+// que el mapa seguia viendo inactivo/ocupado). Puede ser instancia de Sequelize o plano.
+function fxSetStatusDriverInMemory(pUser: any, pStatusDriver: EStatusDriver | null | undefined): void {
+  if (!pUser || typeof pUser !== 'object' || pStatusDriver === null || pStatusDriver === undefined) {
+    return
+  }
+  const vStatus = Number(pStatusDriver)
+  if (pUser.dataValues) {
+    pUser.dataValues.statusDriver = vStatus
+  }
+  pUser.statusDriver = vStatus
+}
+
 // Creamos una clase SocketService que tendrá los métodos para inicializar y manejar el socket
 interface IDataError {
   url: string
@@ -96,12 +112,43 @@ export class SocketService {
   // Cache en memoria de los socketId de administradores/operadores conectados, para no
   // consultar la base de datos en cada tick de 'coords' solo para saber a quien avisar.
   static adminSocketIds: Set<string> = new Set()
+  // Ultimo statusDriver conocido por conductor (userId -> estado), en memoria del proceso. Lo
+  // llenan notifyDriverStatusChanged() (todo cambio de estado pasa por ahi) y la lectura de la
+  // base que 'coords' ya hace en cada tick. 'coords' lo usa para corregir el usuario en memoria
+  // de la conexion del conductor antes de mandar 'coordsDriver' - cubre los cambios hechos desde
+  // OTRA conexion o por HTTP (ej. el pasajero acepta la oferta -> conductor ocupado), que no
+  // pueden tocar el 'auth' de este socket.
+  static driverStatusById: Map<string, EStatusDriver> = new Map()
   constructor() {}
 
   private static registerAdminSocket(pAuth: any, pSocketId: string): void {
     const vRolId = pAuth?.rolId ?? pAuth?.dataValues?.rolId
     if (vRolId === 1 || vRolId === 2) {
       SocketService.adminSocketIds.add(pSocketId)
+    }
+  }
+
+  // Evento 'driverStatusChanged' -> admins/operadores conectados (panel web, "Conductores
+  // activos"). Payload: { userId: string, statusDriver: EStatusDriver } (0 inactivo, 1
+  // disponible, 2 ocupado). Se emite en TODO cambio de estado del conductor (antes solo se
+  // avisaba al pasar a inactivo/ocupado, y nunca al volver a disponible). Liviano a proposito:
+  // no consulta la base, el panel ya tiene el resto de los datos del conductor.
+  static notifyDriverStatusChanged(pUserId: string | null | undefined, pStatusDriver: EStatusDriver): void {
+    try {
+      if (!pUserId) {
+        return
+      }
+      SocketService.driverStatusById.set(pUserId, Number(pStatusDriver))
+      const vSocketIds: string[] = [...SocketService.adminSocketIds]
+      if (!vSocketIds.length || !SocketService.io) {
+        return
+      }
+      SocketService.io.to(vSocketIds).emit('driverStatusChanged', {
+        userId: pUserId,
+        statusDriver: Number(pStatusDriver),
+      })
+    } catch (error) {
+      console.log('notifyDriverStatusChanged error', error)
     }
   }
 
@@ -199,6 +246,10 @@ export class SocketService {
       }
       // Actualizamos el socket del usuario en la base de datos
       await ClassAuthService.updateSocket(user)
+      // 'auth' acaba de leerse de la base: manda sobre cualquier estado viejo en cache.
+      if (auth?.id) {
+        SocketService.driverStatusById.delete(auth.id)
+      }
       SocketService.registerAdminSocket(auth, socketId)
       SocketService.registerFanoutDevice(auth, socketId)
       // No se espera (no bloquea la conexion) - es un "mejor esfuerzo" de recuperar ofertas
@@ -285,12 +336,23 @@ export class SocketService {
         if (vUser?.id) {
           const vUserDB = await ClassAuthService.updateSocket(vUser)
           console.log('changeState aplicado', { userId: vUser.id, statusDriver: pStateDriver })
-          if (Number(vUser.statusDriver) === EStatusDriver.INACTIVE || Number(vUser.statusDriver) === EStatusDriver.BUSSY) {
-            const admin = await ClassUserService.allUserAdmin()
-            const socketIds: any[] = admin.map((vUser: any) => vUser.socketId)
-            if (vUserDB !== null && vUserDB?.dataValues?.id ) {
-              const vUserDisconnect = await ClassAuthService.show(vUserDB.dataValues.id)
-              SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
+          if (vUserDB !== null && vUserDB?.dataValues?.id) {
+            // Mantener al dia el usuario en memoria de esta conexion: es el que viaja en cada
+            // 'coordsDriver' (ver fxSetStatusDriverInMemory).
+            fxSetStatusDriverInMemory(auth, vUserDB.dataValues.statusDriver)
+            fxSetStatusDriverInMemory(user, vUserDB.dataValues.statusDriver)
+            // Aviso liviano a los admins en todo cambio (tambien al volver a disponible).
+            SocketService.notifyDriverStatusChanged(vUserDB.dataValues.id, vUserDB.dataValues.statusDriver!)
+            // 'userDisconnect' (usuario completo) se mantiene para inactivo/ocupado por
+            // compatibilidad con el panel ya desplegado. Ahora va a SocketService.adminSocketIds
+            // (todas las conexiones de admin vivas) en vez de users.socket_id de allUserAdmin(),
+            // que solo guarda el ultimo dispositivo de cada admin y puede estar viejo.
+            if (Number(vUser.statusDriver) === EStatusDriver.INACTIVE || Number(vUser.statusDriver) === EStatusDriver.BUSSY) {
+              const socketIds: string[] = [...SocketService.adminSocketIds]
+              if (socketIds.length) {
+                const vUserDisconnect = await ClassAuthService.show(vUserDB.dataValues.id)
+                SocketService.io.to(socketIds).emit('userDisconnect', vUserDisconnect)
+              }
             }
           }
         } else {
@@ -322,6 +384,17 @@ export class SocketService {
           // guardado al conectar.
           socketId: socketId,
         }
+        // Sin viaje en curso: guardar ubicacion/socket ANTES de avisar a los admins (antes iba
+        // despues, en la rama sin tripId de mas abajo - misma condicion, misma llamada).
+        // updateSocket ya lee la fila del usuario en cada tick, asi que se aprovecha (sin query
+        // extra) para conocer su statusDriver real.
+        if (!coords?.tripId && vUser?.id && vUser?.lat && vUser?.lon) {
+          const vUserDB = await ClassAuthService.updateSocket(vUser)
+          const vDbStatus = vUserDB?.dataValues?.statusDriver
+          if (vDbStatus !== undefined && vDbStatus !== null) {
+            SocketService.driverStatusById.set(vUser.id, Number(vDbStatus))
+          }
+        }
         if (coords?.isDriver) {
           const socketIds: any[] = [...SocketService.adminSocketIds]
           if (socketIds.length) {
@@ -333,6 +406,13 @@ export class SocketService {
             // (varios joins + un COUNT) en cada tick de ubicacion.
             const vConnectedUser = auth || user
             if (coords.userId && coords.userId === vUser.id && vConnectedUser) {
+              // El usuario en memoria se cargo al conectar: corregir su statusDriver con el
+              // ultimo estado conocido (ver SocketService.driverStatusById).
+              const vKnownStatus = SocketService.driverStatusById.get(vUser.id)
+              if (vKnownStatus !== undefined) {
+                fxSetStatusDriverInMemory(auth, vKnownStatus)
+                fxSetStatusDriverInMemory(user, vKnownStatus)
+              }
               coords.user = vConnectedUser
               SocketService.io.to(socketIds).emit('coordsDriver', coords)
             } else if (coords.userId) {
@@ -406,9 +486,7 @@ export class SocketService {
             }
           }
         } else if (vUser?.lat && vUser?.lon) {
-          if (vUser?.id) {
-            await ClassAuthService.updateSocket(vUser)
-          }
+          // (la ubicacion ya se guardo arriba, antes de avisar a los admins)
           // Solo con un conductor identificado en el socket: sin usuario (socket sin auth) no hay
           // a quien actualizarle la ubicacion ni vehiculo con el que filtrar viajes, y antes esto
           // terminaba en VehicleTypeService.show(undefined) -> "WHERE parameter \"id\" has invalid
@@ -480,6 +558,7 @@ export class SocketService {
           statusDriver: EStatusDriver.BUSSY,
         }
         const vDriver: IUserInstance | null = await ClassAuthService.updateSocket(updateDriver)
+        SocketService.notifyDriverStatusChanged(updateDriver.id, EStatusDriver.BUSSY)
         const vTripId = Number(vTripOffer.dataValues.tripId)
         const vTrip = await ClassTripService.showId({
           id: vTripId,
@@ -607,6 +686,9 @@ export class SocketService {
           { where: { tripId: data.tripId } }
         )
         await ClassAuthService.updateSocket({ id: vDriverId, statusDriver: EStatusDriver.BUSSY })
+        fxSetStatusDriverInMemory(auth, EStatusDriver.BUSSY)
+        fxSetStatusDriverInMemory(user, EStatusDriver.BUSSY)
+        SocketService.notifyDriverStatusChanged(vDriverId, EStatusDriver.BUSSY)
 
         const vTrip = await modelTrip.findByPk(data.tripId)
         const vDriver = await ClassUserService.show({ id: vDriverId, isDriver: true })
@@ -765,6 +847,9 @@ export class SocketService {
           statusDriver: EStatusDriver.ACTIVE,
           discount: vCommission,
         })
+        fxSetStatusDriverInMemory(auth, EStatusDriver.ACTIVE)
+        fxSetStatusDriverInMemory(user, EStatusDriver.ACTIVE)
+        SocketService.notifyDriverStatusChanged(vCtx.vDriverId, EStatusDriver.ACTIVE)
 
         const vClient = await ClassAuthService.show(vCtx.vOrder.dataValues.customerId)
         const vTripFull = await modelTrip.findByPk(data.tripId)
@@ -904,6 +989,11 @@ export class SocketService {
               discount: commission,
             }
             await ClassAuthService.updateSocket(updateDriver)
+            if (updateDriver.id === (auth?.id || user?.id)) {
+              fxSetStatusDriverInMemory(auth, EStatusDriver.ACTIVE)
+              fxSetStatusDriverInMemory(user, EStatusDriver.ACTIVE)
+            }
+            SocketService.notifyDriverStatusChanged(updateDriver.id, EStatusDriver.ACTIVE)
           }
           await ClassTripService.update({
             id: data.tripId,
