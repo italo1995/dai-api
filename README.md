@@ -19,8 +19,37 @@ comercios afiliados venden productos que se entregan usando la misma red de cond
 
 ### Requisitos
 
-- Node.js
-- PostgreSQL
+- Node.js 24 (probado con 24.12.0)
+- PostgreSQL 16 o superior
+
+### Versiones usadas
+
+Con estas versiones se desarrolló y se corre hoy el proyecto:
+
+| Herramienta | Desarrollo (local) | Producción (VPS) |
+|---|---|---|
+| Node.js | 24.12.0 | 24.12.0 |
+| npm | 11.6.2 | — |
+| PostgreSQL | 16.12 | 17 |
+| pm2 (gestor de procesos) | — | instalado bajo Node 16.13.1, pero ejecuta la app con Node 24.12.0 |
+
+Librerías principales (versión exacta instalada, según `package-lock.json`):
+
+| Librería | Versión |
+|---|---|
+| TypeScript | 6.0.3 |
+| Express | 4.22.2 |
+| Sequelize / sequelize-cli | 6.37.8 / 6.6.5 |
+| pg (driver de PostgreSQL) | 8.22.0 |
+| Socket.io | 4.8.3 |
+| firebase-admin | 12.7.0 |
+| twilio | 4.23.0 |
+| jsonwebtoken | 9.0.3 |
+| swagger-ui-express | 5.0.1 |
+
+> Para instalar exactamente estas versiones usar `npm ci` (respeta `package-lock.json`). En el
+> VPS, pm2 vive en Node 16.13.1: para reiniciar se hace `nvm use 16.13.1` y luego
+> `pm2 restart dai-api`; para `npm ci` y el build se usa `nvm use 24.12.0`.
 
 ### Variables de entorno
 
